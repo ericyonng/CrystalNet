@@ -587,7 +587,7 @@ Int32 _againstLazy = 0
 // CRYSTAL_CHECK_POD
 // cpp20 std::is_pod<>被废弃is_trivially_copyable替代
 #undef CRYSTAL_CHECK_POD
-#if CRYSTAL_NET_CPP20
+#ifdef CRYSTAL_NET_CPP20
  #define CRYSTAL_CHECK_POD(T)       \
         static_assert(std::is_trivially_copyable<T>::value, "not pod type")
 
@@ -595,6 +595,19 @@ Int32 _againstLazy = 0
  #define CRYSTAL_CHECK_POD(T)       \
         static_assert(std::is_pod<T>::value, "not pod type")
         
+#endif
+
+#ifdef _MSC_VER
+// MSVC 使用 __pragma
+#define KERNEL_PRINT_MSG(...) \
+__pragma(message(#__VA_ARGS__))
+#else
+// GCC/Clang 使用 _Pragma
+#define KERNEL_STRINGIZE(x) #x
+#define KERNEL_PRAGMA(x) _Pragma(#x)
+    
+#define KERNEL_PRINT_MSG(...) \
+_Pragma(KERNEL_STRINGIZE(message(#__VA_ARGS__)))
 #endif
 
 #endif

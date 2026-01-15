@@ -28,9 +28,13 @@
 
 #pragma once
 
+#ifdef CRYSTAL_NET_CPP20
+
 #include <kernel/kernel.h>
 #include <type_traits>  
 #include <concepts> 
 
 export module HelloFoo;
+
+#endif
 

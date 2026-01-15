@@ -84,16 +84,20 @@ public:
     template<typename ObjType>
     bool AddTask2(ObjType *obj, void (ObjType::*callback)(LibThread *, Variant *), Variant *params);
     template<typename LambdaType>
+    #ifdef CRYSTAL_NET_CPP20
     requires requires(LambdaType &&invoke, LibThread *thread, Variant *var)
     {
         invoke(thread, var);
     }
+    #endif
     bool AddTask2(LambdaType &&lamb, Variant *params);
     template<typename LambdaType>
+    #ifdef CRYSTAL_NET_CPP20
     requires requires(LambdaType &&invoke, LibThread *thread, Variant *var)
     {
         invoke(thread, var);
     }
+    #endif
     bool AddTask2(LambdaType &&lamb);
     
     // 是否销毁
@@ -115,8 +119,11 @@ public:
 
     LibString ToString() const;
 
+#ifdef CRYSTAL_NET_CPP20
     CoTask<const Poller *> GetPoller() const;
     CoTask<Poller *> GetPoller();
+#endif
+
     const Poller * GetPollerNoAsync() const;
     Poller * GetPollerNoAsync();
 
@@ -268,10 +275,12 @@ ALWAYS_INLINE bool LibThread::AddTask2(ObjType *obj, void (ObjType::*callback)(L
 }
 
 template<typename LambdaType>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(LambdaType &&invoke, LibThread *thread, Variant *var)
 {
     invoke(thread, var);
 }
+#endif
 ALWAYS_INLINE bool LibThread::AddTask2(LambdaType &&lamb, Variant *params)
 {
     auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(lamb, void, LibThread *, Variant *);
@@ -287,10 +296,12 @@ ALWAYS_INLINE bool LibThread::AddTask2(LambdaType &&lamb, Variant *params)
 }
 
 template<typename LambdaType>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(LambdaType &&invoke, LibThread *thread, Variant *var)
 {
     invoke(thread, var);
 }
+#endif
 ALWAYS_INLINE bool LibThread::AddTask2(LambdaType &&lamb)
 {
     return AddTask2(std::forward<LambdaType>(lamb), nullptr);

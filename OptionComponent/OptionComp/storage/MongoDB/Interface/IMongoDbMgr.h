@@ -47,9 +47,11 @@ public:
 
     virtual  void SetUri(mongocxx::uri &&uri) = 0;
 
+#ifdef CRYSTAL_NET_CPP20
     // 查
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, UInt64 keyValue) = 0;
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, KERNEL_NS::LibString keyValue) = 0;
+#endif
 
     // 增, 删, 改, 查
 };

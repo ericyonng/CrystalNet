@@ -37,12 +37,14 @@
 #include <kernel/common/BaseType.h>
 
 #include <kernel/comp/CompObject/CompObject.h>
+#include <vector>
 
 KERNEL_BEGIN
 
 class IProtocolStack;
 struct PollerEvent;
 class LibSession;
+class IService;
 
 class KERNEL_EXPORT IServiceProxy : public CompObject
 {
@@ -55,6 +57,8 @@ public:
     virtual void PostMsg(UInt64 serviceId, PollerEvent *msg, Int64 packetsCount = 0) = 0;
     virtual void PostQuitService() = 0;
     virtual IProtocolStack *GetProtocolStack(LibSession *session) = 0;
+
+    virtual bool IsServiceReady(const KERNEL_NS::LibString &serviceName) const = 0;
 };
 
 KERNEL_END

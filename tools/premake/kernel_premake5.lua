@@ -53,7 +53,9 @@ project "CrystalKernel"
 
     -- 使用curl静态库 linux 下没有$(Configuration)替换, 只有windows才有
 	defines { "CURL_STATICLIB" }
-	defines { "CRYSTAL_NET_CPP20"}
+    if not NOT_USE_CPP20 then
+	    defines { "CRYSTAL_NET_CPP20"}
+    end
 	defines { "YAML_CPP_STATIC_DEFINE" }
 
     libdirs { 

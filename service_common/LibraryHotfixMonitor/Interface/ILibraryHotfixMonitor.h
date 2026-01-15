@@ -66,29 +66,35 @@ public:
 
     // cb 的参数是 HotFixContainerElemType &
     template<typename CallbackType>
+    #ifdef CRYSTAL_NET_CPP20
     requires requires(CallbackType cb, HotFixContainerElemType &container)
     {
         cb(container);
     }
+    #endif
     void AddHotFixListener(CallbackType &&cb);
 
     // 热更完成回调
     // @param(cb):cb的参数是当次热更的所有hotfixKey
     virtual void AddHotFixCompleteCallback(KERNEL_NS::IDelegate<void, const std::set<KERNEL_NS::LibString> &> *cb) = 0;
     template<typename CallbackType>
+    #ifdef CRYSTAL_NET_CPP20
     requires requires(CallbackType cb, const std::set<KERNEL_NS::LibString> &container)
     {
         cb(container);
     }
+    #endif
     void AddHotFixCompleteCallback(CallbackType &&cb);
 };
 
 // cb 的参数是 HotFixContainerElemType &
 template<typename CallbackType>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(CallbackType cb, HotFixContainerElemType &container)
 {
     cb(container);
 }
+#endif
 ALWAYS_INLINE void ILibraryHotfixMonitor::AddHotFixListener(CallbackType &&cb)
 {
     auto deleg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, HotFixContainerElemType &);
@@ -96,10 +102,12 @@ ALWAYS_INLINE void ILibraryHotfixMonitor::AddHotFixListener(CallbackType &&cb)
 }
 
 template<typename CallbackType>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(CallbackType cb, const std::set<KERNEL_NS::LibString> &container)
 {
     cb(container);
 }
+#endif
 ALWAYS_INLINE void ILibraryHotfixMonitor::AddHotFixCompleteCallback(CallbackType &&cb)
 {
     auto deleg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, const std::set<KERNEL_NS::LibString> &);

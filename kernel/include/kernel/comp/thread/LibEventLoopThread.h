@@ -64,11 +64,14 @@ public:
      // 等待退出
      void FinishClose();
 
+#ifdef CRYSTAL_NET_CPP20
      CoTask<const Poller *> GetPoller() const;
      CoTask<Poller *> GetPoller();
+#endif
      const Poller * GetPollerNoAsync() const;
      Poller * GetPollerNoAsync();
  
+ #ifdef CRYSTAL_NET_CPP20
     // 调用者当前线程投递req给this
     // req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
     // req/res 必须实现Release, ToString接口
@@ -106,13 +109,16 @@ public:
         auto poller = co_await GetPoller();
         poller->template Send<ReqType>(req);
     }
+#endif
 
     // 线程中执行行为
     template<typename LambdaType>
+    #ifdef CRYSTAL_NET_CPP20
     requires requires (LambdaType lam) 
     {
         {lam()} -> std::convertible_to<void>;
     }
+    #endif
     void Send(LambdaType &&lambda)
     {
         auto poller = GetPollerNoAsync();
@@ -123,6 +129,7 @@ public:
     }
     
     // 线程中执行lambda行为并返回结果到调用线程
+    #ifdef CRYSTAL_NET_CPP20
     template<typename ResType, typename LambdaType>
     requires requires(LambdaType lambda, ResType res)
     {
@@ -142,6 +149,7 @@ public:
          auto poller = co_await GetPoller();
          co_return co_await poller->template SendAsync<ResType, LambdaType>(std::forward<LambdaType>(lamb));
     }
+    #endif
     
 private:
     LibThread *_thread;

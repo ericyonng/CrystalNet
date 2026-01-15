@@ -50,8 +50,10 @@ public:
     virtual void OnRegisterComps() override;
 
     void SetUri(mongocxx::uri &&uri) override;
+    #ifdef CRYSTAL_NET_CPP20
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, UInt64 keyValue) override;
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, KERNEL_NS::LibString keyValue) override;
+    #endif
     
 protected:
     virtual Int32 _OnHostInit() override;

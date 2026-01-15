@@ -450,13 +450,13 @@ void ClientUser::_OnLoginConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS:
     LoginReq req;
     *req.mutable_loginuserinfo() = _loginInfo;
     auto newPacektId = Send(Opcodes::OpcodeConst::OPCODE_LoginReq, req);
-    if(newPacektId < 0)
-    {
-        _clientInfo->set_clientstatus(ClientUserStatus::UNLOGIN);
-        _activedSessionId = 0;
-        g_Log->Warn(LOGFMT_OBJ_TAG("send login req fail"));
-        return;
-    }
+    // if(newPacektId < 0)
+    // {
+    //     _clientInfo->set_clientstatus(ClientUserStatus::UNLOGIN);
+    //     _activedSessionId = 0;
+    //     g_Log->Warn(LOGFMT_OBJ_TAG("send login req fail"));
+    //     return;
+    // }
 
     _userMgr->AddUserBySessionId(_activedSessionId, this);
 }

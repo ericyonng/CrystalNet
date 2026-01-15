@@ -134,10 +134,12 @@ struct KERNEL_EXPORT StubPollerEvent : public PollerEvent
 
 // obj对象得有Release实现
 template<typename ObjType>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(ObjType obj)
 {
     obj.Release();
 }
+#endif
 struct KERNEL_EXPORT ObjectPollerEvent : public StubPollerEvent
 {
     POOL_CREATE_TEMPLATE_OBJ_DEFAULT_P1(StubPollerEvent, ObjectPollerEvent, ObjType)
@@ -173,10 +175,12 @@ struct KERNEL_EXPORT ObjectPollerEvent : public StubPollerEvent
 };
 
 template<typename ObjType>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(ObjType obj)
 {
     obj.Release();
 }
+#endif
 POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(ObjectPollerEvent, ObjType);
 
 struct KERNEL_EXPORT BatchPollerEvent : public PollerEvent

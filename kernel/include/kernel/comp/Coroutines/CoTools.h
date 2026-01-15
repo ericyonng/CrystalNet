@@ -40,6 +40,7 @@
 
 KERNEL_BEGIN
 
+#ifdef CRYSTAL_NET_CPP20
 void CoToolsPushPoller(KERNEL_NS::AsyncTaskPollerEvent *ev);
     
 // AsyncTask事件
@@ -54,6 +55,8 @@ ALWAYS_INLINE void PostAsyncTask(CallerType &&cb)
     task->_handler = delg;
     CoToolsPushPoller(ev);
 }
+
+#endif
 
 KERNEL_END
 

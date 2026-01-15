@@ -168,10 +168,12 @@ public:
     }
 
     template<typename T>
+    #ifdef CRYSTAL_NET_CPP20
     requires requires(T func, lua_State *ls)
     {
         func(ls);
     }
+    #endif
     void  Reg(T a);
 
     void Call(const char* funcName) 
@@ -319,10 +321,12 @@ ALWAYS_INLINE int  KernelLua::SetGlobalVariable(const char* fieldName, const T& 
 }
 // T 必须是: void func(lua_State *)
 template<typename T>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(T func, lua_State *ls)
 {
     func(ls);
 }
+#endif
 ALWAYS_INLINE void  KernelLua::Reg(T a)
 {
     a(this->GetLuaState());

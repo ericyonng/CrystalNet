@@ -338,6 +338,12 @@ Int32 UserMgr::Login(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS:
     auto user = GetUser(pendingInfo->_byAccountName);
     if(!user)
     {
+        auto authRoleConfig = CetAuthRoleConfig(pendingInfo->_byAccountName);
+        if (authRoleConfig)
+        {
+            return AuthRoleLogin(*authRoleConfig, pendingInfo);
+        }
+        
         // 查库
         return LoadUser(pendingInfo->_byAccountName, pendingInfo);
     }
@@ -349,6 +355,12 @@ Int32 UserMgr::Login(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS:
     if(LIKELY(pendingInfo->_sessionId))
     {
         const auto &curTime = KERNEL_NS::LibTime::Now();
+
+        auto authRoleConfig = CetAuthRoleConfig(pendingInfo->_byAccountName);
+        if (authRoleConfig)
+        {
+            return AuthRoleLogin(*authRoleConfig, user, pendingInfo);
+        }
 
         // 校验登录
         auto loginMgr = user->GetComp<ILoginMgr>();
@@ -527,6 +539,275 @@ Int32 UserMgr::LoadUser(const KERNEL_NS::LibString &accountName, KERNEL_NS::Smar
 
     return Status::Success;
 }
+
+Int32 UserMgr::CheckAuthRole(const RoleAuthConfig &config, const PendingUser *pendingUser) const
+{
+    // 注册登录: pwd校验, 账号校验, 登录设备校验, 密文校验
+    if(!pendingUser->_loginInfo)
+    {// TODO:需要外部校验
+        g_Log->Warn(LOGFMT_OBJ_TAG("have no login info user:%s, accountName:%s"), pendingUser->ToString().c_str(), config._id.c_str());
+        return Status::ParamError;
+    }
+
+    auto &rsa = GetRsa();
+    auto &loginInfo = *pendingUser->_loginInfo;
+    if(loginInfo.cyphertext().empty())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("cypher test is empty user:%s, accountName:%s"), pendingUser->ToString().c_str(), config._id.c_str());
+        return Status::Failed;
+    }
+
+    const auto &cypherRaw = KERNEL_NS::LibBase64::Decode(loginInfo.cyphertext());
+    if(cypherRaw.empty())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("cypher test is empty user:%s, accountName:%s"), pendingUser->ToString().c_str(), config._id.c_str());
+        return Status::Failed;
+    }
+    KERNEL_NS::LibString textRaw;
+    rsa.PrivateKeyDecrypt(cypherRaw, textRaw);
+    if(textRaw.empty())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("client not no author user:%s, accountName:%s"), pendingUser->ToString().c_str(), config._id.c_str());
+        return Status::Failed;
+    }
+    if(textRaw.GetRaw() != loginInfo.origintext())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("client not no author user:%s, accountName:%s"), pendingUser->ToString().c_str(), config._id.c_str());
+        return Status::Failed;
+    }
+
+    // TODO:
+    const auto &nowTime = KERNEL_NS::LibTime::Now();
+    {// 校验密码
+        if(pendingUser->_loginInfo->pwd().empty())
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("pwd invalid user:%s, accountName:%s"), pendingUser->ToString().c_str(), config._id.c_str());
+            return Status::InvalidPwd;
+        }
+
+        // 还原密码
+        const auto cypherPwd = KERNEL_NS::LibBase64::Decode(pendingUser->_loginInfo->pwd());
+        KERNEL_NS::LibString pwd;
+        rsa.PrivateKeyDecrypt(cypherPwd, pwd);
+        if(pwd.empty())
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("pwd empty user:%s, accountName:%s"), pendingUser->ToString().c_str(), config._id.c_str());
+            return Status::InvalidPwd;
+        }
+
+        if (config._pwd != pwd)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("pwd invalid user:%s, accountName:%s"), pendingUser->ToString().c_str(), config._id.c_str());
+            return Status::InvalidPwd;
+        }
+    }
+
+    return Status::Success;
+}
+
+Int32 UserMgr::AuthRoleLogin(const RoleAuthConfig &config, IUser *user, KERNEL_NS::SmartPtr<PendingUser, KERNEL_NS::AutoDelMethods::CustomDelete> &pendingUser)
+{
+    auto st = CheckAuthRole(config, pendingUser);
+    if (st != Status::Success)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("CheckAuthRole fail, accountName:%s, new pending:%s")
+    , config._id.c_str(), pendingUser->ToString().c_str());
+
+        if (pendingUser->_cb)
+        {
+            pendingUser->_cb->Invoke(st, pendingUser, user, pendingUser->_var);
+        }
+        return st;
+    }
+
+    if(pendingUser->_sessionId == user->GetSessionId())
+        g_Log->Warn(LOGFMT_OBJ_TAG("user repeate login in same session user:%s"), user->ToString().c_str());
+
+    // 不同会话顶号
+    if(user->IsLogined())
+        user->Logout(LogoutReason::LOGIN_OTHER_PLACE, true, pendingUser->_sessionId);
+
+    user->BindSession(pendingUser->_sessionId);
+    user->OnLogin();
+    user->OnLoginFinish();
+
+    if (pendingUser->_cb)
+    {
+        pendingUser->_cb->Invoke(Status::Success, pendingUser, user, pendingUser->_var);
+    }
+
+    auto loginInfo = pendingUser->_loginInfo;
+    auto baseInfo = user->GetUserBaseInfo();
+    auto addr = user->GetUserAddr();
+    baseInfo->set_lastlogintime(KERNEL_NS::LibTime::Now().GetMilliTimestamp());
+    baseInfo->set_lastloginphoneimei(loginInfo->loginphoneimei());
+    baseInfo->set_lastloginip(addr->_ip.GetRaw());
+
+    _RemoveFromLru(user);
+    user->UpdateLrtTime();
+    _AddToLru(user);
+
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("AuthRoleLogin user already online user :%s, pending:%s"), user->ToString().c_str(), pendingUser->ToString().c_str());
+
+    return Status::Success;
+}
+
+Int32 UserMgr::AuthRoleLogin(const RoleAuthConfig &config, KERNEL_NS::SmartPtr<PendingUser, KERNEL_NS::AutoDelMethods::CustomDelete> &pendingUser)
+{
+    // 补全信息
+    pendingUser->_byAccountName = config._id;
+    auto stubMgr = GetGlobalSys<IStubHandleMgr>();
+    pendingUser->_stub = stubMgr->NewStub();
+
+    auto st = CheckAuthRole(config, pendingUser);
+    if (st != Status::Success)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("CheckAuthRole fail, accountName:%s, exists pending:%s, new pending:%s")
+    , config._id.c_str(), pendingUser->ToString().c_str(), pendingUser->ToString().c_str());
+
+        if(LIKELY(pendingUser->_cb))
+        {
+            pendingUser->_cb->Invoke(st, pendingUser, NULL, pendingUser->_var);
+        }
+        return st;
+    }
+
+    IUser *user = NULL;
+    Int32 err = Status::Success;
+     do
+     {
+         KERNEL_NS::SmartPtr<User, KERNEL_NS::AutoDelMethods::CustomDelete> u = User::NewThreadLocal_User(this);
+         u.SetClosureDelegate([](void *p)
+         {
+             auto ptr = reinterpret_cast<User *>(p);
+
+             ptr->WillClose();
+             ptr->Close();
+
+             User::DeleteThreadLocal_User(ptr);
+         });
+
+         u->SetUserStatus(UserStatus::USER_INITING);
+         err = u->Init();
+         if(err != Status::Success)
+         {
+             g_Log->Warn(LOGFMT_OBJ_TAG("user init fail err:%d, pending info:%s"), err, pendingUser->ToString().c_str());
+             break;
+         }
+         u->SetUserStatus(UserStatus::USER_INITED);
+
+         u->SetUserStatus(UserStatus::USER_STARTING);
+         err = u->Start();
+         if(err != Status::Success)
+         {
+             g_Log->Warn(LOGFMT_OBJ_TAG("user init fail err:%d, pending info:%s"), err, pendingUser->ToString().c_str());
+             break;
+         }
+         u->SetUserStatus(UserStatus::USER_STARTED);
+
+         u->SetUserStatus(UserStatus::USER_ONLOADING);
+         KERNEL_NS::SmartPtr<UserBaseInfoFactory, KERNEL_NS::AutoDelMethods::Release> userBaseInfoFactory = UserBaseInfoFactory::CreateFactory();
+         auto userInfo = dynamic_cast<UserBaseInfo *>(userBaseInfoFactory->Create());
+         userInfo->set_userid(KERNEL_NS::TlsUtil::GetIdGenerator()->NewId());
+         userInfo->set_accountname(config._id.GetRaw());
+         userInfo->set_name(config._id.GetRaw());
+         userInfo->set_nickname(config._id.GetRaw());
+         u->SetUserBaseInfo(userInfo);
+         u->SetUserStatus(UserStatus::USER_ONLOADED);
+
+         _AddUser(u.AsSelf());
+         user = u.pop();
+     }
+     while (false);
+
+    if(LIKELY(user))
+    {
+        auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::USER_OBJ_CREATED);
+        ev->SetParam(Params::USER_OBJ, user);
+        GetEventMgr()->FireEvent(ev);
+        
+        _RemoveFromLru(user);
+        user->UpdateLrtTime();
+        _AddToLru(user);
+    }
+
+    if((!user) || (err != Status::Success))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("user fail err:%d, pending info:%s"), err, pendingUser->ToString().c_str());
+
+        if(LIKELY(pendingUser->_cb))
+        {
+            pendingUser->_cb->Invoke(err, pendingUser, NULL, pendingUser->_var);
+        }
+
+        _RemovePendingInfo(pendingUser->_byAccountName);
+        _RemovePendingInfo(pendingUser->_byUserId);
+
+        return err;
+    }
+
+    if(pendingUser->_sessionId)
+        user->BindSession(pendingUser->_sessionId);
+
+    // 创建对象时调用
+    user->OnUserObjCreated();
+
+    // 登录
+    if(pendingUser->_sessionId)
+    {
+        user->OnLogin();
+        user->OnLoginFinish();
+    }
+
+    auto baseInfo = user->GetUserBaseInfo();
+
+    // 最后登录信息
+    if(pendingUser->_sessionId)
+    {
+        auto loginInfo = pendingUser->_loginInfo;
+        auto addr = user->GetUserAddr();
+        const auto &nowTime = KERNEL_NS::LibTime::Now();
+        baseInfo->set_lastlogintime(nowTime.GetMilliTimestamp());
+        baseInfo->set_lastloginphoneimei(loginInfo->loginphoneimei());
+        baseInfo->set_lastloginip(addr->_ip.GetRaw());
+        baseInfo->set_createip(addr->_ip.GetRaw());
+        baseInfo->set_createtime(nowTime.GetMilliTimestamp());
+    }
+
+    // 登录事件
+    if(pendingUser->_sessionId)
+    {
+        auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::USER_LOGIN);
+        ev->SetParam(Params::USER_OBJ, user);
+        GetEventMgr()->FireEvent(ev);
+    }
+
+    // 处理回调
+    if(LIKELY(pendingUser->_cb))
+    {
+        pendingUser->_cb->Invoke(Status::Success, pendingUser, user, pendingUser->_var);
+    }
+
+    _RemovePendingInfo(pendingUser->_byAccountName);
+    _RemovePendingInfo(pendingUser->_byUserId);
+
+    // lru操作
+    _LruPopUser();
+
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("AuthRoleLogin user login success user :%s, pending:%s"), user->ToString().c_str(), pendingUser->ToString().c_str());
+    
+    return Status::Success;
+}
+
+const RoleAuthConfig *UserMgr::CetAuthRoleConfig(const KERNEL_NS::LibString &accountName) const
+{
+    auto configLoader = GetService()->GetComp<ConfigLoader>();
+    auto roleAuthMgr = configLoader->GetComp<RoleAuthConfigMgr>();
+    return roleAuthMgr->GetConfigById(accountName);  
+}
+
 
 bool UserMgr::IsPhoneNumberBinded(const IUser *operateUser, UInt64 phoneNubmer, const std::set<UInt64> &excludeUserIds, bool &hasBindPhone) const
 {
@@ -1156,11 +1437,11 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
             user = u.pop();
             MaskNumberKeyAddDirty(user->GetUserId());
 
-            u->SetUserStatus(UserStatus::USER_ONLOADING);
+            user->SetUserStatus(UserStatus::USER_ONLOADING);
             auto dbMgr = GetGlobalSys<IMysqlMgr>();
             dbMgr->PurgeAndWaitComplete(this);
 
-            u->SetUserStatus(UserStatus::USER_ONLOADED);
+            user->SetUserStatus(UserStatus::USER_ONLOADED);
         }
         else
         {

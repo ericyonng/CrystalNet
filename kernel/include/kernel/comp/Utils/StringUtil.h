@@ -43,13 +43,16 @@
 #include <map>
 #include <unordered_map>
 #include <list>
+#ifdef CRYSTAL_NET_CPP20
 #include <concepts>
 #include <ranges>
+#endif
 
 #include "kernel/comp/LibList.h"
 
 KERNEL_BEGIN
-    class LibTime;
+    
+class LibTime;
 
 class KERNEL_EXPORT StringUtil
 {
@@ -125,6 +128,7 @@ public:
 
 	// T具有范围, 且嵌套value_type类型, CallbackType形参得是value_type, 返回值LibString
 	template<typename T, typename CallbackType>
+	#ifdef CRYSTAL_NET_CPP20
 	// T具有范围
 	requires std::ranges::range<T> 
 	// T必须有 value_type 类型
@@ -137,14 +141,17 @@ public:
 	{
 		{ cb(value)	} -> std::same_as<KERNEL_NS::LibString>; 
 	}
+	#endif
 	static LibString ToStringBy(const T &contentsContainer, const LibString &sep, CallbackType &&cb);
 
     // callback 需要传key,value进去, 返回string
     template<typename K, typename V, typename CallbackType>
+	#ifdef CRYSTAL_NET_CPP20
     requires requires(K key, V value,  CallbackType cb)
     {
         { cb(key, value) } -> std::same_as<KERNEL_NS::LibString>; 
     }
+	#endif
     static LibString ToStringBy(const std::map<K, V> &dict, const LibString &sep, CallbackType &&cb);
 	
 	// 校验标准名字:英文, 数字, 下划线, 且首字母非数字, name 长度为0也是非法
@@ -479,6 +486,7 @@ ALWAYS_INLINE LibString StringUtil::ToString(const std::list<V> &contents, const
 }
 
 template<typename T, typename CallbackType>
+#ifdef CRYSTAL_NET_CPP20
 // T具有范围
 requires std::ranges::range<T> 
 // T必须有 value_type 类型
@@ -491,6 +499,7 @@ requires std::ranges::range<T>
 {
 	{ cb(value)	} -> std::same_as<KERNEL_NS::LibString>; 
 }
+#endif
 ALWAYS_INLINE LibString StringUtil::ToStringBy(const T &contentsContainer, const LibString &sep, CallbackType &&cb)
 {
 	std::vector<LibString> strs;
@@ -502,10 +511,12 @@ ALWAYS_INLINE LibString StringUtil::ToStringBy(const T &contentsContainer, const
 
 // callback 需要传key,value进去, 返回string
 template<typename K, typename V, typename CallbackType>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(K key, V value,  CallbackType cb)
 {
     { cb(key, value) } -> std::same_as<KERNEL_NS::LibString>; 
 }
+#endif
 ALWAYS_INLINE LibString StringUtil::ToStringBy(const std::map<K, V> &dict, const LibString &sep, CallbackType &&cb)
 {
     std::vector<LibString> strs;

@@ -48,8 +48,10 @@ KERNEL_END
 
 SERVICE_BEGIN
 
+#ifdef CRYSTAL_NET_CPP20
 template<bool T>
 concept NeedReponseAdapter = std::bool_constant<T>::value;
+#endif
 
 class IGlobalSys : public ILogicSys
 {
@@ -95,6 +97,7 @@ public:
     void Send(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = 0) const;
 
     // 使用协程发送和接收返回消息, 由于会动态订阅Response消息, 那么之前已经订阅了Response消息的则会失效, 必须设置packetId用于回调
+    #ifdef CRYSTAL_NET_CPP20
     template<typename CoderType>
     CRYSTAL_NET::kernel::CoTask<KERNEL_NS::SmartPtr<KERNEL_NS::LibPacket, KERNEL_NS::AutoDelMethods::Release>> SendCo(UInt64 sessionId, Int32 opcode, KERNEL_NS::SmartPtr<CoderType, KERNEL_NS::AutoDelMethods::Release> coder, Int64 packetId)
     {
@@ -154,6 +157,7 @@ public:
         *ptr = NULL;
         co_return KERNEL_NS::SmartPtr<KERNEL_NS::LibPacket,  KERNEL_NS::AutoDelMethods::Release>(packet);
     }
+#endif
 
     Int64 NewPacketId(UInt64 sessionId) const;
     

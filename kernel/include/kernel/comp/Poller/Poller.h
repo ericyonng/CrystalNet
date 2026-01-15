@@ -42,6 +42,7 @@
 #include <kernel/comp/ConcurrentPriorityQueue/ConcurrentPriorityQueue.h>
 #include <kernel/comp/Cpu/LibCpuCounter.h>
 #include <kernel/comp/LibList.h>
+#include <kernel/comp/Log/log.h>
 
 #include <unordered_map>
 #include <atomic>
@@ -53,10 +54,14 @@
 
 #include <kernel/comp/Poller/Channel.h>
 #include "kernel/comp/ConcurrentPriorityQueue/MPMCQueue.h"
-#include <concepts>
+
+#ifdef CRYSTAL_NET_CPP20
+ #include <concepts>
+#endif
 
 KERNEL_BEGIN
-    class Channel;
+
+class Channel;
 
 struct PollerEvent;
 
@@ -140,53 +145,65 @@ public:
 
     // 订阅对象消息（对象消息只能本进程, 因为对象id是本地生成, 如果要实现远程，必须使用字符串映射到本地的对象id）
     template<typename ObjectType>
+#ifdef CRYSTAL_NET_CPP20
     requires requires(ObjectType obj)
     {
         obj.Release();
         obj.ToString();
     }
+#endif
     void SubscribeObjectEvent(IDelegate<void, StubPollerEvent *> *cb);
     template<typename ObjectType, typename ObjType>
+#ifdef CRYSTAL_NET_CPP20
     requires requires(ObjectType obj)
     {
         obj.Release();
         obj.ToString();
     }
+#endif
     void SubscribeObjectEvent(ObjType *obj, void (ObjType::*handler)(KERNEL_NS::StubPollerEvent *));
     template<typename ObjectType>
+#ifdef CRYSTAL_NET_CPP20
     requires requires(ObjectType obj)
     {
         obj.Release();
         obj.ToString();
     }
+#endif
     void SubscribeObjectEvent(void (*handler)(KERNEL_NS::StubPollerEvent *));
     template<typename ObjectType, typename  LambType>
+#ifdef CRYSTAL_NET_CPP20
     requires requires(ObjectType obj, LambType lamb, KERNEL_NS::StubPollerEvent *ev)
     {
         obj.Release();
         obj.ToString();
         lamb(ev);
     }
+#endif
     void SubscribeObjectEvent(LambType &&lamb);
     void SubscribeObjectEvent(UInt64 objectTypeId, IDelegate<void, StubPollerEvent *> *cb);
 
     // 取消订阅对象消息
     template<typename ObjectType>
+#ifdef CRYSTAL_NET_CPP20
     requires requires(ObjectType obj)
     {
         obj.Release();
         obj.ToString();
     }
+#endif
     void UnSubscribeObjectEvent();
     void UnSubscribeObjectEvent(UInt64 objectTypeId);
 
     // 内部会调用通用接口Push
     template<typename ResType>
+#ifdef CRYSTAL_NET_CPP20
     requires requires(ResType obj)
     {
         obj.Release();
         obj.ToString();
     }
+#endif
     void SendResponse(UInt64 stub, ResType *res);
 
     // 设置poller事件循环休眠时最大等待时长
@@ -209,6 +226,7 @@ public:
     void Push(LibList<PollerEvent *> *evList);
     void Push(IDelegate<void> *action);
 
+#ifdef CRYSTAL_NET_CPP20
     template<typename LamvadaType>
     requires requires (LamvadaType lam) 
     {
@@ -219,6 +237,7 @@ public:
         IDelegate<void> *delg = KERNEL_NS::DelegateFactory::Create<decltype(lambdaType), void>(lambdaType);
         Push(delg);
     }
+#endif
 
     // 事件循环接口
     bool PrepareLoop();
@@ -241,6 +260,7 @@ public:
     // req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
     // req/res 必须实现Release, ToString接口
     // 从调用的当前线程向this线程发送, 最后结果返回当前线程
+#ifdef CRYSTAL_NET_CPP20
     template<typename ResType, typename ReqType>
     requires requires(ReqType req, ResType res)
     {
@@ -379,11 +399,13 @@ public:
         *ptr = NULL;
         co_return KERNEL_NS::SmartPtr<ResType,  KERNEL_NS::AutoDelMethods::Release>(res);
     }
+#endif
 
     // 调用者当前线程投递req给this
     // req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
     // req/res 必须实现Release, ToString接口
     template<typename ReqType>
+#ifdef CRYSTAL_NET_CPP20
     requires requires(ReqType req)
     {
         // req/res必须有Release接口
@@ -392,12 +414,14 @@ public:
         // req/res必须有ToString接口
         req.ToString();
     }
+#endif
     void Send(ReqType *req);
 
     // 跨线程协程消息(otherPoller也可以是自己) 不需要返回
     // req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
     // req/res 必须实现Release, ToString接口
     template<typename ReqType>
+#ifdef CRYSTAL_NET_CPP20
     requires requires(ReqType req)
     {
         // req/res必须有Release接口
@@ -406,8 +430,10 @@ public:
         // req/res必须有ToString接口
         req.ToString();
     }
+#endif
     void SendTo(Poller &otherPoller, ReqType *req);
-    
+
+#ifdef CRYSTAL_NET_CPP20
     // 跨线程协程消息(otherPoller也可以是自己)
     // req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
     // req/res 必须实现Release, ToString接口
@@ -502,6 +528,8 @@ public:
 
     // 申请创建channel(不能本地线程自己申请自己的Channel, 因为SPSC.Push的时候如果没有可写的(因为同一个线程所以此时poller不会读消息)会一直阻塞卡住整个线程)
     CoTask<Channel *> ApplyChannel();
+#endif
+
     void SendByChannel(UInt64 channelId, PollerEvent *ev);
     void SendByChannel(UInt64 channelId, LibList<PollerEvent *> *evs);
     Channel *GetChannel(UInt64 channelId);
@@ -539,10 +567,12 @@ private:
 
     // 订阅Stub事件
     template<typename LambType>
+#ifdef CRYSTAL_NET_CPP20
     requires requires(LambType lam, StubPollerEvent * ev)
     {
         lam(ev);
     }
+#endif
     void SubscribeStubEvent(UInt64 stub, LambType &&cb);
 
     // 取消订阅回调
@@ -787,11 +817,13 @@ ALWAYS_INLINE bool Poller::IsQuit() const
 }
 
 template<typename ObjectType>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(ObjectType obj)
 {
     obj.Release();
     obj.ToString();
 }
+#endif
 ALWAYS_INLINE void Poller::SubscribeObjectEvent(IDelegate<void, StubPollerEvent *> *cb)
 {
     auto objectTypeId = KERNEL_NS::RttiUtil::GetTypeId<ObjectType>();
@@ -799,11 +831,13 @@ ALWAYS_INLINE void Poller::SubscribeObjectEvent(IDelegate<void, StubPollerEvent 
 }
 
 template<typename ObjectType, typename ObjType>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(ObjectType obj)
 {
     obj.Release();
     obj.ToString();
 }
+#endif
 ALWAYS_INLINE void Poller::SubscribeObjectEvent(ObjType *obj, void (ObjType::*handler)(KERNEL_NS::StubPollerEvent *))
 {
     auto delg = DelegateFactory::Create(obj, handler);
@@ -812,11 +846,13 @@ ALWAYS_INLINE void Poller::SubscribeObjectEvent(ObjType *obj, void (ObjType::*ha
 }
 
 template<typename ObjectType>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(ObjectType obj)
 {
     obj.Release();
     obj.ToString();
 }
+#endif
 ALWAYS_INLINE void Poller::SubscribeObjectEvent(void (*handler)(KERNEL_NS::StubPollerEvent *))
 {
     auto delg = DelegateFactory::Create(handler);
@@ -825,12 +861,14 @@ ALWAYS_INLINE void Poller::SubscribeObjectEvent(void (*handler)(KERNEL_NS::StubP
 }
 
 template<typename ObjectType, typename  LambType>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(ObjectType obj, LambType lamb, KERNEL_NS::StubPollerEvent *ev)
 {
     obj.Release();
     obj.ToString();
     lamb(ev);
 }
+#endif
 ALWAYS_INLINE void Poller::SubscribeObjectEvent(LambType &&lamb)
 {
     auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(lamb, void, KERNEL_NS::StubPollerEvent *);
@@ -855,11 +893,13 @@ ALWAYS_INLINE void Poller::SubscribeObjectEvent(UInt64 objectTypeId, IDelegate<v
 }
 
 template<typename ObjectType>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(ObjectType obj)
 {
     obj.Release();
     obj.ToString();
 }
+#endif
 ALWAYS_INLINE void Poller::UnSubscribeObjectEvent()
 {
     auto objectTypeId = KERNEL_NS::RttiUtil::GetTypeId<ObjectType>();
@@ -881,11 +921,13 @@ ALWAYS_INLINE void Poller::UnSubscribeObjectEvent(UInt64 objectTypeId)
 }
 
 template<typename ResType>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(ResType obj)
 {
     obj.Release();
     obj.ToString();
 }
+#endif
 ALWAYS_INLINE void Poller::SendResponse(UInt64 stub, ResType *res)
 {
     auto fromPoller = TlsUtil::GetPoller();
@@ -896,10 +938,12 @@ ALWAYS_INLINE void Poller::SendResponse(UInt64 stub, ResType *res)
 }
 
 template<typename LambType>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(LambType lam, StubPollerEvent * ev)
 {
     lam(ev);
 }
+#endif
 ALWAYS_INLINE void Poller::SubscribeStubEvent(UInt64 stub, LambType &&cb)
 {
     auto iter = _stubRefCb.find(stub);
@@ -934,6 +978,8 @@ ALWAYS_INLINE void Poller::UnSubscribeStubEvent(UInt64 stub)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Walways-inline-coroutine"
 #endif
+
+#ifdef CRYSTAL_NET_CPP20
 
 template<typename ResType, typename ReqType>
 requires requires(ReqType req, ResType res)
@@ -972,6 +1018,7 @@ ALWAYS_INLINE CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> Poll
     // 从调用的当前线程向this线程发送, 最后结果返回当前线程
     co_return co_await KERNEL_NS::TlsUtil::GetPoller()->SendToAsync<ResType>(*this, std::forward<LambdaType>(lamb));
 }
+#endif
 
 #if CRYSTAL_TARGET_PLATFORM_LINUX
 #pragma GCC diagnostic pop
@@ -981,6 +1028,7 @@ ALWAYS_INLINE CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> Poll
 // req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
 // req/res 必须实现Release, ToString接口
 template<typename ReqType>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(ReqType req)
 {
     // req/res必须有Release接口
@@ -989,6 +1037,7 @@ requires requires(ReqType req)
     // req/res必须有ToString接口
     req.ToString();
 }
+#endif
 ALWAYS_INLINE void Poller::Send(ReqType *req)
 {
     SendTo<ReqType>(*this, req);
@@ -998,6 +1047,7 @@ ALWAYS_INLINE void Poller::Send(ReqType *req)
 // req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
 // req/res 必须实现Release, ToString接口
 template<typename ReqType>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(ReqType req)
 {
     // req/res必须有Release接口
@@ -1006,6 +1056,7 @@ requires requires(ReqType req)
     // req/res必须有ToString接口
     req.ToString();
 }
+#endif
 ALWAYS_INLINE void Poller::SendTo(Poller &otherPoller, ReqType *req)
 {
     // 发送对象事件 ObjectPollerEvent到 other

@@ -545,6 +545,7 @@ private:
 public:
     virtual void Run() override
     {
+        #ifdef CRYSTAL_NET_CPP20
         KERNEL_NS::RunRightNow([this]() mutable -> KERNEL_NS::CoTask<> 
         {
             auto poller = KERNEL_NS::TlsUtil::GetPoller();
@@ -571,6 +572,8 @@ public:
         
             co_return;
         });
+
+        #endif
     }
     
     virtual void Release() override
@@ -596,6 +599,7 @@ public:
     }
     virtual void Run() override
     {
+        #ifdef CRYSTAL_NET_CPP20
         KERNEL_NS::PostCaller([this]() mutable  ->KERNEL_NS::CoTask<>
         {
             while (_otherPoller.load() == NULL)
@@ -613,6 +617,8 @@ public:
                     
             g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "res :%s"), res->ToString().c_str());
         });
+
+        #endif
     }
 
 private:
@@ -655,6 +661,7 @@ public:
 
     virtual void Run() override
     {
+        #ifdef CRYSTAL_NET_CPP20
         KERNEL_NS::PostCaller([this]() mutable  -> KERNEL_NS::CoTask<>
         {
             auto targetPoller = co_await _target->GetPoller();
@@ -664,6 +671,7 @@ public:
 
             g_Log->Info(LOGFMT_NON_OBJ_TAG(TestTimeoutStartup, "res return"));
         });
+        #endif
     }
     
     virtual void Release() override

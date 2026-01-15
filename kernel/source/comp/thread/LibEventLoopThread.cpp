@@ -107,6 +107,7 @@ void LibEventLoopThread::FinishClose()
     _thread->FinishClose();
 }
 
+#ifdef CRYSTAL_NET_CPP20
 CoTask<const Poller *> LibEventLoopThread::GetPoller() const
 {
   co_return co_await _thread->GetPoller();
@@ -116,6 +117,7 @@ CoTask<Poller *> LibEventLoopThread::GetPoller()
 {
   co_return co_await _thread->GetPoller();
 }
+#endif
 
 const Poller * LibEventLoopThread::GetPollerNoAsync() const
 {

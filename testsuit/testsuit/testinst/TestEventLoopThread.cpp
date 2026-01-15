@@ -126,6 +126,7 @@ void TestEventLoopThread::Run()
 
     poller->PrepareLoop();
 
+#ifdef CRYSTAL_NET_CPP20
     // 控制event loop退出
     KERNEL_NS::PostCaller([eventLoopThread]() mutable ->KERNEL_NS::CoTask<>
     {
@@ -145,7 +146,8 @@ void TestEventLoopThread::Run()
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestEventLoopThread, "quit loop."));
         KERNEL_NS::TlsUtil::GetPoller()->QuitLoop();
     });
-    
+#endif
+
     poller->EventLoop();
     poller->OnLoopEnd();
 

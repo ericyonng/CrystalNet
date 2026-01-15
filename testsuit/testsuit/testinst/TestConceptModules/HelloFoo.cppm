@@ -28,6 +28,7 @@
 module;
 
 #include <pch.h>
+#ifdef CRYSTAL_NET_CPP20
 
 #include <kernel/common/macro.h>
 #include <kernel/common/os_libs.h>
@@ -39,6 +40,8 @@ module;
 #include <3rd/3rd.h>
 
 #include <type_traits>  
+
+
 #include <concepts> 
 
 export module HelloFoo;
@@ -111,3 +114,5 @@ void HelloFooSun::Print()
 {
     g_Log->Info(LOGFMT_OBJ_TAG("this type:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
 }
+
+#endif

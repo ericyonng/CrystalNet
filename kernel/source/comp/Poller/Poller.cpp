@@ -141,6 +141,7 @@ void Poller::Release()
     Poller::Delete_Poller(this);
 }
 
+#ifdef CRYSTAL_NET_CPP20
 CoTask<Channel *> Poller::ApplyChannel()
 {
     // 如果已经存在了不需要再申请直接返回
@@ -166,6 +167,7 @@ CoTask<Channel *> Poller::ApplyChannel()
 
     co_return channel;
 }
+#endif
 
 void Poller::SendByChannel(UInt64 channelId, PollerEvent *ev)
 {

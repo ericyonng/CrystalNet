@@ -966,23 +966,23 @@ void Application::_OnMonitorThreadFrame()
     ServiceProxyStatisticsInfo serviceProxyInfo;
     if(serviceProxy && serviceProxy->IsStarted())
         serviceProxy->OnMonitor(serviceProxyInfo);
-    
-    KERNEL_NS::LibString info;
-    info.AppendFormat("\n%s\n", serviceProxyInfo.ToString().c_str());
-
-    auto pid = GetProcessId();
-    info.AppendFormat("[PROC:%d SUMMARY INFO BEGIN]\n", pid);
-    info.AppendFormat("%s\n", serviceProxyInfo.ToSummaryInfo().c_str());
-    info.AppendFormat("[PROC:%d SUMMARY INFO END]\n", pid);
-
-    Double average = 0;
-    if(_statisticsInfoCache->_resCount > 0)
-    {
-        average = static_cast<Double>(_statisticsInfoCache->_resTotalNs) / _statisticsInfoCache->_resCount / 1000000;
-    }
 
     if(!_appConfig._disableConsoleMonitorInfo)
     {
+        KERNEL_NS::LibString info;
+        info.AppendFormat("\n%s\n", serviceProxyInfo.ToString().c_str());
+
+        auto pid = GetProcessId();
+        info.AppendFormat("[PROC:%d SUMMARY INFO BEGIN]\n", pid);
+        info.AppendFormat("%s\n", serviceProxyInfo.ToSummaryInfo().c_str());
+        info.AppendFormat("[PROC:%d SUMMARY INFO END]\n", pid);
+
+        Double average = 0;
+        if(_statisticsInfoCache->_resCount > 0)
+        {
+            average = static_cast<Double>(_statisticsInfoCache->_resTotalNs) / _statisticsInfoCache->_resCount / 1000000;
+        }
+        
         g_Log->Monitor("%s\n[- RESPONSE INFO BEGIN -]\nSampleNumber:%llu. Min:%lf(ms). Average:%lf(ms). Max:%lf(ms).\n[- RESPONSE INFO END -]\n"
                     ,info.c_str(), _statisticsInfoCache->_resCount, static_cast<Double>(_statisticsInfoCache->_minResNs) / 1000000, average, static_cast<Double>(_statisticsInfoCache->_maxResNs) / 1000000);
     }

@@ -123,6 +123,7 @@ template <typename ClosureFuncType, typename Rtn, typename... Args>
 class DelegateClosureFunc : public IDelegate<Rtn, Args...>
 {
 public:
+
     DelegateClosureFunc(RemoveReferenceType<ClosureFuncType> &&closureFunc);
     // DelegateClosureFunc(ClosureFuncType const&closureFunc);
     DelegateClosureFunc(const RemoveReferenceType<ClosureFuncType> &closureFunc);
@@ -169,12 +170,21 @@ public:
     static IDelegate<Rtn, Args...> *Create(ClosureFuncType const&func);
 };
 
+// template<typename... Args>
+// constexpr  bool CheckType(constexpr char *msg, Args&&... args)
+// {
+//     static_assert(sizeof...(Args) == sizeof...(args), "Wrong number of arguments!");
+// }
+
 KERNEL_END
 
 // 闭包委托创建
 #undef KERNEL_CREATE_CLOSURE_DELEGATE
 #define KERNEL_CREATE_CLOSURE_DELEGATE(closureTypeFunc, Rtn, ...)    \
 KERNEL_NS::DelegateFactory::Create<decltype(closureTypeFunc), Rtn, ##__VA_ARGS__>(closureTypeFunc)
+// #undef KERNEL_CREATE_CLOSURE_DELEGATE
+// #define KERNEL_CREATE_CLOSURE_DELEGATE(closureTypeFunc, Rtn, ...)    \
+// KERNEL_PRINT_MSG(closureTypeFunc, Rtn, KERNEL_NS::CountArgs<##__VA_ARGS__>::Count)
 
 #include <kernel/comp/Delegate/LibDelegateImpl.h>
 

@@ -29,6 +29,8 @@
 #include <pch.h>
 #include <kernel/comp/Coroutines/CoWaiter.h>
 
+#ifdef CRYSTAL_NET_CPP20
+
 KERNEL_BEGIN
 
 CoTask<> Waiting(KERNEL_NS::TimeSlice slice)
@@ -46,3 +48,5 @@ CoTask<> CoCompleted()
 
 
 KERNEL_END
+
+#endif

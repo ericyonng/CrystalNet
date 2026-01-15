@@ -61,10 +61,12 @@ public:
 
     // 线程池执行行为
     template<typename LambdaType>
+    #ifdef CRYSTAL_NET_CPP20
     requires requires (LambdaType lam) 
     {
         {lam()} -> std::convertible_to<void>;
     }
+    #endif
     void Send(LambdaType &&lambda, bool priorityToUsingNewThread = false)
     {
         if(UNLIKELY(_disablePost.load(std::memory_order_acquire)))
@@ -77,6 +79,7 @@ public:
     }
 
     // 线程池中执行lambda行为并返回结果到调用线程
+#ifdef CRYSTAL_NET_CPP20
     template<typename ResType, typename LambdaType>
     requires requires(LambdaType lambda, ResType res)
     {
@@ -102,6 +105,7 @@ public:
 
         co_return co_await poller->template SendAsync<ResType, LambdaType>(std::forward<LambdaType>(lamb));
     }
+    #endif
     
     Int32 GetWorkerNum() const;
     Int32 GetMaxWorkerNum() const;

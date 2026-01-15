@@ -61,6 +61,7 @@ public:
     void Send(LibList<PollerEvent *> *evs);
 
     // 执行行为
+#ifdef CRYSTAL_NET_CPP20
     template<typename LambdaType>
     requires requires(LambdaType lamb)
     {
@@ -73,24 +74,29 @@ public:
         ev->_action = deleg;
         Send(ev);
     }
+#endif
 
     Poller *GetTarget();
     const Poller *GetTarget() const;
 
     template<typename ObjType>
+    #ifdef CRYSTAL_NET_CPP20
     requires requires(ObjType obj)
     {
         obj.Release();
         obj.ToString();
     }
+    #endif
     void Send(Poller *srcPoller, ObjType *o);
 
     template<typename ResType>
+    #ifdef CRYSTAL_NET_CPP20
     requires requires(ResType obj)
     {
         obj.Release();
         obj.ToString();
     }
+    #endif
     void SendResponse(UInt64 stub, Poller *srcPoller, ResType *res);
     
 private:
@@ -117,11 +123,13 @@ ALWAYS_INLINE const Poller *Channel::GetTarget() const
 }
 
 template<typename ResType>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(ResType obj)
 {
     obj.Release();
     obj.ToString();
 }
+#endif
 ALWAYS_INLINE void Channel::SendResponse(UInt64 stub, Poller *srcPoller, ResType *res)
 {
     auto objectEvent = KERNEL_NS::ObjectPollerEvent<ResType>::New_ObjectPollerEvent(stub, true, srcPoller, this);
@@ -130,11 +138,13 @@ ALWAYS_INLINE void Channel::SendResponse(UInt64 stub, Poller *srcPoller, ResType
 }
 
 template<typename ObjType>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(ObjType obj)
 {
     obj.Release();
     obj.ToString();
 }
+#endif
 ALWAYS_INLINE void Channel::Send(Poller *srcPoller, ObjType *o)
 {
     // 不需要返回包

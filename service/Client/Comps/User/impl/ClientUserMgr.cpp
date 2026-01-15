@@ -30,6 +30,7 @@
 #include <Comps/User/impl/ClientUserMgrFactory.h>
 #include <Comps/User/impl/ClientUser.h>
 #include <MyTestService.h>
+#include <client/Entry.h>
 
 SERVICE_BEGIN
 
@@ -53,7 +54,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(ClientUserMgr);
 ClientUserMgr::ClientUserMgr()
 :IClientUserMgr(KERNEL_NS::RttiUtil::GetTypeId<ClientUserMgr>())
 ,_heartbeatRemoveUserTimer(NULL)
-,_targetAddrConfig(AddrConfig::NewThreadLocal_AddrConfig())
+// ,_targetAddrConfig(AddrConfig::NewThreadLocal_AddrConfig())
+,_finalTargetPort(0)
 {
 
 }
@@ -83,45 +85,33 @@ void ClientUserMgr::OnStartup()
     KERNEL_NS::LibString accountName;
     auto &random = KERNEL_NS::LibInt64Random<KERNEL_NS::_Build::TL>::GetInstance();
 
+    // 写死账号
+    _testLoginAccountName = Entry::AccountInfo.Account;
     if(_testLoginAccountName.empty())
         accountName.AppendFormat("bot_user_%lld", random.Gen(0, 127));
     else
         accountName = _testLoginAccountName;
 
-    KERNEL_NS::LibString ip = _targetAddrConfig->_remoteIp._ip;
-    if(_targetAddrConfig->_remoteIp._isHostName)
-    {
-        auto err = KERNEL_NS::IPUtil::GetIpByHostName(_targetAddrConfig->_remoteIp._ip, ip, {}, 0, false, true, _targetAddrConfig->_remoteIp._toIpv4);
-        if(err != Status::Success)
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("GetIpByHostName fail remote ip%s"), _targetAddrConfig->_remoteIp.ToString().c_str());
-            return;
-        }
-    }
+    // KERNEL_NS::LibString ip = _targetAddrConfig->_remoteIp._ip;
+    // if(_targetAddrConfig->_remoteIp._isHostName)
+    // {
+    //     auto err = KERNEL_NS::IPUtil::GetIpByHostName(_targetAddrConfig->_remoteIp._ip, ip, {}, 0, false, true, _targetAddrConfig->_remoteIp._toIpv4);
+    //     if(err != Status::Success)
+    //     {
+    //         g_Log->Error(LOGFMT_OBJ_TAG("GetIpByHostName fail remote ip%s"), _targetAddrConfig->_remoteIp.ToString().c_str());
+    //         return;
+    //     }
+    // }
 
+    KERNEL_NS::LibString ip = Entry::AccountInfo.ip;
+    
     LoginInfo loginInfo;
-    loginInfo.set_loginmode(LoginMode::REGISTER);
-    loginInfo.set_accountname(accountName.GetRaw());
-    loginInfo.set_targetip(ip.GetRaw());
-    loginInfo.set_port(_targetAddrConfig->_remotePort);
-
-    KERNEL_NS::LibString pwd;
-    _rsa.PubKeyEncrypt("12345678", pwd);
-    pwd = KERNEL_NS::LibBase64::Encode(pwd);
-    loginInfo.set_pwd(pwd.GetRaw());
-
-    KERNEL_NS::LibString randText = "123456";
-    KERNEL_NS::LibString cypherText;
-    _rsa.PubKeyEncrypt(randText.data(), cypherText);
-    cypherText = KERNEL_NS::LibBase64::Encode(cypherText);
-    loginInfo.set_cyphertext(cypherText.GetRaw());
-    loginInfo.set_origintext(randText.GetRaw());
-    loginInfo.set_versionid(10101);
-    auto registerInfo = loginInfo.mutable_userregisterinfo();
-    registerInfo->set_accountname(accountName.GetRaw());
-    registerInfo->set_pwd(loginInfo.pwd());
-    registerInfo->set_createphoneimei("123456");
-    auto err = Login(loginInfo, _targetAddrConfig->_protocolStackType);
+    _finalTargetIp = ip;
+    _finalTargetPort = Entry::AccountInfo.port;
+    _BuildLoginInfo(loginInfo, accountName, ip);
+    
+    // auto err = Login(loginInfo, _targetAddrConfig->_protocolStackType);
+    auto err = Login(loginInfo);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("login fail err:%d, account name:%s")
@@ -223,15 +213,22 @@ Int32 ClientUserMgr::Login(const LoginInfo &loginInfo, Int32 stackType)
             RemoveUserBySessionId(user->GetSessionId());
         }
 
-        user->WillClose();
-        user->Close();
+        // TODO:超时了看是否继续重试
+        user->SetUserStatus(ClientUserStatus::UNLOGIN);
+        user->SetLoginInfo(loginInfo);
+        Login(loginInfo);
 
-        _accountNameRefUser.erase(loginInfo.accountname());
-        user->Release();
+        // user->WillClose();
+        // user->Close();
+        //
+        // _accountNameRefUser.erase(loginInfo.accountname());
+        // user->Release();
+
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
     });
 
-    // 30秒内登录
-    timer->Schedule(30 * 1000);
+    // 最多3分钟
+    timer->Schedule(KERNEL_NS::TimeSlice::FromMinutes(1));
     
     return err;
 }
@@ -297,20 +294,20 @@ Int32 ClientUserMgr::_OnGlobalSysInit()
     }
 
     {// 目标地址
-        KERNEL_NS::LibString cache;
-        if(!ini->ReadStr(GetService()->GetServiceName().c_str(), "TestTargetAddr", cache))
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("check read TestTargetAddr config fail service name:%s"), GetService()->GetServiceName().c_str());
-            return Status::ConfigError;
-        }
-        cache.strip();
+        // KERNEL_NS::LibString cache;
+        // if(!ini->ReadStr(GetService()->GetServiceName().c_str(), "TestTargetAddr", cache))
+        // {
+        //     g_Log->Error(LOGFMT_OBJ_TAG("check read TestTargetAddr config fail service name:%s"), GetService()->GetServiceName().c_str());
+        //     return Status::ConfigError;
+        // }
+        // cache.strip();
         
-        if(!_targetAddrConfig->Parse(cache))
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("check parse TestTargetAddr config fail service name:%s, value:%s")
-                    , GetService()->GetServiceName().c_str(), cache.c_str());
-            return Status::ConfigError;
-        }
+        // if(!_targetAddrConfig->Parse(cache))
+        // {
+        //     g_Log->Error(LOGFMT_OBJ_TAG("check parse TestTargetAddr config fail service name:%s, value:%s")
+        //             , GetService()->GetServiceName().c_str(), cache.c_str());
+        //     return Status::ConfigError;
+        // }
     }
 
     ini->ReadStr(GetService()->GetServiceName().c_str(), "TestLoginAccountName", _testLoginAccountName);
@@ -353,7 +350,8 @@ void ClientUserMgr::_OnLoginRes(KERNEL_NS::LibPacket *&packet)
             auto &loginInfo = user->GetLoginInfo();
             g_Log->Warn(LOGFMT_OBJ_TAG("account exists turn login directerly account:%s"), loginInfo.accountname().c_str());
             loginInfo.set_loginmode(LoginMode::PASSWORD);
-            auto errCode = user->Login(_targetAddrConfig->_protocolStackType);
+            // auto errCode = user->Login(_targetAddrConfig->_protocolStackType);
+            auto errCode = user->Login();
             if(errCode != Status::Success)
             {
                 g_Log->Warn(LOGFMT_OBJ_TAG("login fail errCode:%d, account:%s"), errCode, loginInfo.accountname().c_str());
@@ -435,6 +433,8 @@ void ClientUserMgr::_OnLoginRes(KERNEL_NS::LibPacket *&packet)
             KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
             return;
         }
+
+        // 判断是否断开, 断开需要重新登录
 
         ClientHeartbeatReq req;
         auto packetId = NewPacketId(sessionId);
@@ -580,7 +580,6 @@ void ClientUserMgr::_OnHeartbeatTimeOut(KERNEL_NS::LibTimer *t)
                 return;
             }
 
-
             // 即将移除user
             auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::USER_WILL_REMOVE);
             ev->SetParam(Params::USER_ID, user->GetUserId());
@@ -596,6 +595,22 @@ void ClientUserMgr::_OnHeartbeatTimeOut(KERNEL_NS::LibTimer *t)
             _accountNameRefUser.erase(accountName);
 
             user->Release();
+
+            // 重新登录
+            LoginInfo loginInfo;
+            _BuildLoginInfo(loginInfo, accountName, _finalTargetIp);
+            auto err = Login(loginInfo);
+            if (err != Status::Success)
+            {
+                g_Log->Warn(LOGFMT_NON_OBJ_TAG(ClientUserMgr, "heart beat relogin fail, accountName:%s, ip%s, loginInfo:%s")
+                    , accountName.c_str(), _finalTargetIp.c_str(), loginInfo.ToJsonString().c_str());
+            }
+            else
+            {
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(ClientUserMgr, "heartbeat relogin... account:%s, ip%s, loginInfo:%s")
+                    , accountName.c_str(), _finalTargetIp.c_str(), loginInfo.ToJsonString().c_str());
+            }
+            
             KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
         });
 
@@ -615,11 +630,37 @@ void ClientUserMgr::_Clear()
         KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(_heartbeatRemoveUserTimer);
     _heartbeatRemoveUserTimer = NULL;
 
-    if(_targetAddrConfig)
-        AddrConfig::DeleteThreadLocal_AddrConfig(_targetAddrConfig);
-
-    _targetAddrConfig = NULL;
+    // if(_targetAddrConfig)
+    //     AddrConfig::DeleteThreadLocal_AddrConfig(_targetAddrConfig);
+    //
+    // _targetAddrConfig = NULL;
 }
+
+void ClientUserMgr::_BuildLoginInfo(LoginInfo &loginInfo, const KERNEL_NS::LibString &accountName, const KERNEL_NS::LibString &ip) const
+{
+    loginInfo.set_loginmode(LoginMode::REGISTER);
+    loginInfo.set_accountname(accountName.GetRaw());
+    loginInfo.set_targetip(ip.GetRaw());
+    loginInfo.set_port(_finalTargetPort);
+
+    KERNEL_NS::LibString pwd;
+    _rsa.PubKeyEncrypt("1586ddk?R7'6s", pwd);
+    pwd = KERNEL_NS::LibBase64::Encode(pwd);
+    loginInfo.set_pwd(pwd.GetRaw());
+
+    KERNEL_NS::LibString randText = "123456";
+    KERNEL_NS::LibString cypherText;
+    _rsa.PubKeyEncrypt(randText.data(), cypherText);
+    cypherText = KERNEL_NS::LibBase64::Encode(cypherText);
+    loginInfo.set_cyphertext(cypherText.GetRaw());
+    loginInfo.set_origintext(randText.GetRaw());
+    loginInfo.set_versionid(10101);
+    auto registerInfo = loginInfo.mutable_userregisterinfo();
+    registerInfo->set_accountname(accountName.GetRaw());
+    registerInfo->set_pwd(loginInfo.pwd());
+    registerInfo->set_createphoneimei("123456");
+}
+
 
 
 SERVICE_END

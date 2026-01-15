@@ -51,12 +51,16 @@
 
 KERNEL_BEGIN
 
+#ifdef CRYSTAL_NET_CPP20
 // 2的整数倍约束,如果Capacity是2的整数倍，那么, 任意数x对Capacity求余, 等价于 x & (Capacity - 1)
 template<Int64 N>
 concept IsPowerOfTwo = (N > 1) && ((N & (N - 1)) == 0);
+#endif
 
 template <typename Elem>
+#ifdef CRYSTAL_NET_CPP20
 requires std::movable<Elem>
+#endif
 struct QueueSlot
 {
   // 释放Elem资源
@@ -85,7 +89,9 @@ struct QueueSlot
 };
 
 template <typename Elem>
+#ifdef CRYSTAL_NET_CPP20
 requires std::movable<Elem>
+#endif
 template <typename... Args>
 ALWAYS_INLINE void QueueSlot<Elem>::Construct(Args &&...args) noexcept
 {
@@ -93,7 +99,9 @@ ALWAYS_INLINE void QueueSlot<Elem>::Construct(Args &&...args) noexcept
 }
 
 template <typename Elem>
+#ifdef CRYSTAL_NET_CPP20
 requires std::movable<Elem>
+#endif
 ALWAYS_INLINE void QueueSlot<Elem>::Destroy() noexcept
 {
   // 类类型的才需要析构
@@ -104,7 +112,9 @@ ALWAYS_INLINE void QueueSlot<Elem>::Destroy() noexcept
 }
 
 template <typename Elem>
+#ifdef CRYSTAL_NET_CPP20
 requires std::movable<Elem>
+#endif
 ALWAYS_INLINE Elem &&QueueSlot<Elem>::Move() noexcept
 {
   return reinterpret_cast<Elem &&>(_storage);
@@ -112,6 +122,7 @@ ALWAYS_INLINE Elem &&QueueSlot<Elem>::Move() noexcept
 
 /// 多生产者多消费者无锁队列, mpmcqueue 初始化的时候会初始化slots，如果CapacitySize比较大那么会比较耗时,默认16KB个slots
 template <typename Elem, UInt64 CapacitySize = 16 * 1024>
+#ifdef CRYSTAL_NET_CPP20
 requires std::movable<Elem> && requires
 {
     // 2的整数倍
@@ -123,6 +134,7 @@ requires std::movable<Elem> && requires
     // 需要保证 QueueSlot<Elem>大小是SYSTEM_ALIGN_SIZE的整数倍：槽位大小必须是缓存行大小的整数倍，以防止相邻槽位间的伪共享。
     requires (sizeof(QueueSlot<Elem>) % SYSTEM_ALIGN_SIZE) == 0;
 }
+#endif
 class MPMCQueue
 {
   POOL_CREATE_TEMPLATE_OBJ_DEFAULT(MPMCQueue, Elem, CapacitySize)
@@ -242,6 +254,7 @@ private:
 };
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::movable<Elem> && requires
 {
   // 2的整数倍
@@ -253,9 +266,11 @@ requires std::movable<Elem> && requires
   // 需要保证 QueueSlot<Elem>大小是SYSTEM_ALIGN_SIZE的整数倍：槽位大小必须是缓存行大小的整数倍，以防止相邻槽位间的伪共享。
   requires (sizeof(QueueSlot<Elem>) % SYSTEM_ALIGN_SIZE) == 0;
 }
+#endif
 POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(MPMCQueue, Elem, CapacitySize);
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::movable<Elem> && requires
 {
   // 2的整数倍
@@ -267,6 +282,7 @@ requires std::movable<Elem> && requires
   // 需要保证 QueueSlot<Elem>大小是SYSTEM_ALIGN_SIZE的整数倍：槽位大小必须是缓存行大小的整数倍，以防止相邻槽位间的伪共享。
   requires (sizeof(QueueSlot<Elem>) % SYSTEM_ALIGN_SIZE) == 0;
 }
+#endif
 template <typename... Args>
 ALWAYS_INLINE void MPMCQueue<Elem, CapacitySize>::Emplace(Args &&...args) noexcept
 {
@@ -282,6 +298,7 @@ ALWAYS_INLINE void MPMCQueue<Elem, CapacitySize>::Emplace(Args &&...args) noexce
 
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::movable<Elem> && requires
 {
   // 2的整数倍
@@ -293,6 +310,7 @@ requires std::movable<Elem> && requires
   // 需要保证 QueueSlot<Elem>大小是SYSTEM_ALIGN_SIZE的整数倍：槽位大小必须是缓存行大小的整数倍，以防止相邻槽位间的伪共享。
   requires (sizeof(QueueSlot<Elem>) % SYSTEM_ALIGN_SIZE) == 0;
 }
+#endif
 template <typename... Args>
 ALWAYS_INLINE bool MPMCQueue<Elem, CapacitySize>::TryEmplace(Args &&...args) noexcept
 {
@@ -331,6 +349,7 @@ ALWAYS_INLINE bool MPMCQueue<Elem, CapacitySize>::TryEmplace(Args &&...args) noe
 
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::movable<Elem> && requires
 {
   // 2的整数倍
@@ -342,12 +361,14 @@ requires std::movable<Elem> && requires
   // 需要保证 QueueSlot<Elem>大小是SYSTEM_ALIGN_SIZE的整数倍：槽位大小必须是缓存行大小的整数倍，以防止相邻槽位间的伪共享。
   requires (sizeof(QueueSlot<Elem>) % SYSTEM_ALIGN_SIZE) == 0;
 }
+#endif
 ALWAYS_INLINE void MPMCQueue<Elem, CapacitySize>::Push(const Elem &v) noexcept
 {
   Emplace(v);
 }
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::movable<Elem> && requires
 {
   // 2的整数倍
@@ -359,6 +380,7 @@ requires std::movable<Elem> && requires
   // 需要保证 QueueSlot<Elem>大小是SYSTEM_ALIGN_SIZE的整数倍：槽位大小必须是缓存行大小的整数倍，以防止相邻槽位间的伪共享。
   requires (sizeof(QueueSlot<Elem>) % SYSTEM_ALIGN_SIZE) == 0;
 }
+#endif
 template <typename P>
 ALWAYS_INLINE void MPMCQueue<Elem, CapacitySize>::Push(P &&v) noexcept
 {
@@ -366,6 +388,7 @@ ALWAYS_INLINE void MPMCQueue<Elem, CapacitySize>::Push(P &&v) noexcept
 }
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::movable<Elem> && requires
 {
   // 2的整数倍
@@ -377,6 +400,7 @@ requires std::movable<Elem> && requires
   // 需要保证 QueueSlot<Elem>大小是SYSTEM_ALIGN_SIZE的整数倍：槽位大小必须是缓存行大小的整数倍，以防止相邻槽位间的伪共享。
   requires (sizeof(QueueSlot<Elem>) % SYSTEM_ALIGN_SIZE) == 0;
 }
+#endif
 ALWAYS_INLINE bool MPMCQueue<Elem, CapacitySize>::TryPush(const Elem &v) noexcept
 {
   return TryEmplace(v);
@@ -384,6 +408,7 @@ ALWAYS_INLINE bool MPMCQueue<Elem, CapacitySize>::TryPush(const Elem &v) noexcep
 
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::movable<Elem> && requires
 {
   // 2的整数倍
@@ -395,6 +420,7 @@ requires std::movable<Elem> && requires
   // 需要保证 QueueSlot<Elem>大小是SYSTEM_ALIGN_SIZE的整数倍：槽位大小必须是缓存行大小的整数倍，以防止相邻槽位间的伪共享。
   requires (sizeof(QueueSlot<Elem>) % SYSTEM_ALIGN_SIZE) == 0;
 }
+#endif
 template <typename P>
 ALWAYS_INLINE bool MPMCQueue<Elem, CapacitySize>::TryPush(P &&v) noexcept
 {
@@ -403,6 +429,7 @@ ALWAYS_INLINE bool MPMCQueue<Elem, CapacitySize>::TryPush(P &&v) noexcept
 
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::movable<Elem> && requires
 {
   // 2的整数倍
@@ -414,6 +441,7 @@ requires std::movable<Elem> && requires
   // 需要保证 QueueSlot<Elem>大小是SYSTEM_ALIGN_SIZE的整数倍：槽位大小必须是缓存行大小的整数倍，以防止相邻槽位间的伪共享。
   requires (sizeof(QueueSlot<Elem>) % SYSTEM_ALIGN_SIZE) == 0;
 }
+#endif
 ALWAYS_INLINE void MPMCQueue<Elem, CapacitySize>::Pop(Elem &v) noexcept
 {
   auto const tail = _tail.fetch_add(1);
@@ -436,6 +464,7 @@ ALWAYS_INLINE void MPMCQueue<Elem, CapacitySize>::Pop(Elem &v) noexcept
 
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::movable<Elem> && requires
 {
   // 2的整数倍
@@ -447,6 +476,7 @@ requires std::movable<Elem> && requires
   // 需要保证 QueueSlot<Elem>大小是SYSTEM_ALIGN_SIZE的整数倍：槽位大小必须是缓存行大小的整数倍，以防止相邻槽位间的伪共享。
   requires (sizeof(QueueSlot<Elem>) % SYSTEM_ALIGN_SIZE) == 0;
 }
+#endif
 ALWAYS_INLINE bool MPMCQueue<Elem, CapacitySize>::TryPop(Elem &v) noexcept
 {
   auto tail = _tail.load(std::memory_order_acquire);
@@ -484,6 +514,7 @@ ALWAYS_INLINE bool MPMCQueue<Elem, CapacitySize>::TryPop(Elem &v) noexcept
 
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::movable<Elem> && requires
 {
   // 2的整数倍
@@ -495,6 +526,7 @@ requires std::movable<Elem> && requires
   // 需要保证 QueueSlot<Elem>大小是SYSTEM_ALIGN_SIZE的整数倍：槽位大小必须是缓存行大小的整数倍，以防止相邻槽位间的伪共享。
   requires (sizeof(QueueSlot<Elem>) % SYSTEM_ALIGN_SIZE) == 0;
 }
+#endif
 ALWAYS_INLINE Int64 MPMCQueue<Elem, CapacitySize>::Size() const noexcept
 {
   return static_cast<Int64>(_head.load(std::memory_order_relaxed) -
@@ -502,6 +534,7 @@ ALWAYS_INLINE Int64 MPMCQueue<Elem, CapacitySize>::Size() const noexcept
 }
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::movable<Elem> && requires
 {
   // 2的整数倍
@@ -513,6 +546,7 @@ requires std::movable<Elem> && requires
   // 需要保证 QueueSlot<Elem>大小是SYSTEM_ALIGN_SIZE的整数倍：槽位大小必须是缓存行大小的整数倍，以防止相邻槽位间的伪共享。
   requires (sizeof(QueueSlot<Elem>) % SYSTEM_ALIGN_SIZE) == 0;
 }
+#endif
 ALWAYS_INLINE bool MPMCQueue<Elem, CapacitySize>::Empty() const noexcept
 {
   return Size() <= 0;

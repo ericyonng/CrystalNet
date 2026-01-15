@@ -31,6 +31,8 @@
 
 #pragma once
 
+#ifdef CRYSTAL_NET_CPP20
+
 #include <kernel/comp/Coroutines/Concept/Future.h>
 
 KERNEL_BEGIN
@@ -52,5 +54,7 @@ concept Promise = requires (P p)
 };
 
 KERNEL_END
+
+#endif
 
 #endif

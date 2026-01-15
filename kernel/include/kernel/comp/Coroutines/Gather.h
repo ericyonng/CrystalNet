@@ -31,6 +31,8 @@
 
 #pragma once
 
+#ifdef CRYSTAL_NET_CPP20
+
 #include <kernel/kernel_export.h>
 #include <kernel/common/macro.h>
 #include <kernel/common/NonCopyabale.h>
@@ -187,5 +189,7 @@ KERNEL_BEGIN
 // }
 
 KERNEL_END
+
+#endif
 
 #endif

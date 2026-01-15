@@ -102,10 +102,10 @@ void User::Release()
 
 void User::OnRegisterComps()
 {
-    RegisterComp<LoginMgrFactory>();
-    RegisterComp<LibraryMgrFactory>();
-    RegisterComp<BookBagMgrFactory>();
-    RegisterComp<NotifyMgrFactory>();
+    // RegisterComp<LoginMgrFactory>();
+    // RegisterComp<LibraryMgrFactory>();
+    // RegisterComp<BookBagMgrFactory>();
+    // RegisterComp<NotifyMgrFactory>();
 }
 
 Int32 User::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb)
@@ -870,6 +870,11 @@ const UserBaseInfo *User::GetUserBaseInfo() const
     return _userBaseInfo;
 }
 
+void User::SetUserBaseInfo(UserBaseInfo *userInfo)
+{
+    _userBaseInfo = userInfo;
+}
+
 UInt64 User::GetUserId() const 
 { 
     return _userBaseInfo->userid();
@@ -1083,8 +1088,8 @@ Int32 User::_OnSysCompsCreated()
         auto comp = GetCompByName(subStorageInfo->GetSystemName());
         if(UNLIKELY(!comp))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("user sys have storage info but have no user sys obj please check system name:%s"), subStorageInfo->GetSystemName().c_str());
-            return Status::NotFound;
+            g_Log->Warn(LOGFMT_OBJ_TAG("user sys have storage info but have no user sys obj please check system name:%s"), subStorageInfo->GetSystemName().c_str());
+            continue;
         }
 
         auto userSys = comp->CastTo<IUserSys>();
@@ -1181,8 +1186,12 @@ ClientUserInfo *User::_BuildUserClientInfo() const
     clientInfo->set_bindphone(userInfo->bindphone());
 
     auto loginMgr = GetSys<ILoginMgr>();
-    clientInfo->set_lasttoken(loginMgr->GetLoginInfo()->token());
-    clientInfo->set_tokenexpiretime(loginMgr->GetLoginInfo()->keyexpiretime());
+    if (loginMgr)
+    {
+        clientInfo->set_lasttoken(loginMgr->GetLoginInfo()->token());
+        clientInfo->set_tokenexpiretime(loginMgr->GetLoginInfo()->keyexpiretime());
+
+    }
 
     return clientInfo;
 }

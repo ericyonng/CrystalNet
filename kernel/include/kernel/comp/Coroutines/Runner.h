@@ -31,6 +31,8 @@
 
 #pragma once
 
+#ifdef CRYSTAL_NET_CPP20
+
 #include <kernel/kernel_export.h>
 #include <kernel/common/macro.h>
 #include <kernel/comp/Coroutines/Concept/Future.h>
@@ -101,5 +103,7 @@ ALWAYS_INLINE void RunRightNow(T &&t, Args... args)
 }
 
 KERNEL_END
+
+#endif
 
 #endif

@@ -53,8 +53,12 @@ KERNEL_BEGIN
 
 class BigNum;
 
-template<typename T>
-concept NumericTypeTraits = IsLibBriefDataType<T>::value;
+#ifdef CRYSTAL_NET_CPP20
+
+    template<typename T>
+    concept NumericTypeTraits = IsLibBriefDataType<T>::value;
+
+#endif
 
 struct KERNEL_EXPORT BigNumRaw
 {
@@ -77,38 +81,66 @@ public:
 public:
     BigNum(UInt64 high, UInt64 low);
     BigNum(const BigNumRaw &other);
+    #ifdef CRYSTAL_NET_CPP20
     template<NumericTypeTraits T>
+    #else
+    template<typename T>
+    #endif
     BigNum(T number);
 
 #pragma endregion
 
 #pragma region operator methods
+    #ifdef CRYSTAL_NET_CPP20
     template<NumericTypeTraits T>
+    #else
+    template<typename T>
+    #endif
     BigNum operator +(T other) const;
 
+    #ifdef CRYSTAL_NET_CPP20
     template<NumericTypeTraits T>
+    #else
+    template<typename T>
+    #endif
     BigNum &operator +=(T other);
 
     BigNum operator +(const BigNum &bigNum) const;
 
     BigNum &operator +=(const BigNum &bigNum);
 
+    #ifdef CRYSTAL_NET_CPP20
     template<NumericTypeTraits T>
+    #else
+    template<typename T>
+    #endif
     BigNum operator -(T other) const;
 
+    #ifdef CRYSTAL_NET_CPP20
     template<NumericTypeTraits T>
+    #else
+    template<typename T>
+    #endif
     BigNum &operator -=(T other);
 
     BigNum operator -(const BigNum &bigNum) const;
 
     BigNum &operator -=(const BigNum &bigNum);
 
+    #ifdef CRYSTAL_NET_CPP20
     template<NumericTypeTraits T>
+    #else
+    template<typename T>
+    #endif
     BigNum operator &(T number) const;
 
     BigNum operator &(const BigNum &number) const;
 
+    #ifdef CRYSTAL_NET_CPP20
     template<NumericTypeTraits T>
+    #else
+    template<typename T>
+    #endif
     BigNum &operator &=(T number);
 
     BigNum &operator &=(const BigNum &number);
@@ -121,22 +153,38 @@ public:
 
     BigNum &operator >>=(Int32 number);
 
+    #ifdef CRYSTAL_NET_CPP20
     template<NumericTypeTraits T>
+    #else
+    template<typename T>
+    #endif
     BigNum operator |(T number) const;
 
     BigNum operator |(const BigNum &number) const;
 
+    #ifdef CRYSTAL_NET_CPP20
     template<NumericTypeTraits T>
+    #else
+    template<typename T>
+    #endif
     BigNum &operator |=(T number);
 
     BigNum &operator |=(const BigNum &number);
 
+    #ifdef CRYSTAL_NET_CPP20
     template<NumericTypeTraits T>
+    #else
+    template<typename T>
+    #endif
     BigNum operator ^(T number) const;
 
     BigNum operator ^(const BigNum &number) const;
 
+    #ifdef CRYSTAL_NET_CPP20
     template<NumericTypeTraits T>
+    #else
+    template<typename T>
+    #endif
     BigNum &operator ^=(T number);
 
     BigNum &operator ^=(const BigNum &number);
@@ -161,7 +209,11 @@ public:
 
     bool operator >=(const BigNum &number) const;
 
+    #ifdef CRYSTAL_NET_CPP20
     template<NumericTypeTraits T>
+    #else
+    template<typename T>
+    #endif
     BigNum &operator =(T number);
 
     template<typename T>
@@ -205,7 +257,11 @@ ALWAYS_INLINE BigNum::BigNum(const BigNumRaw &other)
 
 }
 
+#ifdef CRYSTAL_NET_CPP20
 template<NumericTypeTraits T>
+#else
+template<typename T>
+#endif
 ALWAYS_INLINE BigNum::BigNum(T number)
 :_raw{0, (UInt64)number}
 {
@@ -213,7 +269,11 @@ ALWAYS_INLINE BigNum::BigNum(T number)
 }
 
 
+#ifdef CRYSTAL_NET_CPP20
 template<NumericTypeTraits T>
+#else
+template<typename T>
+#endif
 ALWAYS_INLINE BigNum BigNum::operator +(T other) const
 {
     // TODO:可以使用SIMD指令来加速运算
@@ -247,7 +307,11 @@ ALWAYS_INLINE BigNum BigNum::operator +(T other) const
 }
 
 
+#ifdef CRYSTAL_NET_CPP20
 template<NumericTypeTraits T>
+#else
+template<typename T>
+#endif
 ALWAYS_INLINE BigNum &BigNum::operator +=(T other)
 {
     // TODO:可以使用SIMD指令来加速运算
@@ -324,7 +388,11 @@ ALWAYS_INLINE BigNum &BigNum::operator +=(const BigNum &bigNum)
     return *this;
 }
 
+#ifdef CRYSTAL_NET_CPP20
 template<NumericTypeTraits T>
+#else
+template<typename T>
+#endif
 ALWAYS_INLINE BigNum BigNum::operator -(T other) const
 {
     // TODO:可以使用SIMD指令来加速运算
@@ -355,7 +423,11 @@ ALWAYS_INLINE BigNum BigNum::operator -(T other) const
 }
 
 
+#ifdef CRYSTAL_NET_CPP20
 template<NumericTypeTraits T>
+#else
+template<typename T>
+#endif
 ALWAYS_INLINE BigNum &BigNum::operator -=(T other)
 {
     // TODO:可以使用SIMD指令来加速运算
@@ -430,14 +502,21 @@ ALWAYS_INLINE BigNum &BigNum::operator -=(const BigNum &bigNum)
     return *this;
 }
 
+#ifdef CRYSTAL_NET_CPP20
 template<NumericTypeTraits T>
+#else
+template<typename T>
+#endif
 ALWAYS_INLINE BigNum BigNum::operator &(T number) const
 {
     return BigNum(0, _raw._low & (UInt64)number);
 }
 
-
+#ifdef CRYSTAL_NET_CPP20
 template<NumericTypeTraits T>
+#else
+template<typename T>
+#endif
 ALWAYS_INLINE BigNum &BigNum::operator &=(T number)
 {
     _raw._low &= (UInt64)number;
@@ -515,7 +594,11 @@ ALWAYS_INLINE BigNum &BigNum::operator >>=(Int32 number)
     return *this;
 }
 
+#ifdef CRYSTAL_NET_CPP20
 template<NumericTypeTraits T>
+#else
+template<typename T>
+#endif
 ALWAYS_INLINE BigNum BigNum::operator |(T number) const
 {
     return BigNum(_raw._high, _raw._low | (UInt64)number);
@@ -529,7 +612,11 @@ ALWAYS_INLINE BigNum BigNum::operator |(const BigNum &number) const
 }
 
     
+#ifdef CRYSTAL_NET_CPP20
 template<NumericTypeTraits T>
+#else
+template<typename T>
+#endif
 ALWAYS_INLINE BigNum &BigNum::operator |=(T number)
 {
     _raw._low |= (UInt64)number;
@@ -548,7 +635,11 @@ ALWAYS_INLINE BigNum &BigNum::operator |=(const BigNum &number)
     return *this;
 }
 
+#ifdef CRYSTAL_NET_CPP20
 template<NumericTypeTraits T>
+#else
+template<typename T>
+#endif
 ALWAYS_INLINE BigNum BigNum::operator ^(T number) const
 {
     return BigNum(_raw._high ^ 0, _raw._low ^ (UInt64)number);
@@ -561,7 +652,11 @@ ALWAYS_INLINE BigNum BigNum::operator ^(const BigNum &number) const
     return BigNum(_raw._high ^ otherRaw._high, _raw._low ^ otherRaw._low);
 }
 
+#ifdef CRYSTAL_NET_CPP20
 template<NumericTypeTraits T>
+#else
+template<typename T>
+#endif
 ALWAYS_INLINE BigNum &BigNum::operator ^=(T number)
 {
     _raw._low ^= (UInt64)number;
@@ -623,7 +718,11 @@ ALWAYS_INLINE bool BigNum::operator >=(const BigNum &number) const
     return !operator<(number);
 }
 
+#ifdef CRYSTAL_NET_CPP20
 template<NumericTypeTraits T>
+#else
+template<typename T>
+#endif
 ALWAYS_INLINE BigNum &BigNum::operator =(T number)
 {
     _raw._low = (UInt64)number;
@@ -706,6 +805,7 @@ ALWAYS_INLINE bool BigNum::IsNotZero() const
 
 KERNEL_END
 
+#ifdef CRYSTAL_NET_CPP20
 template<KERNEL_NS::NumericTypeTraits T>
 extern ALWAYS_INLINE bool operator && (T number, const KERNEL_NS::BigNum &other)
 {
@@ -753,4 +853,6 @@ extern ALWAYS_INLINE bool operator >= (T number, const KERNEL_NS::BigNum &other)
 {
     return other < number;
 }
+#endif
+
 #endif

@@ -34,11 +34,13 @@
 
 KERNEL_BEGIN
 
+#ifdef CRYSTAL_NET_CPP20
 void CoToolsPushPoller(KERNEL_NS::AsyncTaskPollerEvent *ev)
 {
     auto poller = KERNEL_NS::TlsUtil::GetPoller();
     // TODO:需要考虑失败情况
     poller->Push(ev);
 }
+#endif
 
 KERNEL_END

@@ -89,9 +89,12 @@ std::atomic<UInt64> &LibTraceId::GetAtomicMaxId()
 }
 
 LibTraceId *LibTraceId::GetCurrentTrace()
-{     
+{
+#ifdef CRYSTAL_NET_CPP20
   if(auto currentCo = CoTaskParam::GetCurrentCoParam())
         return currentCo->_trace;
+#endif
+    
 
   auto tlsTrace = TlsUtil::GetOrCreateTargetPtr<TlsLibTrace>();
   if(UNLIKELY(!tlsTrace->_ptr->_trace))

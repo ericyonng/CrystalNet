@@ -84,16 +84,21 @@ public:
     virtual KERNEL_NS::IProtocolStack *GetProtocolStack(KERNEL_NS::LibSession *session) final;
 
     template<typename CallbackType>
+    #ifdef CRYSTAL_NET_CPP20
     requires requires(CallbackType cb)
     {
         {cb()} ->std::same_as<KERNEL_NS::PollerEvent *>;
     }
+    #endif
     void BroadcastMsg(CallbackType &&cb);
 
     const std::unordered_map<UInt64, IService *> &GetServiceDict() const;
     const std::unordered_map<UInt64, std::atomic_bool> &GetServiceRejectStatus() const;
     const IService *GetService(UInt64 serviceId) const;
 
+    virtual bool IsServiceReady(const KERNEL_NS::LibString &serviceName) const override;
+    virtual std::vector<IService *> GetServices(const KERNEL_NS::LibString &serviceName) const;
+    
     // 设置服务创建工厂 在application init后主动调用
     void SetServiceFactory(IServiceFactory *serviceFactory);
 
@@ -128,7 +133,7 @@ private:
     void _OnServiceThread(KERNEL_NS::LibThread *t, KERNEL_NS::Variant *params);
 
 private:
-    KERNEL_NS::SpinLock _guard;                                     // 服务资源锁
+    mutable KERNEL_NS::SpinLock _guard;                                     // 服务资源锁
     std::unordered_map<UInt64, IService *> _idRefService;                     // 服务
     std::vector<KERNEL_NS::LibThread *> _serviceThreads;            // 每个服务独立一个线程
     std::vector<KERNEL_NS::LibString> _activeServices;              // 激活的服务
@@ -155,10 +160,12 @@ ALWAYS_INLINE const Application *ServiceProxy::GetApp() const
 }
 
 template<typename CallbackType>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(CallbackType cb)
 {
     {cb()} ->std::same_as<KERNEL_NS::PollerEvent *>;
 }
+#endif
 ALWAYS_INLINE void ServiceProxy::BroadcastMsg(CallbackType &&cb)
 {
     for(auto iter = _serviceIdRefRejectServiceStatus.begin(); iter != _serviceIdRefRejectServiceStatus.end(); ++iter)

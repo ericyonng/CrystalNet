@@ -95,6 +95,7 @@ public:
     virtual void Run() override
     {
         // 投递到事件循环中
+        #ifdef CRYSTAL_NET_CPP20
         KERNEL_NS::PostCaller([]()->KERNEL_NS::CoTask<>
         {
             co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromMilliSeconds(1));
@@ -118,6 +119,8 @@ public:
                 //     ;
             }
         });
+
+        #endif
     }
     virtual void Release() override
     {
@@ -139,6 +142,7 @@ public:
     }
     virtual void Run() override
     {
+        #ifdef CRYSTAL_NET_CPP20
         KERNEL_NS::PostCaller([]()->KERNEL_NS::CoTask<void>
         {
            co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromMilliSeconds(1));
@@ -172,6 +176,8 @@ public:
            }
             
         });
+
+        #endif
         // poller->SubscribeObjectEvent<TestGenReq>([](KERNEL_NS::StubPollerEvent *ev)
         // {
         //     g_ConsumeNum.fetch_add(1, std::memory_order_release);
@@ -194,6 +200,7 @@ public:
 
     virtual void Run() override
     {
+        #ifdef CRYSTAL_NET_CPP20
         KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<void>
         {
             co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromMinutes(5));
@@ -204,6 +211,7 @@ public:
 
             _control->QuitLoop();
         });
+        #endif
     }
     virtual void Release() override
     {
@@ -254,6 +262,7 @@ public:
     virtual void Run() override
     {
         // 投递到事件循环中
+        #ifdef CRYSTAL_NET_CPP20
         KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<>
         {
             auto poller = KERNEL_NS::TlsUtil::GetPoller();
@@ -286,6 +295,8 @@ public:
                 //     ;
             }
         });
+
+        #endif
     }
     virtual void Release() override
     {

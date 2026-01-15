@@ -83,6 +83,48 @@ void ServiceProxy::PostMsg(UInt64 serviceId, KERNEL_NS::PollerEvent *msg, Int64 
         service->AddRecvPackets(packetsCount);
 }
 
+bool ServiceProxy::IsServiceReady(const KERNEL_NS::LibString &serviceName) const
+{
+    _guard.Lock();
+    bool isReady = !_idRefService.empty();
+    for (auto iter : _idRefService)
+    {
+        auto service = iter.second;
+        if (service->GetServiceName() != serviceName)
+        {
+            continue;
+        }
+
+        if (!service->IsReady())
+        {
+            _guard.Unlock();
+            return false;
+        }
+    }
+    _guard.Unlock();
+
+    return isReady;
+}
+
+std::vector<IService *> ServiceProxy::GetServices(const KERNEL_NS::LibString &serviceName) const
+{
+    std::vector<IService *> services;
+    _guard.Lock();
+    for (auto iter : _idRefService)
+    {
+        auto service = iter.second;
+        if (service->GetServiceName() != serviceName)
+        {
+            continue;
+        }
+
+        services.push_back(const_cast<IService *>(service));
+    }
+    _guard.Unlock();
+    
+    return services;
+}
+
 void ServiceProxy::PostQuitService()
 {
     _guard.Lock();

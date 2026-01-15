@@ -113,10 +113,12 @@ public:
     template<typename ObjType>
     bool AddTask2(ObjType *obj, void (ObjType::*callback)(LibThreadPool *, Variant *), Variant *params, bool forceNewThread = false, Int32 numOfThreadToCreateIfNeed = 1);
     template<typename LambdaType>
+    #ifdef CRYSTAL_NET_CPP20
     requires requires(LambdaType invoke, LibThreadPool * pool, Variant *var)
     {
         invoke(pool, var);
     }
+    #endif
     bool AddTask2(LambdaType &&lamb, Variant *params = NULL, bool forceNewThread = false, Int32 numOfThreadToCreateIfNeed = 1);
     
     Int32 GetWorkThreadNum() const;
@@ -299,10 +301,12 @@ ALWAYS_INLINE bool LibThreadPool::AddTask2(ObjType *obj, void (ObjType::*callbac
 }
 
 template<typename LambdaType>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(LambdaType invoke, LibThreadPool * pool, Variant *var)
 {
     invoke(pool, var);
 }
+#endif
 ALWAYS_INLINE bool LibThreadPool::AddTask2(LambdaType &&lamb, Variant *params, bool forceNewThread, Int32 numOfThreadToCreateIfNeed)
 {
     auto deleg = KERNEL_CREATE_CLOSURE_DELEGATE(lamb, void, LibThreadPool *, Variant *);

@@ -31,6 +31,8 @@
 
 #pragma once
 
+#ifdef CRYSTAL_NET_CPP20
+
 #include <kernel/kernel_export.h>
 #include <kernel/common/macro.h>
 #include <kernel/common/NonCopyabale.h>
@@ -92,5 +94,7 @@ private:
 KERNEL_EXPORT CoTask<> CoDelay(KERNEL_NS::TimeSlice delay);
 
 KERNEL_END
+
+#endif
 
 #endif

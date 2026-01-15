@@ -112,8 +112,8 @@ public:
     const LibString &GetPrivateKey() const;
 
     // 导出到文件
-    void PubKeyToFile(FILE *fp);
-    void PrivateKeyToFile(FILE *fp);
+    void PubKeyToFile(FILE *fp)  const;
+    void PrivateKeyToFile(FILE *fp) const;
 
     // 设置加密模式
     void SetMode(Int32 mode);
@@ -141,20 +141,20 @@ public:
     // 支持循环分组加/解密 明文/密文长度 与padding相关 <= RsaSize(rsa) - paddingSize
 public:
     // 返回密文长度
-    Int32 PubKeyEncrypt(const KERNEL_NS::LibString &plainText, KERNEL_NS::LibString &cypherText);
-    Int32 PubKeyEncrypt(const U8 *plainText, Int64 plainTextLen, U8 *cypherText);
+    Int32 PubKeyEncrypt(const KERNEL_NS::LibString &plainText, KERNEL_NS::LibString &cypherText) const;
+    Int32 PubKeyEncrypt(const U8 *plainText, Int64 plainTextLen, U8 *cypherText) const;
     // 返回明文长度
-    Int32 PrivateKeyDecrypt(const KERNEL_NS::LibString &cypherText, KERNEL_NS::LibString &plainText);
-    Int32 PrivateKeyDecrypt(const U8 *cypherText, Int64 cypherLen, U8 *plainText);
-    Int32 PrivateKeyDecrypt(const U8 *cypherText, Int64 cypherLen, KERNEL_NS::LibString &plainText);
+    Int32 PrivateKeyDecrypt(const KERNEL_NS::LibString &cypherText, KERNEL_NS::LibString &plainText) const;
+    Int32 PrivateKeyDecrypt(const U8 *cypherText, Int64 cypherLen, U8 *plainText) const;
+    Int32 PrivateKeyDecrypt(const U8 *cypherText, Int64 cypherLen, KERNEL_NS::LibString &plainText) const;
    
     // 返回密文长度
-    Int32 PrivateKeyEncrypt(const KERNEL_NS::LibString &plainText, KERNEL_NS::LibString &cypherText);
-    Int32 PrivateKeyEncrypt(const U8 *plainText, Int64 plainTextLen, U8 *cypherText);
+    Int32 PrivateKeyEncrypt(const KERNEL_NS::LibString &plainText, KERNEL_NS::LibString &cypherText) const;
+    Int32 PrivateKeyEncrypt(const U8 *plainText, Int64 plainTextLen, U8 *cypherText) const;
     // 返回明文长度
-    Int32 PubKeyDecrypt(const KERNEL_NS::LibString &cypherText, KERNEL_NS::LibString &plainText);
-    Int32 PubKeyDecrypt(const U8 *cypherText, Int64 cypherLen, U8 *plainText);
-    Int32 PubKeyDecrypt(const U8 *cypherText, Int64 cypherLen, KERNEL_NS::LibString &plainText);
+    Int32 PubKeyDecrypt(const KERNEL_NS::LibString &cypherText, KERNEL_NS::LibString &plainText) const;
+    Int32 PubKeyDecrypt(const U8 *cypherText, Int64 cypherLen, U8 *plainText) const;
+    Int32 PubKeyDecrypt(const U8 *cypherText, Int64 cypherLen, KERNEL_NS::LibString &plainText) const;
 
     // 签名需要使用私钥,因为公钥是用来公开的,签名->数字签名,用于验证身份,如果公钥解密出来的结果与传过去的散列值一样说明是同一个人发的
     // digest:散列值可以是sha1,md5等openssl rsa支持的散列值算法
@@ -183,7 +183,7 @@ public:
     */
     bool VerifyDigest(Int32 digestType, const U8 *digest, UInt32 digestLen, const U8 *signData, UInt32 signLen);
     bool VerifyDigest(Int32 digestType, const LibString &digest, const LibString &signStr);
-    UInt32 CalcSignSize();
+    UInt32 CalcSignSize()  const;
 
 private:
     Int32 _mode;

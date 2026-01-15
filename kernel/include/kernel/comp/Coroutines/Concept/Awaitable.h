@@ -31,6 +31,8 @@
 
 #pragma once
 
+#ifdef CRYSTAL_NET_CPP20
+
 #include <coroutine>
 #include <type_traits>
 #include <forward_list>
@@ -80,5 +82,7 @@ static_assert(Awaitable<std::suspend_always>);
 static_assert(Awaitable<std::suspend_never>);
 
 KERNEL_END
+
+#endif
 
 #endif

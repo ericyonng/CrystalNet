@@ -65,6 +65,8 @@ void MongoDbMgr::SetUri(mongocxx::uri &&uri)
     _uri = std::move(uri);
 }
 
+#ifdef CRYSTAL_NET_CPP20
+
 KERNEL_NS::CoTask<bool> MongoDbMgr::Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, UInt64 keyValue)
 {
     co_return false;
@@ -74,6 +76,8 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::Query(KERNEL_NS::LibString dbName, KERNEL_NS
 {
     co_return false;
 }
+
+#endif
 
 Int32 MongoDbMgr::_OnHostInit()
 {

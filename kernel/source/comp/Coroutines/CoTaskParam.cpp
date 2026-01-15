@@ -27,6 +27,9 @@
 */
 
 #include <pch.h>
+
+#ifdef CRYSTAL_NET_CPP20
+
 #include <kernel/comp/Coroutines/CoTaskParam.h>
 
 #include "kernel/comp/Timer/LibTimer.h"
@@ -92,3 +95,5 @@ void TaskParamRefWrapper::Release()
 
 
 KERNEL_END
+
+#endif

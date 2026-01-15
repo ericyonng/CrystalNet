@@ -37,11 +37,13 @@ KERNEL_BEGIN
 
 
 template <typename Elem, UInt64 CapacitySize = 16 * 1024>
+#ifdef CRYSTAL_NET_CPP20
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
   requires CapacitySize >= 1 && (CapacitySize <= (SIZE_MAX -1 ));
 }
+#endif
 class SPSCQueue
 {
   // 至少冗余一个元素
@@ -104,12 +106,16 @@ public:
 
   // T可以被Args &&...构造, 如果下一个数据没读走则阻塞等待
   template <typename... Args>
+  #ifdef CRYSTAL_NET_CPP20
   requires std::is_constructible<Elem, Args &&...>::value
+  #endif
   void Emplace(Args &&...args) noexcept;
 
   // 如果下个数据没读走则退出, 返回false
   template <typename... Args>
+  #ifdef CRYSTAL_NET_CPP20
   requires std::is_constructible<Elem, Args &&...>::value
+  #endif
   bool TryEmplace(Args &&...args) noexcept;
 
   // 如果下一个数据没读走则阻塞等待
@@ -117,13 +123,17 @@ public:
 
   // 如果下一个数据没读走则阻塞等待
   template <typename P>
+  #ifdef CRYSTAL_NET_CPP20
   requires std::is_constructible<Elem, P &&>::value
+  #endif
   void Push(P &&v) noexcept;
   
   bool TryPush(const Elem &v) noexcept;
 
   template <typename P>
+  #ifdef CRYSTAL_NET_CPP20
   requires std::is_constructible<Elem, P &&>::value
+  #endif
   bool TryPush(P &&v) noexcept;
 
   bool TryPop(Elem &elem);
@@ -152,21 +162,27 @@ private:
 };
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
   requires CapacitySize >= 1 && (CapacitySize <= (SIZE_MAX -1 ));
 }
+#endif
 POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(SPSCQueue, Elem, CapacitySize);
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
   requires CapacitySize >= 1 && (CapacitySize <= (SIZE_MAX -1 ));
 }
+#endif
 template <typename... Args>
+#ifdef CRYSTAL_NET_CPP20
 requires std::is_constructible<Elem, Args &&...>::value
+#endif
 ALWAYS_INLINE void SPSCQueue<Elem, CapacitySize>::Emplace(Args &&...args) noexcept
 {
   auto const writeIdx = _writeIdx.load(std::memory_order_relaxed);
@@ -188,13 +204,17 @@ ALWAYS_INLINE void SPSCQueue<Elem, CapacitySize>::Emplace(Args &&...args) noexce
 }
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
   requires CapacitySize >= 1 && (CapacitySize <= (SIZE_MAX -1 ));
 }
+#endif
 template <typename... Args>
+#ifdef CRYSTAL_NET_CPP20
 requires std::is_constructible<Elem, Args &&...>::value
+#endif
 ALWAYS_INLINE bool SPSCQueue<Elem, CapacitySize>::TryEmplace(Args &&...args) noexcept
 {
   auto const writeIdx = _writeIdx.load(std::memory_order_relaxed);
@@ -216,48 +236,60 @@ ALWAYS_INLINE bool SPSCQueue<Elem, CapacitySize>::TryEmplace(Args &&...args) noe
 }
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
   requires CapacitySize >= 1 && (CapacitySize <= (SIZE_MAX -1 ));
 }
+#endif
 ALWAYS_INLINE void SPSCQueue<Elem, CapacitySize>::Push(const Elem &v) noexcept
 {
   Emplace(v);
 }
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
   requires CapacitySize >= 1 && (CapacitySize <= (SIZE_MAX -1 ));
 }
+#endif
 template <typename P>
+#ifdef CRYSTAL_NET_CPP20
 requires std::is_constructible<Elem, P &&>::value
+#endif
 ALWAYS_INLINE void  SPSCQueue<Elem, CapacitySize>::Push(P &&v) noexcept
 {
   Emplace(std::forward<P>(v));
 }
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
   requires CapacitySize >= 1 && (CapacitySize <= (SIZE_MAX -1 ));
 }
+#endif
 ALWAYS_INLINE bool SPSCQueue<Elem, CapacitySize>::TryPush(const Elem &v) noexcept
 {
   return TryEmplace(v);
 }
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
   requires CapacitySize >= 1 && (CapacitySize <= (SIZE_MAX -1 ));
 }
+#endif
 template <typename P>
+#ifdef CRYSTAL_NET_CPP20
 requires std::is_constructible<Elem, P &&>::value
+#endif
 ALWAYS_INLINE bool SPSCQueue<Elem, CapacitySize>::TryPush(P &&v) noexcept
 {
   return TryEmplace(std::forward<P>(v));
@@ -265,11 +297,13 @@ ALWAYS_INLINE bool SPSCQueue<Elem, CapacitySize>::TryPush(P &&v) noexcept
 
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
   requires CapacitySize >= 1 && (CapacitySize <= (SIZE_MAX -1 ));
 }
+#endif
 ALWAYS_INLINE bool SPSCQueue<Elem, CapacitySize>::TryPop(Elem &elem)
 {
   // 先读取, 如果读满了, 先更新下writeCache, 仍然是满的, 返回空
@@ -306,11 +340,13 @@ ALWAYS_INLINE bool SPSCQueue<Elem, CapacitySize>::TryPop(Elem &elem)
 }
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
   requires CapacitySize >= 1 && (CapacitySize <= (SIZE_MAX -1 ));
 }
+#endif
 ALWAYS_INLINE Elem *SPSCQueue<Elem, CapacitySize>::Front() noexcept
 {
   // 先读取, 如果读满了, 先更新下writeIdx, 仍然是满的, 返回空
@@ -328,11 +364,13 @@ ALWAYS_INLINE Elem *SPSCQueue<Elem, CapacitySize>::Front() noexcept
 }
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
   requires CapacitySize >= 1 && (CapacitySize <= (SIZE_MAX -1 ));
 }
+#endif
 ALWAYS_INLINE void SPSCQueue<Elem, CapacitySize>::Pop() noexcept
 {
   auto const readIdx = _readIdx.load(std::memory_order_relaxed);
@@ -353,11 +391,13 @@ ALWAYS_INLINE void SPSCQueue<Elem, CapacitySize>::Pop() noexcept
 }
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
   requires CapacitySize >= 1 && (CapacitySize <= (SIZE_MAX -1 ));
 }
+#endif
 ALWAYS_INLINE UInt64 SPSCQueue<Elem, CapacitySize>::Size() const noexcept
 {
   Int64 diff = _writeIdx.load(std::memory_order_acquire) -
@@ -370,11 +410,13 @@ ALWAYS_INLINE UInt64 SPSCQueue<Elem, CapacitySize>::Size() const noexcept
 }
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
   requires CapacitySize >= 1 && (CapacitySize <= (SIZE_MAX -1 ));
 }
+#endif
 ALWAYS_INLINE bool SPSCQueue<Elem, CapacitySize>::IsEmpty() const noexcept
 {
   return _writeIdx.load(std::memory_order_acquire) ==
@@ -382,11 +424,13 @@ ALWAYS_INLINE bool SPSCQueue<Elem, CapacitySize>::IsEmpty() const noexcept
 }
 
 template <typename Elem, UInt64 CapacitySize>
+#ifdef CRYSTAL_NET_CPP20
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
   requires CapacitySize >= 1 && (CapacitySize <= (SIZE_MAX -1 ));
 }
+#endif
 ALWAYS_INLINE constexpr  UInt64 SPSCQueue<Elem, CapacitySize>::Capacity() noexcept
 {
   return CapacityCount - 1;

@@ -158,6 +158,7 @@ LibString LibThread::ToString() const
     return info;
 }
 
+#ifdef CRYSTAL_NET_CPP20
 CoTask<const Poller *> LibThread::GetPoller() const
 {
     const Poller *poller = NULL;
@@ -195,6 +196,7 @@ CoTask<Poller *> LibThread::GetPoller()
 
     co_return poller;
 }
+#endif
 
 void LibThread::LibThreadHandlerLogic(void *param)
 {

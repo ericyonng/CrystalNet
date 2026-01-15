@@ -40,44 +40,54 @@ class KERNEL_EXPORT SortUtil
 {
 public:
     template<typename T>
+    #ifdef CRYSTAL_NET_CPP20
     requires requires(T t1, T t2)
     {
         t1 < t2;
     }
+    #endif
     static void QuickSort(std::vector<T> &arr);
 
 private:
     template<typename T>
+    #ifdef CRYSTAL_NET_CPP20
     requires requires(T t1, T t2)
     {
         t1 < t2;
     }
+    #endif
     static Int32 _Partition(std::vector<T> &arr, Int32 low, Int32 high);
 
     template<typename T>
+    #ifdef CRYSTAL_NET_CPP20
     requires requires(T t1, T t2)
     {
         t1 < t2;
     }
+    #endif
     static void _QuickSort(std::vector<T>& arr, Int32 low, Int32 high);
 };
 
 
 template<typename T>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(T t1, T t2)
 {
     t1 < t2;
 }
+#endif
 ALWAYS_INLINE void SortUtil::QuickSort(std::vector<T> &arr)
 {
     _QuickSort(arr, 0, static_cast<Int32>(arr.size()) - 1);
 }
 
 template<typename T>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(T t1, T t2)
 {
     t1 < t2;
 }
+#endif
 ALWAYS_INLINE Int32 SortUtil::_Partition(std::vector<T> &arr, Int32 low, Int32 high)
 {
     auto &random = KERNEL_NS::LibRandom<Int32, KERNEL_NS::_Build::TL>::GetInstance<0, (std::numeric_limits<Int32>::max)()>();
@@ -102,10 +112,12 @@ ALWAYS_INLINE Int32 SortUtil::_Partition(std::vector<T> &arr, Int32 low, Int32 h
 
 // 快速排序递归函数
 template<typename T>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(T t1, T t2)
 {
     t1 < t2;
 }
+#endif
 ALWAYS_INLINE void SortUtil::_QuickSort(std::vector<T>& arr, Int32 low, Int32 high)
 {
     if (low < high)

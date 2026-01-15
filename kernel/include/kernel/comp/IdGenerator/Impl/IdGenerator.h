@@ -37,7 +37,9 @@
 
 #include <kernel/comp/CompObject/CompObject.h>
 #include <kernel/comp/Delegate/IDelegate.h>
+#ifdef CRYSTAL_NET_CPP20
 #include <concepts>
+#endif
 
 KERNEL_BEGIN
 

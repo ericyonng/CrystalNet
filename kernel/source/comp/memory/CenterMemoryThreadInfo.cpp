@@ -187,9 +187,9 @@ void CenterMemoryThreadInfo::_Clear()
     ContainerUtil::DelContainer(_memoryAlloctorRefBlockCount);
     _profileLck.Unlock();
 
-    // 不是收集器所在线程的tls都清理掉
-    if(_collector->GetWorkerThreadId() != _threadId)
-        TlsUtil::DestroyTlsStack(_tlsStack);
+    // 不是收集器所在线程的tls都清理掉 TODO:有异常, 先不做释放后续待查
+    // if(_collector->GetWorkerThreadId() != _threadId)
+    //     TlsUtil::DestroyTlsStack(_tlsStack);
 
     _tlsStack = NULL;
 }

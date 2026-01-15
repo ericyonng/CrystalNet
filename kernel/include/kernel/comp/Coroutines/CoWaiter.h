@@ -29,6 +29,9 @@
 #ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_COROUTINES_CO_WAITER_H__
 #define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_COROUTINES_CO_WAITER_H__
 
+#pragma once
+
+#ifdef CRYSTAL_NET_CPP20
 
 #include <coroutine>
 #include <kernel/kernel_export.h>
@@ -129,5 +132,7 @@ CoTask<> CoCompleted();
 #endif
 
 KERNEL_END
+
+#endif
 
 #endif

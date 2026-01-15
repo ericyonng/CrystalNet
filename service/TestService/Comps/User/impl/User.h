@@ -95,6 +95,7 @@ public:
 
     virtual UserBaseInfo *GetUserBaseInfo() override;
     virtual const UserBaseInfo *GetUserBaseInfo() const override;
+    virtual void SetUserBaseInfo(UserBaseInfo *userInfo) override;
 
     virtual UInt64 GetUserId() const override;
 

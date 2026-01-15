@@ -35,7 +35,9 @@
 #include <kernel/kernel_export.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/Delegate/LibDelegate.h>
+#ifdef CRYSTAL_NET_CPP20
 #include <concepts>
+#endif
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
  #include <io.h>
@@ -70,10 +72,12 @@ public:
     , IDelegate<bool, const FindFileInfo &, bool &> *stepCallback, Int32 depth = -1);
 
     template<typename CallbackType>
+    #ifdef CRYSTAL_NET_CPP20
     requires requires(CallbackType cb, const FindFileInfo &findFileInfo, bool &isParentDirContinue)
     {
         { cb(findFileInfo, isParentDirContinue) } -> std::same_as<bool>;
     }
+    #endif
     static bool TraverseDirRecursively(const LibString &dir
     , CallbackType &&cb, Int32 depth = -1);
 
@@ -117,10 +121,12 @@ ALWAYS_INLINE bool DirectoryUtil::TraverseDirRecursively(const LibString &dir
 }
 
 template<typename CallbackType>
+#ifdef CRYSTAL_NET_CPP20
 requires requires(CallbackType cb, const FindFileInfo &findFileInfo, bool &isParentDirContinue)
 {
     { cb(findFileInfo, isParentDirContinue) } -> std::same_as<bool>;
 }
+#endif
 ALWAYS_INLINE bool DirectoryUtil::TraverseDirRecursively(const LibString &dir
 , CallbackType &&cb, Int32 depth)
 {

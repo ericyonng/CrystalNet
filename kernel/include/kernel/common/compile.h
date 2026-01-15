@@ -328,6 +328,16 @@
  #define CRYSTAL_SUPPORT_RDTSC 0
 #endif // x86 or x86_64
 
+// windows下非cpp20标准
+#undef CRYSTAL_PLATFORM_WINDOWS_NOT_CPP_20
+#define CRYSTAL_PLATFORM_WINDOWS_NOT_CPP_20 0
+#if CRYSTAL_PLATFORM_WINDOWS
+    #ifndef CRYSTAL_NET_CPP_20
+        #undef CRYSTAL_PLATFORM_WINDOWS_NOT_CPP_20
+        #define CRYSTAL_PLATFORM_WINDOWS_NOT_CPP_20 1
+    #endif
+#endif
+
 // 临时选项
 #include <kernel/common/tempcompile.h>
 

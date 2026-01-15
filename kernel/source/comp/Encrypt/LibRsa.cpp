@@ -454,7 +454,7 @@ bool LibRsa::ImportKey(const LibString *pubKey, const LibString *privateKey, UIn
     return true;
 }
 
-Int32 LibRsa::PubKeyEncrypt(const U8 *plainText, Int64 plainTextLen, U8 *cypherText)
+Int32 LibRsa::PubKeyEncrypt(const U8 *plainText, Int64 plainTextLen, U8 *cypherText) const
 {
     // 填充长度
     const Int32 paddingSize = GetPaddingSize(_padding);
@@ -493,7 +493,7 @@ Int32 LibRsa::PubKeyEncrypt(const U8 *plainText, Int64 plainTextLen, U8 *cypherT
     return totalBytes;
 }
 
-Int32 LibRsa::PrivateKeyDecrypt(const KERNEL_NS::LibString &cypherText, KERNEL_NS::LibString &plainText)
+Int32 LibRsa::PrivateKeyDecrypt(const KERNEL_NS::LibString &cypherText, KERNEL_NS::LibString &plainText) const
 {
     const auto cypherLen = static_cast<UInt64>(cypherText.size());
     auto plainSize = CalcPlainSizeByPrivKeyCypher(cypherLen);
@@ -513,7 +513,7 @@ Int32 LibRsa::PrivateKeyDecrypt(const KERNEL_NS::LibString &cypherText, KERNEL_N
     return finalBytes;
 }
 
-Int32 LibRsa::PrivateKeyDecrypt(const U8 *cypherText, Int64 cypherLen, U8 *plainText)
+Int32 LibRsa::PrivateKeyDecrypt(const U8 *cypherText, Int64 cypherLen, U8 *plainText) const
 {
     // 模长即输出的长度
     const Int64 modulusSize = static_cast<Int64>(RSA_size((RSA *)_privateRsa));
@@ -542,7 +542,7 @@ Int32 LibRsa::PrivateKeyDecrypt(const U8 *cypherText, Int64 cypherLen, U8 *plain
     return totalDecodeBytes;
 }
 
-Int32 LibRsa::PrivateKeyDecrypt(const U8 *cypherText, Int64 cypherLen, KERNEL_NS::LibString &plainText)
+Int32 LibRsa::PrivateKeyDecrypt(const U8 *cypherText, Int64 cypherLen, KERNEL_NS::LibString &plainText) const
 {
     auto plainSize = CalcPlainSizeByPrivKeyCypher(cypherLen);
     plainText.resize(plainSize);
@@ -561,7 +561,7 @@ Int32 LibRsa::PrivateKeyDecrypt(const U8 *cypherText, Int64 cypherLen, KERNEL_NS
     return finalBytes;
 }
 
-Int32 LibRsa::PrivateKeyEncrypt(const KERNEL_NS::LibString &plainText, KERNEL_NS::LibString &cypherText)
+Int32 LibRsa::PrivateKeyEncrypt(const KERNEL_NS::LibString &plainText, KERNEL_NS::LibString &cypherText) const
 {
     auto len = static_cast<UInt64>(plainText.size());
     auto calcLen = CalcCypherSizeByPrivKeyPlain(len);
@@ -581,7 +581,7 @@ Int32 LibRsa::PrivateKeyEncrypt(const KERNEL_NS::LibString &plainText, KERNEL_NS
     return finalBytes;
 }
 
-Int32 LibRsa::PrivateKeyEncrypt(const U8 *plainText, Int64 plainTextLen, U8 *cypherText)
+Int32 LibRsa::PrivateKeyEncrypt(const U8 *plainText, Int64 plainTextLen, U8 *cypherText) const
 {
         // 填充长度
     const Int32 paddingSize = GetPaddingSize(_padding);
@@ -621,7 +621,7 @@ Int32 LibRsa::PrivateKeyEncrypt(const U8 *plainText, Int64 plainTextLen, U8 *cyp
     return totalBytes;
 }
 
-Int32 LibRsa::PubKeyDecrypt(const KERNEL_NS::LibString &cypherText, KERNEL_NS::LibString &plainText)
+Int32 LibRsa::PubKeyDecrypt(const KERNEL_NS::LibString &cypherText, KERNEL_NS::LibString &plainText) const
 {
     const auto cypherLen = static_cast<UInt64>(cypherText.size());
     auto plainSize = CalcPlainSizeByPubKeyCypher(cypherLen);
@@ -641,7 +641,7 @@ Int32 LibRsa::PubKeyDecrypt(const KERNEL_NS::LibString &cypherText, KERNEL_NS::L
     return finalBytes;
 }
 
-Int32 LibRsa::PubKeyDecrypt(const U8 *cypherText, Int64 cypherLen, U8 *plainText)
+Int32 LibRsa::PubKeyDecrypt(const U8 *cypherText, Int64 cypherLen, U8 *plainText) const
 {
     // 模长即输出的长度
     const Int64 modulusSize = static_cast<UInt64>(RSA_size((RSA *)_pubRsa));
@@ -670,7 +670,7 @@ Int32 LibRsa::PubKeyDecrypt(const U8 *cypherText, Int64 cypherLen, U8 *plainText
     return totalDecodeBytes;
 }
 
-Int32 LibRsa::PubKeyDecrypt(const U8 *cypherText, Int64 cypherLen, KERNEL_NS::LibString &plainText)
+Int32 LibRsa::PubKeyDecrypt(const U8 *cypherText, Int64 cypherLen, KERNEL_NS::LibString &plainText) const
 {
     auto plainSize = CalcPlainSizeByPubKeyCypher(cypherLen);
     plainText.resize(plainSize);
@@ -689,13 +689,13 @@ Int32 LibRsa::PubKeyDecrypt(const U8 *cypherText, Int64 cypherLen, KERNEL_NS::Li
     return finalBytes;
 }
 
-void LibRsa::PubKeyToFile(FILE *fp)
+void LibRsa::PubKeyToFile(FILE *fp) const
 {
     FileUtil::WriteFile(*fp, _pubPkc1Key);
     FileUtil::FlushFile(*fp);
 }
 
-void LibRsa::PrivateKeyToFile(FILE *fp)
+void LibRsa::PrivateKeyToFile(FILE *fp) const
 {
     FileUtil::WriteFile(*fp, _privateKey);
     FileUtil::FlushFile(*fp);
@@ -753,7 +753,7 @@ UInt64 LibRsa::CalcPlainSizeByPrivKeyCypher(UInt64 cypherLen) const
     return (cypherLen / modulusSize) * effectSize + 1;
 }
 
-Int32 LibRsa::PubKeyEncrypt(const KERNEL_NS::LibString &plainText, KERNEL_NS::LibString &cypherText)
+Int32 LibRsa::PubKeyEncrypt(const KERNEL_NS::LibString &plainText, KERNEL_NS::LibString &cypherText) const
 {
     auto len = static_cast<UInt64>(plainText.size());
     auto calcLen = CalcCypherSizeByPubKeyPlain(len);
@@ -797,7 +797,7 @@ bool LibRsa::VerifyDigest(Int32 digestType, const U8 *digest, UInt32 digestLen, 
     return true;
 }
 
-UInt32 LibRsa::CalcSignSize()
+UInt32 LibRsa::CalcSignSize() const
 {
     return static_cast<UInt32>(RSA_size((RSA *)_privateRsa) + 1);
 }

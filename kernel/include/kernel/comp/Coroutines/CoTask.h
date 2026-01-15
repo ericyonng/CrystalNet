@@ -34,10 +34,14 @@
 
 #pragma once
 
+
 #include <kernel/kernel_export.h>
 #include <kernel/common/macro.h>
 #include <kernel/comp/memory/ObjPoolMacro.h>
+#ifdef CRYSTAL_NET_CPP20
 #include <coroutine>
+#endif
+
 #include <functional>
 #include <exception>
 #include <utility>
@@ -58,8 +62,11 @@
 
 #include "kernel/comp/LibTraceId.h"
 
+#ifdef CRYSTAL_NET_CPP20
+
 KERNEL_BEGIN
-    struct KERNEL_EXPORT NoWaitAtInitialSuspend {};
+
+struct KERNEL_EXPORT NoWaitAtInitialSuspend {};
 constexpr NoWaitAtInitialSuspend no_wait_at_initial_suspend;
 
 template<typename R = void>
@@ -766,5 +773,7 @@ static_assert(Promise<CoTask<>::promise_type>);
 static_assert(Future<CoTask<>>);
 
 KERNEL_END
+
+#endif
 
 #endif

@@ -122,6 +122,13 @@ KERNEL_EXPORT SpinLock &GetConsoleLocker();
 KERNEL_EXPORT void LockConsole();
 KERNEL_EXPORT void UnlockConsole();
 
+template<typename... Args>
+class CountArgs
+{
+public:
+    static constexpr Int32 Count = sizeof...(Args);
+};
+
 KERNEL_END
 
 #endif

@@ -77,6 +77,8 @@ protected:
 
     void _Clear();
 
+    void _BuildLoginInfo(LoginInfo &loginInfo, const KERNEL_NS::LibString &accountName, const KERNEL_NS::LibString &ip) const;
+
 private:
     std::map<KERNEL_NS::LibString, IClientUser *> _accountNameRefUser;
     std::map<UInt64, IClientUser *> _sessionIdRefUser;
@@ -86,8 +88,11 @@ private:
     KERNEL_NS::LibString _rsaPublicKey;
     KERNEL_NS::LibString _rsaPublicKeyRaw;
     KERNEL_NS::LibRsa _rsa;
-    AddrConfig *_targetAddrConfig;  // 测试的目标地址
+    // AddrConfig *_targetAddrConfig;  // 测试的目标地址
     KERNEL_NS::LibString _testLoginAccountName;
+
+    KERNEL_NS::LibString _finalTargetIp;
+    Int32 _finalTargetPort;
 };
 
 SERVICE_END

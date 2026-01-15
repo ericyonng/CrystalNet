@@ -32,6 +32,9 @@
 
 #pragma once
 
+#ifdef CRYSTAL_NET_CPP20
+
+
 #include <kernel/kernel_export.h>
 #include <kernel/common/macro.h>
 #include <kernel/comp/memory/ObjPoolMacro.h>
@@ -104,5 +107,7 @@ struct KERNEL_EXPORT TaskParamRefWrapper
 };
 
 KERNEL_END
+
+#endif
 
 #endif

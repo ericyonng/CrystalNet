@@ -197,6 +197,7 @@ public:
     // 用户基本信息
     virtual UserBaseInfo *GetUserBaseInfo() = 0;
     virtual const UserBaseInfo *GetUserBaseInfo() const = 0;
+    virtual void SetUserBaseInfo(UserBaseInfo *userInfo) = 0;
 
     // 用户id
     virtual UInt64 GetUserId() const = 0;

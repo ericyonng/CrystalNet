@@ -100,12 +100,14 @@ Int32 TestMgr::_OnGlobalSysInit()
     }
 
     // 测试rpc
+    #ifdef CRYSTAL_NET_CPP20
     KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<>
     {
         g_Log->Info(LOGFMT_OBJ_TAG("test mgr:%s"), ToString().c_str());
         
        co_await _TestRpc();
     });
+    #endif
     return Status::Success;
 }
 
@@ -414,6 +416,7 @@ void TestMgr::_OnQuitService(KERNEL_NS::LibEvent *ev)
     // timer->Schedule(1000);
 }
 
+#ifdef CRYSTAL_NET_CPP20
 KERNEL_NS::CoTask<> TestMgr::_TestRpc()
 {
     g_Log->Info(LOGFMT_OBJ_TAG("_TestRpc :%s"), ToString().c_str());
@@ -455,6 +458,7 @@ KERNEL_NS::CoTask<> TestMgr::_TestRpc()
 
     g_Log->Info(LOGFMT_OBJ_TAG(" co param err:%d"), param->_errCode);
 }
+#endif
 
 Int32 TestMgr::_ReadTestConfigs()
 {

@@ -44,6 +44,7 @@ SERVICE_BEGIN
 class IUser;
 class PendingUser;
 class User;
+class RoleAuthConfig;
 
 class UserMgr : public IUserMgr
 {
@@ -88,7 +89,14 @@ public:
     , KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var = NULL) override;
 
     Int32 LoadUser(const KERNEL_NS::LibString &accountName, KERNEL_NS::SmartPtr<PendingUser, KERNEL_NS::AutoDelMethods::CustomDelete> &pendingUser);
-    
+
+    // 权限用户
+    Int32 AuthRoleLogin(const RoleAuthConfig &config, KERNEL_NS::SmartPtr<PendingUser, KERNEL_NS::AutoDelMethods::CustomDelete> &pendingUser);
+    Int32 AuthRoleLogin(const RoleAuthConfig &config, IUser *user, KERNEL_NS::SmartPtr<PendingUser, KERNEL_NS::AutoDelMethods::CustomDelete> &pendingUser);
+
+    const RoleAuthConfig *CetAuthRoleConfig(const KERNEL_NS::LibString &accountName) const;
+    Int32 CheckAuthRole(const RoleAuthConfig &config, const PendingUser *pendingUser) const;
+
     virtual bool IsPhoneNumberBinded(const IUser *operateUser, UInt64 phoneNubmer, const std::set<UInt64> &excludeUserIds, bool &hasBindPhone) const override;
     virtual bool IsBindedPhone(UInt64 userId) const override;
 

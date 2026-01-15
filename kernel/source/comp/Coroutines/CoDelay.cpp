@@ -31,9 +31,11 @@
 
 KERNEL_BEGIN
 
+#ifdef CRYSTAL_NET_CPP20
 CoTask<> CoDelay(KERNEL_NS::TimeSlice delay) 
 {
     co_await CoDelayAwaiter {delay};
 }
+#endif
 
 KERNEL_END

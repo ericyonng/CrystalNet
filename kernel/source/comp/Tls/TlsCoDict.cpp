@@ -45,6 +45,7 @@ TlsCoDict::~TlsCoDict()
 
 void TlsCoDict::OnDestroy()
 {
+#ifdef CRYSTAL_NET_CPP20
   if(!_idRefHandle.empty())
   {
       // 打印还没销毁的协程
@@ -61,6 +62,8 @@ void TlsCoDict::OnDestroy()
 
       _idRefHandle.clear();
   }
+#endif
+    
 }
 
 

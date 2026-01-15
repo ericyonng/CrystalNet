@@ -63,8 +63,10 @@ private:
     void _OnQuitService(KERNEL_NS::LibEvent *ev);
 
     // 测试rpc
+#ifdef CRYSTAL_NET_CPP20
     KERNEL_NS::CoTask<> _TestRpc();
-
+#endif
+    
     Int32 _ReadTestConfigs();
 
     KERNEL_NS::ListenerStub _sessionConnected;

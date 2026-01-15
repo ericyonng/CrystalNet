@@ -154,10 +154,10 @@ void MyTestService::_OnServiceRegisterComps()
     RegisterComp<MyServiceCompFactory>();
 
     // 测试
-    RegisterComp<TestMgrFactory>();
+    // RegisterComp<TestMgrFactory>();
 
     // 用户管理
-    // RegisterComp<ClientUserMgrFactory>();
+    RegisterComp<ClientUserMgrFactory>();
 }
 
 Int32 MyTestService::_OnServiceInit()

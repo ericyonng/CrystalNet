@@ -34,7 +34,10 @@
 
 #include <kernel/kernel_export.h>
 #include <kernel/common/macro.h>
-#include <coroutine>
+
+#ifdef CRYSTAL_NET_CPP20
+ #include <coroutine>
+#endif
 
 KERNEL_BEGIN
 

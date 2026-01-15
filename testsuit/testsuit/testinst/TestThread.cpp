@@ -257,12 +257,16 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(TestThreadTPoolask3);
 //             pool.FinishClose();
 //     }
 // }
+
+#ifdef CRYSTAL_NET_CPP20
 static  KERNEL_NS::CoTask<KERNEL_NS::LibString> GetStr()
 {
     auto str = KERNEL_NS::LibString("ni hao");
 
     co_return str;
 }
+#endif
+
 void TestThread::Run()
 {
     auto poller = KERNEL_NS::TlsUtil::GetPoller();
@@ -270,6 +274,7 @@ void TestThread::Run()
     KERNEL_NS::SmartPtr<KERNEL_NS::LibEventLoopThreadPool, KERNEL_NS::AutoDelMethods::Release> pool = new KERNEL_NS::LibEventLoopThreadPool(1, 16);
     pool->Start();
 
+#ifdef CRYSTAL_NET_CPP20
     KERNEL_NS::PostCaller([poller, pool]() mutable ->KERNEL_NS::CoTask<>
     {
         KERNEL_NS::LibString info = "nihao ha";
@@ -320,6 +325,8 @@ void TestThread::Run()
         
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestThread, "current thread id:%llu, pool result:%s"), KERNEL_NS::SystemUtil::GetCurrentThreadId(), poolRes->c_str());
     });
+
+#endif
 
     poller->PrepareLoop();
     poller->EventLoop();

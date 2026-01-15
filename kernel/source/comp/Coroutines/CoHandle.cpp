@@ -32,6 +32,8 @@
 #include <kernel/comp/Coroutines/CoTools.h>
 #include <kernel/comp/Utils/TlsUtil.h>
 
+#ifdef CRYSTAL_NET_CPP20
+
 KERNEL_BEGIN
 
 KernelHandle::KernelHandle() noexcept
@@ -101,3 +103,5 @@ void CoHandle::DumpBacktraceFinish(const KERNEL_NS::LibString &content) const
 }
 
 KERNEL_END
+
+#endif

@@ -37,7 +37,10 @@
 
 #include "kernel/comp/Delegate/IDelegate.h"
 #include "kernel/comp/Delegate/LibDelegate.h"
-#include <concepts>
+
+#ifdef CRYSTAL_NET_CPP20
+ #include <concepts>
+#endif
 
 KERNEL_BEGIN
 
@@ -59,10 +62,12 @@ public:
     }
 
     template<typename LambdaType>
+#ifdef CRYSTAL_NET_CPP20
     requires requires(LambdaType l)
     {
         {l()}->std::same_as<void>;
     }
+#endif
     KernelFinally(LambdaType &&lamb)
     :_finalAction(KERNEL_CREATE_CLOSURE_DELEGATE(lamb, void))
     {
