@@ -973,13 +973,13 @@ ALWAYS_INLINE void Poller::UnSubscribeStubEvent(UInt64 stub)
     _stubRefCb.erase(iter);
 }
 
-// 忽略告警
+#ifdef CRYSTAL_NET_CPP20
+
+// 忽略告警（忽略协程的告警）
 #if CRYSTAL_TARGET_PLATFORM_LINUX
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Walways-inline-coroutine"
 #endif
-
-#ifdef CRYSTAL_NET_CPP20
 
 template<typename ResType, typename ReqType>
 requires requires(ReqType req, ResType res)

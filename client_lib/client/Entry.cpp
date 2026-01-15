@@ -52,7 +52,7 @@ public:
 KERNEL_NS::LibThread *Entry::EntryThread = NULL;
 std::atomic<KERNEL_NS::IApplication *> Entry::Application = {NULL};
 std::atomic<SERVICE_COMMON_NS::IService *> Entry::Service = {NULL};
-AccountInfo Entry::AccountInfo = {};
+AccountData Entry::AccountInfo = {};
 
 
 bool Entry::Run()

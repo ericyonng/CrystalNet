@@ -183,10 +183,6 @@ KERNEL_END
 #define KERNEL_CREATE_CLOSURE_DELEGATE(closureTypeFunc, Rtn, ...)    \
 KERNEL_NS::DelegateFactory::Create<decltype(closureTypeFunc), Rtn, ##__VA_ARGS__>(closureTypeFunc)
 
-// #undef KERNEL_CREATE_CLOSURE_DELEGATE
-// #define KERNEL_CREATE_CLOSURE_DELEGATE(closureTypeFunc, Rtn, ...)    \
-// KERNEL_PRINT_MSG(closureTypeFunc, Rtn, KERNEL_NS::CountArgs<##__VA_ARGS__>::Count)
-
 #include <kernel/comp/Delegate/LibDelegateImpl.h>
 
 #endif
