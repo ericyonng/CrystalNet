@@ -5,8 +5,8 @@
 
 # 变量与等号之间不可以有空格，否则会被当成命令
 SCRIPT_PATH="$(cd $(dirname $0); pwd)"
-DEBUG_LIBS=("libCrystalKernel_debug.so")
-RELEASE_LIBS=("libCrystalKernel.so")
+DEBUG_LIBS=$("libCrystalKernel_debug.so")
+RELEASE_LIBS=$("libCrystalKernel.so")
 OPEN_COREDUMP="opencoredump"
 COREDUMPFLAG="$2"
 ROOT_PATH=${SCRIPT_PATH}/../..
