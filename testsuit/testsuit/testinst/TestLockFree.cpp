@@ -222,8 +222,7 @@ private:
     KERNEL_NS::Poller *_control;
 };
 
-
-#pragma region // test poller events with >= 200w qps
+// test poller events with >= 200w qps
 
 
 // 消费者
@@ -308,7 +307,6 @@ private:
     int _id;
 };
 
-#pragma endregion
 void TestLockFree::Run()
 {
     // g_ReqList = KERNEL_NS::MPMCQueue<TestGenReq *>::New_MPMCQueue();

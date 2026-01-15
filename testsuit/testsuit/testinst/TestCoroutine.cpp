@@ -33,8 +33,6 @@
 // #include <format>
 #include <functional>
 
-#pragma region co
-
 #include <coroutine>
 
 // 协程打印堆栈
@@ -46,8 +44,6 @@
 
 #include "Comps/Test/Impl/TestMgr.h"
 #include "service/common/macro.h"
-
-#pragma endregion
 
 KERNEL_NS::CoTask<std::string> hello() {
     co_return "hello";

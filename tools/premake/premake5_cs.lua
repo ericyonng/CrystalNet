@@ -9,6 +9,8 @@ ISUSE_CLANG = _ARGS[1] and (_ARGS[1] == 'clang')
 -- 使用动态链接
 USE_KERNEL_SO = _ARGS[2] and (_ARGS[2] == 'use_kernel_so')
 
+USE_KERNEL_SO = false
+
 print('_ARGS:', _ARGS[1], _ARGS[2], _ARGS[3], ', ISUSE_CLANG:', ISUSE_CLANG)
 
 -- header directory
@@ -57,6 +59,8 @@ workspace ("CrystalNet_" .. _ACTION)
     location (BUILD_DIR .. _ACTION)
     -- target directory define
     targetdir (OUTPUT_DIR)
+
+	defines {"CRYSTAL_NET_STATIC_KERNEL_LIB"}
 
     filter { "system:windows", "language:c++" }
         defines { "_SCL_SECURE_NO_DEPRECATE" }
@@ -130,6 +134,7 @@ dofile("./kernel_premake5.lua")
 
 -- ****************************************************************************
 
+
 -- core library testsuite compile setting
 project "client_lib"
     -- language, kind
@@ -149,7 +154,7 @@ project "client_lib"
     }
 
     -- 导入内核接口
-	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB"}
+	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB"}
 
 	enable_precompileheader("pch.h", ROOT_DIR .. "client_lib/client_pch/pch.cpp")
 
@@ -224,7 +229,6 @@ project "client_lib"
     filter { "system:windows" }
         postbuildcommands(string.format("start %srunfirstly_scripts.bat %s", SCRIPT_PATH, _ACTION))
     filter {}
-
 
 
 -- close windows process

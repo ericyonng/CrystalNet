@@ -443,8 +443,6 @@ ALWAYS_INLINE LuaRegister<CLASS_TYPE, CTOR_TYPE>::LuaRegister(lua_State* ls, con
 	lua_pop(ls, 2);
 }
 
-#pragma region // LuaNewTraits
-
 template <typename CLASS_TYPE>
 struct LuaNewTraits<CLASS_TYPE, int()>
 {
@@ -711,10 +709,6 @@ struct LuaNewTraits<CLASS_TYPE, void(ARG1, ARG2, ARG3,
         return 1;
     }
 };
-
-#pragma endregion // LuaNewTraits
-
-#pragma region // LuaClassFunctionTraits
 
 template <typename FUNC_CLASS_TYPE>
 struct LuaClassFunctionTraits<void (FUNC_CLASS_TYPE::*)()>
@@ -1891,8 +1885,6 @@ struct LuaClassFunctionTraits<RET (FUNC_CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, A
     }
 };
 
-#pragma endregion // LuaClassFunctionTraits
-
 template <typename CLASS_TYPE, typename RET>
 struct LuaClassPropertyTraits
 {
@@ -1949,8 +1941,6 @@ struct LuaClassPropertyTraits
 		return 0;
 	}
 };
-
-#pragma region // LuaFunctionTraits
 
 template<>
 struct LuaFunctionTraits<void(*)()>
@@ -2470,9 +2460,6 @@ struct LuaFunctionTraits<RET (*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8,
     }
 };
 
-#pragma endregion // LuaFunctionTraits
-
-#pragma region // LuaRegisterRouter
 
 template<typename RET>
 struct LuaRegisterRouter<RET (*)()>
@@ -2764,8 +2751,6 @@ struct LuaRegisterRouter<RET (CLASS_TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6,
 		reg->DefClassFunc(arg, s);
 	}
 };
-
-#pragma endregion // LuaRegisterRouter
 
 KERNEL_END
 

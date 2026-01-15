@@ -43,7 +43,7 @@ KERNEL_BEGIN
  */
 #if CRYSTAL_SUPPORT_RDTSC
     #ifndef CRYSTAL_NET_STATIC_KERNEL_LIB
-        KERNEL_EXPORT bool IsSurportRdtscp;
+        KERNEL_EXPORT extern bool IsSurportRdtscp;
     #else
      extern bool IsSurportRdtscp;
     #endif

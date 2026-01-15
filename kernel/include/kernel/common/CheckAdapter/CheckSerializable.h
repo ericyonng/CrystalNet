@@ -38,8 +38,6 @@ KERNEL_BEGIN
 template<typename BuildType>
 class LibStream;
 
-#pragma region serializable
-
 // 检查类型可否序列化
 template<typename T, typename BuildType, LibDataType::ENUMS>
 struct CheckTypeSerializableResult
@@ -116,9 +114,6 @@ struct CheckTypeSerializable
     static constexpr bool value = CheckTypeSerializableResult<T, BuildType, LibTraitsDataType<T>::value>::value;
 };
 
-#pragma endregion
-
-#pragma region deserializable
 // 检查类型可否反序列化
 template<typename T, typename BuildType, LibDataType::ENUMS>
 struct CheckTypeDeserializableResult
@@ -195,9 +190,6 @@ struct CheckTypeDeserializable
     static constexpr bool value = CheckTypeDeserializableResult<T, BuildType, LibTraitsDataType<T>::value>::value;
 };
 
-#pragma endregion
-
-#pragma region CheckSerializable
 
 /*
 * 检查类型可否序列化: 简单数据类型是可序列化的, 指针类型是可序列化的, 类类型包含了序列化/反序列化接口是可序列化的
@@ -209,7 +201,6 @@ struct CheckSerializable
                                  (CheckTypeSerializable<T, _Build::TL>::value && CheckTypeDeserializable<T, _Build::TL>::value);
 };
 
-#pragma endregion
 
 KERNEL_END
 

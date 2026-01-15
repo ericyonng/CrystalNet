@@ -167,8 +167,6 @@ static void CurlTask(KERNEL_NS::LibThread *pool)
 //     poller->OnLoopEnd();
 // }
 
-#pragma region // async mode
-
 // http request class
 /*
 该类是对easy handle的封装，主要做一些初始化操作，设置url 、发送的内容
@@ -663,8 +661,6 @@ static void CurlMultiTask(KERNEL_NS::LibThreadPool *pool)
 //     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCurl, "QUIT HttpRequestGenTask"));
 // }
 
-
-#pragma endregion
 
 void TestCurl::Run(int argc, char const *argv[])
 {

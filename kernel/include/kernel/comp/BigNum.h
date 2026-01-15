@@ -77,7 +77,6 @@ public:
     // 0
     static constexpr BigNumRaw ZeroBigNum = {0, 0};
 
-#pragma region constructor
 public:
     BigNum(UInt64 high, UInt64 low);
     BigNum(const BigNumRaw &other);
@@ -88,9 +87,6 @@ public:
     #endif
     BigNum(T number);
 
-#pragma endregion
-
-#pragma region operator methods
     #ifdef CRYSTAL_NET_CPP20
     template<NumericTypeTraits T>
     #else
@@ -226,8 +222,6 @@ public:
     bool operator || (const BigNum &other) const;
 
     bool operator! () const;
-#pragma endregion
-
 
     LibString ToString() const;
     LibString ToHexString() const;

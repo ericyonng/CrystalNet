@@ -556,8 +556,6 @@ private:
     void _Clear();
 
     // 跨线程异步实现
-#pragma region
-
 private:
     // 事件返回处理
     void _OnObjectEventResponse(StubPollerEvent *ev);
@@ -577,7 +575,6 @@ private:
 
     // 取消订阅回调
     void UnSubscribeStubEvent(UInt64 stub);
-#pragma endregion
 
     void _Push(PollerEvent *ev);
     void _PushLocal(PollerEvent *ev);
@@ -609,7 +606,6 @@ private:
   std::unordered_map<Int32, KERNEL_NS::IDelegate<void, KERNEL_NS::PollerEvent *> *> _pollerEventHandler;
 
     // 跨线程异步实现
-#pragma region // async implement
     UInt64 _maxStub;
 
     // 订阅对象事件 stub => callback
@@ -617,7 +613,6 @@ private:
 
     // 订阅对象请求消息
     std::map<UInt64, IDelegate<void, StubPollerEvent *> *> _objTypeIdRefCallback;
-#pragma endregion
 
     // 向target申请的channel, 在释放的时候target应该在生产者都停止生产后才释放
     std::unordered_map<UInt64, Channel *> _idRefChannel;
