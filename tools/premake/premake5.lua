@@ -55,7 +55,6 @@ workspace ("CrystalNet_" .. _ACTION)
     -- target directory define
     targetdir (OUTPUT_DIR)
 
-	defines { "CRYSTAL_NET_STATIC_KERNEL_LIB" }
     filter { "system:windows", "language:c++" }
         defines { "_SCL_SECURE_NO_DEPRECATE" }
         defines { "_CRT_SECURE_NO_DEPRECATE" }
@@ -556,7 +555,7 @@ project "Gateway"
     }
 
     -- 导入内核接口 宏定义
-	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB"}
+	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB"}
 
 	enable_precompileheader("pch.h", ROOT_DIR .. "Gateway/Gateway_pch/pch.cpp")
 
@@ -654,7 +653,7 @@ project "CenterServer"
     }
 
     -- 导入内核接口 宏定义
-	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB"}
+	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB"}
 
 	enable_precompileheader("pch.h", ROOT_DIR .. "CenterServer/CenterServer_pch/pch.cpp")
 

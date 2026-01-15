@@ -13,6 +13,7 @@ project "CrystalKernel"
         kind "SharedLib"
     else
         kind "StaticLib"
+        defines {"CRYSTAL_NET_STATIC_KERNEL_LIB"}
     end
 
     -- 支持c++20
