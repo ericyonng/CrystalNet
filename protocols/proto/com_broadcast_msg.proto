@@ -16,10 +16,11 @@ message BroadcastMsgInfo
 message DataSourceInfo
 {
   // 试用全球唯一id, 接收端可以认为是唯一的
-  uint64 RequestId = 1;
+  sint64 RequestId = 1;
   // 数据
   bytes Data = 2;
 
   // 时间戳
   sint64 MsTime = 3;
 }
+

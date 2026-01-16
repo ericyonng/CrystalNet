@@ -360,9 +360,10 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDataListFieldNumber = 1,
+    kDataListFieldNumber = 2,
+    kPacketIdFieldNumber = 1,
   };
-  // repeated .CRYSTAL_NET.service.DataSourceInfo DataList = 1;
+  // repeated .CRYSTAL_NET.service.DataSourceInfo DataList = 2;
   int datalist_size() const;
   private:
   int _internal_datalist_size() const;
@@ -380,6 +381,15 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::DataSourceInfo >&
       datalist() const;
 
+  // sint64 PacketId = 1;
+  void clear_packetid();
+  int64_t packetid() const;
+  void set_packetid(int64_t value);
+  private:
+  int64_t _internal_packetid() const;
+  void _internal_set_packetid(int64_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.SendDataRequest)
  private:
   class _Internal;
@@ -389,6 +399,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::DataSourceInfo > datalist_;
+    int64_t packetid_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -674,29 +685,16 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRequestIdsFieldNumber = 1,
+    kPacketIdFieldNumber = 1,
   };
-  // repeated uint64 RequestIds = 1;
-  int requestids_size() const;
+  // sint64 PacketId = 1;
+  void clear_packetid();
+  int64_t packetid() const;
+  void set_packetid(int64_t value);
   private:
-  int _internal_requestids_size() const;
+  int64_t _internal_packetid() const;
+  void _internal_set_packetid(int64_t value);
   public:
-  void clear_requestids();
-  private:
-  uint64_t _internal_requestids(int index) const;
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
-      _internal_requestids() const;
-  void _internal_add_requestids(uint64_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-      _internal_mutable_requestids();
-  public:
-  uint64_t requestids(int index) const;
-  void set_requestids(int index, uint64_t value);
-  void add_requestids(uint64_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
-      requestids() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-      mutable_requestids();
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.SendDataResponse)
  private:
@@ -706,8 +704,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > requestids_;
-    mutable std::atomic<int> _requestids_cached_byte_size_;
+    int64_t packetid_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -1357,7 +1354,27 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 #endif  // __GNUC__
 // SendDataRequest
 
-// repeated .CRYSTAL_NET.service.DataSourceInfo DataList = 1;
+// sint64 PacketId = 1;
+inline void SendDataRequest::clear_packetid() {
+  _impl_.packetid_ = int64_t{0};
+}
+inline int64_t SendDataRequest::_internal_packetid() const {
+  return _impl_.packetid_;
+}
+inline int64_t SendDataRequest::packetid() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SendDataRequest.PacketId)
+  return _internal_packetid();
+}
+inline void SendDataRequest::_internal_set_packetid(int64_t value) {
+  
+  _impl_.packetid_ = value;
+}
+inline void SendDataRequest::set_packetid(int64_t value) {
+  _internal_set_packetid(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SendDataRequest.PacketId)
+}
+
+// repeated .CRYSTAL_NET.service.DataSourceInfo DataList = 2;
 inline int SendDataRequest::_internal_datalist_size() const {
   return _impl_.datalist_.size();
 }
@@ -1398,51 +1415,24 @@ SendDataRequest::datalist() const {
 
 // SendDataResponse
 
-// repeated uint64 RequestIds = 1;
-inline int SendDataResponse::_internal_requestids_size() const {
-  return _impl_.requestids_.size();
+// sint64 PacketId = 1;
+inline void SendDataResponse::clear_packetid() {
+  _impl_.packetid_ = int64_t{0};
 }
-inline int SendDataResponse::requestids_size() const {
-  return _internal_requestids_size();
+inline int64_t SendDataResponse::_internal_packetid() const {
+  return _impl_.packetid_;
 }
-inline void SendDataResponse::clear_requestids() {
-  _impl_.requestids_.Clear();
+inline int64_t SendDataResponse::packetid() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SendDataResponse.PacketId)
+  return _internal_packetid();
 }
-inline uint64_t SendDataResponse::_internal_requestids(int index) const {
-  return _impl_.requestids_.Get(index);
+inline void SendDataResponse::_internal_set_packetid(int64_t value) {
+  
+  _impl_.packetid_ = value;
 }
-inline uint64_t SendDataResponse::requestids(int index) const {
-  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SendDataResponse.RequestIds)
-  return _internal_requestids(index);
-}
-inline void SendDataResponse::set_requestids(int index, uint64_t value) {
-  _impl_.requestids_.Set(index, value);
-  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SendDataResponse.RequestIds)
-}
-inline void SendDataResponse::_internal_add_requestids(uint64_t value) {
-  _impl_.requestids_.Add(value);
-}
-inline void SendDataResponse::add_requestids(uint64_t value) {
-  _internal_add_requestids(value);
-  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.SendDataResponse.RequestIds)
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
-SendDataResponse::_internal_requestids() const {
-  return _impl_.requestids_;
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
-SendDataResponse::requestids() const {
-  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.SendDataResponse.RequestIds)
-  return _internal_requestids();
-}
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-SendDataResponse::_internal_mutable_requestids() {
-  return &_impl_.requestids_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-SendDataResponse::mutable_requestids() {
-  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.SendDataResponse.RequestIds)
-  return _internal_mutable_requestids();
+inline void SendDataResponse::set_packetid(int64_t value) {
+  _internal_set_packetid(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SendDataResponse.PacketId)
 }
 
 // -------------------------------------------------------------------

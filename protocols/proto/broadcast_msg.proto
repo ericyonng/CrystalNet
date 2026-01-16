@@ -7,14 +7,17 @@ import "com_broadcast_msg.proto";
 /// Opcode:
 message SendDataRequest
 {
-    repeated DataSourceInfo DataList = 1;
+    // 包id, response回传回来
+    sint64 PacketId = 1;
+    repeated DataSourceInfo DataList = 2;
 }
 
 // 数据源发送数据回执,用于确认收到
 /// Opcode:
 message SendDataResponse
 {
-  repeated uint64 RequestIds = 1;
+    // 用发送数据的其中一条来代替整个包已收到
+    sint64 PacketId = 1;
 }
 
 // 广播消息

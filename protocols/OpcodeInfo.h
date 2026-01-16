@@ -1118,3 +1118,25 @@
         _allOpcodeInfo.push_back(info);
         _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, BroadcastMsgResponseFactory::CreateFactory()));
     }
+
+    {// RpcReq
+        auto info = OpcodeInfo();
+        info._opcode = 122;
+        info._noLog = false;
+        info._enableStorage = false;
+        info._opcodeName = "RpcReq";
+        info._protoFile = "rpc.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, RpcReqFactory::CreateFactory()));
+    }
+
+    {// RpcRes
+        auto info = OpcodeInfo();
+        info._opcode = 123;
+        info._noLog = false;
+        info._enableStorage = false;
+        info._opcodeName = "RpcRes";
+        info._protoFile = "rpc.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, RpcResFactory::CreateFactory()));
+    }

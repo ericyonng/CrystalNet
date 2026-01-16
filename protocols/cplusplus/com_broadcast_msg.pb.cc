@@ -43,7 +43,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORIT
 PROTOBUF_CONSTEXPR DataSourceInfo::DataSourceInfo(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.data_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.requestid_)*/uint64_t{0u}
+  , /*decltype(_impl_.requestid_)*/int64_t{0}
   , /*decltype(_impl_.mstime_)*/int64_t{0}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct DataSourceInfoDefaultTypeInternal {
@@ -95,7 +95,7 @@ const char descriptor_table_protodef_com_5fbroadcast_5fmsg_2eproto[] PROTOBUF_SE
   "\n\027com_broadcast_msg.proto\022\023CRYSTAL_NET.s"
   "ervice\"@\n\020BroadcastMsgInfo\022\016\n\006DataId\030\001 \001"
   "(\022\022\014\n\004Data\030\002 \001(\014\022\016\n\006MsTime\030\003 \001(\004\"A\n\016Data"
-  "SourceInfo\022\021\n\tRequestId\030\001 \001(\004\022\014\n\004Data\030\002 "
+  "SourceInfo\022\021\n\tRequestId\030\001 \001(\022\022\014\n\004Data\030\002 "
   "\001(\014\022\016\n\006MsTime\030\003 \001(\022b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_com_5fbroadcast_5fmsg_2eproto_once;
@@ -416,7 +416,7 @@ inline void DataSourceInfo::SharedCtor(
   (void)is_message_owned;
   new (&_impl_) Impl_{
       decltype(_impl_.data_){}
-    , decltype(_impl_.requestid_){uint64_t{0u}}
+    , decltype(_impl_.requestid_){int64_t{0}}
     , decltype(_impl_.mstime_){int64_t{0}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
@@ -463,10 +463,10 @@ const char* DataSourceInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // uint64 RequestId = 1;
+      // sint64 RequestId = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
-          _impl_.requestid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          _impl_.requestid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -517,10 +517,10 @@ uint8_t* DataSourceInfo::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // uint64 RequestId = 1;
+  // sint64 RequestId = 1;
   if (this->_internal_requestid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(1, this->_internal_requestid(), target);
+    target = ::_pbi::WireFormatLite::WriteSInt64ToArray(1, this->_internal_requestid(), target);
   }
 
   // bytes Data = 2;
@@ -558,9 +558,9 @@ size_t DataSourceInfo::ByteSizeLong() const {
         this->_internal_data());
   }
 
-  // uint64 RequestId = 1;
+  // sint64 RequestId = 1;
   if (this->_internal_requestid() != 0) {
-    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_requestid());
+    total_size += ::_pbi::WireFormatLite::SInt64SizePlusOne(this->_internal_requestid());
   }
 
   // sint64 MsTime = 3;

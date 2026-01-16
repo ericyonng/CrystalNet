@@ -61,6 +61,8 @@ public:
     virtual void AddUserBySessionId(UInt64 sessionId, IClientUser *user) override;
     virtual void RemoveUserBySessionId(UInt64 sessionId) override;
 
+    virtual std::map<KERNEL_NS::LibString, IClientUser *> &GetAllUsers() override;
+
 protected:
     virtual Int32 _OnGlobalSysInit() override;
     virtual Int32 _OnGlobalSysCompsCreated() override;

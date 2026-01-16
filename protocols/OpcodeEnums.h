@@ -129,5 +129,7 @@ public:
     static constexpr Int32 OPCODE_SendDataResponse = 119;    // broadcast_msg.proto
     static constexpr Int32 OPCODE_BroadcastMsgNty = 120;    // broadcast_msg.proto
     static constexpr Int32 OPCODE_BroadcastMsgResponse = 121;    // broadcast_msg.proto
-    static constexpr Int32 OPCODE_MAX = 121;
+    static constexpr Int32 OPCODE_RpcReq = 122;    // rpc.proto
+    static constexpr Int32 OPCODE_RpcRes = 123;    // rpc.proto
+    static constexpr Int32 OPCODE_MAX = 123;
 };

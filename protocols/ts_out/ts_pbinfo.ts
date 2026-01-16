@@ -1315,6 +1315,32 @@ export namespace ts_pbinfo{
     }
 
 
+    // rpc.proto 
+    export class RpcReq {
+      getOpcode():number {return RpcReq.OPCODE; }
+      getIsXorEncrypt():boolean {return RpcReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return RpcReq.KeyBase64; }
+      getOpcodeName():string {return RpcReq.OPCODE_NAME; }
+      static OPCODE:number = 122;
+      static OPCODE_NAME:string = "RpcReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // rpc.proto 
+    export class RpcRes {
+      getOpcode():number {return RpcRes.OPCODE; }
+      getIsXorEncrypt():boolean {return RpcRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return RpcRes.KeyBase64; }
+      getOpcodeName():string {return RpcRes.OPCODE_NAME; }
+      static OPCODE:number = 123;
+      static OPCODE_NAME:string = "RpcRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
     export class TsPbDict {
       static pb_dict = {
           [LoginReq.OPCODE]: new LoginReq(),
@@ -1513,7 +1539,11 @@ export namespace ts_pbinfo{
 
           [BroadcastMsgNty.OPCODE]: new BroadcastMsgNty(),
 
-          [BroadcastMsgResponse.OPCODE]: new BroadcastMsgResponse()
+          [BroadcastMsgResponse.OPCODE]: new BroadcastMsgResponse(),
+
+          [RpcReq.OPCODE]: new RpcReq(),
+
+          [RpcRes.OPCODE]: new RpcRes()
 
 
       }

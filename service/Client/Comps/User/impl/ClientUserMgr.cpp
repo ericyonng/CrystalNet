@@ -267,6 +267,11 @@ void ClientUserMgr::RemoveUserBySessionId(UInt64 sessionId)
     _sessionIdRefUser.erase(sessionId);
 }
 
+std::map<KERNEL_NS::LibString, IClientUser *> &ClientUserMgr::GetAllUsers()
+{
+    return _accountNameRefUser;
+}
+
 Int32 ClientUserMgr::_OnGlobalSysInit()
 {
     _heartbeatRemoveUserTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();

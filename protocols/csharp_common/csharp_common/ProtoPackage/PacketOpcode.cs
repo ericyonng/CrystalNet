@@ -104,6 +104,8 @@ public static class PacketOpcode
         SendDataResponse = 119,    // broadcast_msg.proto
         BroadcastMsgNty = 120,    // broadcast_msg.proto
         BroadcastMsgResponse = 121,    // broadcast_msg.proto
-        OpcodeMax = 121,
+        RpcReq = 122,    // rpc.proto
+        RpcRes = 123,    // rpc.proto
+        OpcodeMax = 123,
     }
 }

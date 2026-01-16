@@ -27,18 +27,18 @@ using ProtoPackage.Attributes;
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "ChNicm9hZGNhc3RfbXNnLnByb3RvEhNDUllTVEFMX05FVC5zZXJ2aWNlGhdj",
-            "b21fYnJvYWRjYXN0X21zZy5wcm90byJICg9TZW5kRGF0YVJlcXVlc3QSNQoI",
-            "RGF0YUxpc3QYASADKAsyIy5DUllTVEFMX05FVC5zZXJ2aWNlLkRhdGFTb3Vy",
-            "Y2VJbmZvIiYKEFNlbmREYXRhUmVzcG9uc2USEgoKUmVxdWVzdElkcxgBIAMo",
-            "BCJWCg9Ccm9hZGNhc3RNc2dOdHkSQwoUQnJvYWRjYXN0TXNnSW5mb0xpc3QY",
-            "ASADKAsyJS5DUllTVEFMX05FVC5zZXJ2aWNlLkJyb2FkY2FzdE1zZ0luZm8i",
-            "LwoUQnJvYWRjYXN0TXNnUmVzcG9uc2USFwoPUmVjaWV2ZWREYXRhSWRzGAEg",
-            "AygSYgZwcm90bzM="));
+            "b21fYnJvYWRjYXN0X21zZy5wcm90byJaCg9TZW5kRGF0YVJlcXVlc3QSEAoI",
+            "UGFja2V0SWQYASABKBISNQoIRGF0YUxpc3QYAiADKAsyIy5DUllTVEFMX05F",
+            "VC5zZXJ2aWNlLkRhdGFTb3VyY2VJbmZvIiQKEFNlbmREYXRhUmVzcG9uc2US",
+            "EAoIUGFja2V0SWQYASABKBIiVgoPQnJvYWRjYXN0TXNnTnR5EkMKFEJyb2Fk",
+            "Y2FzdE1zZ0luZm9MaXN0GAEgAygLMiUuQ1JZU1RBTF9ORVQuc2VydmljZS5C",
+            "cm9hZGNhc3RNc2dJbmZvIi8KFEJyb2FkY2FzdE1zZ1Jlc3BvbnNlEhcKD1Jl",
+            "Y2lldmVkRGF0YUlkcxgBIAMoEmIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::CRYSTALNET.Service.ComBroadcastMsgReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SendDataRequest), global::CRYSTALNET.Service.SendDataRequest.Parser, new[]{ "DataList" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SendDataResponse), global::CRYSTALNET.Service.SendDataResponse.Parser, new[]{ "RequestIds" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SendDataRequest), global::CRYSTALNET.Service.SendDataRequest.Parser, new[]{ "PacketId", "DataList" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SendDataResponse), global::CRYSTALNET.Service.SendDataResponse.Parser, new[]{ "PacketId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BroadcastMsgNty), global::CRYSTALNET.Service.BroadcastMsgNty.Parser, new[]{ "BroadcastMsgInfoList" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BroadcastMsgResponse), global::CRYSTALNET.Service.BroadcastMsgResponse.Parser, new[]{ "RecievedDataIds" }, null, null, null, null)
           }));
@@ -86,6 +86,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public SendDataRequest(SendDataRequest other) : this() {
+      packetId_ = other.packetId_;
       dataList_ = other.dataList_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -96,10 +97,25 @@ using ProtoPackage.Attributes;
       return new SendDataRequest(this);
     }
 
+    /// <summary>Field number for the "PacketId" field.</summary>
+    public const int PacketIdFieldNumber = 1;
+    private long packetId_;
+    /// <summary>
+    /// 包id, response回传回来
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long PacketId {
+      get { return packetId_; }
+      set {
+        packetId_ = value;
+      }
+    }
+
     /// <summary>Field number for the "DataList" field.</summary>
-    public const int DataListFieldNumber = 1;
+    public const int DataListFieldNumber = 2;
     private static readonly pb::FieldCodec<global::CRYSTALNET.Service.DataSourceInfo> _repeated_dataList_codec
-        = pb::FieldCodec.ForMessage(10, global::CRYSTALNET.Service.DataSourceInfo.Parser);
+        = pb::FieldCodec.ForMessage(18, global::CRYSTALNET.Service.DataSourceInfo.Parser);
     private readonly pbc::RepeatedField<global::CRYSTALNET.Service.DataSourceInfo> dataList_ = new pbc::RepeatedField<global::CRYSTALNET.Service.DataSourceInfo>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -122,6 +138,7 @@ using ProtoPackage.Attributes;
       if (ReferenceEquals(other, this)) {
         return true;
       }
+      if (PacketId != other.PacketId) return false;
       if(!dataList_.Equals(other.dataList_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -130,6 +147,7 @@ using ProtoPackage.Attributes;
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
+      if (PacketId != 0L) hash ^= PacketId.GetHashCode();
       hash ^= dataList_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -149,6 +167,10 @@ using ProtoPackage.Attributes;
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
+      if (PacketId != 0L) {
+        output.WriteRawTag(8);
+        output.WriteSInt64(PacketId);
+      }
       dataList_.WriteTo(output, _repeated_dataList_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -160,6 +182,10 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (PacketId != 0L) {
+        output.WriteRawTag(8);
+        output.WriteSInt64(PacketId);
+      }
       dataList_.WriteTo(ref output, _repeated_dataList_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -171,6 +197,9 @@ using ProtoPackage.Attributes;
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
+      if (PacketId != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(PacketId);
+      }
       size += dataList_.CalculateSize(_repeated_dataList_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -183,6 +212,9 @@ using ProtoPackage.Attributes;
     public void MergeFrom(SendDataRequest other) {
       if (other == null) {
         return;
+      }
+      if (other.PacketId != 0L) {
+        PacketId = other.PacketId;
       }
       dataList_.Add(other.dataList_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -200,7 +232,11 @@ using ProtoPackage.Attributes;
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case 8: {
+            PacketId = input.ReadSInt64();
+            break;
+          }
+          case 18: {
             dataList_.AddEntriesFrom(input, _repeated_dataList_codec);
             break;
           }
@@ -219,7 +255,11 @@ using ProtoPackage.Attributes;
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
+          case 8: {
+            PacketId = input.ReadSInt64();
+            break;
+          }
+          case 18: {
             dataList_.AddEntriesFrom(ref input, _repeated_dataList_codec);
             break;
           }
@@ -269,7 +309,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public SendDataResponse(SendDataResponse other) : this() {
-      requestIds_ = other.requestIds_.Clone();
+      packetId_ = other.packetId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -279,15 +319,19 @@ using ProtoPackage.Attributes;
       return new SendDataResponse(this);
     }
 
-    /// <summary>Field number for the "RequestIds" field.</summary>
-    public const int RequestIdsFieldNumber = 1;
-    private static readonly pb::FieldCodec<ulong> _repeated_requestIds_codec
-        = pb::FieldCodec.ForUInt64(10);
-    private readonly pbc::RepeatedField<ulong> requestIds_ = new pbc::RepeatedField<ulong>();
+    /// <summary>Field number for the "PacketId" field.</summary>
+    public const int PacketIdFieldNumber = 1;
+    private long packetId_;
+    /// <summary>
+    /// 用发送数据的其中一条来代替整个包已收到
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<ulong> RequestIds {
-      get { return requestIds_; }
+    public long PacketId {
+      get { return packetId_; }
+      set {
+        packetId_ = value;
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -305,7 +349,7 @@ using ProtoPackage.Attributes;
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if(!requestIds_.Equals(other.requestIds_)) return false;
+      if (PacketId != other.PacketId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -313,7 +357,7 @@ using ProtoPackage.Attributes;
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      hash ^= requestIds_.GetHashCode();
+      if (PacketId != 0L) hash ^= PacketId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -332,7 +376,10 @@ using ProtoPackage.Attributes;
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      requestIds_.WriteTo(output, _repeated_requestIds_codec);
+      if (PacketId != 0L) {
+        output.WriteRawTag(8);
+        output.WriteSInt64(PacketId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -343,7 +390,10 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      requestIds_.WriteTo(ref output, _repeated_requestIds_codec);
+      if (PacketId != 0L) {
+        output.WriteRawTag(8);
+        output.WriteSInt64(PacketId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -354,7 +404,9 @@ using ProtoPackage.Attributes;
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      size += requestIds_.CalculateSize(_repeated_requestIds_codec);
+      if (PacketId != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(PacketId);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -367,7 +419,9 @@ using ProtoPackage.Attributes;
       if (other == null) {
         return;
       }
-      requestIds_.Add(other.requestIds_);
+      if (other.PacketId != 0L) {
+        PacketId = other.PacketId;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -383,9 +437,8 @@ using ProtoPackage.Attributes;
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10:
           case 8: {
-            requestIds_.AddEntriesFrom(input, _repeated_requestIds_codec);
+            PacketId = input.ReadSInt64();
             break;
           }
         }
@@ -403,9 +456,8 @@ using ProtoPackage.Attributes;
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10:
           case 8: {
-            requestIds_.AddEntriesFrom(ref input, _repeated_requestIds_codec);
+            PacketId = input.ReadSInt64();
             break;
           }
         }

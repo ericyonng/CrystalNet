@@ -113,7 +113,7 @@ extern "C"
         // KERNEL_NS::KernelUtil::Destroy();
     }
 
-    void SendLog(char *buffer, int bufferSize, unsigned long long uid)
+    void SendLog(char *buffer, int bufferSize, long long uid)
     {
         KERNEL_NS::LibString data;
         data.AppendData(buffer, bufferSize);
@@ -128,10 +128,11 @@ extern "C"
         auto service = Entry::Service.load(std::memory_order_acquire);
         if (!service)
         {
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::Warn))
+                g_Log->Warn(LOGFMT_NON_OBJ_TAG(Entry, "SendLog have no service uid:%lld, bufferSize:%d"), uid, bufferSize);
             return;
         }
 
-        auto actionEv = KERNEL_NS::ActionPollerEvent::New_ActionPollerEvent();
         auto lamb = [service, pb = dataPb.pop()]()
         {
             auto sendLog = service->GetComp<CRYSTAL_NET::service::ISendLog>();
@@ -139,8 +140,9 @@ extern "C"
         };
         auto deleg = KERNEL_CREATE_CLOSURE_DELEGATE(lamb, void);
         service->GetPoller()->Push(deleg);
-        
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(Entry, "buffer:%p, bufferSize:%d, str:%s, service:%s"), buffer, bufferSize, data.c_str(), Entry::Service.load(std::memory_order_acquire)->ToString().c_str());
+
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+            g_Log->Debug(LOGFMT_NON_OBJ_TAG(Entry, "SendLog uid:%lld, bufferSize:%d"), uid, bufferSize);
     }
 
 }

@@ -603,6 +603,21 @@ export namespace crystal_net_service_parser
             })
 
 
+            this.add("RpcInfo", (jsonData:any):any =>{
+                return this.RpcInfoParser(jsonData);
+            })
+
+
+            this.add("RpcReq", (jsonData:any):any =>{
+                return this.RpcReqParser(jsonData);
+            })
+
+
+            this.add("RpcRes", (jsonData:any):any =>{
+                return this.RpcResParser(jsonData);
+            })
+
+
             this.add("SendDataRequest", (jsonData:any):any =>{
                 return this.SendDataRequestParser(jsonData);
             })
@@ -3208,8 +3223,86 @@ export namespace crystal_net_service_parser
             }
 
 
+            private RpcInfoParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.RpcInfo()
+
+                if(jsonData.RpcName != undefined)
+                {
+                    newInfo.RpcName = jsonData.RpcName;
+                }
+
+
+                if(jsonData.Stub != undefined)
+                {
+                    newInfo.Stub = parseFloat(jsonData.Stub);
+                }
+
+
+                if(jsonData.Data != undefined)
+                {
+                    newInfo.Data = jsonData.Data;
+                }
+
+                 return newInfo;
+            }
+
+
+            private RpcReqParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.RpcReq()
+
+                if(jsonData.RpcName != undefined)
+                {
+                    newInfo.RpcName = jsonData.RpcName;
+                }
+
+
+                if(jsonData.Stub != undefined)
+                {
+                    newInfo.Stub = parseFloat(jsonData.Stub);
+                }
+
+
+                if(jsonData.Data != undefined)
+                {
+                    newInfo.Data = jsonData.Data;
+                }
+
+                 return newInfo;
+            }
+
+
+            private RpcResParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.RpcRes()
+
+                if(jsonData.ErrCode != undefined)
+                {
+                    newInfo.ErrCode = parseFloat(jsonData.ErrCode);
+                }
+
+
+                if(jsonData.Stub != undefined)
+                {
+                    newInfo.Stub = parseFloat(jsonData.Stub);
+                }
+
+
+                if(jsonData.Data != undefined)
+                {
+                    newInfo.Data = jsonData.Data;
+                }
+
+                 return newInfo;
+            }
+
+
             private SendDataRequestParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.SendDataRequest()
+
+                if(jsonData.PacketId != undefined)
+                {
+                    newInfo.PacketId = parseFloat(jsonData.PacketId);
+                }
+
 
                 if(jsonData.DataList != undefined)
                 {
@@ -3231,13 +3324,9 @@ export namespace crystal_net_service_parser
             private SendDataResponseParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.SendDataResponse()
 
-                if(jsonData.RequestIds != undefined)
+                if(jsonData.PacketId != undefined)
                 {
-                    var jsonArray = jsonData.RequestIds.map((value, idx, arr)=>{
-                    return parseFloat(value);
-                    });
-
-                    newInfo.RequestIds = jsonArray;
+                    newInfo.PacketId = parseFloat(jsonData.PacketId);
                 }
 
                  return newInfo;

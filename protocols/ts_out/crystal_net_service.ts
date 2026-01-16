@@ -1416,10 +1416,45 @@ export namespace crystal_net_service
     export class RoleType {
 
     }
+    // com_rpc.proto
+    export class RpcInfo {
+        RpcName:string = "";
+
+        Stub:number = 0;
+
+        Data:string = "";
+
+
+    }
+    /// Opcode:
+    // rpc.proto
+    export class RpcReq {
+        RpcName:string = "";
+
+        Stub:number = 0;
+
+        Data:string = "";
+
+
+    }
+    /// Opcode:
+    // rpc.proto
+    export class RpcRes {
+        ErrCode:number = 0;
+
+        Stub:number = 0;
+
+        Data:string = "";
+
+
+    }
     // 数据源发送数据过来
     /// Opcode:
     // broadcast_msg.proto
     export class SendDataRequest {
+        // 包id, response回传回来
+        PacketId:number = 0;
+
         DataList:DataSourceInfo[] = [];
 
 
@@ -1428,7 +1463,8 @@ export namespace crystal_net_service
     /// Opcode:
     // broadcast_msg.proto
     export class SendDataResponse {
-        RequestIds:number[] = [];
+        // 用发送数据的其中一条来代替整个包已收到
+        PacketId:number = 0;
 
 
     }

@@ -29,5 +29,6 @@
 #pragma once
 
 #include <Comps/User/interface/IClientSys.h>
+#include <Comps/User/interface/IClientUser.h>
 #include <Comps/User/interface/IClientUserMgr.h>
 #include <Comps/User/impl/ClientUserMgrFactory.h>

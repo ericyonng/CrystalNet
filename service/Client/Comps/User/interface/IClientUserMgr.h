@@ -45,6 +45,8 @@ public:
 
     virtual void AddUserBySessionId(UInt64 sessionId, IClientUser *user) = 0;
     virtual void RemoveUserBySessionId(UInt64 sessionId) = 0;
+
+    virtual std::map<KERNEL_NS::LibString, IClientUser *> &GetAllUsers() = 0;
 };
 
 SERVICE_END

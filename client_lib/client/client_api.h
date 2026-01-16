@@ -15,5 +15,5 @@ extern "C"
 
     extern void CLIENT_LIB_EXPORT ClientClose();
 
-    extern void CLIENT_LIB_EXPORT SendLog(char *buffer, int bufferSize, unsigned long long uid);
+    extern void CLIENT_LIB_EXPORT SendLog(char *buffer, int bufferSize, long long uid);
 }
