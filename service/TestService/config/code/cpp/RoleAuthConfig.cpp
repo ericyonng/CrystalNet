@@ -20,6 +20,7 @@ SERVICE_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(RoleAuthConfig);
 RoleAuthConfig::RoleAuthConfig()
+:_accountType(0)
 {
 }
 
@@ -29,7 +30,7 @@ bool RoleAuthConfig::Parse(const KERNEL_NS::LibString &lineData)
 // format:column_{column id}_{data_len}:{json text}|...
 // example:column_1_10:{json text}|...
 
-    const Int32 fieldNum = 2;
+    const Int32 fieldNum = 3;
     Int32 countFieldNum = 0;
     Int32 startPos = 0;
 
@@ -98,6 +99,71 @@ bool RoleAuthConfig::Parse(const KERNEL_NS::LibString &lineData)
       ++countFieldNum;
     }// _id
 
+    {// _accountType
+        auto pos = lineData.GetRaw().find("column_", startPos);
+        if(pos == std::string::npos)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("parse field:AccountType, data format error: have no column_ prefix, lineData:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
+            return false;
+        }
+
+       auto headerTailPos = lineData.GetRaw().find(":", pos);
+       if(headerTailPos == std::string::npos)
+       {
+            g_Log->Error(LOGFMT_OBJ_TAG("parse field:AccountType, bad line data not find : symbol after column_ line data:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
+            return false;
+       }
+
+       // parse data
+       const KERNEL_NS::LibString headerInfo = lineData.GetRaw().substr(pos, headerTailPos - pos);
+       const auto headParts = headerInfo.Split('_');
+       if(headParts.empty())
+       {
+            g_Log->Error(LOGFMT_OBJ_TAG("parse field:AccountType, bad line data not find sep symbol:_ in header info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d,"),
+            lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
+            return false;
+       }
+
+       // check column id
+
+       const auto &columnIdString = headParts[1];
+       if(columnIdString.length() == 0)
+       {
+           g_Log->Error(LOGFMT_OBJ_TAG("parse field:AccountType have no column id, bad line data header len info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d,"), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
+           return false;
+       }
+       const UInt64 columnId = KERNEL_NS::StringUtil::StringToUInt64(columnIdString.c_str());
+       if(columnId != 3)
+       {
+           g_Log->Error(LOGFMT_OBJ_TAG("parse field:AccountType, fail: bad comumn id, columnId:%llu, real column id:3, please check if config data is old version, line data header len info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d"), columnId, lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
+           return false;
+       }
+
+       // data len
+       const auto &lenInfo = headParts[2];
+       if(lenInfo.length() == 0)
+       {
+           g_Log->Error(LOGFMT_OBJ_TAG("parse field:AccountType fail: bad line data header len info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d"), lineData.c_str(), 
+           static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
+           return false;
+       }
+
+       const Int32 dataLen = KERNEL_NS::StringUtil::StringToInt32(lenInfo.c_str());
+       const auto dataEndPos = headerTailPos + static_cast<decltype(headerTailPos)>(dataLen);
+       KERNEL_NS::LibString dataPart = lineData.GetRaw().substr(headerTailPos + 1, dataEndPos - headerTailPos);
+
+      // parse data through
+      KERNEL_NS::LibString errInfo;
+      if(!SERVICE_COMMON_NS::DataTypeHelper::Assign(_accountType, dataPart, errInfo))
+      {
+          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_accountType, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this).c_str(), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
+          return false;
+      }
+
+      startPos = static_cast<Int32>(dataEndPos);
+      ++countFieldNum;
+    }// _accountType
+
     {// _pwd
         auto pos = lineData.GetRaw().find("column_", startPos);
         if(pos == std::string::npos)
@@ -132,9 +198,9 @@ bool RoleAuthConfig::Parse(const KERNEL_NS::LibString &lineData)
            return false;
        }
        const UInt64 columnId = KERNEL_NS::StringUtil::StringToUInt64(columnIdString.c_str());
-       if(columnId != 3)
+       if(columnId != 4)
        {
-           g_Log->Error(LOGFMT_OBJ_TAG("parse field:Pwd, fail: bad comumn id, columnId:%llu, real column id:3, please check if config data is old version, line data header len info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d"), columnId, lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
+           g_Log->Error(LOGFMT_OBJ_TAG("parse field:Pwd, fail: bad comumn id, columnId:%llu, real column id:4, please check if config data is old version, line data header len info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d"), columnId, lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
            return false;
        }
 
@@ -174,7 +240,7 @@ bool RoleAuthConfig::Parse(const KERNEL_NS::LibString &lineData)
 
 void RoleAuthConfig::Serialize(KERNEL_NS::LibString &lineData) const
 {
-    const Int32 fieldNum = 2;
+    const Int32 fieldNum = 3;
     Int32 countFieldNum = 0;
 
     {// _id
@@ -184,10 +250,17 @@ void RoleAuthConfig::Serialize(KERNEL_NS::LibString &lineData) const
         ++countFieldNum;
     }// _id
 
+    {// _accountType
+        KERNEL_NS::LibString data;
+        SERVICE_COMMON_NS::DataTypeHelper::ToString(_accountType, data);
+        lineData.AppendFormat("column_3_%d:%s|", static_cast<Int32>(data.size()), data.c_str());
+        ++countFieldNum;
+    }// _accountType
+
     {// _pwd
         KERNEL_NS::LibString data;
         SERVICE_COMMON_NS::DataTypeHelper::ToString(_pwd, data);
-        lineData.AppendFormat("column_3_%d:%s|", static_cast<Int32>(data.size()), data.c_str());
+        lineData.AppendFormat("column_4_%d:%s|", static_cast<Int32>(data.size()), data.c_str());
         ++countFieldNum;
     }// _pwd
 
@@ -262,7 +335,6 @@ Int32 RoleAuthConfigMgr::Load()
 
     // 去重
     std::set<KERNEL_NS::LibString> unique_ids;
-    std::set<KERNEL_NS::LibString> unique_pwds;
     Int32 totalLine = 0;
 
     while(true)
@@ -288,9 +360,9 @@ Int32 RoleAuthConfigMgr::Load()
             // first line data is field names
             if(line == 1)
             {
-                if(lineData != "Id|Pwd|")
+                if(lineData != "Id|AccountType|Pwd|")
                 {
-                    g_Log->Error(LOGFMT_OBJ_TAG("current data not match this config data wholePath:%s, current data columns:%s, this config columns:Id|Pwd|"), wholePath.c_str(), lineData.c_str());
+                    g_Log->Error(LOGFMT_OBJ_TAG("current data not match this config data wholePath:%s, current data columns:%s, this config columns:Id|AccountType|Pwd|"), wholePath.c_str(), lineData.c_str());
                     return Status::Failed;
                 }
             }
@@ -353,15 +425,6 @@ Int32 RoleAuthConfigMgr::Load()
 
         unique_ids.insert(config->_id);
 
-        // check unique
-        if(unique_pwds.find(config->_pwd) != unique_pwds.end())
-        {
-            g_Log->Warn(LOGFMT_OBJ_TAG("duplicate Pwd:%s data path:%s line:%d, lineData:%s"), (KERNEL_NS::LibString() << config->_pwd).c_str(), wholePath.c_str(), line, lineData.c_str());
-            return Status::Failed;
-        }
-
-        unique_pwds.insert(config->_pwd);
-
         configs->push_back(config.pop());
     }// while(true)
 
@@ -378,18 +441,12 @@ Int32 RoleAuthConfigMgr::Load()
     _configs.swap(*configs.AsSelf());
 
     _idRefConfig.clear();
-    _pwdRefConfig.clear();
 
     for(auto config : _configs)
     {
         // key:Id 
         {
             _idRefConfig.insert(std::make_pair(config->_id, config));
-        }
-
-        // key:Pwd 
-        {
-            _pwdRefConfig.insert(std::make_pair(config->_pwd, config));
         }
 
     }
@@ -417,8 +474,6 @@ void RoleAuthConfigMgr::_Clear()
     _dataMd5.clear();
     _idRefConfig.clear();
 
-    _pwdRefConfig.clear();
-
 
     KERNEL_NS::ContainerUtil::DelContainer(_configs, [](RoleAuthConfig *ptr){
         RoleAuthConfig::Delete_RoleAuthConfig(ptr);
@@ -431,8 +486,8 @@ Int64 RoleAuthConfigMgr::_ReadConfigData(FILE &fp, KERNEL_NS::LibString &configD
 
     Int64 readBytes = 0;
     KERNEL_NS::LibString content;
-    std::set<Int32> needFieldIds = {2, 3};
-    const Int32 fieldNum = 2;
+    std::set<Int32> needFieldIds = {2, 3, 4};
+    const Int32 fieldNum = 3;
     Int32 count = 0;
     while(true)
     {

@@ -1,0 +1,32 @@
+syntax = "proto3";
+package CRYSTAL_NET.service;
+
+import "com_broadcast_msg.proto";
+
+// 数据源发送数据过来
+/// Opcode:
+message SendDataRequest
+{
+    repeated DataSourceInfo DataList = 1;
+}
+
+// 数据源发送数据回执,用于确认收到
+/// Opcode:
+message SendDataResponse
+{
+  repeated uint64 RequestIds = 1;
+}
+
+// 广播消息
+/// Opcode:
+message BroadcastMsgNty 
+{
+    repeated BroadcastMsgInfo BroadcastMsgInfoList = 1;
+}
+
+// 广播消息回执, 表示哪些包已收到, 中转节点, 可以缓存一定数量的 BroadcastMsgInfo, 收到回执就从需要接收的list中移除id, 重连上来就重新推送这些日志, 尽量避免丢失
+/// Opcode:
+message BroadcastMsgResponse
+{
+    repeated sint64 RecievedDataIds = 1;
+}

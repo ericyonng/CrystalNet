@@ -44,7 +44,6 @@ KERNEL_BEGIN
 class IProtocolStack;
 struct PollerEvent;
 class LibSession;
-class IService;
 
 class KERNEL_EXPORT IServiceProxy : public CompObject
 {

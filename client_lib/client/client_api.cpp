@@ -31,6 +31,10 @@
 #include <client/Entry.h>
 #include <kernel/kernel.h>
 
+#include "service/common/macro.h"
+#include <protocols/protocols.h>
+#include <Comps/SendLog/SendLog.h>
+
 
 extern "C"
 {
@@ -92,6 +96,9 @@ extern "C"
     {
         g_Log->Info(LOGFMT_NON_OBJ_TAG(Entry, "Entry will close..."));
 
+        Entry::Service.exchange(NULL);
+        KERNEL_NS::SystemUtil::ThreadSleep(KERNEL_NS::TimeSlice::FromSeconds(1).GetTotalMilliSeconds());
+
         if (Entry::Application.load(std::memory_order_acquire))
         {
             Entry::Application.load(std::memory_order_acquire)->SinalFinish();
@@ -106,10 +113,33 @@ extern "C"
         // KERNEL_NS::KernelUtil::Destroy();
     }
 
-    void SendLog(char *buffer, int bufferSize)
+    void SendLog(char *buffer, int bufferSize, unsigned long long uid)
     {
         KERNEL_NS::LibString data;
         data.AppendData(buffer, bufferSize);
+        auto nowTime = KERNEL_NS::LibTime::Now().GetMilliTimestamp();
+
+        KERNEL_NS::SmartPtr<SERVICE_NS::DataSourceInfo> dataPb = new SERVICE_NS::DataSourceInfo();
+        dataPb->set_data(data.GetRaw());
+        dataPb->set_requestid(uid);
+        dataPb->set_mstime(nowTime);
+
+        // 结束了
+        auto service = Entry::Service.load(std::memory_order_acquire);
+        if (!service)
+        {
+            return;
+        }
+
+        auto actionEv = KERNEL_NS::ActionPollerEvent::New_ActionPollerEvent();
+        auto lamb = [service, pb = dataPb.pop()]()
+        {
+            auto sendLog = service->GetComp<CRYSTAL_NET::service::ISendLog>();
+            sendLog->SendData(pb);
+        };
+        auto deleg = KERNEL_CREATE_CLOSURE_DELEGATE(lamb, void);
+        service->GetPoller()->Push(deleg);
+        
         g_Log->Info(LOGFMT_NON_OBJ_TAG(Entry, "buffer:%p, bufferSize:%d, str:%s, service:%s"), buffer, bufferSize, data.c_str(), Entry::Service.load(std::memory_order_acquire)->ToString().c_str());
     }
 

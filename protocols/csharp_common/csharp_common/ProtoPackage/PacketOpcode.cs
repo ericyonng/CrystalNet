@@ -100,6 +100,10 @@ public static class PacketOpcode
         SystemLogDataListRes = 115,    // syslog.proto
         TestRpcReq = 116,    // test_opcode.proto
         TestRpcRes = 117,    // test_opcode.proto
-        OpcodeMax = 117,
+        SendDataRequest = 118,    // broadcast_msg.proto
+        SendDataResponse = 119,    // broadcast_msg.proto
+        BroadcastMsgNty = 120,    // broadcast_msg.proto
+        BroadcastMsgResponse = 121,    // broadcast_msg.proto
+        OpcodeMax = 121,
     }
 }

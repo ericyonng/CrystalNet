@@ -1,0 +1,25 @@
+syntax = "proto3";
+package CRYSTAL_NET.service;
+
+message BroadcastMsgInfo
+{
+  // 中转节点生成唯一id(自增唯一id), 客户端收到后可去重处理，并根据大小打印日志
+  sint64 DataId = 1;
+  // 数据
+  bytes Data = 2;
+
+  // 时间戳
+  uint64 MsTime = 3;
+}
+
+// 请求过去需要给回执, 避免丢包, 请求端会定时重传, 如果对端已接收过, 就丢弃即可
+message DataSourceInfo
+{
+  // 试用全球唯一id, 接收端可以认为是唯一的
+  uint64 RequestId = 1;
+  // 数据
+  bytes Data = 2;
+
+  // 时间戳
+  sint64 MsTime = 3;
+}

@@ -148,6 +148,21 @@ export namespace crystal_net_service_parser
             })
 
 
+            this.add("BroadcastMsgInfo", (jsonData:any):any =>{
+                return this.BroadcastMsgInfoParser(jsonData);
+            })
+
+
+            this.add("BroadcastMsgNty", (jsonData:any):any =>{
+                return this.BroadcastMsgNtyParser(jsonData);
+            })
+
+
+            this.add("BroadcastMsgResponse", (jsonData:any):any =>{
+                return this.BroadcastMsgResponseParser(jsonData);
+            })
+
+
             this.add("CancelOrderReason", (jsonData:any):any =>{
                 return this.CancelOrderReasonParser(jsonData);
             })
@@ -205,6 +220,11 @@ export namespace crystal_net_service_parser
 
             this.add("CreatureAttrKey", (jsonData:any):any =>{
                 return this.CreatureAttrKeyParser(jsonData);
+            })
+
+
+            this.add("DataSourceInfo", (jsonData:any):any =>{
+                return this.DataSourceInfoParser(jsonData);
             })
 
 
@@ -580,6 +600,16 @@ export namespace crystal_net_service_parser
 
             this.add("RoleType", (jsonData:any):any =>{
                 return this.RoleTypeParser(jsonData);
+            })
+
+
+            this.add("SendDataRequest", (jsonData:any):any =>{
+                return this.SendDataRequestParser(jsonData);
+            })
+
+
+            this.add("SendDataResponse", (jsonData:any):any =>{
+                return this.SendDataResponseParser(jsonData);
             })
 
 
@@ -1498,6 +1528,66 @@ export namespace crystal_net_service_parser
             }
 
 
+            private BroadcastMsgInfoParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.BroadcastMsgInfo()
+
+                if(jsonData.DataId != undefined)
+                {
+                    newInfo.DataId = parseFloat(jsonData.DataId);
+                }
+
+
+                if(jsonData.Data != undefined)
+                {
+                    newInfo.Data = jsonData.Data;
+                }
+
+
+                if(jsonData.MsTime != undefined)
+                {
+                    newInfo.MsTime = parseFloat(jsonData.MsTime);
+                }
+
+                 return newInfo;
+            }
+
+
+            private BroadcastMsgNtyParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.BroadcastMsgNty()
+
+                if(jsonData.BroadcastMsgInfoList != undefined)
+                {
+                    var jsonArray = jsonData.BroadcastMsgInfoList.map((value, idx, arr)=>{
+                    var parser = this.getParser("BroadcastMsgInfo");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.BroadcastMsgInfoList = jsonArray;
+                }
+
+                 return newInfo;
+            }
+
+
+            private BroadcastMsgResponseParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.BroadcastMsgResponse()
+
+                if(jsonData.RecievedDataIds != undefined)
+                {
+                    var jsonArray = jsonData.RecievedDataIds.map((value, idx, arr)=>{
+                    return parseFloat(value);
+                    });
+
+                    newInfo.RecievedDataIds = jsonArray;
+                }
+
+                 return newInfo;
+            }
+
+
             private CancelOrderReasonParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.CancelOrderReason()
 
@@ -1698,6 +1788,30 @@ export namespace crystal_net_service_parser
 
             private CreatureAttrKeyParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.CreatureAttrKey()
+                 return newInfo;
+            }
+
+
+            private DataSourceInfoParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.DataSourceInfo()
+
+                if(jsonData.RequestId != undefined)
+                {
+                    newInfo.RequestId = parseFloat(jsonData.RequestId);
+                }
+
+
+                if(jsonData.Data != undefined)
+                {
+                    newInfo.Data = jsonData.Data;
+                }
+
+
+                if(jsonData.MsTime != undefined)
+                {
+                    newInfo.MsTime = parseFloat(jsonData.MsTime);
+                }
+
                  return newInfo;
             }
 
@@ -3090,6 +3204,42 @@ export namespace crystal_net_service_parser
 
             private RoleTypeParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.RoleType()
+                 return newInfo;
+            }
+
+
+            private SendDataRequestParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.SendDataRequest()
+
+                if(jsonData.DataList != undefined)
+                {
+                    var jsonArray = jsonData.DataList.map((value, idx, arr)=>{
+                    var parser = this.getParser("DataSourceInfo");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.DataList = jsonArray;
+                }
+
+                 return newInfo;
+            }
+
+
+            private SendDataResponseParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.SendDataResponse()
+
+                if(jsonData.RequestIds != undefined)
+                {
+                    var jsonArray = jsonData.RequestIds.map((value, idx, arr)=>{
+                    return parseFloat(value);
+                    });
+
+                    newInfo.RequestIds = jsonArray;
+                }
+
                  return newInfo;
             }
 

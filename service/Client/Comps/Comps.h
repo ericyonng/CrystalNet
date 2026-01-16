@@ -35,4 +35,5 @@
 #include <service/Client/Comps/SysLogic/SysLogic.h>
 #include <service/Client/Comps/Test/Test.h>
 #include <Comps/User/user.h>
+#include <Comps/SendLog/SendLog.h>
 

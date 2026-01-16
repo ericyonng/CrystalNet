@@ -1263,6 +1263,58 @@ export namespace ts_pbinfo{
     }
 
 
+    // broadcast_msg.proto 
+    export class SendDataRequest {
+      getOpcode():number {return SendDataRequest.OPCODE; }
+      getIsXorEncrypt():boolean {return SendDataRequest.XorEncrypt; }
+      getIsKeyBase64():boolean {return SendDataRequest.KeyBase64; }
+      getOpcodeName():string {return SendDataRequest.OPCODE_NAME; }
+      static OPCODE:number = 118;
+      static OPCODE_NAME:string = "SendDataRequest";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // broadcast_msg.proto 
+    export class SendDataResponse {
+      getOpcode():number {return SendDataResponse.OPCODE; }
+      getIsXorEncrypt():boolean {return SendDataResponse.XorEncrypt; }
+      getIsKeyBase64():boolean {return SendDataResponse.KeyBase64; }
+      getOpcodeName():string {return SendDataResponse.OPCODE_NAME; }
+      static OPCODE:number = 119;
+      static OPCODE_NAME:string = "SendDataResponse";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // broadcast_msg.proto 
+    export class BroadcastMsgNty {
+      getOpcode():number {return BroadcastMsgNty.OPCODE; }
+      getIsXorEncrypt():boolean {return BroadcastMsgNty.XorEncrypt; }
+      getIsKeyBase64():boolean {return BroadcastMsgNty.KeyBase64; }
+      getOpcodeName():string {return BroadcastMsgNty.OPCODE_NAME; }
+      static OPCODE:number = 120;
+      static OPCODE_NAME:string = "BroadcastMsgNty";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // broadcast_msg.proto 
+    export class BroadcastMsgResponse {
+      getOpcode():number {return BroadcastMsgResponse.OPCODE; }
+      getIsXorEncrypt():boolean {return BroadcastMsgResponse.XorEncrypt; }
+      getIsKeyBase64():boolean {return BroadcastMsgResponse.KeyBase64; }
+      getOpcodeName():string {return BroadcastMsgResponse.OPCODE_NAME; }
+      static OPCODE:number = 121;
+      static OPCODE_NAME:string = "BroadcastMsgResponse";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
     export class TsPbDict {
       static pb_dict = {
           [LoginReq.OPCODE]: new LoginReq(),
@@ -1453,7 +1505,15 @@ export namespace ts_pbinfo{
 
           [TestRpcReq.OPCODE]: new TestRpcReq(),
 
-          [TestRpcRes.OPCODE]: new TestRpcRes()
+          [TestRpcRes.OPCODE]: new TestRpcRes(),
+
+          [SendDataRequest.OPCODE]: new SendDataRequest(),
+
+          [SendDataResponse.OPCODE]: new SendDataResponse(),
+
+          [BroadcastMsgNty.OPCODE]: new BroadcastMsgNty(),
+
+          [BroadcastMsgResponse.OPCODE]: new BroadcastMsgResponse()
 
 
       }

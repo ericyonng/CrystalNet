@@ -215,3 +215,12 @@
 [ProtoName:com_user.proto,ProtoPath:../../protocols/proto/com_user.proto,MessageName:TestOrm,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:true,]
 [ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestRpcReq,Opcode:116,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 [ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestRpcRes,Opcode:117,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
+[ProtoName:broadcast_msg.proto,ProtoPath:../../protocols/proto/broadcast_msg.proto,MessageName:BroadcastMsgNty,Opcode:120,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
+[ProtoName:broadcast_msg.proto,ProtoPath:../../protocols/proto/broadcast_msg.proto,MessageName:BroadcastMsgResponse,Opcode:121,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
+[ProtoName:broadcast_msg.proto,ProtoPath:../../protocols/proto/broadcast_msg.proto,MessageName:SendDataRequest,Opcode:118,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
+[ProtoName:broadcast_msg.proto,ProtoPath:../../protocols/proto/broadcast_msg.proto,MessageName:SendDataResponse,Opcode:119,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
+/// ProtoName:broadcast_msg.proto,ProtoPath:../../protocols/proto/broadcast_msg.proto,Md5:HZcr599A0jfINQiV2qgcSQ==,ModifyTime:1768540168,
+
+[ProtoName:com_broadcast_msg.proto,ProtoPath:../../protocols/proto/com_broadcast_msg.proto,MessageName:BroadcastMsgInfo,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
+[ProtoName:com_broadcast_msg.proto,ProtoPath:../../protocols/proto/com_broadcast_msg.proto,MessageName:DataSourceInfo,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
+/// ProtoName:com_broadcast_msg.proto,ProtoPath:../../protocols/proto/com_broadcast_msg.proto,Md5:CQuEhFrCaAy2lcPEE2pq4A==,ModifyTime:1768561389,

@@ -38,6 +38,8 @@ public:
 public:
     KERNEL_NS::LibString _id;    // id
 
+    Int32 _accountType;    // 0:普通1:接受广播消息
+
     KERNEL_NS::LibString _pwd;    // pwd
 
 
@@ -67,10 +69,6 @@ public:
     const std::map<KERNEL_NS::LibString, RoleAuthConfig *> &GetAllIdRefConfigs() const;
     const RoleAuthConfig * GetConfigById(const KERNEL_NS::LibString &key) const;
 
-    // by Pwd
-    const std::map<KERNEL_NS::LibString, RoleAuthConfig *> &GetAllPwdRefConfigs() const;
-    const RoleAuthConfig * GetConfigByPwd(const KERNEL_NS::LibString &key) const;
-
 private:
     virtual void _OnClose() override;
     void _Clear();
@@ -80,7 +78,6 @@ private:
     std::vector<RoleAuthConfig *> _configs;
     KERNEL_NS::LibString _dataMd5;
     std::map<KERNEL_NS::LibString, RoleAuthConfig *> _idRefConfig;
-    std::map<KERNEL_NS::LibString, RoleAuthConfig *> _pwdRefConfig;
 
 };
 
@@ -99,17 +96,6 @@ ALWAYS_INLINE const RoleAuthConfig * RoleAuthConfigMgr::GetConfigById(const KERN
 {
     auto iter = _idRefConfig.find(key);
     return iter == _idRefConfig.end() ? NULL : iter->second;
-}
-
-ALWAYS_INLINE const std::map<KERNEL_NS::LibString, RoleAuthConfig *> &RoleAuthConfigMgr::GetAllPwdRefConfigs() const
-{
-    return _pwdRefConfig;
-}
-
-ALWAYS_INLINE const RoleAuthConfig * RoleAuthConfigMgr::GetConfigByPwd(const KERNEL_NS::LibString &key) const
-{
-    auto iter = _pwdRefConfig.find(key);
-    return iter == _pwdRefConfig.end() ? NULL : iter->second;
 }
 
 

@@ -125,5 +125,9 @@ public:
     static constexpr Int32 OPCODE_SystemLogDataListRes = 115;    // syslog.proto
     static constexpr Int32 OPCODE_TestRpcReq = 116;    // test_opcode.proto
     static constexpr Int32 OPCODE_TestRpcRes = 117;    // test_opcode.proto
-    static constexpr Int32 OPCODE_MAX = 117;
+    static constexpr Int32 OPCODE_SendDataRequest = 118;    // broadcast_msg.proto
+    static constexpr Int32 OPCODE_SendDataResponse = 119;    // broadcast_msg.proto
+    static constexpr Int32 OPCODE_BroadcastMsgNty = 120;    // broadcast_msg.proto
+    static constexpr Int32 OPCODE_BroadcastMsgResponse = 121;    // broadcast_msg.proto
+    static constexpr Int32 OPCODE_MAX = 121;
 };

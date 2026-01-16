@@ -38,6 +38,8 @@ namespace ServicePollerEvent
 
         MysqlDbEvent,        // 数据库消息
 
+        
+
         Max,                // 最大
     };
 }

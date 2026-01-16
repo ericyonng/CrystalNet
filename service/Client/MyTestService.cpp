@@ -158,6 +158,9 @@ void MyTestService::_OnServiceRegisterComps()
 
     // 用户管理
     RegisterComp<ClientUserMgrFactory>();
+
+    // SendLog
+    RegisterComp<SendLogFactory>();
 }
 
 Int32 MyTestService::_OnServiceInit()

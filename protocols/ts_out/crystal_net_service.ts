@@ -526,6 +526,35 @@ export namespace crystal_net_service
     export class BorrowOrderState {
 
     }
+    // com_broadcast_msg.proto
+    export class BroadcastMsgInfo {
+        // 中转节点生成唯一id(自增唯一id), 客户端收到后可去重处理，并根据大小打印日志
+        DataId:number = 0;
+
+        // 数据
+        Data:string = "";
+
+        // 时间戳
+        MsTime:number = 0;
+
+
+    }
+    // 广播消息
+    /// Opcode:
+    // broadcast_msg.proto
+    export class BroadcastMsgNty {
+        BroadcastMsgInfoList:BroadcastMsgInfo[] = [];
+
+
+    }
+    // 广播消息回执, 表示哪些包已收到, 中转节点, 可以缓存一定数量的 BroadcastMsgInfo, 收到回执就从需要接收的list中移除id, 重连上来就重新推送这些日志, 尽量避免丢失
+    /// Opcode:
+    // broadcast_msg.proto
+    export class BroadcastMsgResponse {
+        RecievedDataIds:number[] = [];
+
+
+    }
     // com_library.proto
     export class CancelOrderReason {
         // 原因code
@@ -646,6 +675,20 @@ export namespace crystal_net_service
     // 属性类型枚举
     // com.proto
     export class CreatureAttrKey {
+
+    }
+    // 请求过去需要给回执, 避免丢包, 请求端会定时重传, 如果对端已接收过, 就丢弃即可
+    // com_broadcast_msg.proto
+    export class DataSourceInfo {
+        // 试用全球唯一id, 接收端可以认为是唯一的
+        RequestId:number = 0;
+
+        // 数据
+        Data:string = "";
+
+        // 时间戳
+        MsTime:number = 0;
+
 
     }
     // 按照书名或者关键字查询
@@ -1371,6 +1414,22 @@ export namespace crystal_net_service
     // 按照权限大小排
     // com_library.proto
     export class RoleType {
+
+    }
+    // 数据源发送数据过来
+    /// Opcode:
+    // broadcast_msg.proto
+    export class SendDataRequest {
+        DataList:DataSourceInfo[] = [];
+
+
+    }
+    // 数据源发送数据回执,用于确认收到
+    /// Opcode:
+    // broadcast_msg.proto
+    export class SendDataResponse {
+        RequestIds:number[] = [];
+
 
     }
     // 改变书包数据

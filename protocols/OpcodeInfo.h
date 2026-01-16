@@ -1074,3 +1074,47 @@
         _allOpcodeInfo.push_back(info);
         _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, TestRpcResFactory::CreateFactory()));
     }
+
+    {// SendDataRequest
+        auto info = OpcodeInfo();
+        info._opcode = 118;
+        info._noLog = false;
+        info._enableStorage = false;
+        info._opcodeName = "SendDataRequest";
+        info._protoFile = "broadcast_msg.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, SendDataRequestFactory::CreateFactory()));
+    }
+
+    {// SendDataResponse
+        auto info = OpcodeInfo();
+        info._opcode = 119;
+        info._noLog = false;
+        info._enableStorage = false;
+        info._opcodeName = "SendDataResponse";
+        info._protoFile = "broadcast_msg.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, SendDataResponseFactory::CreateFactory()));
+    }
+
+    {// BroadcastMsgNty
+        auto info = OpcodeInfo();
+        info._opcode = 120;
+        info._noLog = false;
+        info._enableStorage = false;
+        info._opcodeName = "BroadcastMsgNty";
+        info._protoFile = "broadcast_msg.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, BroadcastMsgNtyFactory::CreateFactory()));
+    }
+
+    {// BroadcastMsgResponse
+        auto info = OpcodeInfo();
+        info._opcode = 121;
+        info._noLog = false;
+        info._enableStorage = false;
+        info._opcodeName = "BroadcastMsgResponse";
+        info._protoFile = "broadcast_msg.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, BroadcastMsgResponseFactory::CreateFactory()));
+    }
