@@ -10,10 +10,11 @@ SCRIPT_PATH="$(cd $(dirname $0); pwd)"
 # OPEN_COREDUMP="opencoredump"
 # COREDUMPFLAG="$2"
 ROOT_PATH=${SCRIPT_PATH}/../..
+OUTPUT_NAME="$2"
 
 # 配置环境变量
 # sudo export PATH=$PATH:${SCRIPT_PATH}/output/gmake/
-OUTPUT_DIR=${ROOT_PATH}/output/gmake/
+OUTPUT_DIR=${ROOT_PATH}/output/gmake/${OUTPUT_NAME}/
 # sudo ln -sv $SCRIPT_PATH/Service/Cfgs ${OUTPUT_DIR}/Cfgs
 
 # lua脚本路径

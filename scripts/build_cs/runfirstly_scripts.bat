@@ -10,32 +10,32 @@ echo VER:%VER%
 :: if not "%1"=="am_admin" (powershell start -verb runas '%0' am_admin & exit /b)
 
 :: -------------------------------------- 链接配置 -------------------------------------------
-if not exist %CUR_PATH%\..\..\output\%VER%\Cfgs (
-    mklink /d %CUR_PATH%\..\..\output\%VER%\Cfgs %CUR_PATH%\..\..\Service\TestService\config\data\cpp\
+if not exist %CUR_PATH%\..\..\output\%VER%\build_cs\Cfgs (
+    mklink /d %CUR_PATH%\..\..\output\%VER%\build_cs\Cfgs %CUR_PATH%\..\..\Service\TestService\config\data\cpp\
 	
 )
-if not exist %CUR_PATH%\..\..\output\%VER%\ini (
-    mklink /d %CUR_PATH%\..\..\output\%VER%\ini %CUR_PATH%\..\..\doc\ini
+if not exist %CUR_PATH%\..\..\output\%VER%\build_cs\ini (
+    mklink /d %CUR_PATH%\..\..\output\%VER%\build_cs\ini %CUR_PATH%\..\..\doc\ini
 	
 )
 
 :: mysql dll拷贝
-del /q %CUR_PATH%\..\..\output\%VER%\libmysql.dll
-xcopy /s /y %CUR_PATH%\..\..\3rd\mysql\win\lib\libmysql.dll %CUR_PATH%\..\..\output\%VER%\
+del /q %CUR_PATH%\..\..\output\%VER%\build_cs\libmysql.dll
+xcopy /s /y %CUR_PATH%\..\..\3rd\mysql\win\lib\libmysql.dll %CUR_PATH%\..\..\output\%VER%\build_cs\
 
 :: ssl拷贝
-del /q %CUR_PATH%\..\..\output\%VER%\libssl-1_1-x64.dll
-xcopy /s /y %CUR_PATH%\..\..\3rd\openssl\staticlib\dlls\libssl-1_1-x64.dll %CUR_PATH%\..\..\output\%VER%\
+del /q %CUR_PATH%\..\..\output\%VER%\build_cs\libssl-1_1-x64.dll
+xcopy /s /y %CUR_PATH%\..\..\3rd\openssl\staticlib\dlls\libssl-1_1-x64.dll %CUR_PATH%\..\..\output\%VER%\build_cs\
 
-del /q %CUR_PATH%\..\..\output\%VER%\libcrypto-1_1-x64.dll
-xcopy /s /y %CUR_PATH%\..\..\3rd\openssl\staticlib\dlls\libcrypto-1_1-x64.dll %CUR_PATH%\..\..\output\%VER%\
+del /q %CUR_PATH%\..\..\output\%VER%\build_cs\libcrypto-1_1-x64.dll
+xcopy /s /y %CUR_PATH%\..\..\3rd\openssl\staticlib\dlls\libcrypto-1_1-x64.dll %CUR_PATH%\..\..\output\%VER%\build_cs\
 
 ::脚本拷贝
-xcopy /s /y %CUR_PATH%\..\..\toolbox\scripts\* %CUR_PATH%\..\..\output\%VER%\
+xcopy /s /y %CUR_PATH%\..\..\toolbox\scripts\* %CUR_PATH%\..\..\output\%VER%\build_cs\
 
 :: lua脚本
-if not exist %CUR_PATH%\..\..\output\%VER%\TestServiceLuaScript (
-    mklink /d %CUR_PATH%\..\..\output\%VER%\TestServiceLuaScript %CUR_PATH%\..\..\service\TestService\TestServiceLuaScript
+if not exist %CUR_PATH%\..\..\output\%VER%\build_cs\TestServiceLuaScript (
+    mklink /d %CUR_PATH%\..\..\output\%VER%\build_cs\TestServiceLuaScript %CUR_PATH%\..\..\service\TestService\TestServiceLuaScript
 	
 )
 

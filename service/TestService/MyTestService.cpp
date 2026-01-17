@@ -157,8 +157,11 @@ void MyTestService::_OnServiceRegisterComps()
     RegisterComp<SysLogicMgrFactory>();
     // 存根系统
     RegisterComp<StubHandleMgrFactory>();
+
+#ifdef CRYSTAL_STORAGE_ENABLE
     // 存储组件
     RegisterComp<MysqlMgrFactory>();
+#endif
 
     // 全球唯一id组件
     RegisterComp<GlobalUidMgrFactory>();

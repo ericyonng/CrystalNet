@@ -13,7 +13,7 @@ SCRIPT_PATH="$(cd $(dirname $0); pwd)"
 # 配置环境变量
 # sudo export PATH=$PATH:${SCRIPT_PATH}/output/gmake/
 ROOT_PATH=${SCRIPT_PATH}/../..
-OUTPUT_DIR=${ROOT_PATH}/output/gmake/
+OUTPUT_DIR=${ROOT_PATH}/output/gmake/build_tools
 # sudo ln -sv $SCRIPT_PATH/Service/Cfgs ${OUTPUT_DIR}/Cfgs
 
 if [ -n "$1" ]

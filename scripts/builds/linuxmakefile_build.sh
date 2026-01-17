@@ -9,4 +9,4 @@ PREMAKE_TOOL=$PREMAKE_SCRIPT_PATH/linux_premake5
 
 echo "=======================Generate gmake Makefiles==================="
 sudo chmod +x ${PREMAKE_TOOL}
-${PREMAKE_TOOL} --file=$PREMAKE_SCRIPT_PATH/premake5.lua gmake clang use_kernel_so
+${PREMAKE_TOOL} --file=$PREMAKE_SCRIPT_PATH/premake5.lua gmake clang use_kernel_so use_storage

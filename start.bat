@@ -10,5 +10,5 @@ set /p choose=Please input:
 
 call stop.bat
 
-cd %CUR_PATH%/output/%choose% && start testsuit_debug.exe
+cd %CUR_PATH%/output/%choose%/build && start testsuit_debug.exe
 

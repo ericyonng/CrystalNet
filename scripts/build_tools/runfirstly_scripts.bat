@@ -11,24 +11,24 @@ echo root_path:%ROOT_PATH%
 :: if not "%1"=="am_admin" (powershell start -verb runas '%0' am_admin & exit /b)
 
 :: -------------------------------------- 链接配置 -------------------------------------------
-if not exist %ROOT_PATH%output\%VER%\Cfgs (
-    mklink /d %ROOT_PATH%output\%VER%\Cfgs %ROOT_PATH%Service\TestService\config\data\cpp\
+if not exist %ROOT_PATH%output\%VER%\build_tools\Cfgs (
+    mklink /d %ROOT_PATH%output\%VER%\build_tools\Cfgs %ROOT_PATH%Service\TestService\config\data\cpp\
 	
 )
-if not exist %ROOT_PATH%output\%VER%\ini (
-    mklink /d %ROOT_PATH%output\%VER%\ini %ROOT_PATH%doc\ini
+if not exist %ROOT_PATH%output\%VER%\build_tools\ini (
+    mklink /d %ROOT_PATH%output\%VER%\build_tools\ini %ROOT_PATH%doc\ini
 	
 )
 
 :: ssl拷贝
-del /q %ROOT_PATH%output\%VER%\libssl-1_1-x64.dll
-xcopy /s /y %ROOT_PATH%\3rd\openssl\staticlib\dlls\libssl-1_1-x64.dll %ROOT_PATH%\output\%VER%\
+del /q %ROOT_PATH%output\%VER%\build_tools\libssl-1_1-x64.dll
+xcopy /s /y %ROOT_PATH%\3rd\openssl\staticlib\dlls\libssl-1_1-x64.dll %ROOT_PATH%\output\%VER%\build_tools\
 
-del /q %ROOT_PATH%output\%VER%\libcrypto-1_1-x64.dll
-xcopy /s /y %ROOT_PATH%\3rd\openssl\staticlib\dlls\libcrypto-1_1-x64.dll %ROOT_PATH%\output\%VER%\
+del /q %ROOT_PATH%output\%VER%\build_tools\libcrypto-1_1-x64.dll
+xcopy /s /y %ROOT_PATH%\3rd\openssl\staticlib\dlls\libcrypto-1_1-x64.dll %ROOT_PATH%\output\%VER%\build_tools\
 
 ::脚本拷贝
-xcopy /s /y %ROOT_PATH%\toolbox\scripts\* %ROOT_PATH%\output\%VER%\
+xcopy /s /y %ROOT_PATH%\toolbox\scripts\* %ROOT_PATH%\output\%VER%\build_tools\
 
 :: ------------------------------------ 结束杂项链接 -----------------------------------------
 echo Done!

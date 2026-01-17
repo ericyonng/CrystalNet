@@ -3,7 +3,8 @@
 #!/usr/bin/env bash
 
 SCRIPT_PATH="$(cd $(dirname $0); pwd)"
-RUN_PATH=${SCRIPT_PATH}/output/gmake
+OUTPUT_NAME=$1
+RUN_PATH=${SCRIPT_PATH}/output/gmake/${OUTPUT_NAME}
 
 # 设置环境变量LD_LIBRARY_PATH以便启动时能够识别当前目录下的so
 export LD_LIBRARY_PATH=${RUN_PATH}:${LD_LIBRARY_PATH}
@@ -16,14 +17,14 @@ then
 fi
 
 RUN_NAME="testsuit"
-if [ -n "$1" ]
-then
-	RUN_NAME=$1
-fi
-
 if [ -n "$2" ]
 then
-VER="$2"
+	RUN_NAME=$2
+fi
+
+if [ -n "$3" ]
+then
+VER="$3"
 	if [ $VER = "debug" ]
 	then
 		RUN_NAME="${RUN_NAME}_debug"
@@ -32,7 +33,7 @@ fi
 
 echo "will run process:${RUN_NAME}"
 
-if [ -n "$3" ]; then
+if [ -n "$4" ]; then
   echo "run with blocking..."
   ${RUN_PATH}/${RUN_NAME}
   echo "run finish..."
@@ -47,10 +48,10 @@ IS_START=0
 
 echo "wait ${GREP_FLAG} start"
 
-if [ -n "$4" ]
+if [ -n "$5" ]
 then
-  echo "wait ($4)seconds ${GREP_FLAG} start"
-  sleep $4
+  echo "wait ($5)seconds ${GREP_FLAG} start"
+  sleep $5
 else
   echo "wait (5)seconds ${GREP_FLAG} start"
 
@@ -62,7 +63,7 @@ while [ $IS_START -eq 0 ]
 do
   PID_LIST="$(ps -aux |grep ${GREP_FLAG} | sed '/grep/d' | sed '/linux_run/d' | sed '/start/d' | sed '/stop/d' | sed 's/^[^ ]* //' | sed 's/^ *//' | sed 's/ .*$//')"
 
-  # PID_LIST=$(ps -e | grep ${GREP_FLAG} | awk '{print $1}')
+  # PID_LIST=$(ps -e | grep ${GREP_FLAG} | awk '{print $2}')
   if [ -n "${PID_LIST}" ]
   then
       IS_START=1

@@ -8,18 +8,20 @@ IS_WINDOWS = string.match(_ACTION, 'vs') ~= nil
 ISUSE_CLANG = _ARGS[1] and (_ARGS[1] == 'clang')
 -- 使用动态链接
 USE_KERNEL_SO = _ARGS[2] and (_ARGS[2] == 'use_kernel_so')
+ISUSE_STORAGE = _ARGS[3] and (_ARGS[3] == 'use_storage')
 
 print('_ARGS:', _ARGS[1], _ARGS[2], _ARGS[3], ', ISUSE_CLANG:', ISUSE_CLANG)
 
 -- header directory
 KERNEL_HEADER_DIR = "../../kernel/kernel_pch/"
+OUTPUT_NAME = "build"
 -- All libraries output directory
-OUTPUT_DIR = "../../output/" .. _ACTION
+OUTPUT_DIR = "../../output/" .. _ACTION .. "/" .. OUTPUT_NAME .. "/"
 -- root directory
 ROOT_DIR = "../../"
 WIN_ROOT_DIR = ".\\..\\..\\"
 -- build directory
-BUILD_DIR = "../../build/"
+BUILD_DIR = "../../" .. OUTPUT_NAME .. "/"
 -- 脚本路径
 SCRIPT_PATH = ROOT_DIR .. "scripts/builds/"
 if IS_WINDOWS then
@@ -155,8 +157,12 @@ project "TestServicePlugin"
         defines{"TEST_PLUGIN_STATIC_LIB"}
     end
 
+    if ISUSE_STORAGE then
+	    defines {"CRYSTAL_STORAGE_ENABLE"}
+    end
+
     -- 导入内核接口 宏定义
-	defines {"CRYSTAL_NET_CPP20", "CRYSTAL_NET_IMPORT_KERNEL_LIB", "SIMPLE_API_IMPORT_KERNEL_LIB", "CRYSTAL_STORAGE_ENABLE"}
+	defines {"CRYSTAL_NET_CPP20", "CRYSTAL_NET_IMPORT_KERNEL_LIB", "SIMPLE_API_IMPORT_KERNEL_LIB"}
 
 	-- 设置通用选项
     set_common_options(nil, true)
@@ -288,8 +294,12 @@ project "testsuit"
         }
     filter{}
 
+    if ISUSE_STORAGE then
+	    defines {"CRYSTAL_STORAGE_ENABLE"}
+    end
+
     -- 导入内核接口 宏定义
-	defines {"CRYSTAL_NET_CPP20", "CRYSTAL_NET_IMPORT_KERNEL_LIB", "SIMPLE_API_IMPORT_KERNEL_LIB", "CRYSTAL_STORAGE_ENABLE"}
+	defines {"CRYSTAL_NET_CPP20", "CRYSTAL_NET_IMPORT_KERNEL_LIB", "SIMPLE_API_IMPORT_KERNEL_LIB"}
 
 	enable_precompileheader("pch.h", ROOT_DIR .. "testsuit/testsuit_pch/pch.cpp")
 

@@ -9,7 +9,12 @@ DEBUG_LIBS=("libCrystalKernel_debug.so")
 RELEASE_LIBS=("libCrystalKernel.so")
 OPEN_COREDUMP="opencoredump"
 COREDUMPFLAG="$2"
-OUTPUT_DIR=${SCRIPT_PATH}/output/gmake/
+OUTPUT_NAME="$3"
+if [ -z "${OUTPUT_NAME}" ]
+then
+	OUTPUT_NAME="build"
+fi
+OUTPUT_DIR=${SCRIPT_PATH}/output/gmake/${OUTPUT_NAME}/
 
 # 连接配置与ini
 sudo rm -rf ${OUTPUT_DIR}/Cfgs

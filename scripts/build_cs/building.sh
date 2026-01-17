@@ -13,7 +13,8 @@ ROOT_PATH=${SCRIPT_PATH}/../..
 
 # 配置环境变量
 # sudo export PATH=$PATH:${SCRIPT_PATH}/output/gmake/
-OUTPUT_DIR=${ROOT_PATH}/output/gmake/
+OUTPUT_NAME="$2"
+OUTPUT_DIR=${ROOT_PATH}/output/gmake/${OUTPUT_NAME}/
 # sudo ln -sv $SCRIPT_PATH/Service/Cfgs ${OUTPUT_DIR}/Cfgs
 
 # lua脚本路径

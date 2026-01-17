@@ -3,7 +3,7 @@
 #!/usr/bin/env bash
 
 SCRIPT_PATH="$(cd $(dirname $0); pwd)"
-RUN_PATH=${SCRIPT_PATH}/../../output/gmake
+RUN_PATH=${SCRIPT_PATH}/../../output/gmake/build
 
 if [ $# -lt 3 ]
 then

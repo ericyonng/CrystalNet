@@ -34,6 +34,8 @@
 
 #include <service/TestService/Comps/DB/db.h>
 
+#endif
+
 SERVICE_BEGIN
 
 void ILogicSys::MaskDirty()
@@ -43,42 +45,51 @@ void ILogicSys::MaskDirty()
 
 void ILogicSys::MaskNumberKeyAddDirty(UInt64 key)
 {
+#ifdef CRYSTAL_STORAGE_ENABLE
     auto mysqlMgr = GetService()->GetComp<IMysqlMgr>();
     mysqlMgr->MaskLogicNumberKeyAddDirty(this, key);
+#endif
 }
 
 void ILogicSys::MaskNumberKeyModifyDirty(UInt64 key)
 {
+#ifdef CRYSTAL_STORAGE_ENABLE
     auto mysqlMgr = GetService()->GetComp<IMysqlMgr>();
     mysqlMgr->MaskLogicNumberKeyModifyDirty(this, key);
+#endif
 }
 
 void ILogicSys::MaskNumberKeyDeleteDirty(UInt64 key)
 {
+#ifdef CRYSTAL_STORAGE_ENABLE
     auto mysqlMgr = GetService()->GetComp<IMysqlMgr>();
     mysqlMgr->MaskLogicNumberKeyDeleteDirty(this, key);
+#endif
+    
 }
 
 void ILogicSys::MaskStringKeyAddDirty(const KERNEL_NS::LibString &key)
 {
+#ifdef CRYSTAL_STORAGE_ENABLE
     auto mysqlMgr = GetService()->GetComp<IMysqlMgr>();
     mysqlMgr->MaskLogicStringKeyAddDirty(this, key);
+#endif
 }
 
 void ILogicSys::MaskStringKeyModifyDirty(const KERNEL_NS::LibString &key)
 {
+#ifdef CRYSTAL_STORAGE_ENABLE
     auto mysqlMgr = GetService()->GetComp<IMysqlMgr>();
     mysqlMgr->MaskLogicStringKeyModifyDirty(this, key);
+#endif
 }
 
 void ILogicSys::MaskStringKeyDeleteDirty(const KERNEL_NS::LibString &key)
 {
+#ifdef CRYSTAL_STORAGE_ENABLE
     auto mysqlMgr = GetService()->GetComp<IMysqlMgr>();
     mysqlMgr->MaskLogicStringKeyDeleteDirty(this, key);
+#endif
 }
 
 SERVICE_END
-
-#endif
-
-

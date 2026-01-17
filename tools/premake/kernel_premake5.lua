@@ -207,25 +207,25 @@ project "CrystalKernel"
 	-- post build(linux)
 	filter { "system:linux", "configurations:debug*"}
 	postbuildmessage "Copying dependencies of crystalnet kernel ..."
-	postbuildcommands(string.format("sh %sbuilding.sh debug",  SCRIPT_PATH))
+	postbuildcommands(string.format("sh %sbuilding.sh debug",  SCRIPT_PATH, OUTPUT_NAME))
 	filter {}
 	
 	-- post build(linux)
 	filter { "system:linux", "configurations:release*"}
 	postbuildmessage "Copying dependencies of crystalnet kernel ..."
-	postbuildcommands(string.format("sh %sbuilding.sh release",  SCRIPT_PATH))
+	postbuildcommands(string.format("sh %sbuilding.sh release",  SCRIPT_PATH, OUTPUT_NAME))
 	filter {}
 
 	-- post build(windows)
 	filter { "system:windows", "configurations:debug*"}
 	postbuildmessage "Copying dependencies of crystalnet kernel ..."
-	postbuildcommands(string.format("start %sbuilding.bat debug %s",  SCRIPT_PATH, "output\\" .. _ACTION))
+	postbuildcommands(string.format("start %sbuilding.bat debug %s",  SCRIPT_PATH, "output\\" .. _ACTION .. "\\" .. OUTPUT_NAME))
 	filter {}
 	
 	-- post build(windows)
 	filter { "system:windows", "configurations:release*"}
 	postbuildmessage "Copying dependencies of crystalnet kernel ..."
-	postbuildcommands(string.format("start %sbuilding.bat release %s",  SCRIPT_PATH, "output\\" .. _ACTION))
+	postbuildcommands(string.format("start %sbuilding.bat release %s",  SCRIPT_PATH, "output\\" .. _ACTION .. "\\" .. OUTPUT_NAME))
 	filter {}
 
 -- ****************************************************************************

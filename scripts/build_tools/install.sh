@@ -10,7 +10,7 @@ RELEASE_LIBS=("libCrystalKernel.so")
 OPEN_COREDUMP="opencoredump"
 COREDUMPFLAG="$2"
 ROOT_PATH=${SCRIPT_PATH}/../..
-OUTPUT_DIR=${SCRIPT_PATH}/../../output/gmake/
+OUTPUT_DIR=${SCRIPT_PATH}/../../output/gmake/build_tools
 
 # 连接配置与ini
 sudo rm -rf ${OUTPUT_DIR}/Cfgs

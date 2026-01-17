@@ -10,17 +10,18 @@ print('_ARGS:', _ARGS[1], _ARGS[2], _ARGS[3], ', ISUSE_CLANG:', ISUSE_CLANG)
 -- header directory
 KERNEL_HEADER_DIR = "../../kernel/kernel_pch/"
 -- All libraries output directory
-OUTPUT_DIR = "../../output/" .. _ACTION
+OUTPUT_NAME = "build_tools"
+OUTPUT_DIR = "../../output/" .. _ACTION .. "/" .. OUTPUT_NAME .. "/"
 -- root directory
 ROOT_DIR = "../../"
 WIN_ROOT_DIR = ".\\..\\..\\"
 -- build directory
-BUILD_DIR = "../../build_tools/"
+BUILD_DIR = "../../" .. OUTPUT_NAME .. "/"
 
 -- script path
-SCRIPT_PATH = ROOT_DIR .. "scripts/build_tools/"
+SCRIPT_PATH = ROOT_DIR .. "scripts/" .. OUTPUT_NAME .. "/"
 if IS_WINDOWS then
-    SCRIPT_PATH = ".\\\\..\\\\..\\\\" .. "scripts\\build_tools\\"
+    SCRIPT_PATH = ".\\\\..\\\\..\\\\" .. "scripts\\" .. OUTPUT_NAME .. "\\"
 end
 
 -- debug dir
