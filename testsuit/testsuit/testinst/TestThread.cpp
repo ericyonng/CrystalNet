@@ -304,6 +304,8 @@ void TestThread::Run()
             poller->QuitLoop();
         }, true);
 
+        co_await GetStr();
+
         // auto poolRes = co_await pool->SendAsync<KERNEL_NS::LibString>([]()->KERNEL_NS::LibString
         // {
         //     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestThread, "pool excute lambda and will return result thread id:%llu"), KERNEL_NS::SystemUtil::GetCurrentThreadId());
@@ -323,7 +325,7 @@ void TestThread::Run()
 
         info = "buhaole ba";
         
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestThread, "current thread id:%llu, pool result:%s"), KERNEL_NS::SystemUtil::GetCurrentThreadId(), poolRes->c_str());
+        // g_Log->Info(LOGFMT_NON_OBJ_TAG(TestThread, "current thread id:%llu, pool result:%s"), KERNEL_NS::SystemUtil::GetCurrentThreadId(), poolRes->c_str());
     });
 
 #endif
