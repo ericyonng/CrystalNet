@@ -57,7 +57,7 @@ void LogReciever::Release()
 Int32 LogReciever::_OnGlobalSysInit()
 {
     AccountData info;
-    info.ip = "127.0.0.1";
+    info.ip = "43.132.198.63";
     info.port = 3900;
     info.Account = "test_role_broadcast";
     info.Pwd = "1998569%&Jd20.";

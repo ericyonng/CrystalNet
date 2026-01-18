@@ -281,7 +281,7 @@ Int32 ClientUser::Login(Int32 stackType)
     remoteIp._ip = _loginInfo.targetip();
     KERNEL_NS::AddrIpConfig localIp;
     localIp._isHostName = false;
-    localIp._ip = "127.0.0.1";
+    localIp._ip = "0.0.0.0";
 
     auto err = sysMgr->AsynTcpConnect(remoteIp, _loginInfo.port(), stub, this, &ClientUser::_OnLoginConnectRes, localIp, 0, NULL, 3, 30,  SessionType::OUTER
     , KERNEL_NS::SocketUtil::IsIpv4(_loginInfo.targetip()) ? AF_INET : AF_INET6, stackType);
