@@ -91,7 +91,8 @@ int main(int argc, char const *argv[])
     initPtr();
     KERNEL_NS::LibString accountName = "test_role_ce";
     KERNEL_NS::LibString pwd = "1586ddk?R7'6s";
-    clientSet("43.132.198.63", 9, 3900, accountName.data(), accountName.length(), pwd.data(), pwd.length());
+    KERNEL_NS::LibString ip = "43.132.198.63";
+    clientSet(ip.data(), ip.length(), 3900, accountName.data(), accountName.length(), pwd.data(), pwd.length());
     clientStart();
 
     auto sendTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
