@@ -159,47 +159,47 @@ void MyTestService::_OnServiceRegisterComps()
 
 #ifdef CRYSTAL_STORAGE_ENABLE
     // 存储组件
-    RegisterComp<MysqlMgrFactory>();
+    // RegisterComp<MysqlMgrFactory>();
 #endif
 
     // 全球唯一id组件
-    RegisterComp<GlobalUidMgrFactory>();
+    // RegisterComp<GlobalUidMgrFactory>();
 
     // 跨时间组件
-    RegisterComp<PassTimeGlobalFactory>();
+    // RegisterComp<PassTimeGlobalFactory>();
 
     // 测试组件
-    RegisterComp<MyServiceCompFactory>();
+    // RegisterComp<MyServiceCompFactory>();
 
     // 测试
-    RegisterComp<TestMgrFactory>();
+    // RegisterComp<TestMgrFactory>();
 
     // 用户系统
     RegisterComp<UserMgrFactory>();
 
     // 昵称系统
-    RegisterComp<NicknameGlobalFactory>();
+    // RegisterComp<NicknameGlobalFactory>();
 
     // 图书馆
-    RegisterComp<LibraryGlobalFactory>();
+    // RegisterComp<LibraryGlobalFactory>();
 
     // 邀请码
-    RegisterComp<InviteCodeGlobalFactory>();
+    // RegisterComp<InviteCodeGlobalFactory>();
 
     // 书袋
-    RegisterComp<BookBagGlobalFactory>();
+    // RegisterComp<BookBagGlobalFactory>();
 
     // 离线处理模块
-    RegisterComp<OfflineGlobalFactory>();
+    // RegisterComp<OfflineGlobalFactory>();
 
     // 通知模块
-    RegisterComp<NotifyGlobalFactory>();
+    // RegisterComp<NotifyGlobalFactory>();
 
     // 系统日志模块
-    RegisterComp<SystemLogGlobalFactory>();
+    // RegisterComp<SystemLogGlobalFactory>();
 
     // 插件集
-    RegisterComp<PluginMgrFactory>();
+    // RegisterComp<PluginMgrFactory>();
 
     // 中转节点功能
     RegisterComp<MiddleNodeMgrFactory>();
