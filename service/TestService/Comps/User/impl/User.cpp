@@ -857,7 +857,8 @@ void User::PurgeAndWaitComplete()
 void User::PurgeEndWith(KERNEL_NS::IDelegate<void, Int32> *handler)
 {
     auto dbMgr = _userMgr->GetGlobalSys<IMysqlMgr>();
-    dbMgr->PurgeEndWith(handler);
+    if(dbMgr)
+        dbMgr->PurgeEndWith(handler);
 }
 
 UserBaseInfo *User::GetUserBaseInfo()

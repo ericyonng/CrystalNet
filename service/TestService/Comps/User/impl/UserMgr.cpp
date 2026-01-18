@@ -956,19 +956,22 @@ bool UserMgr::IsBindedPhone(UInt64 userId) const
 void UserMgr::Purge()
 {
     auto dbMgr = GetGlobalSys<IMysqlMgr>();
-    dbMgr->Purge(this);
+    if(dbMgr)
+        dbMgr->Purge(this);
 }
 
 void UserMgr::PurgeAndWait()
 {
     auto dbMgr = GetGlobalSys<IMysqlMgr>();
-    dbMgr->PurgeAndWaitComplete(this);
+    if(dbMgr)
+        dbMgr->PurgeAndWaitComplete(this);
 }
 
 void UserMgr::PurgeEndWith(KERNEL_NS::IDelegate<void, Int32> *handler)
 {
     auto dbMgr = GetGlobalSys<IMysqlMgr>();
-    dbMgr->PurgeEndWith(handler);
+    if(dbMgr)
+        dbMgr->PurgeEndWith(handler);
 }
 
 void UserMgr::RemoveUserBySessionId(UInt64 sessionId)
@@ -1181,7 +1184,8 @@ void UserMgr::_LruPopUser()
             expiredlUser->Logout(LogoutReason::USER_IDLE);
 
         auto mysqlMgr = GetGlobalSys<IMysqlMgr>();
-        mysqlMgr->PurgeAndWaitComplete(this);
+        if(mysqlMgr)
+            mysqlMgr->PurgeAndWaitComplete(this);
 
         // 即将移除user
         auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::USER_WILL_REMOVE);
@@ -1458,7 +1462,8 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
 
             user->SetUserStatus(UserStatus::USER_ONLOADING);
             auto dbMgr = GetGlobalSys<IMysqlMgr>();
-            dbMgr->PurgeAndWaitComplete(this);
+            if(dbMgr)
+                dbMgr->PurgeAndWaitComplete(this);
 
             user->SetUserStatus(UserStatus::USER_ONLOADED);
         }
