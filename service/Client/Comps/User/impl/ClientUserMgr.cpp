@@ -107,8 +107,9 @@ void ClientUserMgr::OnStartup()
     
     LoginInfo loginInfo;
     _finalTargetIp = ip;
+    _finalPwq = TestAccount::AccountInfo.Pwd;
     _finalTargetPort = TestAccount::AccountInfo.port;
-    _BuildLoginInfo(loginInfo, accountName, ip);
+    _BuildLoginInfo(loginInfo, accountName, ip, TestAccount::AccountInfo.Pwd);
     
     // auto err = Login(loginInfo, _targetAddrConfig->_protocolStackType);
     auto err = Login(loginInfo);
@@ -603,7 +604,7 @@ void ClientUserMgr::_OnHeartbeatTimeOut(KERNEL_NS::LibTimer *t)
 
             // 重新登录
             LoginInfo loginInfo;
-            _BuildLoginInfo(loginInfo, accountName, _finalTargetIp);
+            _BuildLoginInfo(loginInfo, accountName, _finalTargetIp, _finalPwq);
             auto err = Login(loginInfo);
             if (err != Status::Success)
             {
@@ -641,17 +642,17 @@ void ClientUserMgr::_Clear()
     // _targetAddrConfig = NULL;
 }
 
-void ClientUserMgr::_BuildLoginInfo(LoginInfo &loginInfo, const KERNEL_NS::LibString &accountName, const KERNEL_NS::LibString &ip) const
+void ClientUserMgr::_BuildLoginInfo(LoginInfo &loginInfo, const KERNEL_NS::LibString &accountName, const KERNEL_NS::LibString &ip, const KERNEL_NS::LibString &pwd) const
 {
     loginInfo.set_loginmode(LoginMode::REGISTER);
     loginInfo.set_accountname(accountName.GetRaw());
     loginInfo.set_targetip(ip.GetRaw());
     loginInfo.set_port(_finalTargetPort);
 
-    KERNEL_NS::LibString pwd;
-    _rsa.PubKeyEncrypt("1586ddk?R7'6s", pwd);
-    pwd = KERNEL_NS::LibBase64::Encode(pwd);
-    loginInfo.set_pwd(pwd.GetRaw());
+    KERNEL_NS::LibString pwdCypher;
+    _rsa.PubKeyEncrypt(pwd, pwdCypher);
+    pwdCypher = KERNEL_NS::LibBase64::Encode(pwdCypher);
+    loginInfo.set_pwd(pwdCypher.GetRaw());
 
     KERNEL_NS::LibString randText = "123456";
     KERNEL_NS::LibString cypherText;

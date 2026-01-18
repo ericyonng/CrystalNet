@@ -79,7 +79,7 @@ protected:
 
     void _Clear();
 
-    void _BuildLoginInfo(LoginInfo &loginInfo, const KERNEL_NS::LibString &accountName, const KERNEL_NS::LibString &ip) const;
+    void _BuildLoginInfo(LoginInfo &loginInfo, const KERNEL_NS::LibString &accountName, const KERNEL_NS::LibString &ip, const KERNEL_NS::LibString &pwd) const;
 
 private:
     std::map<KERNEL_NS::LibString, IClientUser *> _accountNameRefUser;
@@ -94,6 +94,7 @@ private:
     KERNEL_NS::LibString _testLoginAccountName;
 
     KERNEL_NS::LibString _finalTargetIp;
+    KERNEL_NS::LibString _finalPwq;
     Int32 _finalTargetPort;
 };
 

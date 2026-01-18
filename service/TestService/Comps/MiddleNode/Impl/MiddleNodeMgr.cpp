@@ -173,7 +173,7 @@ void MiddleNodeMgr::_OnSendDataRequest(KERNEL_NS::LibPacket *&packet)
 
 void MiddleNodeMgr::_OnBroadcastSendDataConfirmResponse(KERNEL_NS::LibPacket *&packet)
 {
-    auto res = packet->GetCoder<SendDataResponse>();
+    auto res = packet->GetCoder<BroadcastSendDataConfirmResponse>();
     if(res->packetid() != _waitConfirmId)
     {
         if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))

@@ -98,11 +98,17 @@ void LogReciever::_OnBroadcastSendDataNty(KERNEL_NS::LibPacket *&packet)
 {
     auto nty = packet->GetCoder<BroadcastSendDataNty>();
     auto packetId = nty->packetid();
-    _spinLock.Lock();
-    _dataList->PushBack(nty);
-    packet->PopCoder();
-    _spinLock.Unlock();
-    _lock.Sinal();
+
+    if (!KERNEL_NS::SimpleBitmapUtil::IsSet(_packetIdBitmap, packetId))
+    {
+        KERNEL_NS::SimpleBitmapUtil::Set(_packetIdBitmap, packetId);
+        
+        _spinLock.Lock();
+        _dataList->PushBack(nty);
+        packet->PopCoder();
+        _spinLock.Unlock();
+        _lock.Sinal();
+    }
 
     // res
     BroadcastSendDataConfirmResponse res;

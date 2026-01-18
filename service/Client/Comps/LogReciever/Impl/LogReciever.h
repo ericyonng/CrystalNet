@@ -64,6 +64,9 @@ private:
     KERNEL_NS::SpinLock _spinLock;
     KERNEL_NS::LibList<BroadcastSendDataNty *> *_dataList;
     KERNEL_NS::LibList<BroadcastSendDataNty *> *_swapList;
+
+    // bitmap
+    std::map<Int64, Int64> _packetIdBitmap;
 };
 
 SERVICE_END

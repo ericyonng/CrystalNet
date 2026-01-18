@@ -89,10 +89,13 @@ int main(int argc, char const *argv[])
     , initPtr, clientSet, clientStart, clientClose, sendLog, path.c_str());
 
     initPtr();
-    clientSet("127.0.0.1", 9, 3900, "test", 4, "test", 4);
+    KERNEL_NS::LibString accountName = "test_role_ce";
+    KERNEL_NS::LibString pwd = "1586ddk?R7'6s";
+    clientSet("127.0.0.1", 9, 3900, accountName.data(), accountName.length(), pwd.data(), pwd.length());
     clientStart();
 
-    sendLog("hello", 5);
+    auto idGen = KERNEL_NS::TlsUtil::GetIdGenerator()->NewId();
+    sendLog("hello", 5, static_cast<Int64>(idGen));
 
     KERNEL_NS::SystemUtil::ThreadSleep(60 * 1000);
 
