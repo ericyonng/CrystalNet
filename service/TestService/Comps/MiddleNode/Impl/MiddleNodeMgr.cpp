@@ -82,6 +82,10 @@ Int32 MiddleNodeMgr::_OnGlobalSysInit()
     // 注册消息请求
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_SendDataRequest, this, &MiddleNodeMgr::_OnSendDataRequest);
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_BroadcastSendDataConfirmResponse, this, &MiddleNodeMgr::_OnBroadcastSendDataConfirmResponse);
+
+    _reSendTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    _reSendTimer->SetTimeOutHandler(this, &MiddleNodeMgr::_OnResendTimer);
+    
     return Status::Success;
 }
 
@@ -199,27 +203,31 @@ void MiddleNodeMgr::_OnBroadcastSendDataConfirmResponse(KERNEL_NS::LibPacket *&p
     _dataSortedByTime.clear();
 
     // 发送
-    auto userMgr = GetGlobalSys<IUserMgr>();
-    auto &allUsers = userMgr->GetAllUsers();
-    for(auto iter : allUsers)
+    if (_waitConfirmId)
     {
-        auto user = iter.second;
-        auto config = GetService()->GetComp<ConfigLoader>()->GetComp<RoleAuthConfigMgr>()->GetConfigById(user->GetUserBaseInfo()->accountname());
-        if(!config)
-            continue;
-
-        if(config->_accountType != AccountType::BroadcastRole)
+        auto userMgr = GetGlobalSys<IUserMgr>();
+        auto &allUsers = userMgr->GetAllUsers();
+        for(auto iter : allUsers)
         {
-            continue;
-        }
+            auto user = iter.second;
+            auto config = GetService()->GetComp<ConfigLoader>()->GetComp<RoleAuthConfigMgr>()->GetConfigById(user->GetUserBaseInfo()->accountname());
+            if(!config)
+                continue;
+
+            if(config->_accountType != AccountType::BroadcastRole)
+            {
+                continue;
+            }
                 
-        UNUSED(user->Send(Opcodes::OpcodeConst::OPCODE_BroadcastSendDataNty, _requestWaitConfirm));
+            UNUSED(user->Send(Opcodes::OpcodeConst::OPCODE_BroadcastSendDataNty, _requestWaitConfirm));
+        }
+
+        _reSendTimer->Schedule(_reSendInterval);
+
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+            g_Log->Debug(LOGFMT_OBJ_TAG("_OnBroadcastSendDataConfirmResponse and BroadcastSendDataNty packet id:%lld"), _waitConfirmId);
     }
 
-    _reSendTimer->Schedule(_reSendInterval);
-
-    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
-        g_Log->Debug(LOGFMT_OBJ_TAG("_OnBroadcastSendDataConfirmResponse and BroadcastSendDataNty packet id:%lld"), _waitConfirmId);
 }
 
 void MiddleNodeMgr::_OnResendTimer(KERNEL_NS::LibTimer *timer)

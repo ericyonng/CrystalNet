@@ -132,18 +132,21 @@ void SendLog::_OnSendDataResponse(KERNEL_NS::LibPacket *&packet)
     _dataSortedByTime.clear();
 
     // 发送
-    auto userMgr = GetGlobalSys<IClientUserMgr>();
-    auto &allUsers = userMgr->GetAllUsers();
-    for(auto iter : allUsers)
+    if (_waitConfirmId)
     {
-        auto user = iter.second;
-        UNUSED(user->Send(Opcodes::OpcodeConst::OPCODE_SendDataRequest, _requestWaitConfirm));
+        auto userMgr = GetGlobalSys<IClientUserMgr>();
+        auto &allUsers = userMgr->GetAllUsers();
+        for(auto iter : allUsers)
+        {
+            auto user = iter.second;
+            UNUSED(user->Send(Opcodes::OpcodeConst::OPCODE_SendDataRequest, _requestWaitConfirm));
+        }
+
+        _reSendTimer->Schedule(_reSendInterval);
+
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+            g_Log->Debug(LOGFMT_OBJ_TAG("_OnSendDataResponse and SendData req id:%lld"), _waitConfirmId);
     }
-
-    _reSendTimer->Schedule(_reSendInterval);
-
-    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
-        g_Log->Debug(LOGFMT_OBJ_TAG("_OnSendDataResponse and SendData req id:%lld"), _waitConfirmId);
 }
 
 void SendLog::_OnResendTimer(KERNEL_NS::LibTimer *timer)
