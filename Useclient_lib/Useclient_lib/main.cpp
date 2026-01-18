@@ -74,7 +74,11 @@ int main(int argc, char const *argv[])
     g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "kernel started paramNum:%d. \nsucParamsInfo:\n%s, errParamsInfo:\n%s."), paramNum, sucParamsInfo.c_str(), errParamsInfo.c_str());
 
     auto shareLib = KERNEL_NS::ShareLibraryLoader::NewThreadLocal_ShareLibraryLoader();
+#ifdef _DEBUG
     const auto path = KERNEL_NS::SystemUtil::GetCurProgRootPath() + "/libclient_lib_debug.so";
+#else
+    const auto path = KERNEL_NS::SystemUtil::GetCurProgRootPath() + "/libclient_lib.so";
+#endif
     shareLib->SetLibraryPath(path);
     shareLib->Init();
     shareLib->Start();
