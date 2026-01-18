@@ -348,10 +348,15 @@ Int32 MyTestService::_OnServiceCompsCreated()
     _dbLoadedEventStub = GetEventMgr()->AddListener(EventEnums::DB_LOADED_FINISH_ON_STARTUP, this, &MyTestService::_OnDbLoaded);
 
     // 设置回调
-    auto mysqlMgr = GetComp<IMysqlMgr>();
+#ifdef CRYSTAL_STORAGE_ENABLE
     auto globalUidMgr = GetComp<IGlobalUidMgr>();
-    globalUidMgr->SetUpdateLastIdCallback(mysqlMgr, &IMysqlMgr::PurgeAndWaitComplete);
-
+    if(globalUidMgr)
+    {
+        auto mysqlMgr = GetComp<IMysqlMgr>();
+        globalUidMgr->SetUpdateLastIdCallback(mysqlMgr, &IMysqlMgr::PurgeAndWaitComplete);
+    }
+#endif
+    
     // 设置帧尾回调
     GetPoller()->SetFrameTick(this, &MyTestService::_OnFrameTick);
 
