@@ -56,7 +56,7 @@ KERNEL_BEGIN
 
 // rdtsc方法
 #ifndef CRYSTAL_NET_STATIC_KERNEL_LIB
- KERNEL_EXPORT UInt64 (*RdtscFunction)();
+ KERNEL_EXPORT extern UInt64 (*RdtscFunction)();
 #else
  extern UInt64 (*RdtscFunction)();
 #endif
