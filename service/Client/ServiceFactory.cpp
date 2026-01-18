@@ -36,7 +36,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(ServiceFactory);
 
 SERVICE_COMMON_NS::IService *ServiceFactory::Create(const KERNEL_NS::LibString &serviceName)
 {
-    if(serviceName == "Client")
+    if(serviceName == "Client" || serviceName == "LogReciever")
         return MyTestService::NewByAdapter_MyTestService(_buildType.V);
     
     g_Log->Warn(LOGFMT_OBJ_TAG("unknown service name:%s"), serviceName.c_str());

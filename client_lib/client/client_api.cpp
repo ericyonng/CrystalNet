@@ -34,6 +34,7 @@
 #include "service/common/macro.h"
 #include <protocols/protocols.h>
 #include <Comps/SendLog/SendLog.h>
+#include <Common/TestAccount.h>
 
 
 extern "C"
@@ -54,7 +55,7 @@ extern "C"
         accountInfo.port = port;
         accountInfo.Account.AppendData(account, accountLen);
         accountInfo.Pwd.AppendData(pwd, pwdLen);
-        Entry::AccountInfo = accountInfo;
+        TestAccount::AccountInfo = accountInfo;
         
         g_Log->Info(LOGFMT_NON_OBJ_TAG(Entry, "ClientSet accountInfo set: ip:%s, port:%d, account:%s, pwd:%s"), accountInfo.ip.c_str(), accountInfo.port, accountInfo.Account.c_str(), accountInfo.Pwd.c_str());
     }

@@ -30,7 +30,7 @@
 #include <Comps/User/impl/ClientUserMgrFactory.h>
 #include <Comps/User/impl/ClientUser.h>
 #include <MyTestService.h>
-#include <client/Entry.h>
+#include <Common/TestAccount.h>
 
 SERVICE_BEGIN
 
@@ -86,7 +86,7 @@ void ClientUserMgr::OnStartup()
     auto &random = KERNEL_NS::LibInt64Random<KERNEL_NS::_Build::TL>::GetInstance();
 
     // 写死账号
-    _testLoginAccountName = Entry::AccountInfo.Account;
+    _testLoginAccountName = TestAccount::AccountInfo.Account;
     if(_testLoginAccountName.empty())
         accountName.AppendFormat("bot_user_%lld", random.Gen(0, 127));
     else
@@ -103,11 +103,11 @@ void ClientUserMgr::OnStartup()
     //     }
     // }
 
-    KERNEL_NS::LibString ip = Entry::AccountInfo.ip;
+    KERNEL_NS::LibString ip = TestAccount::AccountInfo.ip;
     
     LoginInfo loginInfo;
     _finalTargetIp = ip;
-    _finalTargetPort = Entry::AccountInfo.port;
+    _finalTargetPort = TestAccount::AccountInfo.port;
     _BuildLoginInfo(loginInfo, accountName, ip);
     
     // auto err = Login(loginInfo, _targetAddrConfig->_protocolStackType);

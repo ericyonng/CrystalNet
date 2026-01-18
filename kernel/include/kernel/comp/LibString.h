@@ -508,6 +508,16 @@ public:
 
     bool FromHexString(const LibString &hexString);
 
+    void Swap(std::string &str)
+    {
+        if(UNLIKELY(&_raw == &str))
+        {
+            return;
+        }
+
+        _raw.swap(str);
+    }
+
     void Swap(LibString &&str)
     {
         if (UNLIKELY(this == &str))

@@ -159,8 +159,18 @@ void MyTestService::_OnServiceRegisterComps()
     // 用户管理
     RegisterComp<ClientUserMgrFactory>();
 
-    // SendLog
-    RegisterComp<SendLogFactory>();
+    const auto &serviceName = GetServiceName();
+    if(serviceName == "Client")
+    {
+        // SendLog
+        RegisterComp<SendLogFactory>();
+    }
+
+    if(serviceName == "LogReciever")
+    {
+        RegisterComp<LogRecieverFactory>();
+    }
+
 }
 
 Int32 MyTestService::_OnServiceInit()
