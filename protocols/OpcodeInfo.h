@@ -1097,28 +1097,6 @@
         _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, SendDataResponseFactory::CreateFactory()));
     }
 
-    {// BroadcastMsgNty
-        auto info = OpcodeInfo();
-        info._opcode = 120;
-        info._noLog = false;
-        info._enableStorage = false;
-        info._opcodeName = "BroadcastMsgNty";
-        info._protoFile = "broadcast_msg.proto";
-        _allOpcodeInfo.push_back(info);
-        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, BroadcastMsgNtyFactory::CreateFactory()));
-    }
-
-    {// BroadcastMsgResponse
-        auto info = OpcodeInfo();
-        info._opcode = 121;
-        info._noLog = false;
-        info._enableStorage = false;
-        info._opcodeName = "BroadcastMsgResponse";
-        info._protoFile = "broadcast_msg.proto";
-        _allOpcodeInfo.push_back(info);
-        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, BroadcastMsgResponseFactory::CreateFactory()));
-    }
-
     {// RpcReq
         auto info = OpcodeInfo();
         info._opcode = 122;
@@ -1139,4 +1117,26 @@
         info._protoFile = "rpc.proto";
         _allOpcodeInfo.push_back(info);
         _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, RpcResFactory::CreateFactory()));
+    }
+
+    {// BroadcastSendDataNty
+        auto info = OpcodeInfo();
+        info._opcode = 124;
+        info._noLog = false;
+        info._enableStorage = false;
+        info._opcodeName = "BroadcastSendDataNty";
+        info._protoFile = "broadcast_msg.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, BroadcastSendDataNtyFactory::CreateFactory()));
+    }
+
+    {// BroadcastSendDataConfirmResponse
+        auto info = OpcodeInfo();
+        info._opcode = 125;
+        info._noLog = false;
+        info._enableStorage = false;
+        info._opcodeName = "BroadcastSendDataConfirmResponse";
+        info._protoFile = "broadcast_msg.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, BroadcastSendDataConfirmResponseFactory::CreateFactory()));
     }

@@ -47,4 +47,5 @@
 #include <Comps/Notify/Notify.h>
 #include <Comps/SystemLog/SystemLog.h>
 #include <Comps/Plugin/Plugin.h>
+#include <Comps/MiddleNode/MiddleNode.h>
 

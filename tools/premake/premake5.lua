@@ -166,11 +166,16 @@ project "TestServicePlugin"
 
 	-- 设置通用选项
     set_common_options(nil, true)
+
+    if ISUSE_STORAGE then
+        includedirs{
+            "../../3rd/mysql/win/include/",
+        }
+    end
 	
 	includedirs {
 	    "../../",
 		"../../kernel/include/",
-        "../../3rd/mysql/win/include/",
 		"../../OptionComponent/",
 		"../../protocols/cplusplus/",
 		"../../TestServicePlugin/",
@@ -303,47 +308,52 @@ project "testsuit"
 
 	enable_precompileheader("pch.h", ROOT_DIR .. "testsuit/testsuit_pch/pch.cpp")
 
+    if ISUSE_STORAGE then
+	    includedirs {
+		    "../../3rd/mysql/win/include/",
+        }
+        
+        -- mysql
+        filter { "system:windows"}
+            includedirs {
+                "../../3rd/mysql/win/include/"
+            }
+
+            libdirs { 
+                ROOT_DIR .. "3rd/mysql/win/lib/",
+            }
+
+            links {
+                "libmysql",
+            }
+        filter {}
+        -- mysql
+        filter { "system:not windows"}
+            includedirs {
+                "../../3rd/mysql/linux/include/"
+            }
+
+            libdirs { 
+                ROOT_DIR .. "3rd/mysql/linux/lib/",
+            }
+
+            links {
+                "mysqlclient",
+            }
+        filter {}
+    end
+
 	includedirs {
 	    "../../",
 		"../../kernel/include/",
 		"../../testsuit/",
 		"../../testsuit/testsuit_pch/",
         "../../service/TestService/config/code/",
-		"../../3rd/mysql/win/include/",
 		"../../OptionComponent/",
 		"../../protocols/cplusplus/",
 		"../../service/TestService/",
 		"../../TestServicePlugin/",
     }
-
-    -- mysql
-    filter { "system:windows"}
-        includedirs {
-            "../../3rd/mysql/win/include/"
-        }
-
-        libdirs { 
-            ROOT_DIR .. "3rd/mysql/win/lib/",
-        }
-
-        links {
-            "libmysql",
-        }
-    filter {}
-    -- mysql
-    filter { "system:not windows"}
-        includedirs {
-            "../../3rd/mysql/linux/include/"
-        }
-
-        libdirs { 
-            ROOT_DIR .. "3rd/mysql/linux/lib/",
-        }
-
-        links {
-            "mysqlclient",
-        }
-    filter {}
 
     -- lua
     include_lua()
@@ -391,6 +401,10 @@ project "testsuit"
             "../../service/TestService/config/code/**.cpp",
             "../../OptionComponent/OptionComp/**.h",
             "../../OptionComponent/OptionComp/**.cpp",
+            -- "../../OptionComponent/OptionComp/BehaviorTree/**.h",
+            -- "../../OptionComponent/OptionComp/BehaviorTree/**.cpp",
+            -- "../../OptionComponent/OptionComp/CodeAnalyze/**.h",
+            -- "../../OptionComponent/OptionComp/CodeAnalyze/**.cpp",
         }
     else
         -- files

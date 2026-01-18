@@ -20,16 +20,19 @@ message SendDataResponse
     sint64 PacketId = 1;
 }
 
-// 广播消息
+// 转发消息
 /// Opcode:
-message BroadcastMsgNty 
+message BroadcastSendDataNty
 {
-    repeated BroadcastMsgInfo BroadcastMsgInfoList = 1;
+    // 取ReqList其中一个Req的PacketId
+    sint64 PacketId = 1;
+    // req列表
+    repeated SendDataRequest ReqList = 2;
 }
 
-// 广播消息回执, 表示哪些包已收到, 中转节点, 可以缓存一定数量的 BroadcastMsgInfo, 收到回执就从需要接收的list中移除id, 重连上来就重新推送这些日志, 尽量避免丢失
+// 转发消息确认
 /// Opcode:
-message BroadcastMsgResponse
+message BroadcastSendDataConfirmResponse
 {
-    repeated sint64 RecievedDataIds = 1;
+    sint64 PacketId = 1;
 }

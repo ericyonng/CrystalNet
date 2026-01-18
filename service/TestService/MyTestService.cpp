@@ -40,8 +40,7 @@
 #include <service/TestService/MyTestService.h>
 
 SERVICE_BEGIN
-
-// 配置项
+    // 配置项
 
 static const UInt64 s_maxPieceTimeInMicrosecondsDefault = 8*1000;   // 默认的poller事务超时时间片
 static const UInt64 s_maxPollerSleepInMilliSecondsDefault = 20;      // 默认的poller扫描时间间隔(20ms)
@@ -201,6 +200,9 @@ void MyTestService::_OnServiceRegisterComps()
 
     // 插件集
     RegisterComp<PluginMgrFactory>();
+
+    // 中转节点功能
+    RegisterComp<MiddleNodeMgrFactory>();
 }
 
 Int32 MyTestService::_OnServiceInit()

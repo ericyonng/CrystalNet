@@ -526,32 +526,23 @@ export namespace crystal_net_service
     export class BorrowOrderState {
 
     }
-    // com_broadcast_msg.proto
-    export class BroadcastMsgInfo {
-        // 中转节点生成唯一id(自增唯一id), 客户端收到后可去重处理，并根据大小打印日志
-        DataId:number = 0;
-
-        // 数据
-        Data:string = "";
-
-        // 时间戳
-        MsTime:number = 0;
+    // 转发消息确认
+    /// Opcode:
+    // broadcast_msg.proto
+    export class BroadcastSendDataConfirmResponse {
+        PacketId:number = 0;
 
 
     }
-    // 广播消息
+    // 转发消息
     /// Opcode:
     // broadcast_msg.proto
-    export class BroadcastMsgNty {
-        BroadcastMsgInfoList:BroadcastMsgInfo[] = [];
+    export class BroadcastSendDataNty {
+        // 取ReqList其中一个Req的PacketId
+        PacketId:number = 0;
 
-
-    }
-    // 广播消息回执, 表示哪些包已收到, 中转节点, 可以缓存一定数量的 BroadcastMsgInfo, 收到回执就从需要接收的list中移除id, 重连上来就重新推送这些日志, 尽量避免丢失
-    /// Opcode:
-    // broadcast_msg.proto
-    export class BroadcastMsgResponse {
-        RecievedDataIds:number[] = [];
+        // req列表
+        ReqList:SendDataRequest[] = [];
 
 
     }

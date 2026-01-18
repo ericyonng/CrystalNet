@@ -102,10 +102,10 @@ public static class PacketOpcode
         TestRpcRes = 117,    // test_opcode.proto
         SendDataRequest = 118,    // broadcast_msg.proto
         SendDataResponse = 119,    // broadcast_msg.proto
-        BroadcastMsgNty = 120,    // broadcast_msg.proto
-        BroadcastMsgResponse = 121,    // broadcast_msg.proto
         RpcReq = 122,    // rpc.proto
         RpcRes = 123,    // rpc.proto
-        OpcodeMax = 123,
+        BroadcastSendDataNty = 124,    // broadcast_msg.proto
+        BroadcastSendDataConfirmResponse = 125,    // broadcast_msg.proto
+        OpcodeMax = 125,
     }
 }

@@ -71,6 +71,8 @@ public:
 
         CONFIRM_CODE_TIME,    // id
 
+        DISABLE_NO_AUTH_LOGIN,    // id
+
         __ENUM_MAX,
 
     };

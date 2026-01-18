@@ -29,7 +29,10 @@
 #include <pch.h>
 #include <kernel/kernel.h>
 #include <service/TestService/ServiceCompHeader.h>
-#include <mysql.h>
+#ifdef CRYSTAL_STORAGE_ENABLE
+ #include <mysql.h>
+#endif
+
 #include <service/TestService/Comps/DB/impl/MysqlDefs.h>
 #include <OptionComp/storage/mysql/mysqlcomp.h>
 

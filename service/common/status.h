@@ -103,5 +103,6 @@ namespace Status
         InvalidConfirmCode,                                 // 无效确认码
         NeedReason,                                         // 需要原因
         NotOrderOwner,                                      // 非订单用户本人操作
+        NoAuth,                                             // 没权限
     };
 }

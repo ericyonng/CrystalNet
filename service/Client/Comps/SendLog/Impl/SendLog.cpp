@@ -8,6 +8,9 @@ SERVICE_BEGIN
 
 bool DataSourceInfoCompare::operator()(const DataSourceInfo *left, const DataSourceInfo *right) const
 {
+    if(left == right)
+        return false;
+    
     if(left->mstime() == right->mstime())
     {
         return left->requestid() < right->requestid();
@@ -51,9 +54,17 @@ void SendLog::SendData(SERVICE_NS::DataSourceInfo *data)
     // 没有待确认的包, 则直接发
     if(_waitConfirmId == 0)
     {
-        *_requestWaitConfirm.add_datalist() = *data;
-        _waitConfirmId = data->requestid();
-        _requestWaitConfirm.set_packetid(_waitConfirmId);
+        for(auto d : _dataSortedByTime)
+        {
+            if(_waitConfirmId == 0)
+            {
+                _waitConfirmId = d->requestid();
+                _requestWaitConfirm.set_packetid(_waitConfirmId);
+            }
+            *_requestWaitConfirm.add_datalist() = *d;
+            d->Release();
+        }
+        _dataSortedByTime.clear();
 
         for(auto iter : allUsers)
         {
@@ -91,16 +102,20 @@ void SendLog::_OnGlobalSysClose()
 void SendLog::_OnSendDataResponse(KERNEL_NS::LibPacket *&packet)
 {
     auto res = packet->GetCoder<SendDataResponse>();
-    if(res->packetid() == _waitConfirmId)
+    if(res->packetid() != _waitConfirmId)
     {
-        _requestWaitConfirm.clear_datalist();
-        _requestWaitConfirm.set_packetid(0);
-
         if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
-            g_Log->Debug(LOGFMT_OBJ_TAG("confirm response, packetId:%lld"), _waitConfirmId);
-
-        _waitConfirmId = 0;
+            g_Log->Debug(LOGFMT_OBJ_TAG("confirm response not waiting packetId:%lld, res packet id:%lld"), _waitConfirmId, res->packetid());
+        return;
     }
+    
+    _requestWaitConfirm.clear_datalist();
+    _requestWaitConfirm.set_packetid(0);
+
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("confirm response, packetId:%lld"), _waitConfirmId);
+
+    _waitConfirmId = 0;
 
     // 继续发包
     for(auto data :_dataSortedByTime)

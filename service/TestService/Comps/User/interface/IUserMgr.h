@@ -67,6 +67,8 @@ public:
     // 业务消息需要用该接口来处理 因为有可能还没登录
     virtual IUser *GetLoginedUserBySessionId(UInt64 sessionId) = 0;
 
+    virtual std::map<KERNEL_NS::LibString, IUser *> &GetAllUsers() = 0;
+
     /* 登录
     * @param(loginInfo):登录信息
     * @param(cb):回调, Rtn:void, Int32:错误码, IUser登录成功后的user对象, Variant:传入的透传参数

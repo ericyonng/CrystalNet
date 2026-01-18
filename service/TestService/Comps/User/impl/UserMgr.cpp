@@ -269,6 +269,11 @@ IUser *UserMgr::GetLoginedUserBySessionId(UInt64 sessionId)
     return user;
 }
 
+std::map<KERNEL_NS::LibString, IUser *> &UserMgr::GetAllUsers()
+{
+    return _accountNameRefUser;
+}
+
 void UserMgr::MaskNumberKeyAddDirty(UInt64 key)
 {
     auto user = GetUser(key);
@@ -330,6 +335,20 @@ Int32 UserMgr::Login(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS:
             if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
                 g_Log->Info(LOGFMT_OBJ_TAG("login in same session and will logout exists account pending info:%s, user:%s"), pendingInfo->ToString().c_str(), user->ToString().c_str());
             user->Logout(LogoutReason::LOG_IN_OTHER_ACCOUNT, false, sessionId);
+        }
+    }
+
+    // 是否禁止无权限的人登录
+    if(GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::DISABLE_NO_AUTH_LOGIN)->_value != 0)
+    {
+        auto authRoleConfig = CetAuthRoleConfig(pendingInfo->_byAccountName);
+        if(authRoleConfig == NULL)
+        {
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                g_Log->Info(LOGFMT_OBJ_TAG("DISABLE_NO_AUTH_LOGIN and not auth role pending info:%s"), pendingInfo->ToString().c_str());
+            if(LIKELY(cb))
+                cb->Invoke(Status::NoAuth, pendingInfo, NULL, var);
+            return Status::NoAuth;
         }
     }
 

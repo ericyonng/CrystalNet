@@ -15,6 +15,7 @@ echo    vs2022
 set /p choose=Please input:
 
 cd %ROOT_PATH%tools\premake && win_premake5.exe %choose% '' '' use_storage
+Rem cd %ROOT_PATH%tools\premake && win_premake5.exe %choose%
 
 if errorlevel 1 (
     echo Failed to generate Visual Studio solution and project files, error: %errorlevel%

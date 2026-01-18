@@ -3,7 +3,6 @@
 // source: com_broadcast_msg.proto
 
 #include <protocols/cplusplus/com_broadcast_msg.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(BroadcastMsgInfoFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(DataSourceInfoFactory);
 
 #include <algorithm>
@@ -25,21 +24,6 @@ namespace _pbi = _pb::internal;
 
 namespace CRYSTAL_NET {
 namespace service {
-PROTOBUF_CONSTEXPR BroadcastMsgInfo::BroadcastMsgInfo(
-    ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.data_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.dataid_)*/int64_t{0}
-  , /*decltype(_impl_.mstime_)*/uint64_t{0u}
-  , /*decltype(_impl_._cached_size_)*/{}} {}
-struct BroadcastMsgInfoDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR BroadcastMsgInfoDefaultTypeInternal()
-      : _instance(::_pbi::ConstantInitialized{}) {}
-  ~BroadcastMsgInfoDefaultTypeInternal() {}
-  union {
-    BroadcastMsgInfo _instance;
-  };
-};
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 BroadcastMsgInfoDefaultTypeInternal _BroadcastMsgInfo_default_instance_;
 PROTOBUF_CONSTEXPR DataSourceInfo::DataSourceInfo(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.data_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
@@ -57,20 +41,11 @@ struct DataSourceInfoDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 DataSourceInfoDefaultTypeInternal _DataSourceInfo_default_instance_;
 }  // namespace service
 }  // namespace CRYSTAL_NET
-static ::_pb::Metadata file_level_metadata_com_5fbroadcast_5fmsg_2eproto[2];
+static ::_pb::Metadata file_level_metadata_com_5fbroadcast_5fmsg_2eproto[1];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_com_5fbroadcast_5fmsg_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_com_5fbroadcast_5fmsg_2eproto = nullptr;
 
 const uint32_t TableStruct_com_5fbroadcast_5fmsg_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BroadcastMsgInfo, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BroadcastMsgInfo, _impl_.dataid_),
-  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BroadcastMsgInfo, _impl_.data_),
-  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BroadcastMsgInfo, _impl_.mstime_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::DataSourceInfo, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -82,27 +57,24 @@ const uint32_t TableStruct_com_5fbroadcast_5fmsg_2eproto::offsets[] PROTOBUF_SEC
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::DataSourceInfo, _impl_.mstime_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, -1, -1, sizeof(::CRYSTAL_NET::service::BroadcastMsgInfo)},
-  { 9, -1, -1, sizeof(::CRYSTAL_NET::service::DataSourceInfo)},
+  { 0, -1, -1, sizeof(::CRYSTAL_NET::service::DataSourceInfo)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
-  &::CRYSTAL_NET::service::_BroadcastMsgInfo_default_instance_._instance,
   &::CRYSTAL_NET::service::_DataSourceInfo_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_com_5fbroadcast_5fmsg_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\027com_broadcast_msg.proto\022\023CRYSTAL_NET.s"
-  "ervice\"@\n\020BroadcastMsgInfo\022\016\n\006DataId\030\001 \001"
-  "(\022\022\014\n\004Data\030\002 \001(\014\022\016\n\006MsTime\030\003 \001(\004\"A\n\016Data"
-  "SourceInfo\022\021\n\tRequestId\030\001 \001(\022\022\014\n\004Data\030\002 "
-  "\001(\014\022\016\n\006MsTime\030\003 \001(\022b\006proto3"
+  "ervice\"A\n\016DataSourceInfo\022\021\n\tRequestId\030\001 "
+  "\001(\022\022\014\n\004Data\030\002 \001(\014\022\016\n\006MsTime\030\003 \001(\022b\006proto"
+  "3"
   ;
 static ::_pbi::once_flag descriptor_table_com_5fbroadcast_5fmsg_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_com_5fbroadcast_5fmsg_2eproto = {
-    false, false, 187, descriptor_table_protodef_com_5fbroadcast_5fmsg_2eproto,
+    false, false, 121, descriptor_table_protodef_com_5fbroadcast_5fmsg_2eproto,
     "com_broadcast_msg.proto",
-    &descriptor_table_com_5fbroadcast_5fmsg_2eproto_once, nullptr, 0, 2,
+    &descriptor_table_com_5fbroadcast_5fmsg_2eproto_once, nullptr, 0, 1,
     schemas, file_default_instances, TableStruct_com_5fbroadcast_5fmsg_2eproto::offsets,
     file_level_metadata_com_5fbroadcast_5fmsg_2eproto, file_level_enum_descriptors_com_5fbroadcast_5fmsg_2eproto,
     file_level_service_descriptors_com_5fbroadcast_5fmsg_2eproto,
@@ -115,264 +87,6 @@ PROTOBUF_ATTRIBUTE_WEAK const ::_pbi::DescriptorTable* descriptor_table_com_5fbr
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_com_5fbroadcast_5fmsg_2eproto(&descriptor_table_com_5fbroadcast_5fmsg_2eproto);
 namespace CRYSTAL_NET {
 namespace service {
-
-// ===================================================================
-
-class BroadcastMsgInfo::_Internal {
- public:
-};
-
-BroadcastMsgInfo::BroadcastMsgInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                         bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
-  SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.BroadcastMsgInfo)
-}
-BroadcastMsgInfo::BroadcastMsgInfo(const BroadcastMsgInfo& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message() {
-  BroadcastMsgInfo* const _this = this; (void)_this;
-  new (&_impl_) Impl_{
-      decltype(_impl_.data_){}
-    , decltype(_impl_.dataid_){}
-    , decltype(_impl_.mstime_){}
-    , /*decltype(_impl_._cached_size_)*/{}};
-
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  _impl_.data_.InitDefault();
-  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-    _impl_.data_.Set("", GetArenaForAllocation());
-  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (!from._internal_data().empty()) {
-    _this->_impl_.data_.Set(from._internal_data(), 
-      _this->GetArenaForAllocation());
-  }
-  ::memcpy(&_impl_.dataid_, &from._impl_.dataid_,
-    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.mstime_) -
-    reinterpret_cast<char*>(&_impl_.dataid_)) + sizeof(_impl_.mstime_));
-  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.BroadcastMsgInfo)
-}
-
-inline void BroadcastMsgInfo::SharedCtor(
-    ::_pb::Arena* arena, bool is_message_owned) {
-  (void)arena;
-  (void)is_message_owned;
-  new (&_impl_) Impl_{
-      decltype(_impl_.data_){}
-    , decltype(_impl_.dataid_){int64_t{0}}
-    , decltype(_impl_.mstime_){uint64_t{0u}}
-    , /*decltype(_impl_._cached_size_)*/{}
-  };
-  _impl_.data_.InitDefault();
-  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-    _impl_.data_.Set("", GetArenaForAllocation());
-  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-}
-
-BroadcastMsgInfo::~BroadcastMsgInfo() {
-  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.BroadcastMsgInfo)
-  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
-  (void)arena;
-    return;
-  }
-  SharedDtor();
-}
-
-inline void BroadcastMsgInfo::SharedDtor() {
-  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  _impl_.data_.Destroy();
-}
-
-void BroadcastMsgInfo::SetCachedSize(int size) const {
-  _impl_._cached_size_.Set(size);
-}
-
-void BroadcastMsgInfo::Clear() {
-// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.BroadcastMsgInfo)
-  uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  _impl_.data_.ClearToEmpty();
-  ::memset(&_impl_.dataid_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&_impl_.mstime_) -
-      reinterpret_cast<char*>(&_impl_.dataid_)) + sizeof(_impl_.mstime_));
-  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-}
-
-const char* BroadcastMsgInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    uint32_t tag;
-    ptr = ::_pbi::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
-      // sint64 DataId = 1;
-      case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
-          _impl_.dataid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag64(&ptr);
-          CHK_(ptr);
-        } else
-          goto handle_unusual;
-        continue;
-      // bytes Data = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
-          auto str = _internal_mutable_data();
-          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(ptr);
-        } else
-          goto handle_unusual;
-        continue;
-      // uint64 MsTime = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
-          _impl_.mstime_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
-          CHK_(ptr);
-        } else
-          goto handle_unusual;
-        continue;
-      default:
-        goto handle_unusual;
-    }  // switch
-  handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
-      CHK_(ptr);
-      ctx->SetLastTag(tag);
-      goto message_done;
-    }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
-    CHK_(ptr != nullptr);
-  }  // while
-message_done:
-  return ptr;
-failure:
-  ptr = nullptr;
-  goto message_done;
-#undef CHK_
-}
-
-uint8_t* BroadcastMsgInfo::_InternalSerialize(
-    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.BroadcastMsgInfo)
-  uint32_t cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // sint64 DataId = 1;
-  if (this->_internal_dataid() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteSInt64ToArray(1, this->_internal_dataid(), target);
-  }
-
-  // bytes Data = 2;
-  if (!this->_internal_data().empty()) {
-    target = stream->WriteBytesMaybeAliased(
-        2, this->_internal_data(), target);
-  }
-
-  // uint64 MsTime = 3;
-  if (this->_internal_mstime() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(3, this->_internal_mstime(), target);
-  }
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.BroadcastMsgInfo)
-  return target;
-}
-
-size_t BroadcastMsgInfo::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.BroadcastMsgInfo)
-  size_t total_size = 0;
-
-  uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  // bytes Data = 2;
-  if (!this->_internal_data().empty()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
-        this->_internal_data());
-  }
-
-  // sint64 DataId = 1;
-  if (this->_internal_dataid() != 0) {
-    total_size += ::_pbi::WireFormatLite::SInt64SizePlusOne(this->_internal_dataid());
-  }
-
-  // uint64 MsTime = 3;
-  if (this->_internal_mstime() != 0) {
-    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_mstime());
-  }
-
-  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
-}
-
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BroadcastMsgInfo::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
-    BroadcastMsgInfo::MergeImpl
-};
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BroadcastMsgInfo::GetClassData() const { return &_class_data_; }
-
-
-void BroadcastMsgInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
-  auto* const _this = static_cast<BroadcastMsgInfo*>(&to_msg);
-  auto& from = static_cast<const BroadcastMsgInfo&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.BroadcastMsgInfo)
-  GOOGLE_DCHECK_NE(&from, _this);
-  uint32_t cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  if (!from._internal_data().empty()) {
-    _this->_internal_set_data(from._internal_data());
-  }
-  if (from._internal_dataid() != 0) {
-    _this->_internal_set_dataid(from._internal_dataid());
-  }
-  if (from._internal_mstime() != 0) {
-    _this->_internal_set_mstime(from._internal_mstime());
-  }
-  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-}
-
-void BroadcastMsgInfo::CopyFrom(const BroadcastMsgInfo& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.BroadcastMsgInfo)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool BroadcastMsgInfo::IsInitialized() const {
-  return true;
-}
-
-void BroadcastMsgInfo::InternalSwap(BroadcastMsgInfo* other) {
-  using std::swap;
-  auto* lhs_arena = GetArenaForAllocation();
-  auto* rhs_arena = other->GetArenaForAllocation();
-  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &_impl_.data_, lhs_arena,
-      &other->_impl_.data_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(BroadcastMsgInfo, _impl_.mstime_)
-      + sizeof(BroadcastMsgInfo::_impl_.mstime_)
-      - PROTOBUF_FIELD_OFFSET(BroadcastMsgInfo, _impl_.dataid_)>(
-          reinterpret_cast<char*>(&_impl_.dataid_),
-          reinterpret_cast<char*>(&other->_impl_.dataid_));
-}
-
-::PROTOBUF_NAMESPACE_ID::Metadata BroadcastMsgInfo::GetMetadata() const {
-  return ::_pbi::AssignDescriptors(
-      &descriptor_table_com_5fbroadcast_5fmsg_2eproto_getter, &descriptor_table_com_5fbroadcast_5fmsg_2eproto_once,
-      file_level_metadata_com_5fbroadcast_5fmsg_2eproto[0]);
-}
 
 // ===================================================================
 
@@ -629,17 +343,13 @@ void DataSourceInfo::InternalSwap(DataSourceInfo* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata DataSourceInfo::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_com_5fbroadcast_5fmsg_2eproto_getter, &descriptor_table_com_5fbroadcast_5fmsg_2eproto_once,
-      file_level_metadata_com_5fbroadcast_5fmsg_2eproto[1]);
+      file_level_metadata_com_5fbroadcast_5fmsg_2eproto[0]);
 }
 
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace service
 }  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::BroadcastMsgInfo*
-Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::BroadcastMsgInfo >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::BroadcastMsgInfo >(arena);
-}
 template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::DataSourceInfo*
 Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::DataSourceInfo >(Arena* arena) {
   return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::DataSourceInfo >(arena);

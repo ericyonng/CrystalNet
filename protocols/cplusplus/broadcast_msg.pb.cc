@@ -5,8 +5,8 @@
 #include <protocols/cplusplus/broadcast_msg.pb.h>
 POOL_CREATE_OBJ_DEFAULT_IMPL(SendDataRequestFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(SendDataResponseFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(BroadcastMsgNtyFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(BroadcastMsgResponseFactory);
+POOL_CREATE_OBJ_DEFAULT_IMPL(BroadcastSendDataNtyFactory);
+POOL_CREATE_OBJ_DEFAULT_IMPL(BroadcastSendDataConfirmResponseFactory);
 
 #include <algorithm>
 
@@ -54,33 +54,33 @@ struct SendDataResponseDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 SendDataResponseDefaultTypeInternal _SendDataResponse_default_instance_;
-PROTOBUF_CONSTEXPR BroadcastMsgNty::BroadcastMsgNty(
+PROTOBUF_CONSTEXPR BroadcastSendDataNty::BroadcastSendDataNty(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.broadcastmsginfolist_)*/{}
+    /*decltype(_impl_.reqlist_)*/{}
+  , /*decltype(_impl_.packetid_)*/int64_t{0}
   , /*decltype(_impl_._cached_size_)*/{}} {}
-struct BroadcastMsgNtyDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR BroadcastMsgNtyDefaultTypeInternal()
+struct BroadcastSendDataNtyDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR BroadcastSendDataNtyDefaultTypeInternal()
       : _instance(::_pbi::ConstantInitialized{}) {}
-  ~BroadcastMsgNtyDefaultTypeInternal() {}
+  ~BroadcastSendDataNtyDefaultTypeInternal() {}
   union {
-    BroadcastMsgNty _instance;
+    BroadcastSendDataNty _instance;
   };
 };
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 BroadcastMsgNtyDefaultTypeInternal _BroadcastMsgNty_default_instance_;
-PROTOBUF_CONSTEXPR BroadcastMsgResponse::BroadcastMsgResponse(
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 BroadcastSendDataNtyDefaultTypeInternal _BroadcastSendDataNty_default_instance_;
+PROTOBUF_CONSTEXPR BroadcastSendDataConfirmResponse::BroadcastSendDataConfirmResponse(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.recieveddataids_)*/{}
-  , /*decltype(_impl_._recieveddataids_cached_byte_size_)*/{0}
+    /*decltype(_impl_.packetid_)*/int64_t{0}
   , /*decltype(_impl_._cached_size_)*/{}} {}
-struct BroadcastMsgResponseDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR BroadcastMsgResponseDefaultTypeInternal()
+struct BroadcastSendDataConfirmResponseDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR BroadcastSendDataConfirmResponseDefaultTypeInternal()
       : _instance(::_pbi::ConstantInitialized{}) {}
-  ~BroadcastMsgResponseDefaultTypeInternal() {}
+  ~BroadcastSendDataConfirmResponseDefaultTypeInternal() {}
   union {
-    BroadcastMsgResponse _instance;
+    BroadcastSendDataConfirmResponse _instance;
   };
 };
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 BroadcastMsgResponseDefaultTypeInternal _BroadcastMsgResponse_default_instance_;
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 BroadcastSendDataConfirmResponseDefaultTypeInternal _BroadcastSendDataConfirmResponse_default_instance_;
 }  // namespace service
 }  // namespace CRYSTAL_NET
 static ::_pb::Metadata file_level_metadata_broadcast_5fmsg_2eproto[4];
@@ -104,32 +104,33 @@ const uint32_t TableStruct_broadcast_5fmsg_2eproto::offsets[] PROTOBUF_SECTION_V
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::SendDataResponse, _impl_.packetid_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BroadcastMsgNty, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BroadcastSendDataNty, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BroadcastMsgNty, _impl_.broadcastmsginfolist_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BroadcastSendDataNty, _impl_.packetid_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BroadcastSendDataNty, _impl_.reqlist_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BroadcastMsgResponse, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BroadcastSendDataConfirmResponse, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BroadcastMsgResponse, _impl_.recieveddataids_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BroadcastSendDataConfirmResponse, _impl_.packetid_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::CRYSTAL_NET::service::SendDataRequest)},
   { 8, -1, -1, sizeof(::CRYSTAL_NET::service::SendDataResponse)},
-  { 15, -1, -1, sizeof(::CRYSTAL_NET::service::BroadcastMsgNty)},
-  { 22, -1, -1, sizeof(::CRYSTAL_NET::service::BroadcastMsgResponse)},
+  { 15, -1, -1, sizeof(::CRYSTAL_NET::service::BroadcastSendDataNty)},
+  { 23, -1, -1, sizeof(::CRYSTAL_NET::service::BroadcastSendDataConfirmResponse)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
   &::CRYSTAL_NET::service::_SendDataRequest_default_instance_._instance,
   &::CRYSTAL_NET::service::_SendDataResponse_default_instance_._instance,
-  &::CRYSTAL_NET::service::_BroadcastMsgNty_default_instance_._instance,
-  &::CRYSTAL_NET::service::_BroadcastMsgResponse_default_instance_._instance,
+  &::CRYSTAL_NET::service::_BroadcastSendDataNty_default_instance_._instance,
+  &::CRYSTAL_NET::service::_BroadcastSendDataConfirmResponse_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_broadcast_5fmsg_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
@@ -137,18 +138,18 @@ const char descriptor_table_protodef_broadcast_5fmsg_2eproto[] PROTOBUF_SECTION_
   "ce\032\027com_broadcast_msg.proto\"Z\n\017SendDataR"
   "equest\022\020\n\010PacketId\030\001 \001(\022\0225\n\010DataList\030\002 \003"
   "(\0132#.CRYSTAL_NET.service.DataSourceInfo\""
-  "$\n\020SendDataResponse\022\020\n\010PacketId\030\001 \001(\022\"V\n"
-  "\017BroadcastMsgNty\022C\n\024BroadcastMsgInfoList"
-  "\030\001 \003(\0132%.CRYSTAL_NET.service.BroadcastMs"
-  "gInfo\"/\n\024BroadcastMsgResponse\022\027\n\017Recieve"
-  "dDataIds\030\001 \003(\022b\006proto3"
+  "$\n\020SendDataResponse\022\020\n\010PacketId\030\001 \001(\022\"_\n"
+  "\024BroadcastSendDataNty\022\020\n\010PacketId\030\001 \001(\022\022"
+  "5\n\007ReqList\030\002 \003(\0132$.CRYSTAL_NET.service.S"
+  "endDataRequest\"4\n BroadcastSendDataConfi"
+  "rmResponse\022\020\n\010PacketId\030\001 \001(\022b\006proto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_broadcast_5fmsg_2eproto_deps[1] = {
   &::descriptor_table_com_5fbroadcast_5fmsg_2eproto,
 };
 static ::_pbi::once_flag descriptor_table_broadcast_5fmsg_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_broadcast_5fmsg_2eproto = {
-    false, false, 342, descriptor_table_protodef_broadcast_5fmsg_2eproto,
+    false, false, 356, descriptor_table_protodef_broadcast_5fmsg_2eproto,
     "broadcast_msg.proto",
     &descriptor_table_broadcast_5fmsg_2eproto_once, descriptor_table_broadcast_5fmsg_2eproto_deps, 1, 4,
     schemas, file_default_instances, TableStruct_broadcast_5fmsg_2eproto::offsets,
@@ -559,42 +560,42 @@ void SendDataResponse::InternalSwap(SendDataResponse* other) {
 
 // ===================================================================
 
-class BroadcastMsgNty::_Internal {
+class BroadcastSendDataNty::_Internal {
  public:
 };
 
-void BroadcastMsgNty::clear_broadcastmsginfolist() {
-  _impl_.broadcastmsginfolist_.Clear();
-}
-BroadcastMsgNty::BroadcastMsgNty(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+BroadcastSendDataNty::BroadcastSendDataNty(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.BroadcastMsgNty)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.BroadcastSendDataNty)
 }
-BroadcastMsgNty::BroadcastMsgNty(const BroadcastMsgNty& from)
+BroadcastSendDataNty::BroadcastSendDataNty(const BroadcastSendDataNty& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
-  BroadcastMsgNty* const _this = this; (void)_this;
+  BroadcastSendDataNty* const _this = this; (void)_this;
   new (&_impl_) Impl_{
-      decltype(_impl_.broadcastmsginfolist_){from._impl_.broadcastmsginfolist_}
+      decltype(_impl_.reqlist_){from._impl_.reqlist_}
+    , decltype(_impl_.packetid_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.BroadcastMsgNty)
+  _this->_impl_.packetid_ = from._impl_.packetid_;
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.BroadcastSendDataNty)
 }
 
-inline void BroadcastMsgNty::SharedCtor(
+inline void BroadcastSendDataNty::SharedCtor(
     ::_pb::Arena* arena, bool is_message_owned) {
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.broadcastmsginfolist_){arena}
+      decltype(_impl_.reqlist_){arena}
+    , decltype(_impl_.packetid_){int64_t{0}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
 
-BroadcastMsgNty::~BroadcastMsgNty() {
-  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.BroadcastMsgNty)
+BroadcastSendDataNty::~BroadcastSendDataNty() {
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.BroadcastSendDataNty)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -602,41 +603,50 @@ BroadcastMsgNty::~BroadcastMsgNty() {
   SharedDtor();
 }
 
-inline void BroadcastMsgNty::SharedDtor() {
+inline void BroadcastSendDataNty::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  _impl_.broadcastmsginfolist_.~RepeatedPtrField();
+  _impl_.reqlist_.~RepeatedPtrField();
 }
 
-void BroadcastMsgNty::SetCachedSize(int size) const {
+void BroadcastSendDataNty::SetCachedSize(int size) const {
   _impl_._cached_size_.Set(size);
 }
 
-void BroadcastMsgNty::Clear() {
-// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.BroadcastMsgNty)
+void BroadcastSendDataNty::Clear() {
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.BroadcastSendDataNty)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.broadcastmsginfolist_.Clear();
+  _impl_.reqlist_.Clear();
+  _impl_.packetid_ = int64_t{0};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
-const char* BroadcastMsgNty::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+const char* BroadcastSendDataNty::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // repeated .CRYSTAL_NET.service.BroadcastMsgInfo BroadcastMsgInfoList = 1;
+      // sint64 PacketId = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _impl_.packetid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated .CRYSTAL_NET.service.SendDataRequest ReqList = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr -= 1;
           do {
             ptr += 1;
-            ptr = ctx->ParseMessage(_internal_add_broadcastmsginfolist(), ptr);
+            ptr = ctx->ParseMessage(_internal_add_reqlist(), ptr);
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -663,83 +673,98 @@ failure:
 #undef CHK_
 }
 
-uint8_t* BroadcastMsgNty::_InternalSerialize(
+uint8_t* BroadcastSendDataNty::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.BroadcastMsgNty)
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.BroadcastSendDataNty)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // repeated .CRYSTAL_NET.service.BroadcastMsgInfo BroadcastMsgInfoList = 1;
+  // sint64 PacketId = 1;
+  if (this->_internal_packetid() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteSInt64ToArray(1, this->_internal_packetid(), target);
+  }
+
+  // repeated .CRYSTAL_NET.service.SendDataRequest ReqList = 2;
   for (unsigned i = 0,
-      n = static_cast<unsigned>(this->_internal_broadcastmsginfolist_size()); i < n; i++) {
-    const auto& repfield = this->_internal_broadcastmsginfolist(i);
+      n = static_cast<unsigned>(this->_internal_reqlist_size()); i < n; i++) {
+    const auto& repfield = this->_internal_reqlist(i);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-        InternalWriteMessage(1, repfield, repfield.GetCachedSize(), target, stream);
+        InternalWriteMessage(2, repfield, repfield.GetCachedSize(), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.BroadcastMsgNty)
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.BroadcastSendDataNty)
   return target;
 }
 
-size_t BroadcastMsgNty::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.BroadcastMsgNty)
+size_t BroadcastSendDataNty::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.BroadcastSendDataNty)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated .CRYSTAL_NET.service.BroadcastMsgInfo BroadcastMsgInfoList = 1;
-  total_size += 1UL * this->_internal_broadcastmsginfolist_size();
-  for (const auto& msg : this->_impl_.broadcastmsginfolist_) {
+  // repeated .CRYSTAL_NET.service.SendDataRequest ReqList = 2;
+  total_size += 1UL * this->_internal_reqlist_size();
+  for (const auto& msg : this->_impl_.reqlist_) {
     total_size +=
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  }
+
+  // sint64 PacketId = 1;
+  if (this->_internal_packetid() != 0) {
+    total_size += ::_pbi::WireFormatLite::SInt64SizePlusOne(this->_internal_packetid());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BroadcastMsgNty::_class_data_ = {
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BroadcastSendDataNty::_class_data_ = {
     ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
-    BroadcastMsgNty::MergeImpl
+    BroadcastSendDataNty::MergeImpl
 };
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BroadcastMsgNty::GetClassData() const { return &_class_data_; }
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BroadcastSendDataNty::GetClassData() const { return &_class_data_; }
 
 
-void BroadcastMsgNty::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
-  auto* const _this = static_cast<BroadcastMsgNty*>(&to_msg);
-  auto& from = static_cast<const BroadcastMsgNty&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.BroadcastMsgNty)
+void BroadcastSendDataNty::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<BroadcastSendDataNty*>(&to_msg);
+  auto& from = static_cast<const BroadcastSendDataNty&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.BroadcastSendDataNty)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  _this->_impl_.broadcastmsginfolist_.MergeFrom(from._impl_.broadcastmsginfolist_);
+  _this->_impl_.reqlist_.MergeFrom(from._impl_.reqlist_);
+  if (from._internal_packetid() != 0) {
+    _this->_internal_set_packetid(from._internal_packetid());
+  }
   _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
-void BroadcastMsgNty::CopyFrom(const BroadcastMsgNty& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.BroadcastMsgNty)
+void BroadcastSendDataNty::CopyFrom(const BroadcastSendDataNty& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.BroadcastSendDataNty)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-bool BroadcastMsgNty::IsInitialized() const {
+bool BroadcastSendDataNty::IsInitialized() const {
   return true;
 }
 
-void BroadcastMsgNty::InternalSwap(BroadcastMsgNty* other) {
+void BroadcastSendDataNty::InternalSwap(BroadcastSendDataNty* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  _impl_.broadcastmsginfolist_.InternalSwap(&other->_impl_.broadcastmsginfolist_);
+  _impl_.reqlist_.InternalSwap(&other->_impl_.reqlist_);
+  swap(_impl_.packetid_, other->_impl_.packetid_);
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata BroadcastMsgNty::GetMetadata() const {
+::PROTOBUF_NAMESPACE_ID::Metadata BroadcastSendDataNty::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_broadcast_5fmsg_2eproto_getter, &descriptor_table_broadcast_5fmsg_2eproto_once,
       file_level_metadata_broadcast_5fmsg_2eproto[2]);
@@ -747,41 +772,40 @@ void BroadcastMsgNty::InternalSwap(BroadcastMsgNty* other) {
 
 // ===================================================================
 
-class BroadcastMsgResponse::_Internal {
+class BroadcastSendDataConfirmResponse::_Internal {
  public:
 };
 
-BroadcastMsgResponse::BroadcastMsgResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+BroadcastSendDataConfirmResponse::BroadcastSendDataConfirmResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.BroadcastMsgResponse)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.BroadcastSendDataConfirmResponse)
 }
-BroadcastMsgResponse::BroadcastMsgResponse(const BroadcastMsgResponse& from)
+BroadcastSendDataConfirmResponse::BroadcastSendDataConfirmResponse(const BroadcastSendDataConfirmResponse& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
-  BroadcastMsgResponse* const _this = this; (void)_this;
+  BroadcastSendDataConfirmResponse* const _this = this; (void)_this;
   new (&_impl_) Impl_{
-      decltype(_impl_.recieveddataids_){from._impl_.recieveddataids_}
-    , /*decltype(_impl_._recieveddataids_cached_byte_size_)*/{0}
+      decltype(_impl_.packetid_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.BroadcastMsgResponse)
+  _this->_impl_.packetid_ = from._impl_.packetid_;
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.BroadcastSendDataConfirmResponse)
 }
 
-inline void BroadcastMsgResponse::SharedCtor(
+inline void BroadcastSendDataConfirmResponse::SharedCtor(
     ::_pb::Arena* arena, bool is_message_owned) {
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.recieveddataids_){arena}
-    , /*decltype(_impl_._recieveddataids_cached_byte_size_)*/{0}
+      decltype(_impl_.packetid_){int64_t{0}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
 
-BroadcastMsgResponse::~BroadcastMsgResponse() {
-  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.BroadcastMsgResponse)
+BroadcastSendDataConfirmResponse::~BroadcastSendDataConfirmResponse() {
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.BroadcastSendDataConfirmResponse)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -789,38 +813,34 @@ BroadcastMsgResponse::~BroadcastMsgResponse() {
   SharedDtor();
 }
 
-inline void BroadcastMsgResponse::SharedDtor() {
+inline void BroadcastSendDataConfirmResponse::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  _impl_.recieveddataids_.~RepeatedField();
 }
 
-void BroadcastMsgResponse::SetCachedSize(int size) const {
+void BroadcastSendDataConfirmResponse::SetCachedSize(int size) const {
   _impl_._cached_size_.Set(size);
 }
 
-void BroadcastMsgResponse::Clear() {
-// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.BroadcastMsgResponse)
+void BroadcastSendDataConfirmResponse::Clear() {
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.BroadcastSendDataConfirmResponse)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.recieveddataids_.Clear();
+  _impl_.packetid_ = int64_t{0};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
-const char* BroadcastMsgResponse::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+const char* BroadcastSendDataConfirmResponse::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // repeated sint64 RecievedDataIds = 1;
+      // sint64 PacketId = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedSInt64Parser(_internal_mutable_recieveddataids(), ptr, ctx);
-          CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 8) {
-          _internal_add_recieveddataids(::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag64(&ptr));
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _impl_.packetid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -848,91 +868,81 @@ failure:
 #undef CHK_
 }
 
-uint8_t* BroadcastMsgResponse::_InternalSerialize(
+uint8_t* BroadcastSendDataConfirmResponse::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.BroadcastMsgResponse)
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.BroadcastSendDataConfirmResponse)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // repeated sint64 RecievedDataIds = 1;
-  {
-    int byte_size = _impl_._recieveddataids_cached_byte_size_.load(std::memory_order_relaxed);
-    if (byte_size > 0) {
-      target = stream->WriteSInt64Packed(
-          1, _internal_recieveddataids(), byte_size, target);
-    }
+  // sint64 PacketId = 1;
+  if (this->_internal_packetid() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteSInt64ToArray(1, this->_internal_packetid(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.BroadcastMsgResponse)
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.BroadcastSendDataConfirmResponse)
   return target;
 }
 
-size_t BroadcastMsgResponse::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.BroadcastMsgResponse)
+size_t BroadcastSendDataConfirmResponse::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.BroadcastSendDataConfirmResponse)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated sint64 RecievedDataIds = 1;
-  {
-    size_t data_size = ::_pbi::WireFormatLite::
-      SInt64Size(this->_impl_.recieveddataids_);
-    if (data_size > 0) {
-      total_size += 1 +
-        ::_pbi::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
-    }
-    int cached_size = ::_pbi::ToCachedSize(data_size);
-    _impl_._recieveddataids_cached_byte_size_.store(cached_size,
-                                    std::memory_order_relaxed);
-    total_size += data_size;
+  // sint64 PacketId = 1;
+  if (this->_internal_packetid() != 0) {
+    total_size += ::_pbi::WireFormatLite::SInt64SizePlusOne(this->_internal_packetid());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BroadcastMsgResponse::_class_data_ = {
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BroadcastSendDataConfirmResponse::_class_data_ = {
     ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
-    BroadcastMsgResponse::MergeImpl
+    BroadcastSendDataConfirmResponse::MergeImpl
 };
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BroadcastMsgResponse::GetClassData() const { return &_class_data_; }
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BroadcastSendDataConfirmResponse::GetClassData() const { return &_class_data_; }
 
 
-void BroadcastMsgResponse::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
-  auto* const _this = static_cast<BroadcastMsgResponse*>(&to_msg);
-  auto& from = static_cast<const BroadcastMsgResponse&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.BroadcastMsgResponse)
+void BroadcastSendDataConfirmResponse::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<BroadcastSendDataConfirmResponse*>(&to_msg);
+  auto& from = static_cast<const BroadcastSendDataConfirmResponse&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.BroadcastSendDataConfirmResponse)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  _this->_impl_.recieveddataids_.MergeFrom(from._impl_.recieveddataids_);
+  if (from._internal_packetid() != 0) {
+    _this->_internal_set_packetid(from._internal_packetid());
+  }
   _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
-void BroadcastMsgResponse::CopyFrom(const BroadcastMsgResponse& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.BroadcastMsgResponse)
+void BroadcastSendDataConfirmResponse::CopyFrom(const BroadcastSendDataConfirmResponse& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.BroadcastSendDataConfirmResponse)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-bool BroadcastMsgResponse::IsInitialized() const {
+bool BroadcastSendDataConfirmResponse::IsInitialized() const {
   return true;
 }
 
-void BroadcastMsgResponse::InternalSwap(BroadcastMsgResponse* other) {
+void BroadcastSendDataConfirmResponse::InternalSwap(BroadcastSendDataConfirmResponse* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  _impl_.recieveddataids_.InternalSwap(&other->_impl_.recieveddataids_);
+  swap(_impl_.packetid_, other->_impl_.packetid_);
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata BroadcastMsgResponse::GetMetadata() const {
+::PROTOBUF_NAMESPACE_ID::Metadata BroadcastSendDataConfirmResponse::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_broadcast_5fmsg_2eproto_getter, &descriptor_table_broadcast_5fmsg_2eproto_once,
       file_level_metadata_broadcast_5fmsg_2eproto[3]);
@@ -950,13 +960,13 @@ template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::SendDataResponse*
 Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::SendDataResponse >(Arena* arena) {
   return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::SendDataResponse >(arena);
 }
-template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::BroadcastMsgNty*
-Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::BroadcastMsgNty >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::BroadcastMsgNty >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::BroadcastSendDataNty*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::BroadcastSendDataNty >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::BroadcastSendDataNty >(arena);
 }
-template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::BroadcastMsgResponse*
-Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::BroadcastMsgResponse >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::BroadcastMsgResponse >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::BroadcastSendDataConfirmResponse*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::BroadcastSendDataConfirmResponse >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::BroadcastSendDataConfirmResponse >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

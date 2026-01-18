@@ -57,12 +57,12 @@ struct TableStruct_broadcast_5fmsg_2eproto {
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_broadcast_5fmsg_2eproto;
 namespace CRYSTAL_NET {
 namespace service {
-class BroadcastMsgNty;
-struct BroadcastMsgNtyDefaultTypeInternal;
-extern BroadcastMsgNtyDefaultTypeInternal _BroadcastMsgNty_default_instance_;
-class BroadcastMsgResponse;
-struct BroadcastMsgResponseDefaultTypeInternal;
-extern BroadcastMsgResponseDefaultTypeInternal _BroadcastMsgResponse_default_instance_;
+class BroadcastSendDataConfirmResponse;
+struct BroadcastSendDataConfirmResponseDefaultTypeInternal;
+extern BroadcastSendDataConfirmResponseDefaultTypeInternal _BroadcastSendDataConfirmResponse_default_instance_;
+class BroadcastSendDataNty;
+struct BroadcastSendDataNtyDefaultTypeInternal;
+extern BroadcastSendDataNtyDefaultTypeInternal _BroadcastSendDataNty_default_instance_;
 class SendDataRequest;
 struct SendDataRequestDefaultTypeInternal;
 extern SendDataRequestDefaultTypeInternal _SendDataRequest_default_instance_;
@@ -72,8 +72,8 @@ extern SendDataResponseDefaultTypeInternal _SendDataResponse_default_instance_;
 }  // namespace service
 }  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> ::CRYSTAL_NET::service::BroadcastMsgNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BroadcastMsgNty>(Arena*);
-template<> ::CRYSTAL_NET::service::BroadcastMsgResponse* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BroadcastMsgResponse>(Arena*);
+template<> ::CRYSTAL_NET::service::BroadcastSendDataConfirmResponse* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BroadcastSendDataConfirmResponse>(Arena*);
+template<> ::CRYSTAL_NET::service::BroadcastSendDataNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BroadcastSendDataNty>(Arena*);
 template<> ::CRYSTAL_NET::service::SendDataRequest* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::SendDataRequest>(Arena*);
 template<> ::CRYSTAL_NET::service::SendDataResponse* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::SendDataResponse>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
@@ -712,9 +712,9 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(120), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
-class BroadcastMsgNty final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BroadcastMsgNty) */ , public KERNEL_NS::ICoder {
+// AnnotaionInfo[opcode(124), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
+class BroadcastSendDataNty final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BroadcastSendDataNty) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -723,7 +723,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BroadcastMsgNty failed, error: %s"), InitializationErrorString().c_str());
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BroadcastSendDataNty failed, error: %s"), InitializationErrorString().c_str());
       return false;
     }
 
@@ -746,7 +746,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BroadcastMsgNty failed, error: %s"), InitializationErrorString().c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BroadcastSendDataNty failed, error: %s"), InitializationErrorString().c_str());
         return false;
     }
 
@@ -757,7 +757,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BroadcastMsgNty failed, error: %s"), InitializationErrorString().c_str());
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BroadcastSendDataNty failed, error: %s"), InitializationErrorString().c_str());
       return false;
     }
 
@@ -780,7 +780,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BroadcastMsgNty failed, error: %s"), InitializationErrorString().c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BroadcastSendDataNty failed, error: %s"), InitializationErrorString().c_str());
         return false;
     }
 
@@ -797,7 +797,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BroadcastMsgNty failed, error: %s"), InitializationErrorString().c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BroadcastSendDataNty failed, error: %s"), InitializationErrorString().c_str());
         return false;
     }
 
@@ -814,7 +814,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BroadcastMsgNty failed, error: %s"), InitializationErrorString().c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BroadcastSendDataNty failed, error: %s"), InitializationErrorString().c_str());
         return false;
     }
 
@@ -872,21 +872,21 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
 
  public:
-  inline BroadcastMsgNty() : BroadcastMsgNty(nullptr) {}
-  ~BroadcastMsgNty() override;
-  explicit PROTOBUF_CONSTEXPR BroadcastMsgNty(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  inline BroadcastSendDataNty() : BroadcastSendDataNty(nullptr) {}
+  ~BroadcastSendDataNty() override;
+  explicit PROTOBUF_CONSTEXPR BroadcastSendDataNty(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
-  BroadcastMsgNty(const BroadcastMsgNty& from);
-  BroadcastMsgNty(BroadcastMsgNty&& from) noexcept
-    : BroadcastMsgNty() {
+  BroadcastSendDataNty(const BroadcastSendDataNty& from);
+  BroadcastSendDataNty(BroadcastSendDataNty&& from) noexcept
+    : BroadcastSendDataNty() {
     *this = ::std::move(from);
   }
 
-  inline BroadcastMsgNty& operator=(const BroadcastMsgNty& from) {
+  inline BroadcastSendDataNty& operator=(const BroadcastSendDataNty& from) {
     CopyFrom(from);
     return *this;
   }
-  inline BroadcastMsgNty& operator=(BroadcastMsgNty&& from) noexcept {
+  inline BroadcastSendDataNty& operator=(BroadcastSendDataNty&& from) noexcept {
     if (this == &from) return *this;
     if (GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -909,20 +909,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
-  static const BroadcastMsgNty& default_instance() {
+  static const BroadcastSendDataNty& default_instance() {
     return *internal_default_instance();
   }
-  static inline const BroadcastMsgNty* internal_default_instance() {
-    return reinterpret_cast<const BroadcastMsgNty*>(
-               &_BroadcastMsgNty_default_instance_);
+  static inline const BroadcastSendDataNty* internal_default_instance() {
+    return reinterpret_cast<const BroadcastSendDataNty*>(
+               &_BroadcastSendDataNty_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     2;
 
-  friend void swap(BroadcastMsgNty& a, BroadcastMsgNty& b) {
+  friend void swap(BroadcastSendDataNty& a, BroadcastSendDataNty& b) {
     a.Swap(&b);
   }
-  inline void Swap(BroadcastMsgNty* other) {
+  inline void Swap(BroadcastSendDataNty* other) {
     if (other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
     if (GetOwningArena() != nullptr &&
@@ -935,7 +935,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
       ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(BroadcastMsgNty* other) {
+  void UnsafeArenaSwap(BroadcastSendDataNty* other) {
     if (other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
@@ -943,14 +943,14 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // implements Message ----------------------------------------------
 
-  BroadcastMsgNty* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<BroadcastMsgNty>(arena);
+  BroadcastSendDataNty* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<BroadcastSendDataNty>(arena);
   }
   using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const BroadcastMsgNty& from);
+  void CopyFrom(const BroadcastSendDataNty& from);
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom( const BroadcastMsgNty& from) {
-    BroadcastMsgNty::MergeImpl(*this, from);
+  void MergeFrom( const BroadcastSendDataNty& from) {
+    BroadcastSendDataNty::MergeImpl(*this, from);
   }
   private:
   static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
@@ -968,15 +968,15 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
   void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(BroadcastMsgNty* other);
+  void InternalSwap(BroadcastSendDataNty* other);
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "CRYSTAL_NET.service.BroadcastMsgNty";
+    return "CRYSTAL_NET.service.BroadcastSendDataNty";
   }
   protected:
-  explicit BroadcastMsgNty(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+  explicit BroadcastSendDataNty(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                        bool is_message_owned = false);
   public:
 
@@ -990,27 +990,37 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   // accessors -------------------------------------------------------
 
   enum : int {
-    kBroadcastMsgInfoListFieldNumber = 1,
+    kReqListFieldNumber = 2,
+    kPacketIdFieldNumber = 1,
   };
-  // repeated .CRYSTAL_NET.service.BroadcastMsgInfo BroadcastMsgInfoList = 1;
-  int broadcastmsginfolist_size() const;
+  // repeated .CRYSTAL_NET.service.SendDataRequest ReqList = 2;
+  int reqlist_size() const;
   private:
-  int _internal_broadcastmsginfolist_size() const;
+  int _internal_reqlist_size() const;
   public:
-  void clear_broadcastmsginfolist();
-  ::CRYSTAL_NET::service::BroadcastMsgInfo* mutable_broadcastmsginfolist(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BroadcastMsgInfo >*
-      mutable_broadcastmsginfolist();
+  void clear_reqlist();
+  ::CRYSTAL_NET::service::SendDataRequest* mutable_reqlist(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::SendDataRequest >*
+      mutable_reqlist();
   private:
-  const ::CRYSTAL_NET::service::BroadcastMsgInfo& _internal_broadcastmsginfolist(int index) const;
-  ::CRYSTAL_NET::service::BroadcastMsgInfo* _internal_add_broadcastmsginfolist();
+  const ::CRYSTAL_NET::service::SendDataRequest& _internal_reqlist(int index) const;
+  ::CRYSTAL_NET::service::SendDataRequest* _internal_add_reqlist();
   public:
-  const ::CRYSTAL_NET::service::BroadcastMsgInfo& broadcastmsginfolist(int index) const;
-  ::CRYSTAL_NET::service::BroadcastMsgInfo* add_broadcastmsginfolist();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BroadcastMsgInfo >&
-      broadcastmsginfolist() const;
+  const ::CRYSTAL_NET::service::SendDataRequest& reqlist(int index) const;
+  ::CRYSTAL_NET::service::SendDataRequest* add_reqlist();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::SendDataRequest >&
+      reqlist() const;
 
-  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.BroadcastMsgNty)
+  // sint64 PacketId = 1;
+  void clear_packetid();
+  int64_t packetid() const;
+  void set_packetid(int64_t value);
+  private:
+  int64_t _internal_packetid() const;
+  void _internal_set_packetid(int64_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.BroadcastSendDataNty)
  private:
   class _Internal;
 
@@ -1018,7 +1028,8 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BroadcastMsgInfo > broadcastmsginfolist_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::SendDataRequest > reqlist_;
+    int64_t packetid_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -1026,9 +1037,9 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(121), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
-class BroadcastMsgResponse final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BroadcastMsgResponse) */ , public KERNEL_NS::ICoder {
+// AnnotaionInfo[opcode(125), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
+class BroadcastSendDataConfirmResponse final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BroadcastSendDataConfirmResponse) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -1037,7 +1048,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BroadcastMsgResponse failed, error: %s"), InitializationErrorString().c_str());
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BroadcastSendDataConfirmResponse failed, error: %s"), InitializationErrorString().c_str());
       return false;
     }
 
@@ -1060,7 +1071,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BroadcastMsgResponse failed, error: %s"), InitializationErrorString().c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BroadcastSendDataConfirmResponse failed, error: %s"), InitializationErrorString().c_str());
         return false;
     }
 
@@ -1071,7 +1082,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BroadcastMsgResponse failed, error: %s"), InitializationErrorString().c_str());
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BroadcastSendDataConfirmResponse failed, error: %s"), InitializationErrorString().c_str());
       return false;
     }
 
@@ -1094,7 +1105,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BroadcastMsgResponse failed, error: %s"), InitializationErrorString().c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BroadcastSendDataConfirmResponse failed, error: %s"), InitializationErrorString().c_str());
         return false;
     }
 
@@ -1111,7 +1122,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BroadcastMsgResponse failed, error: %s"), InitializationErrorString().c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BroadcastSendDataConfirmResponse failed, error: %s"), InitializationErrorString().c_str());
         return false;
     }
 
@@ -1128,7 +1139,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BroadcastMsgResponse failed, error: %s"), InitializationErrorString().c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BroadcastSendDataConfirmResponse failed, error: %s"), InitializationErrorString().c_str());
         return false;
     }
 
@@ -1186,21 +1197,21 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
 
  public:
-  inline BroadcastMsgResponse() : BroadcastMsgResponse(nullptr) {}
-  ~BroadcastMsgResponse() override;
-  explicit PROTOBUF_CONSTEXPR BroadcastMsgResponse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  inline BroadcastSendDataConfirmResponse() : BroadcastSendDataConfirmResponse(nullptr) {}
+  ~BroadcastSendDataConfirmResponse() override;
+  explicit PROTOBUF_CONSTEXPR BroadcastSendDataConfirmResponse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
-  BroadcastMsgResponse(const BroadcastMsgResponse& from);
-  BroadcastMsgResponse(BroadcastMsgResponse&& from) noexcept
-    : BroadcastMsgResponse() {
+  BroadcastSendDataConfirmResponse(const BroadcastSendDataConfirmResponse& from);
+  BroadcastSendDataConfirmResponse(BroadcastSendDataConfirmResponse&& from) noexcept
+    : BroadcastSendDataConfirmResponse() {
     *this = ::std::move(from);
   }
 
-  inline BroadcastMsgResponse& operator=(const BroadcastMsgResponse& from) {
+  inline BroadcastSendDataConfirmResponse& operator=(const BroadcastSendDataConfirmResponse& from) {
     CopyFrom(from);
     return *this;
   }
-  inline BroadcastMsgResponse& operator=(BroadcastMsgResponse&& from) noexcept {
+  inline BroadcastSendDataConfirmResponse& operator=(BroadcastSendDataConfirmResponse&& from) noexcept {
     if (this == &from) return *this;
     if (GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -1223,20 +1234,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
-  static const BroadcastMsgResponse& default_instance() {
+  static const BroadcastSendDataConfirmResponse& default_instance() {
     return *internal_default_instance();
   }
-  static inline const BroadcastMsgResponse* internal_default_instance() {
-    return reinterpret_cast<const BroadcastMsgResponse*>(
-               &_BroadcastMsgResponse_default_instance_);
+  static inline const BroadcastSendDataConfirmResponse* internal_default_instance() {
+    return reinterpret_cast<const BroadcastSendDataConfirmResponse*>(
+               &_BroadcastSendDataConfirmResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     3;
 
-  friend void swap(BroadcastMsgResponse& a, BroadcastMsgResponse& b) {
+  friend void swap(BroadcastSendDataConfirmResponse& a, BroadcastSendDataConfirmResponse& b) {
     a.Swap(&b);
   }
-  inline void Swap(BroadcastMsgResponse* other) {
+  inline void Swap(BroadcastSendDataConfirmResponse* other) {
     if (other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
     if (GetOwningArena() != nullptr &&
@@ -1249,7 +1260,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
       ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(BroadcastMsgResponse* other) {
+  void UnsafeArenaSwap(BroadcastSendDataConfirmResponse* other) {
     if (other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
@@ -1257,14 +1268,14 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // implements Message ----------------------------------------------
 
-  BroadcastMsgResponse* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<BroadcastMsgResponse>(arena);
+  BroadcastSendDataConfirmResponse* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<BroadcastSendDataConfirmResponse>(arena);
   }
   using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const BroadcastMsgResponse& from);
+  void CopyFrom(const BroadcastSendDataConfirmResponse& from);
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom( const BroadcastMsgResponse& from) {
-    BroadcastMsgResponse::MergeImpl(*this, from);
+  void MergeFrom( const BroadcastSendDataConfirmResponse& from) {
+    BroadcastSendDataConfirmResponse::MergeImpl(*this, from);
   }
   private:
   static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
@@ -1282,15 +1293,15 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
   void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(BroadcastMsgResponse* other);
+  void InternalSwap(BroadcastSendDataConfirmResponse* other);
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "CRYSTAL_NET.service.BroadcastMsgResponse";
+    return "CRYSTAL_NET.service.BroadcastSendDataConfirmResponse";
   }
   protected:
-  explicit BroadcastMsgResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+  explicit BroadcastSendDataConfirmResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                        bool is_message_owned = false);
   public:
 
@@ -1304,31 +1315,18 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRecievedDataIdsFieldNumber = 1,
+    kPacketIdFieldNumber = 1,
   };
-  // repeated sint64 RecievedDataIds = 1;
-  int recieveddataids_size() const;
+  // sint64 PacketId = 1;
+  void clear_packetid();
+  int64_t packetid() const;
+  void set_packetid(int64_t value);
   private:
-  int _internal_recieveddataids_size() const;
+  int64_t _internal_packetid() const;
+  void _internal_set_packetid(int64_t value);
   public:
-  void clear_recieveddataids();
-  private:
-  int64_t _internal_recieveddataids(int index) const;
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >&
-      _internal_recieveddataids() const;
-  void _internal_add_recieveddataids(int64_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-      _internal_mutable_recieveddataids();
-  public:
-  int64_t recieveddataids(int index) const;
-  void set_recieveddataids(int index, int64_t value);
-  void add_recieveddataids(int64_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >&
-      recieveddataids() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-      mutable_recieveddataids();
 
-  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.BroadcastMsgResponse)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.BroadcastSendDataConfirmResponse)
  private:
   class _Internal;
 
@@ -1336,8 +1334,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > recieveddataids_;
-    mutable std::atomic<int> _recieveddataids_cached_byte_size_;
+    int64_t packetid_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -1437,94 +1434,90 @@ inline void SendDataResponse::set_packetid(int64_t value) {
 
 // -------------------------------------------------------------------
 
-// BroadcastMsgNty
+// BroadcastSendDataNty
 
-// repeated .CRYSTAL_NET.service.BroadcastMsgInfo BroadcastMsgInfoList = 1;
-inline int BroadcastMsgNty::_internal_broadcastmsginfolist_size() const {
-  return _impl_.broadcastmsginfolist_.size();
+// sint64 PacketId = 1;
+inline void BroadcastSendDataNty::clear_packetid() {
+  _impl_.packetid_ = int64_t{0};
 }
-inline int BroadcastMsgNty::broadcastmsginfolist_size() const {
-  return _internal_broadcastmsginfolist_size();
+inline int64_t BroadcastSendDataNty::_internal_packetid() const {
+  return _impl_.packetid_;
 }
-inline ::CRYSTAL_NET::service::BroadcastMsgInfo* BroadcastMsgNty::mutable_broadcastmsginfolist(int index) {
-  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.BroadcastMsgNty.BroadcastMsgInfoList)
-  return _impl_.broadcastmsginfolist_.Mutable(index);
+inline int64_t BroadcastSendDataNty::packetid() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BroadcastSendDataNty.PacketId)
+  return _internal_packetid();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BroadcastMsgInfo >*
-BroadcastMsgNty::mutable_broadcastmsginfolist() {
-  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.BroadcastMsgNty.BroadcastMsgInfoList)
-  return &_impl_.broadcastmsginfolist_;
+inline void BroadcastSendDataNty::_internal_set_packetid(int64_t value) {
+  
+  _impl_.packetid_ = value;
 }
-inline const ::CRYSTAL_NET::service::BroadcastMsgInfo& BroadcastMsgNty::_internal_broadcastmsginfolist(int index) const {
-  return _impl_.broadcastmsginfolist_.Get(index);
+inline void BroadcastSendDataNty::set_packetid(int64_t value) {
+  _internal_set_packetid(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BroadcastSendDataNty.PacketId)
 }
-inline const ::CRYSTAL_NET::service::BroadcastMsgInfo& BroadcastMsgNty::broadcastmsginfolist(int index) const {
-  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BroadcastMsgNty.BroadcastMsgInfoList)
-  return _internal_broadcastmsginfolist(index);
+
+// repeated .CRYSTAL_NET.service.SendDataRequest ReqList = 2;
+inline int BroadcastSendDataNty::_internal_reqlist_size() const {
+  return _impl_.reqlist_.size();
 }
-inline ::CRYSTAL_NET::service::BroadcastMsgInfo* BroadcastMsgNty::_internal_add_broadcastmsginfolist() {
-  return _impl_.broadcastmsginfolist_.Add();
+inline int BroadcastSendDataNty::reqlist_size() const {
+  return _internal_reqlist_size();
 }
-inline ::CRYSTAL_NET::service::BroadcastMsgInfo* BroadcastMsgNty::add_broadcastmsginfolist() {
-  ::CRYSTAL_NET::service::BroadcastMsgInfo* _add = _internal_add_broadcastmsginfolist();
-  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.BroadcastMsgNty.BroadcastMsgInfoList)
+inline void BroadcastSendDataNty::clear_reqlist() {
+  _impl_.reqlist_.Clear();
+}
+inline ::CRYSTAL_NET::service::SendDataRequest* BroadcastSendDataNty::mutable_reqlist(int index) {
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.BroadcastSendDataNty.ReqList)
+  return _impl_.reqlist_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::SendDataRequest >*
+BroadcastSendDataNty::mutable_reqlist() {
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.BroadcastSendDataNty.ReqList)
+  return &_impl_.reqlist_;
+}
+inline const ::CRYSTAL_NET::service::SendDataRequest& BroadcastSendDataNty::_internal_reqlist(int index) const {
+  return _impl_.reqlist_.Get(index);
+}
+inline const ::CRYSTAL_NET::service::SendDataRequest& BroadcastSendDataNty::reqlist(int index) const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BroadcastSendDataNty.ReqList)
+  return _internal_reqlist(index);
+}
+inline ::CRYSTAL_NET::service::SendDataRequest* BroadcastSendDataNty::_internal_add_reqlist() {
+  return _impl_.reqlist_.Add();
+}
+inline ::CRYSTAL_NET::service::SendDataRequest* BroadcastSendDataNty::add_reqlist() {
+  ::CRYSTAL_NET::service::SendDataRequest* _add = _internal_add_reqlist();
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.BroadcastSendDataNty.ReqList)
   return _add;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BroadcastMsgInfo >&
-BroadcastMsgNty::broadcastmsginfolist() const {
-  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.BroadcastMsgNty.BroadcastMsgInfoList)
-  return _impl_.broadcastmsginfolist_;
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::SendDataRequest >&
+BroadcastSendDataNty::reqlist() const {
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.BroadcastSendDataNty.ReqList)
+  return _impl_.reqlist_;
 }
 
 // -------------------------------------------------------------------
 
-// BroadcastMsgResponse
+// BroadcastSendDataConfirmResponse
 
-// repeated sint64 RecievedDataIds = 1;
-inline int BroadcastMsgResponse::_internal_recieveddataids_size() const {
-  return _impl_.recieveddataids_.size();
+// sint64 PacketId = 1;
+inline void BroadcastSendDataConfirmResponse::clear_packetid() {
+  _impl_.packetid_ = int64_t{0};
 }
-inline int BroadcastMsgResponse::recieveddataids_size() const {
-  return _internal_recieveddataids_size();
+inline int64_t BroadcastSendDataConfirmResponse::_internal_packetid() const {
+  return _impl_.packetid_;
 }
-inline void BroadcastMsgResponse::clear_recieveddataids() {
-  _impl_.recieveddataids_.Clear();
+inline int64_t BroadcastSendDataConfirmResponse::packetid() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BroadcastSendDataConfirmResponse.PacketId)
+  return _internal_packetid();
 }
-inline int64_t BroadcastMsgResponse::_internal_recieveddataids(int index) const {
-  return _impl_.recieveddataids_.Get(index);
+inline void BroadcastSendDataConfirmResponse::_internal_set_packetid(int64_t value) {
+  
+  _impl_.packetid_ = value;
 }
-inline int64_t BroadcastMsgResponse::recieveddataids(int index) const {
-  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BroadcastMsgResponse.RecievedDataIds)
-  return _internal_recieveddataids(index);
-}
-inline void BroadcastMsgResponse::set_recieveddataids(int index, int64_t value) {
-  _impl_.recieveddataids_.Set(index, value);
-  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BroadcastMsgResponse.RecievedDataIds)
-}
-inline void BroadcastMsgResponse::_internal_add_recieveddataids(int64_t value) {
-  _impl_.recieveddataids_.Add(value);
-}
-inline void BroadcastMsgResponse::add_recieveddataids(int64_t value) {
-  _internal_add_recieveddataids(value);
-  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.BroadcastMsgResponse.RecievedDataIds)
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >&
-BroadcastMsgResponse::_internal_recieveddataids() const {
-  return _impl_.recieveddataids_;
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >&
-BroadcastMsgResponse::recieveddataids() const {
-  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.BroadcastMsgResponse.RecievedDataIds)
-  return _internal_recieveddataids();
-}
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-BroadcastMsgResponse::_internal_mutable_recieveddataids() {
-  return &_impl_.recieveddataids_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-BroadcastMsgResponse::mutable_recieveddataids() {
-  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.BroadcastMsgResponse.RecievedDataIds)
-  return _internal_mutable_recieveddataids();
+inline void BroadcastSendDataConfirmResponse::set_packetid(int64_t value) {
+  _internal_set_packetid(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BroadcastSendDataConfirmResponse.PacketId)
 }
 
 #ifdef __GNUC__
@@ -1592,47 +1585,47 @@ public:
 };
 
 
-class BroadcastMsgNtyFactory : public KERNEL_NS::ICoderFactory {
-    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, BroadcastMsgNtyFactory);
+class BroadcastSendDataNtyFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, BroadcastSendDataNtyFactory);
 public:
 
     virtual void Release() override {
-        BroadcastMsgNtyFactory::Delete_BroadcastMsgNtyFactory(this);
+        BroadcastSendDataNtyFactory::Delete_BroadcastSendDataNtyFactory(this);
     }
 
-    static BroadcastMsgNtyFactory *CreateFactory() {
-        return BroadcastMsgNtyFactory::New_BroadcastMsgNtyFactory();
+    static BroadcastSendDataNtyFactory *CreateFactory() {
+        return BroadcastSendDataNtyFactory::New_BroadcastSendDataNtyFactory();
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new ::CRYSTAL_NET::service::BroadcastMsgNty();
+        return new ::CRYSTAL_NET::service::BroadcastSendDataNty();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new ::CRYSTAL_NET::service::BroadcastMsgNty(*dynamic_cast<const ::CRYSTAL_NET::service::BroadcastMsgNty *>(coder));
+        return new ::CRYSTAL_NET::service::BroadcastSendDataNty(*dynamic_cast<const ::CRYSTAL_NET::service::BroadcastSendDataNty *>(coder));
     }
 
 };
 
 
-class BroadcastMsgResponseFactory : public KERNEL_NS::ICoderFactory {
-    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, BroadcastMsgResponseFactory);
+class BroadcastSendDataConfirmResponseFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, BroadcastSendDataConfirmResponseFactory);
 public:
 
     virtual void Release() override {
-        BroadcastMsgResponseFactory::Delete_BroadcastMsgResponseFactory(this);
+        BroadcastSendDataConfirmResponseFactory::Delete_BroadcastSendDataConfirmResponseFactory(this);
     }
 
-    static BroadcastMsgResponseFactory *CreateFactory() {
-        return BroadcastMsgResponseFactory::New_BroadcastMsgResponseFactory();
+    static BroadcastSendDataConfirmResponseFactory *CreateFactory() {
+        return BroadcastSendDataConfirmResponseFactory::New_BroadcastSendDataConfirmResponseFactory();
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new ::CRYSTAL_NET::service::BroadcastMsgResponse();
+        return new ::CRYSTAL_NET::service::BroadcastSendDataConfirmResponse();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new ::CRYSTAL_NET::service::BroadcastMsgResponse(*dynamic_cast<const ::CRYSTAL_NET::service::BroadcastMsgResponse *>(coder));
+        return new ::CRYSTAL_NET::service::BroadcastSendDataConfirmResponse(*dynamic_cast<const ::CRYSTAL_NET::service::BroadcastSendDataConfirmResponse *>(coder));
     }
 
 };

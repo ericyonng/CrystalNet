@@ -148,18 +148,13 @@ export namespace crystal_net_service_parser
             })
 
 
-            this.add("BroadcastMsgInfo", (jsonData:any):any =>{
-                return this.BroadcastMsgInfoParser(jsonData);
+            this.add("BroadcastSendDataConfirmResponse", (jsonData:any):any =>{
+                return this.BroadcastSendDataConfirmResponseParser(jsonData);
             })
 
 
-            this.add("BroadcastMsgNty", (jsonData:any):any =>{
-                return this.BroadcastMsgNtyParser(jsonData);
-            })
-
-
-            this.add("BroadcastMsgResponse", (jsonData:any):any =>{
-                return this.BroadcastMsgResponseParser(jsonData);
+            this.add("BroadcastSendDataNty", (jsonData:any):any =>{
+                return this.BroadcastSendDataNtyParser(jsonData);
             })
 
 
@@ -1543,60 +1538,38 @@ export namespace crystal_net_service_parser
             }
 
 
-            private BroadcastMsgInfoParser(jsonData:any):any{
-                var newInfo = new crystal_net_service.BroadcastMsgInfo()
+            private BroadcastSendDataConfirmResponseParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.BroadcastSendDataConfirmResponse()
 
-                if(jsonData.DataId != undefined)
+                if(jsonData.PacketId != undefined)
                 {
-                    newInfo.DataId = parseFloat(jsonData.DataId);
-                }
-
-
-                if(jsonData.Data != undefined)
-                {
-                    newInfo.Data = jsonData.Data;
-                }
-
-
-                if(jsonData.MsTime != undefined)
-                {
-                    newInfo.MsTime = parseFloat(jsonData.MsTime);
+                    newInfo.PacketId = parseFloat(jsonData.PacketId);
                 }
 
                  return newInfo;
             }
 
 
-            private BroadcastMsgNtyParser(jsonData:any):any{
-                var newInfo = new crystal_net_service.BroadcastMsgNty()
+            private BroadcastSendDataNtyParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.BroadcastSendDataNty()
 
-                if(jsonData.BroadcastMsgInfoList != undefined)
+                if(jsonData.PacketId != undefined)
                 {
-                    var jsonArray = jsonData.BroadcastMsgInfoList.map((value, idx, arr)=>{
-                    var parser = this.getParser("BroadcastMsgInfo");
+                    newInfo.PacketId = parseFloat(jsonData.PacketId);
+                }
+
+
+                if(jsonData.ReqList != undefined)
+                {
+                    var jsonArray = jsonData.ReqList.map((value, idx, arr)=>{
+                    var parser = this.getParser("SendDataRequest");
                     if(parser == undefined)
                         return {}
 
                     return parser(value);
                     });
 
-                    newInfo.BroadcastMsgInfoList = jsonArray;
-                }
-
-                 return newInfo;
-            }
-
-
-            private BroadcastMsgResponseParser(jsonData:any):any{
-                var newInfo = new crystal_net_service.BroadcastMsgResponse()
-
-                if(jsonData.RecievedDataIds != undefined)
-                {
-                    var jsonArray = jsonData.RecievedDataIds.map((value, idx, arr)=>{
-                    return parseFloat(value);
-                    });
-
-                    newInfo.RecievedDataIds = jsonArray;
+                    newInfo.ReqList = jsonArray;
                 }
 
                  return newInfo;

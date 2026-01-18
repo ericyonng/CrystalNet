@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+
 #include <kernel/kernel.h>
 #include <service/TestService/Comps/DB/impl/TableInfo.h>
 
@@ -49,3 +50,4 @@ TableInfo::~TableInfo()
 }
 
 SERVICE_END
+

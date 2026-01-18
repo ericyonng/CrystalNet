@@ -34,7 +34,11 @@
 #include <service/TestService/Comps/DB/impl/MysqlMgr.h>
 #include <service/TestService/Comps/DB/impl/MysqlMgrFactory.h>
 #include <service/TestService/Comps/StubHandle/StubHandle.h>
+
+#ifdef CRYSTAL_STORAGE_ENABLE
 #include <OptionComp/storage/mysql/mysqlcomp.h>
+#endif
+
 #include <service/TestService/Comps/DB/impl/MysqlDefs.h>
 #include <service/TestService/Comps/DB/impl/TableInfo.h>
 #include <service/TestService/Comps/DB/impl/MysqlMgrStorage.h>

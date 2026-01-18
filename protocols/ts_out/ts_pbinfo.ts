@@ -1289,32 +1289,6 @@ export namespace ts_pbinfo{
     }
 
 
-    // broadcast_msg.proto 
-    export class BroadcastMsgNty {
-      getOpcode():number {return BroadcastMsgNty.OPCODE; }
-      getIsXorEncrypt():boolean {return BroadcastMsgNty.XorEncrypt; }
-      getIsKeyBase64():boolean {return BroadcastMsgNty.KeyBase64; }
-      getOpcodeName():string {return BroadcastMsgNty.OPCODE_NAME; }
-      static OPCODE:number = 120;
-      static OPCODE_NAME:string = "BroadcastMsgNty";
-      static XorEncrypt:boolean = false;
-      static KeyBase64:boolean = false;
-    }
-
-
-    // broadcast_msg.proto 
-    export class BroadcastMsgResponse {
-      getOpcode():number {return BroadcastMsgResponse.OPCODE; }
-      getIsXorEncrypt():boolean {return BroadcastMsgResponse.XorEncrypt; }
-      getIsKeyBase64():boolean {return BroadcastMsgResponse.KeyBase64; }
-      getOpcodeName():string {return BroadcastMsgResponse.OPCODE_NAME; }
-      static OPCODE:number = 121;
-      static OPCODE_NAME:string = "BroadcastMsgResponse";
-      static XorEncrypt:boolean = false;
-      static KeyBase64:boolean = false;
-    }
-
-
     // rpc.proto 
     export class RpcReq {
       getOpcode():number {return RpcReq.OPCODE; }
@@ -1336,6 +1310,32 @@ export namespace ts_pbinfo{
       getOpcodeName():string {return RpcRes.OPCODE_NAME; }
       static OPCODE:number = 123;
       static OPCODE_NAME:string = "RpcRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // broadcast_msg.proto 
+    export class BroadcastSendDataNty {
+      getOpcode():number {return BroadcastSendDataNty.OPCODE; }
+      getIsXorEncrypt():boolean {return BroadcastSendDataNty.XorEncrypt; }
+      getIsKeyBase64():boolean {return BroadcastSendDataNty.KeyBase64; }
+      getOpcodeName():string {return BroadcastSendDataNty.OPCODE_NAME; }
+      static OPCODE:number = 124;
+      static OPCODE_NAME:string = "BroadcastSendDataNty";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // broadcast_msg.proto 
+    export class BroadcastSendDataConfirmResponse {
+      getOpcode():number {return BroadcastSendDataConfirmResponse.OPCODE; }
+      getIsXorEncrypt():boolean {return BroadcastSendDataConfirmResponse.XorEncrypt; }
+      getIsKeyBase64():boolean {return BroadcastSendDataConfirmResponse.KeyBase64; }
+      getOpcodeName():string {return BroadcastSendDataConfirmResponse.OPCODE_NAME; }
+      static OPCODE:number = 125;
+      static OPCODE_NAME:string = "BroadcastSendDataConfirmResponse";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -1537,13 +1537,13 @@ export namespace ts_pbinfo{
 
           [SendDataResponse.OPCODE]: new SendDataResponse(),
 
-          [BroadcastMsgNty.OPCODE]: new BroadcastMsgNty(),
-
-          [BroadcastMsgResponse.OPCODE]: new BroadcastMsgResponse(),
-
           [RpcReq.OPCODE]: new RpcReq(),
 
-          [RpcRes.OPCODE]: new RpcRes()
+          [RpcRes.OPCODE]: new RpcRes(),
+
+          [BroadcastSendDataNty.OPCODE]: new BroadcastSendDataNty(),
+
+          [BroadcastSendDataConfirmResponse.OPCODE]: new BroadcastSendDataConfirmResponse()
 
 
       }
