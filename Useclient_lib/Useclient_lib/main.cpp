@@ -94,10 +94,29 @@ int main(int argc, char const *argv[])
     clientSet("127.0.0.1", 9, 3900, accountName.data(), accountName.length(), pwd.data(), pwd.length());
     clientStart();
 
-    auto idGen = KERNEL_NS::TlsUtil::GetIdGenerator()->NewId();
-    sendLog("hello", 5, static_cast<Int64>(idGen));
+    auto sendTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    sendTimer->SetTimeOutHandler([sendLog](KERNEL_NS::LibTimer *timer)
+    {
+        auto idGen = KERNEL_NS::TlsUtil::GetIdGenerator()->NewId();
+        KERNEL_NS::LibString str;
+        str.AppendFormat("hello id:%llu", idGen);
+        sendLog(str.data(), str.length(), static_cast<Int64>(idGen));
+    });
+    sendTimer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(1));
 
-    KERNEL_NS::SystemUtil::ThreadSleep(60 * 1000);
+    auto endTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    endTimer->SetTimeOutHandler([](KERNEL_NS::LibTimer *timer)
+    {
+        KERNEL_NS::TlsUtil::GetPoller()->QuicklyLoop();
+
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(timer);
+    });
+    endTimer->Schedule(KERNEL_NS::TimeSlice::FromMinutes(1));
+
+    auto poller = KERNEL_NS::TlsUtil::GetPoller();
+    poller->PrepareLoop();
+    poller->EventLoop();
+    poller->OnLoopEnd();
 
     clientClose();
 
