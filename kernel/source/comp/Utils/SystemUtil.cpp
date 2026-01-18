@@ -1198,7 +1198,7 @@ void SystemUtil::TurnDaemon(const std::string &stdIoRedirect /*= ""*/, const std
     //     : "/dev/null";
 
     // 此时描述符一定是0(STDIN_FILENO)
-    int fd = open(ioRedirect.c_str(), O_RDWR | O_CREAT | O_TRUNC);
+    int fd = open(ioRedirect.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0644);
     if (fd != STDIN_FILENO)
         exit(0);
     // 标准输出与ioRedirect文件关联 并返回 STDOUT_FILENO
