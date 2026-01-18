@@ -189,7 +189,7 @@ static const KERNEL_NS::LibString s_logIniContent =
 "LogPath=1,\n"
 "\n"
 "[LogLevel]\n"
-"\nDebug           = 1,0,1,White|Black,1,0,0,1\n"
+"\nDebug           = 0,0,0,White|Black,1,0,0,0\n"
 "\nInfo            = 1,0,1,White|Black,2,0,0,1\n"
 "\nWarn            = 1,0,1,LightYellow|Black,3,0,0,1\n"
 "\nError           = 1,0,1,Red|Black,4,0,1,1\n"
