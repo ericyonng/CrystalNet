@@ -20,59 +20,57 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2026-01-09 00:01:24
+// Date: 2026-01-21 22:01:02
 // Author: Eric Yonng
-// Description: 如果多个文件监视器监听同一个文件，为了避免多次读取文件, 这些文件应该被统一管理,
-// 变化的时候通过反序列化反序列化出来, 然后返回结果到FileMonitor即可, 不需要FileMonitor各自单独的去监听, 只需要注册监听到这里即可
-// 不需要监听时, 取消注册即可
+// Description:
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_MONITOR_FILE_CHANGE_MANAGER_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_MONITOR_FILE_CHANGE_MANAGER_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_MONITOR_YAML_DESERIALIZER_FACTORY_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_MONITOR_YAML_DESERIALIZER_FACTORY_H__
 
 #pragma once
 
-#include <unordered_set>
 #include <kernel/kernel_export.h>
 #include <kernel/common/BaseMacro.h>
 #include <kernel/common/BaseType.h>
 #include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/LibString.h>
 
-#include "kernel/comp/CompObject/CompObject.h"
-
-
 KERNEL_BEGIN
 
-class LibEventLoopThread;
-
-class KERNEL_EXPORT FileChangeManager : public CompObject
+class YamlDeserializer
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(CompObject, FileChangeManager);
+    POOL_CREATE_OBJ_DEFAULT(YamlDeserializer);
     
 public:
-    FileChangeManager();
-    ~FileChangeManager() override;
-    void Release() override;
+    YamlDeserializer();
+    ~YamlDeserializer();
 
-public:
-    template<typename LambdaType>
-    void Load(LambdaType &&lamb)
-    {
-        
-    }
+    // tls delete, 建议tls创建factory
+    void Release();
+
+    // 会阻塞线程等待返回, 所以应该在用在启服
+    template<typename T>
+    T *Load();
+    
+    template<typename T>
+    bool Register(const LibString &path, T *monitor);
+    void UnRegister();
 
 private:
-    std::unordered_set<KERNEL_NS::LibString> _files;
-    std::unordered_map<KERNEL_NS::LibString, void *> _filePathRefFileObj;
-    KERNEL_NS::LibEventLoopThread *_libEventLoopThread;
+    void _LoadYaml();
+
+private:
+    LibString _path;
+    UInt64 _stub;
 };
 
-// 在KernelUtil::Init中初始化
-KERNEL_EXPORT extern FileChangeManager *g_FileChangeManager;
+template<typename T>
+ALWAYS_INLINE T *YamlDeserializer::Load()
+{
+    
+}
 
 KERNEL_END
 
 #endif
-
-
 
