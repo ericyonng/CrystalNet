@@ -54,6 +54,10 @@ public:
     template<typename ObjType>
     static UInt64 GetTypeId();
 
+    // 获取类的纯名
+    static  LibString GetSimpleTypeName(LibString &&fullName);
+    static LibString GetSimpleTypeName(const LibString &fullName);
+
     // static UInt64 GetTypIdBy(const LibString &objName);
     // static void MakeTypeIdDict(const LibString &objName, UInt64 id);
 

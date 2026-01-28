@@ -161,5 +161,28 @@ UInt64 RttiUtil::_GenTypeId()
 //     dict.insert(std::make_pair(objName, id));
 // }
 
+LibString RttiUtil::GetSimpleTypeName(LibString &&fullName)
+{
+    auto iter = fullName.GetRaw().find(":");
+    if(iter != std::string::npos)
+    {
+        return fullName.GetRaw().substr(iter);
+    }
+
+    return fullName;
+}
+
+LibString RttiUtil::GetSimpleTypeName(const LibString &fullName)
+{
+    auto iter = fullName.GetRaw().find(":");
+    if(iter != std::string::npos)
+    {
+        return fullName.GetRaw().substr(iter);
+    }
+
+    return fullName;
+}
+
+
 KERNEL_END
 

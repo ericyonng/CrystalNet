@@ -39,34 +39,38 @@
 
 KERNEL_BEGIN
 
-// @param(ObjType): 反序列化最终的结果
-// @param(FileDeserializer): 反序列化器, 将文件反序列化成ObjType
-// 
-template<typename ObjType, typename FileDeserializerType>
+// @param(ObjType): 反序列化最终的结果, 需要有:CreateNewObj/Release 接口
+// @param(FileDeserializer): 反序列化器, 将文件反序列化成ObjType, 需要有SwapNewData/Register接口, 
+// @param(FileDeserializerFactoryType): 反序列化器工厂, 需要有Create/Release接口, 
+template<typename ObjType, typename FileDeserializerType, typename FileDeserializerFactoryType>
 #ifdef CRYSTAL_NET_CPP20
-requires requires(ObjType obj, FileDeserializerType factory)
+requires requires(ObjType obj, FileDeserializerType *d, KERNEL_NS::LibString path, FileDeserializerFactoryType factory)
 {
+    ObjType::CreateNewObj(ObjType());
     obj.Release();
-    factory.Deserialize();
-    FileDeserializerType::CreateFactory();
+    
+    d->template SwapNewData<ObjType>();
+    d->template Register<ObjType>(path);
+    
+    d = FileDeserializerFactoryType::Create();
+    FileDeserializerFactoryType::Release(d);
 }
 #endif
 class FileMonitor
 {
-    POOL_CREATE_TEMPLATE_OBJ_DEFAULT(FileMonitor, ObjType, FileDeserializerType);
+    POOL_CREATE_TEMPLATE_OBJ_DEFAULT(FileMonitor, ObjType, FileDeserializerType, FileDeserializerFactoryType);
 
 public:
     FileMonitor()
-        :_factory(NULL)
-    ,_newObj{NULL}
+        :_deserialize(NULL)
     {
         
     }
     
     ~FileMonitor()
     {
-        _UnRegister();
-        _Clear();
+        FileDeserializerFactoryType::Release(_deserialize);
+        _deserialize = NULL;
     }
 
 public:
@@ -78,128 +82,70 @@ public:
     const LibString &GetPath() const;
 
 private:
-    // 注册监听变化
-    void _Register();
-    // 反注册变化
-    void _UnRegister();
-    // 立即加载配置
-    void _Load();
-    // 清理数据
-    void _Clear();
-    
-private:
     mutable alignas(SYSTEM_ALIGN_SIZE) SmartPtr<ObjType, AutoDelMethods::Release> _currentObject;
-    alignas(SYSTEM_ALIGN_SIZE) FileDeserializerType *_factory;
-    mutable alignas(SYSTEM_ALIGN_SIZE) std::atomic<ObjType *> _newObj;
+    alignas(SYSTEM_ALIGN_SIZE) FileDeserializerType *_deserialize;
 
     LibString _filePath;
 };
 
-template<typename ObjType, typename FileDeserializerType>
+template<typename ObjType, typename FileDeserializerType, typename FileDeserializerFactoryType>
 #ifdef CRYSTAL_NET_CPP20
-requires requires(ObjType obj, FileDeserializerType factory)
+requires requires(ObjType obj, FileDeserializerType *d, KERNEL_NS::LibString path, FileDeserializerFactoryType factory)
 {
+    ObjType::CreateNewObj(ObjType());
     obj.Release();
-    factory.Deserialize();
-    FileDeserializerType::CreateFactory();
+    
+    d->template SwapNewData<ObjType>();
+    d->template Register<ObjType>(path);
+    d = FileDeserializerFactoryType::Create();
+    FileDeserializerFactoryType::Release(d);
 }
 #endif
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(FileMonitor, ObjType, FileDeserializerType);
+POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(FileMonitor, ObjType, FileDeserializerType, FileDeserializerFactoryType);
 
-template<typename ObjType, typename FileDeserializerType>
+template<typename ObjType, typename FileDeserializerType, typename FileDeserializerFactoryType>
 #ifdef CRYSTAL_NET_CPP20
-requires requires(ObjType obj, FileDeserializerType factory)
+requires requires(ObjType obj, FileDeserializerType *d, KERNEL_NS::LibString path, FileDeserializerFactoryType factory)
 {
+    ObjType::CreateNewObj(ObjType());
     obj.Release();
-    factory.Deserialize();
-    FileDeserializerType::CreateFactory();
+    
+    d->template SwapNewData<ObjType>();
+    d->template Register<ObjType>(path);
+    d = FileDeserializerFactoryType::Create();
+    FileDeserializerFactoryType::Release(d);
 }
 #endif
-ALWAYS_INLINE SmartPtr<ObjType, AutoDelMethods::Release> FileMonitor<ObjType, FileDeserializerType>::Current() const
+ALWAYS_INLINE SmartPtr<ObjType, AutoDelMethods::Release> FileMonitor<ObjType, FileDeserializerType, FileDeserializerFactoryType>::Current() const
 {
     // 如果配置有变更, 则更新配置
-    ObjType *newObj = _newObj.load(std::memory_order_acquire);
-    if(UNLIKELY(newObj != _currentObject.AsSelf()))
+    ObjType *newObj = _deserialize->template SwapNewData<ObjType>();
+    if(UNLIKELY((newObj != NULL) && (newObj != _currentObject.AsSelf())))
     {
-        _currentObject = _newObj.exchange(NULL, std::memory_order_acq_rel);
+        _currentObject = newObj;
     }
 
     return _currentObject;
 }
 
-template<typename ObjType, typename FileDeserializerType>
+template<typename ObjType, typename FileDeserializerType, typename FileDeserializerFactoryType>
 #ifdef CRYSTAL_NET_CPP20
-requires requires(ObjType obj, FileDeserializerType factory)
+requires requires(ObjType obj, FileDeserializerType *d, KERNEL_NS::LibString path, FileDeserializerFactoryType factory)
 {
+    ObjType::CreateNewObj(ObjType());
     obj.Release();
-    factory.Deserialize();
-    FileDeserializerType::CreateFactory();
+    
+    d->template SwapNewData<ObjType>();
+    d->template Register<ObjType>(path);
+    d = FileDeserializerFactoryType::Create();
+    FileDeserializerFactoryType::Release(d);
 }
 #endif
-ALWAYS_INLINE void FileMonitor<ObjType, FileDeserializerType>::Init(const KERNEL_NS::LibString &path)
+ALWAYS_INLINE void FileMonitor<ObjType, FileDeserializerType, FileDeserializerFactoryType>::Init(const KERNEL_NS::LibString &path)
 {
     _filePath = path;
-    _factory = FileDeserializerType::CreateFactory();
-    _Register();
-    _Load();
-}
-
-template<typename ObjType, typename FileDeserializerType>
-#ifdef CRYSTAL_NET_CPP20
-requires requires(ObjType obj, FileDeserializerType factory)
-{
-    obj.Release();
-    factory.Deserialize();
-    FileDeserializerType::CreateFactory();
-}
-#endif
-ALWAYS_INLINE void FileMonitor<ObjType, FileDeserializerType>::_Register()
-{
-    // TODO:使用闭包
-    _factory->Register();
-}
-
-template<typename ObjType, typename FileDeserializerType>
-#ifdef CRYSTAL_NET_CPP20
-requires requires(ObjType obj, FileDeserializerType factory)
-{
-    obj.Release();
-    factory.Deserialize();
-    FileDeserializerType::CreateFactory();
-}
-#endif
-ALWAYS_INLINE void FileMonitor<ObjType, FileDeserializerType>::_UnRegister()
-{
-    // TODO:使用闭包
-    _factory->UnRegister();
-}
-
-template<typename ObjType, typename FileDeserializerType>
-#ifdef CRYSTAL_NET_CPP20
-requires requires(ObjType obj, FileDeserializerType factory)
-{
-    obj.Release();
-    factory.Deserialize();
-    FileDeserializerType::CreateFactory();
-}
-#endif
-ALWAYS_INLINE void FileMonitor<ObjType, FileDeserializerType>::_Load()
-{
-    _newObj.store(_factory.Load<ObjType>(), std::memory_order_release);
-}
-
-template<typename ObjType, typename FileDeserializerType>
-#ifdef CRYSTAL_NET_CPP20
-requires requires(ObjType obj, FileDeserializerType factory)
-{
-    obj.Release();
-    factory.Deserialize();
-    FileDeserializerType::CreateFactory();
-}
-#endif
-ALWAYS_INLINE void FileMonitor<ObjType, FileDeserializerType>::_Clear()
-{
-    CRYSTAL_RELEASE_SAFE(_factory);
+    _deserialize = FileDeserializerFactoryType::Create();
+    _currentObject = _deserialize->template Register<ObjType>(_filePath);
 }
 
 KERNEL_END

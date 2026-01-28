@@ -53,6 +53,8 @@
 #include <kernel/comp/Utils/ContainerUtil.h>
 #include <curl/curl.h>
 #include <kernel/common/rdtsc.h>
+#include <kernel/comp/thread/LibEventLoopThreadPool.h>
+#include <kernel/comp/FileMonitor/FileChangeManager.h>
 
 KERNEL_NS::LibCpuInfo *g_cpu = NULL;
 // KERNEL_NS::CpuFeature *g_cpuFeature = NULL;
@@ -266,6 +268,18 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     }
 // #endif
 
+    // cpu 核心
+    g_LibEventLoopThreadPool = new LibEventLoopThreadPool(0, g_cpu->GetCpuCoreCnt());
+
+    // 文件监控
+    g_FileChangeManager = FileChangeManager::New_FileChangeManager();
+    err = g_FileChangeManager->Init();
+    if(err != Status::Success)
+    {
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "file change manager init fail err:%d"), err);
+        return err;
+    }
+    
     // 初始化curl全局
     auto curlCode = ::curl_global_init(CURL_GLOBAL_DEFAULT);
     if(curlCode != CURLE_OK)
@@ -302,6 +316,12 @@ void KernelUtil::Start()
     // 启动中央内存收集器
     CenterMemoryCollector::GetInstance()->Start();
 
+    // 线程池
+    g_LibEventLoopThreadPool->Start();
+
+    // 文件监控
+    g_FileChangeManager->Start();
+
     g_Log->Sys(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "kernel started."));
 
     s_KernelDestroy.store(false, std::memory_order_release);
@@ -336,6 +356,14 @@ void KernelUtil::Destroy()
 
     // 先关闭
     // CRYSTAL_TRACE("kernel will close memory monitor.");
+
+    g_FileChangeManager->Close();
+    g_FileChangeManager->Release();
+    g_FileChangeManager = NULL;
+
+    g_LibEventLoopThreadPool->Close();
+    g_LibEventLoopThreadPool->Release();
+    g_LibEventLoopThreadPool = NULL;
 
     if (g_MemoryMonitor)
         g_MemoryMonitor->Close();

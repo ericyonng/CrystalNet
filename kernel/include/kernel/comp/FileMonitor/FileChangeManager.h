@@ -39,11 +39,11 @@
 #include <kernel/comp/LibString.h>
 
 #include "kernel/comp/CompObject/CompObject.h"
+#include <kernel/comp/Coroutines/CoTaskParam.h>
+#include <kernel/comp/FileMonitor/FileChangeDefine.h>
 
 
 KERNEL_BEGIN
-
-class LibEventLoopThread;
 
 class KERNEL_EXPORT FileChangeManager : public CompObject
 {
@@ -55,22 +55,49 @@ public:
     void Release() override;
 
 public:
-    template<typename LambdaType>
-    void Load(LambdaType &&lamb)
-    {
-        
-    }
+    Poller *GetPoller();
+
+    std::unordered_map<KERNEL_NS::LibString, FileMonitorInfo *> &GetFilePathRefFileObj();
+    const std::unordered_map<KERNEL_NS::LibString, FileMonitorInfo *> &GetFilePathRefFileObj() const;
 
 private:
-    std::unordered_set<KERNEL_NS::LibString> _files;
-    std::unordered_map<KERNEL_NS::LibString, void *> _filePathRefFileObj;
-    KERNEL_NS::LibEventLoopThread *_libEventLoopThread;
+    // 监控 5秒一次
+    void _InitWorker();
+
+    Int32 _OnInit() override;
+    // start 可以启动线程，再此之前都不可以启动线程
+    Int32 _OnStart() override;
+    void _OnClose() override;
+    
+private:
+    std::unordered_map<KERNEL_NS::LibString, FileMonitorInfo *> _filePathRefFileObj;
+    std::atomic_bool _isQuit;
+    std::atomic_bool _isWorking;
+
+    // 工作线程
+    std::atomic<Poller *> _workerPoller;
 };
 
-// 在KernelUtil::Init中初始化
-KERNEL_EXPORT extern FileChangeManager *g_FileChangeManager;
+
+ALWAYS_INLINE Poller *FileChangeManager::GetPoller()
+{
+    return _workerPoller.load(std::memory_order_acquire);
+}
+
+ALWAYS_INLINE std::unordered_map<KERNEL_NS::LibString, FileMonitorInfo *> &FileChangeManager::GetFilePathRefFileObj()
+{
+    return _filePathRefFileObj;
+}
+
+ALWAYS_INLINE const std::unordered_map<KERNEL_NS::LibString, FileMonitorInfo *> &FileChangeManager::GetFilePathRefFileObj() const
+{
+    return _filePathRefFileObj;
+}
 
 KERNEL_END
+
+// 在KernelUtil::Init中初始化
+KERNEL_EXPORT extern KERNEL_NS::FileChangeManager *g_FileChangeManager;
 
 #endif
 

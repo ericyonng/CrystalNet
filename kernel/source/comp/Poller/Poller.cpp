@@ -607,9 +607,20 @@ void Poller::SafeEventLoop()
 
                 if(!_timerMgr->HasExpired())
                 {
+                    // 第一个超时的时间间隔
+                    auto firstExpiredNano = _timerMgr->GetFirstExpiredNano();
+
                     _eventGuard.Lock();
                     _isWaiting.store(true, std::memory_order_release);
-                    _eventGuard.TimeWait(maxSleepMilliseconds);
+                    if(firstExpiredNano > 0)
+                    {
+                        firstExpiredNano /= KERNEL_NS::TimeDefs::NANO_SECOND_PER_MILLI_SECOND;
+                        _eventGuard.TimeWait(firstExpiredNano  > maxSleepMilliseconds ? firstExpiredNano : maxSleepMilliseconds);
+                    }
+                    else
+                    {
+                        _eventGuard.Wait();
+                    }
                     _isWaiting.store(false, std::memory_order_release);
                     _eventGuard.Unlock();
                 }

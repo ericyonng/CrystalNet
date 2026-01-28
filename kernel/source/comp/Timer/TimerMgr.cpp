@@ -82,6 +82,7 @@ TimerMgr::TimerMgr()
 ,_curTime(0)
 ,_curMaxId(0)
 ,_hasExpired(false)
+,_firstTimeoutTicks(0)
 ,_wakeupCb(NULL)
 {
     
@@ -170,11 +171,18 @@ Int64 TimerMgr::Drive()
     if(!_expireQueue.empty())
     {
         auto timeData =  *_expireQueue.begin();
-        _hasExpired = (_curTime = TimeUtil::GetFastNanoTimestamp()) >= timeData->_expiredTime;
+        auto curNano = TimeUtil::GetFastNanoTimestamp();
+        _hasExpired = curNano >= timeData->_expiredTime;
+        _curTime = curNano;
+        
+        _firstTimeoutTicks = 0;
+        if(!_hasExpired)
+            _firstTimeoutTicks =  timeData->_expiredTime - curNano;
     }
     else
     {
         _hasExpired = false;
+        _firstTimeoutTicks = -1;
     }
 
     return handled;

@@ -40,6 +40,7 @@ KERNEL_BEGIN
 
 class ILog;
 class MemoryPool;
+class LibEventLoopThreadPool;
 
 class KERNEL_EXPORT ConstantGather
 {
@@ -53,6 +54,6 @@ KERNEL_END
 // 底层默认认为g_Log已经在上层初始化过,所以可以安全使用
 extern KERNEL_EXPORT KERNEL_NS::ILog *g_Log;
 extern KERNEL_EXPORT KERNEL_NS::MemoryPool *g_MemoryPool;
-
+extern KERNEL_EXPORT KERNEL_NS::LibEventLoopThreadPool *g_LibEventLoopThreadPool;
 
 #endif

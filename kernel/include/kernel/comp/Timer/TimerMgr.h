@@ -77,6 +77,7 @@ public:
 
     // 有没有超时的
     bool HasExpired() const;
+    Int64 GetFirstExpiredNano() const;
 
     // 是否在处理定时器帧
     bool IsDriving() const;
@@ -108,6 +109,7 @@ private:
     std::set<TimeData *, TimeDataComp> _expireQueue;
     Int64 _curMaxId;                // 定时id
     bool _hasExpired;
+    Int64 _firstTimeoutTicks;
 
     std::set<TimeData *> _allTimeData;
     std::set<AsynTimeData *> _asynDirty;
@@ -150,6 +152,12 @@ ALWAYS_INLINE bool TimerMgr::HasExpired() const
 {
     return _hasExpired;
 }
+
+ALWAYS_INLINE Int64 TimerMgr::GetFirstExpiredNano() const
+{
+    return _firstTimeoutTicks;
+}
+
 
 ALWAYS_INLINE bool TimerMgr::IsDriving() const
 {

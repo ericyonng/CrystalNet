@@ -317,8 +317,8 @@ Int64 FileUtil::GetFileSize(FILE &fp)
 Int64 FileUtil::GetFileSizeEx(const Byte8 *filepath)
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    struct _stat info;
-    if(::_stat(filepath, &info) != 0)
+    struct _stat64 info;
+    if(::_stat64 (filepath, &info) != 0)
         return -1;
 
     return info.st_size;
@@ -331,6 +331,25 @@ Int64 FileUtil::GetFileSizeEx(const Byte8 *filepath)
 #endif
 
 }
+
+LibTime FileUtil::GetFileModifyTime(const Byte8 *filepath)
+{
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    struct _stat64 info;
+    if(::_stat64(filepath, &info) != 0)
+        return LibTime::FromSeconds(0);
+
+    return LibTime::FromSeconds(info.st_mtime);
+#else
+    struct stat info;
+    if(::stat(filepath, &info) != 0)
+        return -1;
+
+    return LibTime::FromSeconds(info.st_mtime);
+#endif
+
+}
+
 
 UInt64 FileUtil::ReadOneLine(FILE &fp, UInt64 bufferSize, Byte8 *&buffer)
 {

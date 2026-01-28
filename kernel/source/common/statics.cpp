@@ -39,3 +39,6 @@ KERNEL_END
 // 底层默认认为g_Log已经在上层初始化过,所以可以安全使用
 KERNEL_NS::ILog *g_Log = NULL;
 KERNEL_NS::MemoryPool *g_MemoryPool = NULL;
+// 用来干杂活的(例如监控文件, 打印监控信息等)
+KERNEL_NS::LibEventLoopThreadPool *g_LibEventLoopThreadPool = NULL;
+

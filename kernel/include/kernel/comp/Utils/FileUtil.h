@@ -34,6 +34,7 @@
 #include <kernel/kernel_export.h>
 #include <kernel/comp/LibString.h>
 #include <map>
+#include <kernel/comp/LibTime.h>
 
 KERNEL_BEGIN
 
@@ -77,6 +78,8 @@ public:
     static Int32 Rename(const LibString &oldPathFile, const LibString &newPathFile);
     static bool ReplaceFileBy(const LibString &fileName, const std::vector<LibString> &newLines);
     static bool ReplaceFileBy(const LibString &fileName, const std::map<Int32, LibString> &newLines);
+
+    static LibTime GetFileModifyTime(const Byte8 *filepath);
 
     //
     // 读取ASCII行

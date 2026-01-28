@@ -34,10 +34,15 @@
 #include <kernel/common/BaseType.h>
 #include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/LibString.h>
+#include <yaml-cpp/yaml.h>
+#include <kernel/comp/Log/log.h>
+#include <kernel/comp/FileMonitor/FileChangeDefine.h>
 
 KERNEL_BEGIN
 
-class YamlDeserializer
+struct FileChangeHandle;
+
+class KERNEL_EXPORT YamlDeserializer
 {
     POOL_CREATE_OBJ_DEFAULT(YamlDeserializer);
     
@@ -48,27 +53,86 @@ public:
     // tls delete, 建议tls创建factory
     void Release();
 
-    // 会阻塞线程等待返回, 所以应该在用在启服
     template<typename T>
-    T *Load();
-    
-    template<typename T>
-    bool Register(const LibString &path, T *monitor);
-    void UnRegister();
+#ifdef CRYSTAL_NET_CPP20
+    requires requires(T t)
+    {
+        // 需要有Release接口
+        t.Release();
 
+        // 需要有创建NewObj接口
+        T::CreateNewObj(T());
+    }
+#endif
+    T *Register(const LibString &path)
+    {
+        _path = path;
+        
+        // 释放T对象
+        auto releaseLamb = [](void *ptr)
+        {
+            auto p = KERNEL_NS::KernelCastTo<T>(ptr);
+            p->Release();
+        };
+        auto releaseDeleg = KERNEL_CREATE_CLOSURE_DELEGATE(releaseLamb, void, void *);
+        // 反序列化
+        const auto &dataName = KERNEL_NS::RttiUtil::GetByType<T>();
+        auto deserializeLamb = [dataName, path](YAML::Node *config) -> void *
+        {
+            // TODO:需要测试是不是把命名空间等移除掉
+            auto tName = KERNEL_NS::RttiUtil::GetSimpleTypeName(dataName);
+            tName.strip();
+
+            T *yamlOption = NULL;
+            try
+            {
+                yamlOption = T::CreateNewObj(config[tName.c_str()].as<T>());
+            }
+            catch (std::exception &e)
+            {
+                g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "yaml deserialize fail, path:%s, exception:%s")
+                    , path.c_str(), e.what());
+            }
+            catch (...)
+            {
+                g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "yaml deserialize fail, path:%s"), path.c_str());
+            }
+
+            return yamlOption;
+        };
+        auto deserializeDelg = KERNEL_CREATE_CLOSURE_DELEGATE(deserializeLamb, void *, YAML::Node *);
+        
+        return _Register(dataName, releaseDeleg, deserializeDelg);
+    }
+
+    template<typename T>
+    T *SwapNewData()
+    {
+        auto data = _handle->_data.load(std::memory_order_relaxed);
+        while (!_handle->_data.compare_exchange_weak(data, NULL, std::memory_order_acq_rel))
+        {
+        }
+        return KERNEL_NS::KernelCastTo<T>(data);
+    }
+    
 private:
-    void _LoadYaml();
+    // return:具体的对象T
+    void *_Register(const LibString &dataName, IDelegate<void, void *> * releaseObj, IDelegate<void *, YAML::Node *> *deserializeObj);
 
 private:
     LibString _path;
-    UInt64 _stub;
+    // 注册后获取到的_handle,handle的生命周期比YamlDeserializer长, 由FileChangeManager管理
+    FileChangeHandle *_handle;
 };
 
-template<typename T>
-ALWAYS_INLINE T *YamlDeserializer::Load()
+class KERNEL_EXPORT YamlDeserializerFactory
 {
-    
-}
+public:
+    static YamlDeserializer *Create()
+    {
+        return YamlDeserializer::NewThreadLocal_YamlDeserializer();
+    }
+};
 
 KERNEL_END
 
