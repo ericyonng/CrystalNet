@@ -75,7 +75,7 @@ void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, vo
         auto &filePathRefFileObj = fileChangeManager->GetFilePathRefFileObj();
         auto iter = filePathRefFileObj.find(path);
         FileMonitorInfo *monitorInfo = NULL;
-        KERNEL_NS::SmartPtr<YAML::Node> config;
+        YAML::Node* config;
 
         if(iter == filePathRefFileObj.end())
         {
@@ -98,7 +98,8 @@ void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, vo
                 return config;
             };
 
-            config = KERNEL_NS::KernelCastTo<YAML::Node>(loadNewObjLamb());
+            monitorInfo->_sourceObj = loadNewObjLamb();
+            config = KERNEL_NS::KernelCastTo<YAML::Node>(monitorInfo->_sourceObj);
             if(config)
             {
                 monitorInfo = FileMonitorInfo::New_FileMonitorInfo();
@@ -159,6 +160,7 @@ void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, vo
         else
         {
             monitorInfo = iter->second;
+            config = KERNEL_NS::KernelCastTo<YAML::Node>(monitorInfo->_sourceObj);
         }
 
         // 注册handle并反序列化
@@ -192,7 +194,7 @@ void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, vo
             {
                 try
                 {
-                    obj = iterHandle->second->_deserialize->Invoke(config.AsSelf());
+                    obj = iterHandle->second->_deserialize->Invoke(config);
                 }
                 catch (std::exception &e)
                 {

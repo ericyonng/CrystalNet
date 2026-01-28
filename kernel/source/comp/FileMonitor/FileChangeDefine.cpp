@@ -65,6 +65,7 @@ FileMonitorInfo::FileMonitorInfo()
     :_checkChange(NULL)
 ,_releaseObj(NULL)
 ,_loadNewObj(NULL)
+,_sourceObj(NULL)
 {
     
 }
@@ -73,6 +74,9 @@ FileMonitorInfo::~FileMonitorInfo()
 {
     KERNEL_NS::ContainerUtil::DelContainer2(_keyRefFileChangeHandle);
 
+    if(_sourceObj)
+        _releaseObj->Invoke(_sourceObj);
+    _sourceObj = NULL;
     CRYSTAL_RELEASE_SAFE(_releaseObj);
 
     CRYSTAL_RELEASE_SAFE(_checkChange);

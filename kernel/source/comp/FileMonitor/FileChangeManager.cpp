@@ -90,40 +90,31 @@ void FileChangeManager::_InitWorker()
                     if(!monitorInfo->_checkChange->Invoke())
                         continue;
 
-                    // 是否有被监听(有监听则加载并通知)
-                    bool isLoadChange = false;
-                    KERNEL_NS::SmartPtr<Byte8, KERNEL_NS::AutoDelMethods::CustomDelete> newObj;
+                    auto newObj = monitorInfo->_loadNewObj->Invoke();
+                    if(!newObj)
+                    {
+                        g_Log->Error(LOGFMT_OBJ_TAG("file: %s, load file fail"), monitorInfo->_path.c_str());
+
+                        continue;
+                    }
+
+                    g_Log->Info(LOGFMT_OBJ_TAG("file: %s, changed, and load new one"), monitorInfo->_path.c_str());
+
+                    {
+                        if(monitorInfo->_sourceObj)
+                            monitorInfo->_releaseObj->Invoke(monitorInfo->_sourceObj);
+
+                        monitorInfo->_sourceObj = newObj;
+                    }
+                    
                     for(auto iterHandle : monitorInfo->_keyRefFileChangeHandle)
                     {
                         auto handle = iterHandle.second;
                         if(handle->_notListen.load(std::memory_order_acquire))
                             continue;
 
-                        if(!isLoadChange)
-                        {
-                            isLoadChange = true;
-                            newObj = KERNEL_NS::KernelCastTo<Byte8>(monitorInfo->_loadNewObj->Invoke());
-                            if(newObj)
-                            {
-                                newObj.SetClosureDelegate([monitorInfo](void *p)
-                                {
-                                    monitorInfo->_releaseObj->Invoke(p);
-                                });
-                            }
-
-                            g_Log->Info(LOGFMT_OBJ_TAG("file: %s, changed, and load new one"), monitorInfo->_path.c_str());
-                        }
-
-                        // 文件变了, 但是加载失败
-                        if(!newObj)
-                        {
-                            g_Log->Warn(LOGFMT_OBJ_TAG("file:%s changed, but load file fail data name:%s.")
-                                , monitorInfo->_path.c_str(), handle->_dataName.c_str());
-                            continue;
-                        }
-
                         // 反序列化新数据
-                        auto newData = handle->_deserialize->Invoke(newObj.AsSelf());
+                        auto newData = handle->_deserialize->Invoke(newObj);
                         if(!newData)
                         {
                             g_Log->Warn(LOGFMT_OBJ_TAG("file:%s deserialize from file fail dataName:%s, ")
@@ -140,30 +131,6 @@ void FileChangeManager::_InitWorker()
                         }
                     }
                 }
-                //
-                // if(!_workerHandle->_isSignal)
-                // {
-                //     _workerHandle->OnWaiting();
-                //     co_await KERNEL_NS::Waiting().GetParam(_workerHandle->_coParams);
-                //     _workerHandle->OnWakeup();
-                // }
-                //
-                // // 先销毁waiter协程
-                // if(LIKELY(_workerHandle->_coParams->_params))
-                // {
-                //     auto &pa = _workerHandle->_coParams->_params; 
-                //     if(pa->_errCode != Status::Success)
-                //     {
-                //         g_Log->Warn(LOGFMT_OBJ_TAG("co waiting err:%d")
-                //             , pa->_errCode);
-                //     }
-                //
-                //     // 销毁waiting协程
-                //     if(pa->_handle)
-                //         pa->_handle->DestroyHandle(pa->_errCode);
-                // }
-
-                // 处理事情
             }
 
            _isWorking.exchange(false, std::memory_order_release);

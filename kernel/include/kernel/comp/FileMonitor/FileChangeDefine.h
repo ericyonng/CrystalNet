@@ -71,6 +71,7 @@ struct KERNEL_EXPORT FileMonitorInfo
     IDelegate<bool> *_checkChange;
     IDelegate<void, void *> *_releaseObj;
     IDelegate<void *> *_loadNewObj;
+    void *_sourceObj;
 
     std::unordered_map<void *, FileChangeHandle *> _keyRefFileChangeHandle;
 };

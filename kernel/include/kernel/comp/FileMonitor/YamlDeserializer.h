@@ -55,13 +55,17 @@ public:
 
     template<typename T>
 #ifdef CRYSTAL_NET_CPP20
-    requires requires(T t)
+    requires requires(T t, YAML::Node node)
     {
         // 需要有Release接口
         t.Release();
 
         // 需要有创建NewObj接口
         T::CreateNewObj(T());
+
+        // 需要支持yaml的序列化反序列化: TODO:测试类型是否具有yaml序列化反序列化接口
+        YAML::convert<T>::encode(t);
+        YAML::convert<T>::decode(node, t);
     }
 #endif
     T *Register(const LibString &path)
