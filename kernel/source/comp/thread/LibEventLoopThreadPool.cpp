@@ -76,6 +76,10 @@ void LibEventLoopThreadPool::Start()
 
     for(Int32 idx = 0; idx < workingNum; ++idx)
     {
+        auto t = _threads[idx];
+        if(t == NULL)
+            continue;
+        
         _threads[idx] = new LibEventLoopThread(_poolName);
     }
 
@@ -178,10 +182,10 @@ Poller *LibEventLoopThreadPool::_SelectPoller(bool priorityToUsingNewThread)
     if(UNLIKELY(!thread))
     {
         // 必须使用cas, 安全的更新 _workingNum, _workingNum 只允许递增, 不可减少
-        auto newValue = workingNum > _maxNum?_maxNum:(workingNum + 1);
+        auto newValue = workingNum >= _maxNum?_maxNum:(workingNum + 1);
         while (!_workingNum.compare_exchange_weak(workingNum, newValue, std::memory_order_acq_rel))
         {
-            newValue = workingNum > _maxNum ? _maxNum : (workingNum + 1);
+            newValue = workingNum >= _maxNum ? _maxNum : (workingNum + 1);
         }
 
         // 线程数量递增, 则创建线程, 并选择新创建的线程

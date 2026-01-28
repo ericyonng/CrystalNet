@@ -73,6 +73,7 @@ private:
     std::unordered_map<KERNEL_NS::LibString, FileMonitorInfo *> _filePathRefFileObj;
     std::atomic_bool _isQuit;
     std::atomic_bool _isWorking;
+    std::atomic_bool _isStart;
 
     // 工作线程
     std::atomic<Poller *> _workerPoller;

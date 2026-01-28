@@ -52,6 +52,7 @@ public:
 
     // tls delete, 建议tls创建factory
     void Release();
+    static YamlDeserializer *Create();
 
     template<typename T>
 #ifdef CRYSTAL_NET_CPP20
@@ -127,15 +128,6 @@ private:
     LibString _path;
     // 注册后获取到的_handle,handle的生命周期比YamlDeserializer长, 由FileChangeManager管理
     FileChangeHandle *_handle;
-};
-
-class KERNEL_EXPORT YamlDeserializerFactory
-{
-public:
-    static YamlDeserializer *Create()
-    {
-        return YamlDeserializer::NewThreadLocal_YamlDeserializer();
-    }
 };
 
 KERNEL_END

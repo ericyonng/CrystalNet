@@ -77,6 +77,14 @@ void FileChangeManager::_InitWorker()
 
            _isWorking.exchange(true, std::memory_order_release);
 
+           // 启动后继续
+           while (!_isStart.load(std::memory_order_acquire))
+           {
+               co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
+           }
+
+           g_Log->Info(LOGFMT_OBJ_TAG("file change manage working"));
+
             // 阻塞等待
             while (!poller->IsQuit() && _isQuit.load(std::memory_order_acquire))
             {
@@ -147,6 +155,7 @@ Int32 FileChangeManager::_OnInit()
 // start 可以启动线程，再此之前都不可以启动线程
 Int32 FileChangeManager::_OnStart()
 {
+    _isStart.store(true, std::memory_order_release);
     return Status::Success;
 }
 

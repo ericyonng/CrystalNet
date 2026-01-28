@@ -56,6 +56,10 @@ void YamlDeserializer::Release()
     YamlDeserializer::DeleteThreadLocal_YamlDeserializer(this);
 }
 
+YamlDeserializer *YamlDeserializer::Create()
+{
+    return YamlDeserializer::NewThreadLocal_YamlDeserializer();
+}
 
 void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, void *> * releaseObj, IDelegate<void *, YAML::Node *> *deserializeObj)
 {

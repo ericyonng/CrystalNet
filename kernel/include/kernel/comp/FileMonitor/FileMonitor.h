@@ -42,23 +42,23 @@ KERNEL_BEGIN
 // @param(ObjType): 反序列化最终的结果, 需要有:CreateNewObj/Release 接口
 // @param(FileDeserializer): 反序列化器, 将文件反序列化成ObjType, 需要有SwapNewData/Register接口, 
 // @param(FileDeserializerFactoryType): 反序列化器工厂, 需要有Create/Release接口, 
-template<typename ObjType, typename FileDeserializerType, typename FileDeserializerFactoryType>
+template<typename ObjType, typename FileDeserializerType>
 #ifdef CRYSTAL_NET_CPP20
-requires requires(ObjType obj, FileDeserializerType *d, KERNEL_NS::LibString path, FileDeserializerFactoryType factory)
+requires requires(ObjType obj, FileDeserializerType *d, KERNEL_NS::LibString path)
 {
     ObjType::CreateNewObj(ObjType());
     obj.Release();
-    
+
+    d = FileDeserializerType::Create();
+    d->Release();
     d->template SwapNewData<ObjType>();
     d->template Register<ObjType>(path);
     
-    d = FileDeserializerFactoryType::Create();
-    FileDeserializerFactoryType::Release(d);
 }
 #endif
 class FileMonitor
 {
-    POOL_CREATE_TEMPLATE_OBJ_DEFAULT(FileMonitor, ObjType, FileDeserializerType, FileDeserializerFactoryType);
+    POOL_CREATE_TEMPLATE_OBJ_DEFAULT(FileMonitor, ObjType, FileDeserializerType);
 
 public:
     FileMonitor()
@@ -69,8 +69,7 @@ public:
     
     ~FileMonitor()
     {
-        FileDeserializerFactoryType::Release(_deserialize);
-        _deserialize = NULL;
+        CRYSTAL_RELEASE_SAFE(_deserialize);
     }
 
 public:
@@ -85,38 +84,38 @@ private:
     mutable alignas(SYSTEM_ALIGN_SIZE) SmartPtr<ObjType, AutoDelMethods::Release> _currentObject;
     alignas(SYSTEM_ALIGN_SIZE) FileDeserializerType *_deserialize;
 
-    LibString _filePath;
+    alignas(SYSTEM_ALIGN_SIZE) LibString _filePath;
 };
 
-template<typename ObjType, typename FileDeserializerType, typename FileDeserializerFactoryType>
+template<typename ObjType, typename FileDeserializerType>
 #ifdef CRYSTAL_NET_CPP20
-requires requires(ObjType obj, FileDeserializerType *d, KERNEL_NS::LibString path, FileDeserializerFactoryType factory)
+requires requires(ObjType obj, FileDeserializerType *d, KERNEL_NS::LibString path)
 {
     ObjType::CreateNewObj(ObjType());
     obj.Release();
-    
-    d->template SwapNewData<ObjType>();
-    d->template Register<ObjType>(path);
-    d = FileDeserializerFactoryType::Create();
-    FileDeserializerFactoryType::Release(d);
-}
-#endif
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(FileMonitor, ObjType, FileDeserializerType, FileDeserializerFactoryType);
 
-template<typename ObjType, typename FileDeserializerType, typename FileDeserializerFactoryType>
+    d = FileDeserializerType::Create();
+    d->Release();
+    d->template SwapNewData<ObjType>();
+    d->template Register<ObjType>(path);
+}
+#endif
+POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(FileMonitor, ObjType, FileDeserializerType);
+
+template<typename ObjType, typename FileDeserializerType>
 #ifdef CRYSTAL_NET_CPP20
-requires requires(ObjType obj, FileDeserializerType *d, KERNEL_NS::LibString path, FileDeserializerFactoryType factory)
+requires requires(ObjType obj, FileDeserializerType *d, KERNEL_NS::LibString path)
 {
     ObjType::CreateNewObj(ObjType());
     obj.Release();
-    
+
+    d = FileDeserializerType::Create();
+    d->Release();
     d->template SwapNewData<ObjType>();
     d->template Register<ObjType>(path);
-    d = FileDeserializerFactoryType::Create();
-    FileDeserializerFactoryType::Release(d);
 }
 #endif
-ALWAYS_INLINE SmartPtr<ObjType, AutoDelMethods::Release> FileMonitor<ObjType, FileDeserializerType, FileDeserializerFactoryType>::Current() const
+ALWAYS_INLINE SmartPtr<ObjType, AutoDelMethods::Release> FileMonitor<ObjType, FileDeserializerType>::Current() const
 {
     // 如果配置有变更, 则更新配置
     ObjType *newObj = _deserialize->template SwapNewData<ObjType>();
@@ -128,23 +127,23 @@ ALWAYS_INLINE SmartPtr<ObjType, AutoDelMethods::Release> FileMonitor<ObjType, Fi
     return _currentObject;
 }
 
-template<typename ObjType, typename FileDeserializerType, typename FileDeserializerFactoryType>
+template<typename ObjType, typename FileDeserializerType>
 #ifdef CRYSTAL_NET_CPP20
-requires requires(ObjType obj, FileDeserializerType *d, KERNEL_NS::LibString path, FileDeserializerFactoryType factory)
+requires requires(ObjType obj, FileDeserializerType *d, KERNEL_NS::LibString path)
 {
     ObjType::CreateNewObj(ObjType());
     obj.Release();
-    
+
+    d = FileDeserializerType::Create();
+    d->Release();
     d->template SwapNewData<ObjType>();
     d->template Register<ObjType>(path);
-    d = FileDeserializerFactoryType::Create();
-    FileDeserializerFactoryType::Release(d);
 }
 #endif
-ALWAYS_INLINE void FileMonitor<ObjType, FileDeserializerType, FileDeserializerFactoryType>::Init(const KERNEL_NS::LibString &path)
+ALWAYS_INLINE void FileMonitor<ObjType, FileDeserializerType>::Init(const KERNEL_NS::LibString &path)
 {
     _filePath = path;
-    _deserialize = FileDeserializerFactoryType::Create();
+    _deserialize = FileDeserializerType::Create();
     _currentObject = _deserialize->template Register<ObjType>(_filePath);
 }
 

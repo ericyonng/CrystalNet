@@ -51,6 +51,9 @@ void LibEventLoopThread::Release()
 
 void LibEventLoopThread::Start()
 {
+    if(_thread->IsStart())
+        return;
+    
     if (g_Log->IsEnable(LogLevel::Info))
         g_Log->Info(LOGFMT_OBJ_TAG("thread will start %s"), _thread->ToString().c_str());
     
