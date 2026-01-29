@@ -136,6 +136,8 @@
 
 - 工程默认引入yaml-cpp库（以静态库的形式）, 支持yaml配置，见3rd/yaml/
 
+- 支持**FileMonitor**，加载的配置可以实时热更, 热更做到**无感, 无负担**，测试用例见TestYaml.cpp
+
   
 
 
