@@ -1,0 +1,416 @@
+# Author: EricYonng(120453674@qq.com)
+# Date:2026.01.29
+# Desc:日志配置
+
+LogConfig:
+  LogCommon:
+    # 日志文件配置
+    FileNames:
+      # 线程关联性id:1:业务逻辑日志线程, 2:系统日志线程(包括监控等),3:网络日志线程
+      # 主逻辑日志文件
+      - FileId: 0
+        FileName: 
+        # 线程相关性id, 相同id的多个文件会绑定在同一个线程
+        ThreadRelationshipId: 1
+
+        # crash日志
+      - FileId: 1
+        FileName: Crash
+        ThreadRelationshipId: 1
+
+        # 网络日志
+      - FileId: 2
+        FileName: Net
+        ThreadRelationshipId: 3
+
+        # Custom日志
+      - FileId: 3
+        FileName: Custom
+        ThreadRelationshipId: 1
+
+        # 系统日志
+      - FileId: 4
+        FileName: Sys
+        ThreadRelationshipId: 2
+
+        # 内存监控日志
+      - FileId: 5
+        FileName: MemMonitor
+        ThreadRelationshipId: 2
+
+        # 跟踪日志
+      - FileId: 6
+        FileName: Trace
+        ThreadRelationshipId: 1
+
+        # 监控日志
+      - FileId: 7
+        FileName: Monitor
+        ThreadRelationshipId: 2
+
+        # db日志
+      - FileId: 8
+        FileName: DB
+        ThreadRelationshipId: 2
+
+    # 文件后缀
+    ExtName: .log
+    # 日志最大缓存限制,超过则即时着盘
+    MaxLogCacheMB: 16
+    # 日志着盘时间间隔,定时着盘
+    LogTimerIntervalMs: 1000
+    # 日志单文件最大大小,超过会创建分立文件
+    MaxFileSizeMB: 256
+    # 是否产出日志
+    IsEnableLog: 1
+    # 日志路径:[是否使用程序名当日志的一级目录][路径]
+    LogPath:
+      IsUseProgramNameAsFirstLevelPath: 1
+      # 路径:
+      # 若使用程序名当一级目录则可以缺省指定路径名 若此时有指定路径名,程序名路径会追加在该指定路径成为二级目录
+      # 若指定了绝对路径则必定使用给定的绝对路径 若此时又指定了程序名当目录 程序名路径追加在该指定路径成为二级目录
+      PartPath: 
+
+  # 日志等级配置
+  LogLevel:
+    # Debug 配置
+    - Enable: 1
+      # 文件id
+      FileId: 0
+      # 是否输出到控制台
+      EnableConsole: 0
+      # 前景色
+      FgColor: White
+      # 背景色
+      BgColor: Black
+      # 日志等级id
+      LevelId: 1
+      # 是否实时输出
+      EnableRealTime: 0
+      # 是否打印堆栈
+      PRINT_STACK_TRACE_BACK: 0
+      # 是否落盘
+      NEED_WRITE_FILE: 1
+
+    # Info 配置
+    - Enable: 1
+      # 文件id
+      FileId: 0
+      # 是否输出到控制台
+      EnableConsole: 0
+      # 前景色
+      FgColor: White
+      # 背景色
+      BgColor: Black
+      # 日志等级id
+      LevelId: 2
+      # 是否实时输出
+      EnableRealTime: 0
+      # 是否打印堆栈
+      PRINT_STACK_TRACE_BACK: 0
+      # 是否落盘
+      NEED_WRITE_FILE: 1
+
+    # Warn 配置
+    - Enable: 1
+      # 文件id
+      FileId: 0
+      # 是否输出到控制台
+      EnableConsole: 1
+      # 前景色
+      FgColor: LightYellow
+      # 背景色
+      BgColor: Black
+      # 日志等级id
+      LevelId: 3
+      # 是否实时输出
+      EnableRealTime: 0
+      # 是否打印堆栈
+      PRINT_STACK_TRACE_BACK: 0
+      # 是否落盘
+      NEED_WRITE_FILE: 1
+
+    # Error 配置
+    - Enable: 1
+      # 文件id
+      FileId: 0
+      # 是否输出到控制台
+      EnableConsole: 1
+      # 前景色
+      FgColor: Red
+      # 背景色
+      BgColor: Black
+      # 日志等级id
+      LevelId: 4
+      # 是否实时输出
+      EnableRealTime: 0
+      # 是否打印堆栈
+      PRINT_STACK_TRACE_BACK: 1
+      # 是否落盘
+      NEED_WRITE_FILE: 1
+
+    # Crash 配置
+    - Enable: 1
+      # 文件id
+      FileId: 1
+      # 是否输出到控制台
+      EnableConsole: 1
+      # 前景色
+      FgColor: Red
+      # 背景色
+      BgColor: Black
+      # 日志等级id
+      LevelId: 5
+      # 是否实时输出
+      EnableRealTime: 0
+      # 是否打印堆栈
+      PRINT_STACK_TRACE_BACK: 0
+      # 是否落盘
+      NEED_WRITE_FILE: 1
+
+    # Net 配置
+    - Enable: 1
+      # 文件id
+      FileId: 2
+      # 是否输出到控制台
+      EnableConsole: 0
+      # 前景色
+      FgColor: White
+      # 背景色
+      BgColor: Black
+      # 日志等级id
+      LevelId: 6
+      # 是否实时输出
+      EnableRealTime: 0
+      # 是否打印堆栈
+      PRINT_STACK_TRACE_BACK: 0
+      # 是否落盘
+      NEED_WRITE_FILE: 1
+
+    # NetDebug 配置
+    - Enable: 1
+      # 文件id
+      FileId: 2
+      # 是否输出到控制台
+      EnableConsole: 0
+      # 前景色
+      FgColor: White
+      # 背景色
+      BgColor: Black
+      # 日志等级id
+      LevelId: 7
+      # 是否实时输出
+      EnableRealTime: 0
+      # 是否打印堆栈
+      PRINT_STACK_TRACE_BACK: 0
+      # 是否落盘
+      NEED_WRITE_FILE: 1
+
+    # NetInfo 配置
+    - Enable: 1
+      # 文件id
+      FileId: 2
+      # 是否输出到控制台
+      EnableConsole: 0
+      # 前景色
+      FgColor: White
+      # 背景色
+      BgColor: Black
+      # 日志等级id
+      LevelId: 8
+      # 是否实时输出
+      EnableRealTime: 0
+      # 是否打印堆栈
+      PRINT_STACK_TRACE_BACK: 0
+      # 是否落盘
+      NEED_WRITE_FILE: 1
+
+    # NetWarn 配置
+    - Enable: 1
+      # 文件id
+      FileId: 2
+      # 是否输出到控制台
+      EnableConsole: 0
+      # 前景色
+      FgColor: LightYellow
+      # 背景色
+      BgColor: Black
+      # 日志等级id
+      LevelId: 9
+      # 是否实时输出
+      EnableRealTime: 0
+      # 是否打印堆栈
+      PRINT_STACK_TRACE_BACK: 0
+      # 是否落盘
+      NEED_WRITE_FILE: 1
+
+    # NetError 配置
+    - Enable: 1
+      # 文件id
+      FileId: 2
+      # 是否输出到控制台
+      EnableConsole: 0
+      # 前景色
+      FgColor: Red
+      # 背景色
+      BgColor: Black
+      # 日志等级id
+      LevelId: 10
+      # 是否实时输出
+      EnableRealTime: 0
+      # 是否打印堆栈
+      PRINT_STACK_TRACE_BACK: 1
+      # 是否落盘
+      NEED_WRITE_FILE: 1
+
+    # NetTrace 配置
+    - Enable: 1
+      # 文件id
+      FileId: 2
+      # 是否输出到控制台
+      EnableConsole: 0
+      # 前景色
+      FgColor: Green
+      # 背景色
+      BgColor: Black
+      # 日志等级id
+      LevelId: 11
+      # 是否实时输出
+      EnableRealTime: 1
+      # 是否打印堆栈
+      PRINT_STACK_TRACE_BACK: 0
+      # 是否落盘
+      NEED_WRITE_FILE: 1
+
+    # Custom 配置
+    - Enable: 1
+      # 文件id
+      FileId: 3
+      # 是否输出到控制台
+      EnableConsole: 1
+      # 前景色
+      FgColor: White
+      # 背景色
+      BgColor: Black
+      # 日志等级id
+      LevelId: 12
+      # 是否实时输出
+      EnableRealTime: 0
+      # 是否打印堆栈
+      PRINT_STACK_TRACE_BACK: 0
+      # 是否落盘
+      NEED_WRITE_FILE: 1
+
+    # Sys 配置
+    - Enable: 1
+      # 文件id
+      FileId: 4
+      # 是否输出到控制台
+      EnableConsole: 0
+      # 前景色
+      FgColor: White
+      # 背景色
+      BgColor: Black
+      # 日志等级id
+      LevelId: 13
+      # 是否实时输出
+      EnableRealTime: 0
+      # 是否打印堆栈
+      PRINT_STACK_TRACE_BACK: 0
+      # 是否落盘
+      NEED_WRITE_FILE: 1
+
+    # MemMonitor 配置
+    - Enable: 1
+      # 文件id
+      FileId: 5
+      # 是否输出到控制台
+      EnableConsole: 0
+      # 前景色
+      FgColor: White
+      # 背景色
+      BgColor: Black
+      # 日志等级id
+      LevelId: 14
+      # 是否实时输出
+      EnableRealTime: 0
+      # 是否打印堆栈
+      PRINT_STACK_TRACE_BACK: 0
+      # 是否落盘
+      NEED_WRITE_FILE: 1
+
+    # Trace 配置
+    - Enable: 1
+      # 文件id
+      FileId: 6
+      # 是否输出到控制台
+      EnableConsole: 0
+      # 前景色
+      FgColor: Green
+      # 背景色
+      BgColor: Black
+      # 日志等级id
+      LevelId: 15
+      # 是否实时输出
+      EnableRealTime: 1
+      # 是否打印堆栈
+      PRINT_STACK_TRACE_BACK: 0
+      # 是否落盘
+      NEED_WRITE_FILE: 1
+
+    # MonitorInfo 配置
+    - Enable: 1
+      # 文件id
+      FileId: 7
+      # 是否输出到控制台
+      EnableConsole: 1
+      # 前景色
+      FgColor: Green
+      # 背景色
+      BgColor: Black
+      # 日志等级id
+      LevelId: 16
+      # 是否实时输出
+      EnableRealTime: 1
+      # 是否打印堆栈
+      PRINT_STACK_TRACE_BACK: 0
+      # 是否落盘
+      NEED_WRITE_FILE: 1
+
+    # FailSql 配置
+    - Enable: 1
+      # 文件id
+      FileId: 8
+      # 是否输出到控制台
+      EnableConsole: 0
+      # 前景色
+      FgColor: LightYellow
+      # 背景色
+      BgColor: Black
+      # 日志等级id
+      LevelId: 17
+      # 是否实时输出
+      EnableRealTime: 1
+      # 是否打印堆栈
+      PRINT_STACK_TRACE_BACK: 0
+      # 是否落盘
+      NEED_WRITE_FILE: 1
+
+    # DumpSql 配置
+    - Enable: 1
+      # 文件id
+      FileId: 8
+      # 是否输出到控制台
+      EnableConsole: 0
+      # 前景色
+      FgColor: White
+      # 背景色
+      BgColor: Black
+      # 日志等级id
+      LevelId: 18
+      # 是否实时输出
+      EnableRealTime: 1
+      # 是否打印堆栈
+      PRINT_STACK_TRACE_BACK: 0
+      # 是否落盘
+      NEED_WRITE_FILE: 1
