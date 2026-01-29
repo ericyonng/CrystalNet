@@ -80,7 +80,10 @@ Int32 TlsCompsOwner::_OnCompsCreated()
 {
     auto &comps = GetAllComps();
     for(auto &comp : comps)
-        g_Log->Info(LOGFMT_OBJ_TAG("tls comps:%s"), comp->ToString().c_str());
+    {
+        if (g_Log)
+            g_Log->Info(LOGFMT_OBJ_TAG("tls comps:%s"), comp->ToString().c_str());
+    }
 
     _poller = GetComp<Poller>();
     return Status::Success;

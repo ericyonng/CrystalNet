@@ -161,7 +161,7 @@ CoTask<Channel *> Poller::ApplyChannel()
     myPoller->_idRefChannel.insert(std::make_pair(channel->GetChannelId(), channel));
     myPoller->_targetPollerRefChannel.insert(std::make_pair(this, channel));
 
-    if(g_Log->IsEnable(LogLevel::Info))
+    if(g_Log && g_Log->IsEnable(LogLevel::Info))
         g_Log->Info(LOGFMT_OBJ_TAG("new channel created src:%s => target:%s, channel id:%llu")
             , myPoller->ToString().c_str(), ToString().c_str(), channel->GetChannelId());
 
@@ -175,7 +175,7 @@ void Poller::SendByChannel(UInt64 channelId, PollerEvent *ev)
     if(UNLIKELY(iter == _idRefChannel.end()))
     {
         ev->Release();
-        if(UNLIKELY(g_Log->IsEnable(LogLevel::Debug)))
+        if(UNLIKELY(g_Log && g_Log->IsEnable(LogLevel::Debug)))
             g_Log->Debug(LOGFMT_OBJ_TAG("channel not found:%llu, ev:%s, poller:%s"), channelId, ev->ToString().c_str(), ToString().c_str());
         return;
     }
@@ -194,7 +194,7 @@ void Poller::SendByChannel(UInt64 channelId, LibList<PollerEvent *> *evs)
             info.AppendFormat("%s\n", node->_data->ToString().c_str());
         }
         
-        if(UNLIKELY(g_Log->IsEnable(LogLevel::Debug)))
+        if(UNLIKELY(g_Log && g_Log->IsEnable(LogLevel::Debug)))
             g_Log->Debug(LOGFMT_OBJ_TAG("channel not found:%llu, ev:%s, poller:%s"), channelId, info.c_str(), ToString().c_str());
         
         ContainerUtil::DelContainer(*evs, [](PollerEvent *ev)
@@ -213,7 +213,7 @@ Int32 Poller::_OnInit()
     Int32 ret = CompObject::_OnInit();
     if(ret != Status::Success)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("comp init fail ret:%d"), ret);
+        CRYSTAL_TRACE("comp init fail ret:%d", ret)
         return ret;
     }
 
@@ -237,7 +237,7 @@ Int32 Poller::_OnInit()
     _workThreadId.store(SystemUtil::GetCurrentThreadId(), std::memory_order_release);
     _timerMgr->Launch(DelegateFactory::Create(this, &Poller::WakeupEventLoop));
     
-    g_Log->Debug(LOGFMT_OBJ_TAG("poller inited %s"), ToString().c_str());
+    CRYSTAL_TRACE("poller inited %s", ToString().c_str())
     return Status::Success;
 }
 
@@ -246,18 +246,19 @@ Int32 Poller::_OnStart()
     auto ret = CompObject::_OnStart();
     if(ret != Status::Success)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("comp obj _OnStart fail ret:%d"), ret);
+        CRYSTAL_TRACE("comp obj _OnStart fail ret:%d", ret)
         return ret;
     }
 
     _isQuitLoop.store(false, std::memory_order_release);
-    g_Log->Debug(LOGFMT_OBJ_TAG("poller started %s"), ToString().c_str());
+    CRYSTAL_TRACE("poller started %s", ToString().c_str())
     return Status::Success;
 }
 
 void Poller::_OnWillClose()
 {
-    g_Log->Debug(LOGFMT_OBJ_TAG("poller will close %s"), ToString().c_str());
+    if (g_Log && g_Log->IsEnable(LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("poller will close %s"), ToString().c_str());
 
     _isQuitLoop.store(true, std::memory_order_release);
     WakeupEventLoop();
@@ -268,7 +269,8 @@ void Poller::_OnWillClose()
 void Poller::_OnClose()
 {
     // TODO:销毁channel src channel/target spsc queue
-    g_Log->Debug(LOGFMT_OBJ_TAG("poller close %s"), ToString().c_str());
+    if (g_Log && g_Log->IsEnable(LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("poller close %s"), ToString().c_str());
     // _Clear();
     CompObject::_OnClose();
 }
@@ -316,12 +318,12 @@ void Poller::_OnBatchPollerEvent(PollerEvent *ev)
             }
             catch(const std::exception& e)
             {
-                if(g_Log->IsEnable(LogLevel::Error))
+                if(g_Log && g_Log->IsEnable(LogLevel::Error))
                     g_Log->Error(LOGFMT_OBJ_TAG("Poller handler err:%s, data:%s, poller:%s"), e.what(), subEv->ToString().c_str(), ToString().c_str());
             }
             catch(...)
             {
-                if(g_Log->IsEnable(LogLevel::Error))
+                if(g_Log && g_Log->IsEnable(LogLevel::Error))
                     g_Log->Error(LOGFMT_OBJ_TAG("Poller handler unknown err, data:%s, poller:%s"), subEv->ToString().c_str(), ToString().c_str());
             }
 #else
@@ -352,7 +354,7 @@ void Poller::_OnApplyChannelEvent(StubPollerEvent *ev)
     _channelIdRefQueue.insert(std::make_pair(channelId, queue));
     _msgQueues.push_back(queue);
 
-    if(g_Log->IsEnable(LogLevel::Debug))
+    if(g_Log && g_Log->IsEnable(LogLevel::Debug))
         g_Log->Debug(LOGFMT_OBJ_TAG("apply channel applyEv: %s, channelId:%llu, src poller:%s => target poller:%s,")
             , applyEv->ToString().c_str(), channelId, applyEv->_srcPoller->ToString().c_str(), ToString().c_str());
 
@@ -419,7 +421,8 @@ void Poller::Subscribe(Int32 eventType, KERNEL_NS::IDelegate<void, KERNEL_NS::Po
     if(iter != _pollerEventHandler.end())
     {
         auto cb = iter->second;
-        g_Log->Warn(LOGFMT_OBJ_TAG("repeat eventType:%d callback, old callback owner:%s, callback:%s , and will replace with new one: owner:%s, callback:%s")
+        if (g_Log && g_Log->IsEnable(LogLevel::Warn))
+            g_Log->Warn(LOGFMT_OBJ_TAG("repeat eventType:%d callback, old callback owner:%s, callback:%s , and will replace with new one: owner:%s, callback:%s")
         ,eventType, cb->GetOwnerRtti().c_str(), cb->GetCallbackRtti().c_str(), deleg->GetOwnerRtti().c_str(), deleg->GetCallbackRtti().c_str());
         cb->Release();
 
@@ -448,13 +451,15 @@ bool Poller::PrepareLoop()
     {
         if(!_prepareEventWorkerHandler->Invoke(this))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("prepare event worker fail poller info:%s"), ToString().c_str());
+            if (g_Log)
+                g_Log->Error(LOGFMT_OBJ_TAG("prepare event worker fail poller info:%s"), ToString().c_str());
             SetErrCode(NULL, Status::PollerFail);
             return false;
         }
     }
 
-    g_Log->Debug(LOGFMT_OBJ_TAG("poller prepare loop poller info:%s"), ToString().c_str());
+    if (g_Log && g_Log->IsEnable(LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("poller prepare loop poller info:%s"), ToString().c_str());
 
     return true;
 }
@@ -464,7 +469,8 @@ void Poller::QuicklyLoop()
     // 部分数据准备
     LibString errLog;
 
-    g_Log->Debug(LOGFMT_OBJ_TAG("poller event worker ready poller info:%s"), ToString().c_str());
+    if (g_Log && g_Log->IsEnable(LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("poller event worker ready poller info:%s"), ToString().c_str());
 
     const UInt64 pollerId = GetId();
     
@@ -554,7 +560,8 @@ void Poller::QuicklyLoop()
             #endif
             if(UNLIKELY(!errLog.empty()))
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("poller dirty helper has err:%s, poller id:%llu"), errLog.c_str(), pollerId);      
+                if (g_Log && g_Log->IsEnable(LogLevel::Warn))
+                    g_Log->Warn(LOGFMT_OBJ_TAG("poller dirty helper has err:%s, poller id:%llu"), errLog.c_str(), pollerId);      
                 errLog.clear();
             }
         }
@@ -570,7 +577,8 @@ void Poller::QuicklyLoop()
         //     _onTick->Invoke();
     }
 
-    g_Log->Debug(LOGFMT_OBJ_TAG("poller worker down poller info:%s"), ToString().c_str());
+    if (g_Log && g_Log->IsEnable(LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("poller worker down poller info:%s"), ToString().c_str());
 }
 
 void Poller::SafeEventLoop()
@@ -578,7 +586,8 @@ void Poller::SafeEventLoop()
     // 部分数据准备
     LibString errLog;
 
-    g_Log->Debug(LOGFMT_OBJ_TAG("poller event worker ready poller info:%s"), ToString().c_str());
+    if (g_Log && g_Log->IsEnable(LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("poller event worker ready poller info:%s"), ToString().c_str());
 
     const UInt64 pollerId = GetId();
     
@@ -643,12 +652,12 @@ void Poller::SafeEventLoop()
                 }
                 catch(const std::exception& e)
                 {
-                    if(g_Log->IsEnable(LogLevel::Error))
+                    if(g_Log && g_Log->IsEnable(LogLevel::Error))
                         g_Log->Error(LOGFMT_OBJ_TAG("Poller handler err:%s, data:%s, poller:%s"), e.what(), ev->ToString().c_str(), ToString().c_str());
                 }
                 catch(...)
                 {
-                    if(g_Log->IsEnable(LogLevel::Error))
+                    if(g_Log && g_Log->IsEnable(LogLevel::Error))
                         g_Log->Error(LOGFMT_OBJ_TAG("Poller handler unknown err, data:%s, poller:%s"), ev->ToString().c_str(), ToString().c_str());
                 }
 
@@ -675,12 +684,12 @@ void Poller::SafeEventLoop()
                     }
                     catch(const std::exception& e)
                     {
-                        if(g_Log->IsEnable(LogLevel::Error))
+                        if(g_Log && g_Log->IsEnable(LogLevel::Error))
                             g_Log->Error(LOGFMT_OBJ_TAG("Poller handler err:%s, data:%s, poller:%s"), e.what(), ev->ToString().c_str(), ToString().c_str());
                     }
                     catch(...)
                     {
-                        if(g_Log->IsEnable(LogLevel::Error))
+                        if(g_Log && g_Log->IsEnable(LogLevel::Error))
                             g_Log->Error(LOGFMT_OBJ_TAG("Poller handler unknown err, data:%s, poller:%s"), ev->ToString().c_str(), ToString().c_str());
                     }
 
@@ -708,12 +717,12 @@ void Poller::SafeEventLoop()
                 }
                 catch(const std::exception& e)
                 {
-                    if(g_Log->IsEnable(LogLevel::Error))
+                    if(g_Log && g_Log->IsEnable(LogLevel::Error))
                         g_Log->Error(LOGFMT_OBJ_TAG("Poller handler err:%s, data:%s, poller:%s"), e.what(), ev->ToString().c_str(), ToString().c_str());
                 }
                 catch(...)
                 {
-                    if(g_Log->IsEnable(LogLevel::Error))
+                    if(g_Log && g_Log->IsEnable(LogLevel::Error))
                         g_Log->Error(LOGFMT_OBJ_TAG("Poller handler unknown err, data:%s, poller:%s"), ev->ToString().c_str(), ToString().c_str());
                 }
 
@@ -736,18 +745,19 @@ void Poller::SafeEventLoop()
                     #endif
                     if(UNLIKELY(!errLog.empty()))
                     {
-                        g_Log->Warn(LOGFMT_OBJ_TAG("poller dirty helper has err:%s, poller id:%llu"), errLog.c_str(), pollerId);      
+                        if (g_Log && g_Log->IsEnable(LogLevel::Warn))
+                            g_Log->Warn(LOGFMT_OBJ_TAG("poller dirty helper has err:%s, poller id:%llu"), errLog.c_str(), pollerId);      
                         errLog.clear();
                     }
                 }
                 catch(const std::exception& e)
                 {
-                    if(LIKELY(g_Log->IsEnable(LogLevel::Error)))
+                    if(LIKELY(g_Log && g_Log->IsEnable(LogLevel::Error)))
                        g_Log->Error(LOGFMT_OBJ_TAG("Poller Dirty Purge error:%s, poller:%s"), e.what(), ToString().c_str());
                 }
                 catch(...)
                 {
-                    if(LIKELY(g_Log->IsEnable(LogLevel::Error)))
+                    if(LIKELY(g_Log && g_Log->IsEnable(LogLevel::Error)))
                        g_Log->Error(LOGFMT_OBJ_TAG("Poller Dirty Purge unknown error, poller:%s"), ToString().c_str());
                 }
             }
@@ -766,12 +776,12 @@ void Poller::SafeEventLoop()
             }
             catch(const std::exception& e)
             {
-                if(LIKELY(g_Log->IsEnable(LogLevel::Error)))
+                if(LIKELY(g_Log && g_Log->IsEnable(LogLevel::Error)))
                     g_Log->Error(LOGFMT_OBJ_TAG("Poller timer or tick error:%s, poller:%s"), e.what(), ToString().c_str());
             }
             catch(...)
             {
-                if(LIKELY(g_Log->IsEnable(LogLevel::Error)))
+                if(LIKELY(g_Log && g_Log->IsEnable(LogLevel::Error)))
                     g_Log->Error(LOGFMT_OBJ_TAG("Poller timer or tick unknown error poller:%s"), ToString().c_str());
             }
             
@@ -780,7 +790,7 @@ void Poller::SafeEventLoop()
                 const auto &elapseTime = nowCounter.Update() - performaceStart;
                 if(UNLIKELY(elapseTime >= _maxPieceTime))
                 {
-                    if(g_Log->IsEnable(LogLevel::NetInfo))
+                    if(g_Log && g_Log->IsEnable(LogLevel::Info))
                         g_Log->Info(LOGFMT_OBJ_TAG("[poller performance] poller id:%llu thread id:%llu, use time over max piece time, use time:%llu(ms), max piece time:%llu(ms), consume event count:%llu, time out handled count:%lld, dirty handled count:%lld")
                     , pollerId, curThreadId, elapseTime.GetTotalMilliseconds(), _maxPieceTime.GetTotalMilliseconds(), curConsumeEventsCount, handled, dirtyHandled);
                 }
@@ -791,17 +801,20 @@ void Poller::SafeEventLoop()
     }
     catch(const std::exception& e)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("exception:%s happen"), e.what());
+        if (g_Log && g_Log->IsEnable(LogLevel::Error))
+            g_Log->Error(LOGFMT_OBJ_TAG("exception:%s happen"), e.what());
         goto EVENTLOOP_BEGIN;
     }
     catch(...)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("unknown eception happen..."));
+        if(g_Log && g_Log->IsEnable(LogLevel::Error))
+            g_Log->Error(LOGFMT_OBJ_TAG("unknown eception happen..."));
         goto EVENTLOOP_BEGIN;
     }
     // #endif
-    
-    g_Log->Debug(LOGFMT_OBJ_TAG("poller worker down poller info:%s"), ToString().c_str());
+
+    if (g_Log && g_Log->IsEnable(LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("poller worker down poller info:%s"), ToString().c_str());
 }
 
 void Poller::OnLoopEnd()
@@ -810,7 +823,8 @@ void Poller::OnLoopEnd()
     if(LIKELY(_onEventWorkerCloseHandler))
         _onEventWorkerCloseHandler->Invoke(this);
 
-    g_Log->Info(LOGFMT_OBJ_TAG("poller loop end poller info:%s"), ToString().c_str());
+    if (g_Log && g_Log->IsEnable(LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("poller loop end poller info:%s"), ToString().c_str());
 }
 
 void Poller::OnMonitor(PollerCompStatistics &statistics)
@@ -842,7 +856,8 @@ void Poller::Push(LibList<PollerEvent *> *evList)
 {
     if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("poller is destroying obj id:%llu, evList count:%llu")
+        if (g_Log && g_Log->IsEnable(LogLevel::Warn))
+            g_Log->Warn(LOGFMT_OBJ_TAG("poller is destroying obj id:%llu, evList count:%llu")
                         , GetId(), evList->GetAmount());
 
         ContainerUtil::DelContainer(*evList, [](PollerEvent *ev){
@@ -863,7 +878,8 @@ void Poller::Push(IDelegate<void> *action)
 {
     if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("poller is destroying poller obj id:%llu"), GetId());
+        if (g_Log && g_Log->IsEnable(LogLevel::Warn))
+            g_Log->Warn(LOGFMT_OBJ_TAG("poller is destroying poller obj id:%llu"), GetId());
         action->Release();
         return;
     }
@@ -877,7 +893,8 @@ void Poller::Push(PollerEvent *ev)
 {
     if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("poller is destroying obj id:%llu, ev:%s"), GetId(), ev->ToString().c_str());
+        if (g_Log && g_Log->IsEnable(LogLevel::Warn))
+            g_Log->Warn(LOGFMT_OBJ_TAG("poller is destroying obj id:%llu, ev:%s"), GetId(), ev->ToString().c_str());
         ev->Release();
         return;
     }
@@ -905,7 +922,8 @@ void Poller::_Clear()
     CRYSTAL_DELETE_SAFE(_prepareEventWorkerHandler);
     CRYSTAL_DELETE_SAFE(_onEventWorkerCloseHandler);
 
-    g_Log->Info(LOGFMT_OBJ_TAG("will destroy poller events list %s"), ToString().c_str());
+    if (g_Log && g_Log->IsEnable(LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("will destroy poller events list %s"), ToString().c_str());
 
     ContainerUtil::DelContainer2(_pollerEventHandler);
 
@@ -918,11 +936,13 @@ void Poller::_Clear()
     });
     ContainerUtil::DelContainer(_msgQueues, [this](SPSCQueue<PollerEvent *> *queue)
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("have some unhandled events amount:%llu, poller info:%s"), queue->Size(), ToString().c_str());
+        if (g_Log && g_Log->IsEnable(LogLevel::Warn))
+            g_Log->Warn(LOGFMT_OBJ_TAG("have some unhandled events amount:%llu, poller info:%s"), queue->Size(), ToString().c_str());
 
         while (auto elem = queue->Front())
         {
-            g_Log->Info(LOGFMT_OBJ_TAG("event:%s, PollerId:%llu"), (*elem)->ToString().c_str(), GetId());
+            if (g_Log && g_Log->IsEnable(LogLevel::Info))
+                g_Log->Info(LOGFMT_OBJ_TAG("event:%s, PollerId:%llu"), (*elem)->ToString().c_str(), GetId());
             queue->Pop();
         }
         
@@ -934,14 +954,16 @@ void Poller::_Clear()
     {
         if (!_commonEvents->Empty())
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("have some unhandled mpmc events amount:%llu, poller info:%s"), _commonEvents->Size(), ToString().c_str());
+            if (g_Log && g_Log->IsEnable(LogLevel::Warn))
+                g_Log->Warn(LOGFMT_OBJ_TAG("have some unhandled mpmc events amount:%llu, poller info:%s"), _commonEvents->Size(), ToString().c_str());
 
             while (!_commonEvents->Empty())
             {
                 PollerEvent *ev = NULL;
                 if (_commonEvents->TryPop(ev))
                 {
-                    g_Log->Info(LOGFMT_OBJ_TAG("mpmc event:%s, PollerId:%llu"), ev->ToString().c_str(), GetId());
+                    if (g_Log && g_Log->IsEnable(LogLevel::Info))
+                        g_Log->Info(LOGFMT_OBJ_TAG("mpmc event:%s, PollerId:%llu"), ev->ToString().c_str(), GetId());
                 }
             }
         }
@@ -952,14 +974,16 @@ void Poller::_Clear()
 
     if (_localEvents)
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("have some unhandled local events amount:%llu, poller info:%s"), _localEvents->GetAmount(), ToString().c_str());
+        if (g_Log && g_Log->IsEnable(LogLevel::Warn))
+            g_Log->Warn(LOGFMT_OBJ_TAG("have some unhandled local events amount:%llu, poller info:%s"), _localEvents->GetAmount(), ToString().c_str());
 
         for (auto iter = _localEvents->Begin(); iter; )
         {
             auto data = iter->_data;
             iter = _localEvents->Erase(iter);
 
-            g_Log->Info(LOGFMT_OBJ_TAG("local event:%s, PollerId:%llu"), data->ToString().c_str(), GetId());
+            if (g_Log && g_Log->IsEnable(LogLevel::Info))
+                g_Log->Info(LOGFMT_OBJ_TAG("local event:%s, PollerId:%llu"), data->ToString().c_str(), GetId());
 
             data->Release();
         }
@@ -967,8 +991,9 @@ void Poller::_Clear()
         LibList<PollerEvent *, KERNEL_NS::_Build::TL>::DeleteThreadLocal_LibList(_localEvents);
     }
     _localEvents = NULL;
-    
-    g_Log->Info(LOGFMT_OBJ_TAG("destroyed poller events list %s"), ToString().c_str());
+
+    if (g_Log && g_Log->IsEnable(LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("destroyed poller events list %s"), ToString().c_str());
 }
 
 void Poller::_OnObjectEventResponse(StubPollerEvent *ev)
@@ -977,7 +1002,7 @@ void Poller::_OnObjectEventResponse(StubPollerEvent *ev)
     auto iter = _stubRefCb.find(stub);
     if (UNLIKELY(iter == _stubRefCb.end()))
     {
-        if (g_Log->IsEnable(KERNEL_NS::LogLevel::Warn))
+        if (g_Log && g_Log->IsEnable(KERNEL_NS::LogLevel::Warn))
             g_Log->Warn(LOGFMT_OBJ_TAG("stub:%llu, not found, ev:%s"), ev->_stub, ev->ToString().c_str());
         return;
     }
@@ -1000,7 +1025,7 @@ void Poller::_OnObjectEventRequest(StubPollerEvent *ev)
     auto iter = _objTypeIdRefCallback.find(ev->_objTypeId);
     if (iter == _objTypeIdRefCallback.end())
     {
-        if (g_Log->IsEnable(KERNEL_NS::LogLevel::Warn))
+        if (g_Log && g_Log->IsEnable(KERNEL_NS::LogLevel::Warn))
             g_Log->Warn(LOGFMT_OBJ_TAG("objTypeId:%llu, have no request callback, ev:%s"), ev->_objTypeId, ev->ToString().c_str());
         return;
     }

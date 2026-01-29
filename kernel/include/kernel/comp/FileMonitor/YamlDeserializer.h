@@ -62,7 +62,7 @@ public:
         t.Release();
 
         // 需要有创建NewObj接口
-        T::CreateNewObj(T());
+        T::CreateNewObj(std::move(t));
 
         // 需要支持yaml的序列化反序列化: TODO:测试类型是否具有yaml序列化反序列化接口
         YAML::convert<T>::encode(t);
@@ -91,23 +91,26 @@ public:
             T *yamlOption = NULL;
             try
             {
-                yamlOption = T::CreateNewObj(config[tName.c_str()].as<T>());
+                auto yamlKey = tName.c_str();
+                yamlOption = T::CreateNewObj((*config)[yamlKey].template as<T>());
             }
             catch (std::exception &e)
             {
-                g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "yaml deserialize fail, path:%s, exception:%s")
+                if (g_Log)
+                    g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "yaml deserialize fail, path:%s, exception:%s")
                     , path.c_str(), e.what());
             }
             catch (...)
             {
-                g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "yaml deserialize fail, path:%s"), path.c_str());
+                if (g_Log)
+                    g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "yaml deserialize fail, path:%s"), path.c_str());
             }
 
             return yamlOption;
         };
         auto deserializeDelg = KERNEL_CREATE_CLOSURE_DELEGATE(deserializeLamb, void *, YAML::Node *);
         
-        return _Register(dataName, releaseDeleg, deserializeDelg);
+        return KERNEL_NS::KernelCastTo<T>(_Register(dataName, releaseDeleg, deserializeDelg));
     }
 
     template<typename T>

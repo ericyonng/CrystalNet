@@ -69,18 +69,21 @@ Int32 ThreadTool::OnStart()
     auto st = defTls->_tlsComps->Init();
     if(st != Status::Success)
     {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(ThreadTool, "thread tls comps init fail st:%d, threadId:[%llu]"), st, threadId);
+        if (g_Log )
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(ThreadTool, "thread tls comps init fail st:%d, threadId:[%llu]"), st, threadId);
         return st;
     }
 
     st = defTls->_tlsComps->Start();
     if(st != Status::Success)
     {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(ThreadTool, "thread tls comps start fail st:%d, threadId:[%llu]"), st, threadId);
+        if (g_Log)
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(ThreadTool, "thread tls comps start fail st:%d, threadId:[%llu]"), st, threadId);
         return st;
     }
 
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(ThreadTool, "thread start success threadId:[%llu]"), threadId);
+    if (g_Log)
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(ThreadTool, "thread start success threadId:[%llu]"), threadId);
     return Status::Success;
 }
 

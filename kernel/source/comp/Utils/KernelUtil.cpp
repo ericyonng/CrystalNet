@@ -202,6 +202,43 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
         return false;
     }
 
+    // 异常信号处理
+    if(needSignalHandle)
+    {
+        err = SignalHandleUtil::Init();
+        if(err != Status::Success)
+        {
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "signal handle util fail err:%d"), err);
+            return err;
+        }
+    }
+
+    // 信号处理任务
+    // #if CRYSTAL_TARGET_PLATFORM_LINUX
+    if(needSignalHandle)
+    {
+        auto signalCloseHandler = DelegateFactory::Create(&KernelUtil::_OnSinalOccur);
+        SignalHandleUtil::PushAllConcernSignalTask(signalCloseHandler);
+    }
+    // #endif
+
+    // 正式启动
+    ThreadTool::OnStart();
+    
+    // cpu 核心
+    g_LibEventLoopThreadPool = new LibEventLoopThreadPool(0, g_cpu->GetCpuCoreCnt());
+    // 线程池
+    g_LibEventLoopThreadPool->Start();
+    
+    // 文件监控
+    g_FileChangeManager = FileChangeManager::New_FileChangeManager();
+    err = g_FileChangeManager->Init();
+    if(err != Status::Success)
+    {
+        CRYSTAL_TRACE("file change manager init fail err:%d", err);
+        return err;
+    }
+    
     // cpu特性
 //     g_cpuFeature = KERNEL_NS::CpuFeature::GetInstance();
 //     g_cpuFeature->Init();
@@ -227,9 +264,6 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     }
     destroyDelg.pop();
 
-    // 正式启动
-    ThreadTool::OnStart();
-
     // 内存监控
     g_MemoryMonitor = KERNEL_NS::MemoryMonitor::GetInstance();
     err = g_MemoryMonitor->Init(15 * 60 * 1000);
@@ -245,38 +279,6 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     if(err != Status::Success)
     {
         g_Log->Error(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "socket env Init fail err=[%d]."), err);
-        return err;
-    }
-
-    // 异常信号处理
-    if(needSignalHandle)
-    {
-        err = SignalHandleUtil::Init();
-        if(err != Status::Success)
-        {
-            g_Log->Error(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "signal handle util fail err:%d"), err);
-            return err;
-        }
-    }
-
-    // 信号处理任务
-// #if CRYSTAL_TARGET_PLATFORM_LINUX
-    if(needSignalHandle)
-    {
-        auto signalCloseHandler = DelegateFactory::Create(&KernelUtil::_OnSinalOccur);
-        SignalHandleUtil::PushAllConcernSignalTask(signalCloseHandler);
-    }
-// #endif
-
-    // cpu 核心
-    g_LibEventLoopThreadPool = new LibEventLoopThreadPool(0, g_cpu->GetCpuCoreCnt());
-
-    // 文件监控
-    g_FileChangeManager = FileChangeManager::New_FileChangeManager();
-    err = g_FileChangeManager->Init();
-    if(err != Status::Success)
-    {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "file change manager init fail err:%d"), err);
         return err;
     }
     
@@ -307,6 +309,9 @@ void KernelUtil::Start()
         return;
     }
 
+    // 文件监控
+    g_FileChangeManager->Start();
+    
     // 日志启动
     g_Log->Start();
     // 启动垃圾回收线程
@@ -315,12 +320,6 @@ void KernelUtil::Start()
     g_MemoryMonitor->Start();
     // 启动中央内存收集器
     CenterMemoryCollector::GetInstance()->Start();
-
-    // 线程池
-    g_LibEventLoopThreadPool->Start();
-
-    // 文件监控
-    g_FileChangeManager->Start();
 
     g_Log->Sys(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "kernel started."));
 
@@ -357,14 +356,6 @@ void KernelUtil::Destroy()
     // 先关闭
     // CRYSTAL_TRACE("kernel will close memory monitor.");
 
-    g_FileChangeManager->Close();
-    g_FileChangeManager->Release();
-    g_FileChangeManager = NULL;
-
-    g_LibEventLoopThreadPool->Close();
-    g_LibEventLoopThreadPool->Release();
-    g_LibEventLoopThreadPool = NULL;
-
     if (g_MemoryMonitor)
         g_MemoryMonitor->Close();
     g_MemoryMonitor = NULL;
@@ -381,6 +372,14 @@ void KernelUtil::Destroy()
     
     // CRYSTAL_TRACE("kernel will close gc.");
 
+    g_FileChangeManager->Close();
+    g_FileChangeManager->Release();
+    g_FileChangeManager = NULL;
+
+    g_LibEventLoopThreadPool->Close();
+    g_LibEventLoopThreadPool->Release();
+    g_LibEventLoopThreadPool = NULL;
+    
     // gc停止
     KERNEL_NS::GarbageThread::GetInstence()->Close();
 

@@ -71,7 +71,8 @@ Int32 IdGenerator::_OnInit()
 {
     if(!_occupancyNumberSegmentDelegate)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("have no occupancy number segment delegate, please check"));
+        if (g_Log)
+            g_Log->Error(LOGFMT_OBJ_TAG("have no occupancy number segment delegate, please check"));
         return Status::Failed;
     }
     

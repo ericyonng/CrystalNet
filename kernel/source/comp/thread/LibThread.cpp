@@ -277,7 +277,7 @@ void LibThread::LibThreadHandlerLogic(void *param)
     }
     catch (...)
     {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(LibThread, "thread exception..."));
+        CRYSTAL_TRACE("thread exception....")
     }
 
     libThread->_poller.store(NULL, std::memory_order_release);
@@ -298,7 +298,7 @@ void LibThread::LibThreadHandlerLogic(void *param)
     }
     catch(...)
     {
-        std::cout << "LibThreadHandlerLogic quitLck crash" << std::endl;
+        CRYSTAL_TRACE("LibThreadHandlerLogic quitLck crash")
     }
 }
 

@@ -55,7 +55,8 @@ LibTimer::LibTimer(TimerMgr *mgr)
 
         if(UNLIKELY(!_mgr))
         {// 若为空则使用线程本地存储的定时管理器
-            g_Log->Error(LOGFMT_OBJ_TAG("poller timer mgr is null please check poller:%s"), poller->ToString().c_str());
+            if (g_Log)
+                g_Log->Error(LOGFMT_OBJ_TAG("poller timer mgr is null please check poller:%s"), poller->ToString().c_str());
         }
     }
 

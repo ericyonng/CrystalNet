@@ -52,7 +52,8 @@ bool TlsTypeSystem::CheckAddTypeInfo(IObject *obj)
 {
     if(UNLIKELY(!obj))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("obj is null"));
+        if (g_Log)
+            g_Log->Error(LOGFMT_OBJ_TAG("obj is null"));
         return false;
     }
 
@@ -61,7 +62,8 @@ bool TlsTypeSystem::CheckAddTypeInfo(IObject *obj)
     auto typeId = obj->GetObjTypeId();
     if(UNLIKELY(typeId == 0))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("typeId zero:{typeId:%llu, name:%s}")
+        if (g_Log)
+            g_Log->Error(LOGFMT_OBJ_TAG("typeId zero:{typeId:%llu, name:%s}")
             , typeId, objName.c_str());
         return false;
     }
@@ -70,7 +72,8 @@ bool TlsTypeSystem::CheckAddTypeInfo(IObject *obj)
         auto iter = _typeIdRefTypeName.find(typeId);
         if((iter != _typeIdRefTypeName.end()) && (iter->second != objName))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("invalid typeId,type name pair:{typeId:%llu, name:%s}, exists:{typeId:%llu, name:%s}")
+            if (g_Log)
+                g_Log->Error(LOGFMT_OBJ_TAG("invalid typeId,type name pair:{typeId:%llu, name:%s}, exists:{typeId:%llu, name:%s}")
             , typeId, objName.c_str(), typeId, iter->second.c_str());
 
             ++errCount;
@@ -81,7 +84,8 @@ bool TlsTypeSystem::CheckAddTypeInfo(IObject *obj)
         auto iter = _typeNameRefTypeId.find(objName);
         if(iter != _typeNameRefTypeId.end() && iter->second != typeId)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("invalid name => typeid pair:{name:%s, typeId:%llu}, exists:{name:%s, typeId:%llu}")
+            if (g_Log)
+                g_Log->Error(LOGFMT_OBJ_TAG("invalid name => typeid pair:{name:%s, typeId:%llu}, exists:{name:%s, typeId:%llu}")
             , objName.c_str(), typeId, iter->first.c_str(), typeId);
 
             ++errCount;
@@ -103,7 +107,8 @@ Int32 TlsTypeSystem::_OnCreated()
     auto owner = GetOwner();
     if(!CheckAddTypeInfo(owner))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("CheckAddTypeInfo owner:%s, fail."), owner? owner->GetObjName().c_str() : "");
+        if (g_Log)
+            g_Log->Error(LOGFMT_OBJ_TAG("CheckAddTypeInfo owner:%s, fail."), owner? owner->GetObjName().c_str() : "");
         return Status::Failed;
     }
 

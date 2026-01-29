@@ -105,7 +105,8 @@ void TimerMgr::Launch(IDelegate<void> *wakeupThreadCb)
 {
     if(UNLIKELY(_launchThreadId))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("already Launch before _launchThreadId = [%llu], current thread id = [%llu]"), _launchThreadId, SystemUtil::GetCurrentThreadId());
+        if (g_Log)
+            g_Log->Warn(LOGFMT_OBJ_TAG("already Launch before _launchThreadId = [%llu], current thread id = [%llu]"), _launchThreadId, SystemUtil::GetCurrentThreadId());
         CRYSTAL_DELETE_SAFE(wakeupThreadCb);
         return;
     }
@@ -128,7 +129,8 @@ Int64 TimerMgr::Drive()
         #ifdef ENABLE_PERFORMANCE_RECORD
             KERNEL_NS::TimeData *timerData = NULL;
             auto &&outputLogFunc = [&timerData](UInt64 ms){
-                g_Log->Warn(LOGFMT_NON_OBJ_TAG(TimerMgr, "timer time out cost:%llu, timer data:%s"), ms, timerData ? timerData->ToString().c_str() : "");
+                if (g_Log)
+                    g_Log->Warn(LOGFMT_NON_OBJ_TAG(TimerMgr, "timer time out cost:%llu, timer data:%s"), ms, timerData ? timerData->ToString().c_str() : "");
             };
         #endif
 

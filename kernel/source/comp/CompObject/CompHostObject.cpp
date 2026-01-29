@@ -59,18 +59,20 @@ Int32 CompHostObject::_OnCreated()
     if(!CheckCircleDepending(objName, dependingShip))
     {
         auto owner = GetOwner();
-        g_Log->Warn(LOGFMT_OBJ_TAG("circle depending... %s, owner::%s, dependingShip:%s"), objName.c_str(), owner ? owner->GetObjName().c_str() : "", dependingShip.c_str());
+        if (g_Log)
+            g_Log->Warn(LOGFMT_OBJ_TAG("circle depending... %s, owner::%s, dependingShip:%s"), objName.c_str(), owner ? owner->GetObjName().c_str() : "", dependingShip.c_str());
         return Status::Repeat;
     }
 
     auto st = _OnHostCreated();
     if(st != Status::Success)
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("on host _OnCreated fail:%s, st:%d"), GetObjName().c_str(), st);
+        if (g_Log)
+            g_Log->Warn(LOGFMT_OBJ_TAG("on host _OnCreated fail:%s, st:%d"), GetObjName().c_str(), st);
         return st;
     }
 
-    if(g_Log->IsEnable(LogLevel::Debug))
+    if(g_Log && g_Log->IsEnable(LogLevel::Debug))
         g_Log->Debug(LOGFMT_OBJ_TAG("on host _OnCreated obj:%s"), GetObjName().c_str());
 
     return Status::Success;
@@ -81,7 +83,8 @@ Int32 CompHostObject::_OnInit()
     Int32 ret = _OnHostInit();
     if(ret != Status::Success)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("on host _OnInit fail ret:%d"), ret);
+        if(g_Log)
+            g_Log->Error(LOGFMT_OBJ_TAG("on host _OnInit fail ret:%d"), ret);
         return ret;
     }
 
@@ -95,11 +98,12 @@ Int32 CompHostObject::_OnInit()
     ret = _InitComps();
     if(ret != Status::Success)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("init comps fail ret:%d"), ret);
+        if (g_Log)
+            g_Log->Error(LOGFMT_OBJ_TAG("init comps fail ret:%d"), ret);
         return ret;
     }
 
-    if(g_Log->IsEnable(LogLevel::Debug))
+    if(g_Log && g_Log->IsEnable(LogLevel::Debug))
         g_Log->Debug(LOGFMT_OBJ_TAG("_OnInit CompHostObject %s suc"), GetObjName().c_str());
     return Status::Success;
 }
@@ -109,14 +113,16 @@ Int32 CompHostObject::_OnStart()
     Int32 ret = _OnHostWillStart();
     if(ret != Status::Success)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("CompHostObject _OnHostWillStart fail ret:%d"), ret);
+        if(g_Log)
+            g_Log->Error(LOGFMT_OBJ_TAG("CompHostObject _OnHostWillStart fail ret:%d"), ret);
         return ret;
     }
 
     ret = _StartComps();
     if(ret != Status::Success)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("start comps fail ret:%d"), ret);
+        if(g_Log)
+            g_Log->Error(LOGFMT_OBJ_TAG("start comps fail ret:%d"), ret);
         return ret;
     }
 
@@ -124,7 +130,8 @@ Int32 CompHostObject::_OnStart()
     ret = _OnHostStart();
     if(ret != Status::Success)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("_OnHostStart host comp fail ret:%d"), ret);
+        if (g_Log)
+            g_Log->Error(LOGFMT_OBJ_TAG("_OnHostStart host comp fail ret:%d"), ret);
         
         _OnWillClose();
         _OnClose();
@@ -132,7 +139,7 @@ Int32 CompHostObject::_OnStart()
         return ret;
     }
 
-    if(g_Log->IsEnable(LogLevel::Debug))
+    if(g_Log && g_Log->IsEnable(LogLevel::Debug))
         g_Log->Debug(LOGFMT_OBJ_TAG("_OnStart suc host %s object"), GetObjName().c_str());
     return Status::Success;
 }
@@ -143,7 +150,7 @@ void CompHostObject::_OnWillClose()
     _OnWillCloseComps();
     _OnHostWillClose();
 
-    if(g_Log->IsEnable(LogLevel::Debug))
+    if(g_Log && g_Log->IsEnable(LogLevel::Debug))
         g_Log->Debug(LOGFMT_OBJ_TAG("_OnWillClose CompHostObject %s suc"), GetObjName().c_str());
 }
 
@@ -156,7 +163,7 @@ void CompHostObject::_OnClose()
     _Clear();
     CompObject::_OnClose();
 
-    if(g_Log->IsEnable(LogLevel::Debug))
+    if(g_Log && g_Log->IsEnable(LogLevel::Debug))
         g_Log->Debug(LOGFMT_OBJ_TAG("_OnClose CompHostObject suc host:%s"), _objName.c_str());
 }
 
@@ -218,7 +225,8 @@ Int32 CompHostObject::RegisterComp(CompFactory *factory)
 {
     if(UNLIKELY(!factory))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("factory is nil please check"));
+        if (g_Log)
+            g_Log->Warn(LOGFMT_OBJ_TAG("factory is nil please check"));
         return Status::Failed;
     }
 
@@ -229,7 +237,8 @@ Int32 CompHostObject::RegisterComp(CompFactory *factory)
         {
             if(iterRegComp._factory == factory)
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("repeat factory:%s, already register in will reg comps queue."), RttiUtil::GetByObj(factory).c_str());
+                if (g_Log)
+                    g_Log->Warn(LOGFMT_OBJ_TAG("repeat factory:%s, already register in will reg comps queue."), RttiUtil::GetByObj(factory).c_str());
                 return Status::Repeat;
             }
         }
@@ -240,7 +249,8 @@ Int32 CompHostObject::RegisterComp(CompFactory *factory)
     {
         if(iter->_factory == factory)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("repeat factory:%s, already register in will reg comps queue."), RttiUtil::GetByObj(factory).c_str());
+            if (g_Log)
+                g_Log->Warn(LOGFMT_OBJ_TAG("repeat factory:%s, already register in will reg comps queue."), RttiUtil::GetByObj(factory).c_str());
             return Status::Repeat;
         }
     }
@@ -265,7 +275,8 @@ Int32 CompHostObject::RegisterComp(const std::vector<CompFactory *> &factorys)
 {
     if(UNLIKELY(factorys.empty()))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("have no factorys please check"));
+        if (g_Log)
+            g_Log->Warn(LOGFMT_OBJ_TAG("have no factorys please check"));
         return Status::Failed;
     }
 
@@ -279,7 +290,8 @@ Int32 CompHostObject::RegisterComp(const std::vector<CompFactory *> &factorys)
             if(iter->_factory == factory)
             {
                 isRegister = true;
-                g_Log->Warn(LOGFMT_OBJ_TAG("repeat factory:%s, already register in will reg comps queue."), RttiUtil::GetByObj(factory).c_str());
+                if (g_Log)
+                    g_Log->Warn(LOGFMT_OBJ_TAG("repeat factory:%s, already register in will reg comps queue."), RttiUtil::GetByObj(factory).c_str());
                 break;
             }
         }
@@ -296,7 +308,8 @@ Int32 CompHostObject::RegisterComp(const std::vector<CompFactory *> &factorys)
                 if(iterRegComp._factory == factory)
                 {
                     isRegister = true;
-                    g_Log->Warn(LOGFMT_OBJ_TAG("repeat factory:%s, already register in will reg comps queue."), RttiUtil::GetByObj(factory).c_str());
+                    if (g_Log)
+                        g_Log->Warn(LOGFMT_OBJ_TAG("repeat factory:%s, already register in will reg comps queue."), RttiUtil::GetByObj(factory).c_str());
                     break;
                 }
             }
@@ -310,7 +323,8 @@ Int32 CompHostObject::RegisterComp(const std::vector<CompFactory *> &factorys)
 
     if(toRegister.empty())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("have no any comp to register."));
+        if (g_Log)
+            g_Log->Warn(LOGFMT_OBJ_TAG("have no any comp to register."));
         return Status::Success;
     }
 
@@ -337,7 +351,8 @@ Int32 CompHostObject::RegisterComp(CompObject *comp)
 {
     if(UNLIKELY(!comp))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("comp is nil please check"));
+        if (g_Log)
+            g_Log->Warn(LOGFMT_OBJ_TAG("comp is nil please check"));
         return Status::Failed;
     }
 
@@ -346,7 +361,8 @@ Int32 CompHostObject::RegisterComp(CompObject *comp)
     {
         if(iter->_comp == comp)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("repeat comp:%s, already register in will reg comps queue."), RttiUtil::GetByObj(comp).c_str());
+            if(g_Log)
+                g_Log->Warn(LOGFMT_OBJ_TAG("repeat comp:%s, already register in will reg comps queue."), RttiUtil::GetByObj(comp).c_str());
             return Status::Repeat;
         }
     }
@@ -357,7 +373,8 @@ Int32 CompHostObject::RegisterComp(CompObject *comp)
     {
         if(*iter == comp)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("repeat comp:%s, already register in comps queue."), RttiUtil::GetByObj(comp).c_str());
+            if (g_Log)
+                g_Log->Warn(LOGFMT_OBJ_TAG("repeat comp:%s, already register in comps queue."), RttiUtil::GetByObj(comp).c_str());
             return Status::Repeat;
         }
     }
@@ -370,14 +387,16 @@ bool CompHostObject::AttachComp(CompObject *comp)
 {
     if(UNLIKELY(!comp))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("comp is zero current:%s"), GetObjName().c_str());
+        if (g_Log)
+            g_Log->Warn(LOGFMT_OBJ_TAG("comp is zero current:%s"), GetObjName().c_str());
         return false;
     }
 
     // 必须没有错误
     if(UNLIKELY(comp->GetErrCode() != Status::Success))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("comp has error, comp:%s current:%s"), comp->ToString().c_str(), GetObjName().c_str());
+        if (g_Log)
+            g_Log->Warn(LOGFMT_OBJ_TAG("comp has error, comp:%s current:%s"), comp->ToString().c_str(), GetObjName().c_str());
         return false;
     }
 
@@ -394,7 +413,8 @@ bool CompHostObject::AttachComp(CompObject *comp)
         LibString info;
         if(UNLIKELY(!CheckCircleDepending(comp->GetObjName(), info)))
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("exists circle :%s, comp:%s, current host:%s"), info.c_str(), comp->GetObjName().c_str(), GetObjName().c_str());
+            if (g_Log)
+                g_Log->Warn(LOGFMT_OBJ_TAG("exists circle :%s, comp:%s, current host:%s"), info.c_str(), comp->GetObjName().c_str(), GetObjName().c_str());
             return false;
         }
 
@@ -402,7 +422,8 @@ bool CompHostObject::AttachComp(CompObject *comp)
 
         _OnAttachedComp(NULL, comp);
 
-        g_Log->Info(LOGFMT_OBJ_TAG("host:%s, attach comp:%s"), GetObjName().c_str(), comp->GetObjName().c_str());
+        if (g_Log)
+            g_Log->Info(LOGFMT_OBJ_TAG("host:%s, attach comp:%s"), GetObjName().c_str(), comp->GetObjName().c_str());
 
         return true;
     }
@@ -410,7 +431,8 @@ bool CompHostObject::AttachComp(CompObject *comp)
     // 替换的必须comp是已启动的, 因为执行Start/等的不确定性
     if(UNLIKELY(!comp->IsStarted()))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("comp not started, comp:%s, current host:%s"), comp->GetObjName().c_str(), GetObjName().c_str());
+        if (g_Log)
+            g_Log->Warn(LOGFMT_OBJ_TAG("comp not started, comp:%s, current host:%s"), comp->GetObjName().c_str(), GetObjName().c_str());
         return false;
     }
 
@@ -419,13 +441,15 @@ bool CompHostObject::AttachComp(CompObject *comp)
     // 替换
     _ReplaceComp(oldComp, comp);
 
-    g_Log->Info(LOGFMT_OBJ_TAG("host:%s, attatch oldcomp:%s => new comp:%s"), ToString().c_str(), oldComp->ToString().c_str(), comp->ToString().c_str());
+    if (g_Log)
+        g_Log->Info(LOGFMT_OBJ_TAG("host:%s, attatch oldcomp:%s => new comp:%s"), ToString().c_str(), oldComp->ToString().c_str(), comp->ToString().c_str());
 
     _OnAttachedComp(oldComp, comp);
 
     if(LIKELY(!IsAttached(oldComp)))
     {
-        g_Log->Info(LOGFMT_OBJ_TAG("attch comp:%s, remove old comp:%s, host:%s")
+        if (g_Log)
+            g_Log->Info(LOGFMT_OBJ_TAG("attch comp:%s, remove old comp:%s, host:%s")
         , comp->ToString().c_str(), oldComp->ToString().c_str(), ToString().c_str());
 
         oldComp->WillClose();
@@ -448,7 +472,8 @@ bool CompHostObject::CheckCircleDepending(const LibString &compName, KERNEL_NS::
         dependingShip.AppendFormat("=> %s ", owner->GetObjName().c_str());
         if(owner->GetObjName() == compName)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("circle depending please check compName:%s, dependingShip:%s")
+            if (g_Log)
+                g_Log->Error(LOGFMT_OBJ_TAG("circle depending please check compName:%s, dependingShip:%s")
                         , compName.c_str(), dependingShip.c_str());
             return false;
         }
@@ -464,13 +489,15 @@ bool CompHostObject::AddComp(CompObject *comp)
 {
     if(UNLIKELY(!comp))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("comp is nil please check"));
+        if (g_Log)
+            g_Log->Warn(LOGFMT_OBJ_TAG("comp is nil please check"));
         return false;
     }
 
     if(UNLIKELY(comp->GetErrCode() != Status::Success))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("comp has error, comp:%s, current:%s"), comp->ToString().c_str(), GetObjName().c_str());
+        if (g_Log)
+            g_Log->Warn(LOGFMT_OBJ_TAG("comp has error, comp:%s, current:%s"), comp->ToString().c_str(), GetObjName().c_str());
         return false;
     }
 
@@ -479,7 +506,8 @@ bool CompHostObject::AddComp(CompObject *comp)
     {
         if(iter->_comp == comp)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("repeat comp:%s, already register in will reg comps queue."), RttiUtil::GetByObj(comp).c_str());
+            if (g_Log)
+                g_Log->Warn(LOGFMT_OBJ_TAG("repeat comp:%s, already register in will reg comps queue."), RttiUtil::GetByObj(comp).c_str());
             return false;
         }
     }
@@ -489,7 +517,8 @@ bool CompHostObject::AddComp(CompObject *comp)
     {
         if(*iter == comp)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("repeat comp:%s, already register in comps queue."), RttiUtil::GetByObj(comp).c_str());
+            if (g_Log)
+                g_Log->Warn(LOGFMT_OBJ_TAG("repeat comp:%s, already register in comps queue."), RttiUtil::GetByObj(comp).c_str());
             return false;
         }
     }
@@ -498,7 +527,8 @@ bool CompHostObject::AddComp(CompObject *comp)
     LibString info;
     if(UNLIKELY(!CheckCircleDepending(comp->GetObjName(), info)))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("exists circle :%s, comp:%s, current host:%s"), info.c_str(), comp->GetObjName().c_str(), GetObjName().c_str());
+        if(g_Log)
+            g_Log->Warn(LOGFMT_OBJ_TAG("exists circle :%s, comp:%s, current host:%s"), info.c_str(), comp->GetObjName().c_str(), GetObjName().c_str());
         return false;
     }
 
@@ -509,7 +539,8 @@ bool CompHostObject::AddComp(CompObject *comp)
     if(st != Status::Success)
     {
         comp->BindOwner(oldOwner);
-        g_Log->Warn(LOGFMT_OBJ_TAG("oncreate fail comp:%s, st:%d"), comp->GetObjName().c_str(), st);
+        if (g_Log)
+            g_Log->Warn(LOGFMT_OBJ_TAG("oncreate fail comp:%s, st:%d"), comp->GetObjName().c_str(), st);
         return false;
     }
 
@@ -519,7 +550,8 @@ bool CompHostObject::AddComp(CompObject *comp)
     st = _OnDynamicAddCompCreated(comp);
     if(st != Status::Success)
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("_OnDynamicAddCompCreated fail comp:%s, st:%d")
+        if (g_Log)
+            g_Log->Warn(LOGFMT_OBJ_TAG("_OnDynamicAddCompCreated fail comp:%s, st:%d")
         , comp->GetObjName().c_str(), st);
         PopComp(comp);
         comp->BindOwner(oldOwner);
@@ -532,7 +564,8 @@ bool CompHostObject::AddComp(CompObject *comp)
         st = comp->Init();
         if(st != Status::Success)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("Init fail comp:%s st:%d")
+            if (g_Log)
+                g_Log->Warn(LOGFMT_OBJ_TAG("Init fail comp:%s st:%d")
             , comp->GetObjName().c_str(), st);
             PopComp(comp);
             comp->BindOwner(oldOwner);
@@ -542,7 +575,8 @@ bool CompHostObject::AddComp(CompObject *comp)
         st = _OnDynamicAddCompInited(comp);
         if(st != Status::Success)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("_OnDynamicAddCompInited fail comp:%s st:%d")
+            if (g_Log)
+                g_Log->Warn(LOGFMT_OBJ_TAG("_OnDynamicAddCompInited fail comp:%s st:%d")
             , comp->GetObjName().c_str(), st);
             PopComp(comp);
             comp->BindOwner(oldOwner);
@@ -555,7 +589,8 @@ bool CompHostObject::AddComp(CompObject *comp)
         st = comp->Start();
         if(st != Status::Success)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("Start fail comp:%s st:%d")
+            if (g_Log)
+                g_Log->Warn(LOGFMT_OBJ_TAG("Start fail comp:%s st:%d")
             , comp->GetObjName().c_str(), st);
             PopComp(comp);
             comp->BindOwner(oldOwner);
@@ -565,7 +600,8 @@ bool CompHostObject::AddComp(CompObject *comp)
         st = _OnDynamicAddCompStarted(comp);
         if(st != Status::Success)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("_OnDynamicAddCompStarted fail comp:%s st:%d")
+            if (g_Log)
+                g_Log->Warn(LOGFMT_OBJ_TAG("_OnDynamicAddCompStarted fail comp:%s st:%d")
             , comp->GetObjName().c_str(), st);
             PopComp(comp);
             comp->BindOwner(oldOwner);
@@ -576,7 +612,8 @@ bool CompHostObject::AddComp(CompObject *comp)
     st = _OnAfterDynamicAddComp(comp);
     if(st != Status::Success)
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("_OnAfterDynamicAddComp fail comp:%s st:%d")
+        if (g_Log)
+            g_Log->Warn(LOGFMT_OBJ_TAG("_OnAfterDynamicAddComp fail comp:%s st:%d")
         , comp->GetObjName().c_str(), st);
         PopComp(comp);
         comp->BindOwner(oldOwner);
@@ -730,7 +767,7 @@ bool CompHostObject::PopComp(CompObject *comp)
 
 Int32 CompHostObject::_OnHostCreated()
 {
-    if(g_Log->IsEnable(LogLevel::Debug))
+    if(g_Log && g_Log->IsEnable(LogLevel::Debug))
         g_Log->Debug(LOGFMT_OBJ_TAG("_OnHostCreated host comp name:%s"), GetObjName().c_str());
 
     return Status::Success;
@@ -738,7 +775,7 @@ Int32 CompHostObject::_OnHostCreated()
 
 Int32 CompHostObject::_OnPriorityLevelCompsCreated()
 {
-    if(g_Log->IsEnable(LogLevel::Debug))
+    if(g_Log && g_Log->IsEnable(LogLevel::Debug))
         g_Log->Debug(LOGFMT_OBJ_TAG("_OnPriorityLevelCompsCreated host comp name:%s"), GetObjName().c_str());
 
     return Status::Success;
@@ -746,7 +783,7 @@ Int32 CompHostObject::_OnPriorityLevelCompsCreated()
 
 Int32 CompHostObject::_OnCompsCreated()
 {
-    if(g_Log->IsEnable(LogLevel::Debug))
+    if(g_Log && g_Log->IsEnable(LogLevel::Debug))
         g_Log->Debug(LOGFMT_OBJ_TAG("_OnCompsCreated host comp name:%s"), GetObjName().c_str());
 
     return Status::Success;
@@ -781,7 +818,8 @@ Int32 CompHostObject::_InitComps()
             Int32 ret = newComp->OnCreated();
             if(ret != Status::Success)
             {
-                g_Log->Error(LOGFMT_OBJ_TAG("comp created fail ret:%d, comp name:%s, host comp name:%s"), ret, RttiUtil::GetByObj(newComp).c_str(), GetObjName().c_str());
+                if (g_Log)
+                    g_Log->Error(LOGFMT_OBJ_TAG("comp created fail ret:%d, comp name:%s, host comp name:%s"), ret, RttiUtil::GetByObj(newComp).c_str(), GetObjName().c_str());
                 
                 initSuccess = false;
                 newComp->WillClose();
@@ -806,7 +844,8 @@ Int32 CompHostObject::_InitComps()
     // 失败与否
     if(!initSuccess)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("create priority level comps fail this host comp name:%s."), GetObjName().c_str());
+        if (g_Log)
+            g_Log->Error(LOGFMT_OBJ_TAG("create priority level comps fail this host comp name:%s."), GetObjName().c_str());
         return Status::Failed;
     }
 
@@ -814,7 +853,8 @@ Int32 CompHostObject::_InitComps()
     Int32 ret = _OnPriorityLevelCompsCreated();
     if(ret != Status::Success)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("priority level comps created fail host comp name:%s, ret:%d"), GetObjName().c_str(), ret);
+        if (g_Log)
+            g_Log->Error(LOGFMT_OBJ_TAG("priority level comps created fail host comp name:%s, ret:%d"), GetObjName().c_str(), ret);
         _OnWillCloseComps();
         _CloseComps();
         _DestroyComps();
@@ -846,7 +886,8 @@ Int32 CompHostObject::_InitComps()
         Int32 ret = newComp->OnCreated();
         if(ret != Status::Success)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("comp created fail ret:%d, comp name:%s, host comp name:%s"), ret, RttiUtil::GetByObj(newComp).c_str(), GetObjName().c_str());
+            if (g_Log)
+                g_Log->Error(LOGFMT_OBJ_TAG("comp created fail ret:%d, comp name:%s, host comp name:%s"), ret, RttiUtil::GetByObj(newComp).c_str(), GetObjName().c_str());
             
             initSuccess = false;
             newComp->WillClose();
@@ -870,7 +911,8 @@ Int32 CompHostObject::_InitComps()
     // 失败与否
     if(!initSuccess)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("create comps fail this host comp name:%s."), GetObjName().c_str());
+        if (g_Log)
+            g_Log->Error(LOGFMT_OBJ_TAG("create comps fail this host comp name:%s."), GetObjName().c_str());
         return Status::Failed;
     }
 
@@ -880,7 +922,8 @@ Int32 CompHostObject::_InitComps()
     ret = _OnCompsCreated();
     if(ret != Status::Success)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("comps created fail host comp name:%s, ret:%d"), GetObjName().c_str(), ret);
+        if (g_Log)
+            g_Log->Error(LOGFMT_OBJ_TAG("comps created fail host comp name:%s, ret:%d"), GetObjName().c_str(), ret);
         _OnWillCloseComps();
         _CloseComps();
         _DestroyComps();
@@ -894,7 +937,8 @@ Int32 CompHostObject::_InitComps()
         Int32 ret = comp->Init();
         if(ret != Status::Success)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("init comp obj name:%s, fail ret:%d"), comp->GetObjName().c_str(), ret);
+            if (g_Log)
+                g_Log->Error(LOGFMT_OBJ_TAG("init comp obj name:%s, fail ret:%d"), comp->GetObjName().c_str(), ret);
             _OnWillCloseComps();
             _CloseComps();
             _DestroyComps();
@@ -902,7 +946,7 @@ Int32 CompHostObject::_InitComps()
         }
     }
 
-    if(g_Log->IsEnable(LogLevel::Debug))
+    if(g_Log && g_Log->IsEnable(LogLevel::Debug))
         g_Log->Debug(LOGFMT_OBJ_TAG("init comps %s suc."), GetObjName().c_str());
     return Status::Success;
 }
@@ -921,13 +965,15 @@ Int32 CompHostObject::_StartComps()
             Int32 ret = comp->Start();
             if(ret != Status::Success)
             {
-                g_Log->Error(LOGFMT_OBJ_TAG("start comp fail ret:%d, comp name:%s comp info:%s"), ret, comp->GetObjName().c_str(), comp->ToString().c_str());
+                if (g_Log)
+                    g_Log->Error(LOGFMT_OBJ_TAG("start comp fail ret:%d, comp name:%s comp info:%s"), ret, comp->GetObjName().c_str(), comp->ToString().c_str());
                 break;
             }
         }
         if(startIdx != quantity)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("has some unhandled comps when do start startIdx:%llu, quantity:%llu"), startIdx, quantity);
+            if (g_Log)
+                g_Log->Error(LOGFMT_OBJ_TAG("has some unhandled comps when do start startIdx:%llu, quantity:%llu"), startIdx, quantity);
 
             _OnWillCloseComps();
             _CloseComps();
@@ -936,7 +982,7 @@ Int32 CompHostObject::_StartComps()
         }
     }
 
-    if(g_Log->IsEnable(LogLevel::Debug))
+    if(g_Log && g_Log->IsEnable(LogLevel::Debug))
         g_Log->Debug(LOGFMT_OBJ_TAG("start comps %s suc."), GetObjName().c_str());
     return Status::Success;
 }
@@ -1028,7 +1074,7 @@ void CompHostObject::_DestroyComps()
     _compObjNameRefComps.clear();
     _compTypeRefComps.clear();
 
-    if(g_Log->IsEnable(LogLevel::Info)) 
+    if(g_Log && g_Log->IsEnable(LogLevel::Info)) 
        g_Log->Info(LOGFMT_OBJ_TAG("destroyed comps over of host:%s"), _objName.c_str());
 }
 
@@ -1246,14 +1292,16 @@ Int32 CompHostObject::_MakeCompStarted(CompObject *comp)
     auto st = comp->OnCreated();
     if(st != Status::Success)
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("OnCreated fail comp:%s, st:%d"), comp->ToString().c_str(), st);
+        if (g_Log)
+            g_Log->Warn(LOGFMT_OBJ_TAG("OnCreated fail comp:%s, st:%d"), comp->ToString().c_str(), st);
         return st;
     }
 
     st = _OnDynamicAddCompCreated(comp);
     if(st != Status::Success)
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("_OnDynamicAddCompCreated fail comp:%s, st:%d"), comp->ToString().c_str(), st);
+        if (g_Log)
+            g_Log->Warn(LOGFMT_OBJ_TAG("_OnDynamicAddCompCreated fail comp:%s, st:%d"), comp->ToString().c_str(), st);
         return st;
     }
 
@@ -1262,14 +1310,16 @@ Int32 CompHostObject::_MakeCompStarted(CompObject *comp)
         st = comp->Init();
         if(st != Status::Success)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("Init fail comp:%s, st:%d"), comp->ToString().c_str(), st);
+            if (g_Log)
+                g_Log->Warn(LOGFMT_OBJ_TAG("Init fail comp:%s, st:%d"), comp->ToString().c_str(), st);
             return st;
         }
 
         st = _OnDynamicAddCompInited(comp);
         if(st != Status::Success)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("_OnDynamicAddCompInited fail comp:%s, st:%d"), comp->ToString().c_str(), st);
+            if (g_Log)
+                g_Log->Warn(LOGFMT_OBJ_TAG("_OnDynamicAddCompInited fail comp:%s, st:%d"), comp->ToString().c_str(), st);
             return st;
         }
     }
@@ -1279,14 +1329,16 @@ Int32 CompHostObject::_MakeCompStarted(CompObject *comp)
         st = comp->Start();
         if(st != Status::Success)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("Start fail comp:%s, st:%d"), comp->ToString().c_str(), st);
+            if (g_Log)
+                g_Log->Warn(LOGFMT_OBJ_TAG("Start fail comp:%s, st:%d"), comp->ToString().c_str(), st);
             return st;
         }
 
         st = _OnDynamicAddCompStarted(comp);
         if(st != Status::Success)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("_OnDynamicAddCompStarted fail comp:%s, st:%d"), comp->ToString().c_str(), st);
+            if (g_Log)
+                g_Log->Warn(LOGFMT_OBJ_TAG("_OnDynamicAddCompStarted fail comp:%s, st:%d"), comp->ToString().c_str(), st);
             return st;
         }
     }
@@ -1294,7 +1346,8 @@ Int32 CompHostObject::_MakeCompStarted(CompObject *comp)
     st = _OnAfterDynamicAddComp(comp);
     if(st != Status::Success)
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("_OnAfterDynamicAddComp fail comp:%s, st:%d"), comp->ToString().c_str(), st);
+        if (g_Log)
+            g_Log->Warn(LOGFMT_OBJ_TAG("_OnAfterDynamicAddComp fail comp:%s, st:%d"), comp->ToString().c_str(), st);
         return st;
     }
 
@@ -1498,7 +1551,7 @@ void CompHostObject::_Clear()
     _focusTypeRefComps.clear();
     _attachedComps.clear();
 
-    if(g_Log->IsEnable(LogLevel::Info))
+    if(g_Log && g_Log->IsEnable(LogLevel::Info))
         g_Log->Info(LOGFMT_OBJ_TAG("_Clear CompHostObject host:%s over"), _objName.c_str());
 }
 

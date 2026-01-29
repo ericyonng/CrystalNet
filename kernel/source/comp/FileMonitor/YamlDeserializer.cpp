@@ -92,22 +92,24 @@ void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, vo
                 }
                 catch (std::exception &e)
                 {
-                    g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "path:%s, load yaml fail, exception:%s"), path.c_str(), e.what());
+                    if (g_Log)
+                        g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "path:%s, load yaml fail, exception:%s"), path.c_str(), e.what());
                 }
                 catch (...)
                 {
-                    g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "path:%s, load yaml fail"), path.c_str());
+                    if (g_Log)
+                        g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "path:%s, load yaml fail"), path.c_str());
                 }
 
                 return config;
             };
 
-            monitorInfo->_sourceObj = loadNewObjLamb();
-            config = KERNEL_NS::KernelCastTo<YAML::Node>(monitorInfo->_sourceObj);
+            config = KERNEL_NS::KernelCastTo<YAML::Node>(loadNewObjLamb());
             if(config)
             {
                 monitorInfo = FileMonitorInfo::New_FileMonitorInfo();
                 monitorInfo->_path = path;
+                monitorInfo->_sourceObj = config;
 
                 // 加载新的配置
                 monitorInfo->_loadNewObj = KERNEL_CREATE_CLOSURE_DELEGATE(loadNewObjLamb, void *);
@@ -202,12 +204,14 @@ void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, vo
                 }
                 catch (std::exception &e)
                 {
-                    g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "path:%s, deserialize yaml fail, exception:%s, deserializeObj:%s")
+                    if (g_Log)
+                        g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "path:%s, deserialize yaml fail, exception:%s, deserializeObj:%s")
                         , path.c_str(), e.what(), KERNEL_NS::RttiUtil::GetByObj(iterHandle->second->_deserialize).c_str());
                 }
                 catch (...)
                 {
-                    g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "path:%s, deserialize yaml fail, deserializeObj:%s")
+                    if (g_Log)
+                        g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "path:%s, deserialize yaml fail, deserializeObj:%s")
                         , path.c_str(), KERNEL_NS::RttiUtil::GetByObj(iterHandle->second->_deserialize).c_str());
                 }
             }
@@ -225,7 +229,8 @@ void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, vo
 
     if(!obj)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("register yaml fail path:%s"), _path.c_str());
+        if (g_Log)
+            g_Log->Error(LOGFMT_OBJ_TAG("register yaml fail path:%s"), _path.c_str());
         return NULL;
     }
 

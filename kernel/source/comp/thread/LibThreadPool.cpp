@@ -332,7 +332,8 @@ void LibThreadPool::_LibThreadHandlerLogic(void *param)
     }
     catch (...)
     {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(LibThreadPool, "thread pool exception..."));
+        if(g_Log)
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(LibThreadPool, "thread pool exception..."));
     }
    
     // 释放线程局部存储资源

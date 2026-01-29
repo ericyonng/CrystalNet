@@ -238,7 +238,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestLibString::Run();
     // TestString::Run();
     // TestTime::Run();
-    TestFileUtil::Run();
+    // TestFileUtil::Run();
     // TestGuid::Run();
     // // TestTemplateObjPool::Run();
     // // TestBinaryArray::Run();
@@ -271,7 +271,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestDelegate::Run();
     // TestPoller::Run();
     // TestMemoryAssist::Run();
-    TestService::Run(argc, argv);
+    // TestService::Run(argc, argv);
     // TestInlineStatic::Run();
     // TestList::Run();
     // TestDirectoryUtil::Run();
@@ -309,7 +309,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestSort::Run();
     // TestEventLoopThread::Run();
     // TestLockFree::Run();
-    // TestYaml::Run();
+    TestYaml::Run();
     
     // write a large file
     // do
@@ -347,7 +347,7 @@ void TestInst::Run(int argc, char const *argv[])
 
     // pool->Start(true, 4);
 
-    // getchar();
+    getchar();
 
     KERNEL_NS::KernelUtil::Destroy();
     

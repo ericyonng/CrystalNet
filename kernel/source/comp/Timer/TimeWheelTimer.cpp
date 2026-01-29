@@ -52,7 +52,7 @@ TimeWheelTimer::TimeWheelTimer(TimerWheel *timerWheel)
         if(LIKELY(defObj))
             _timeWheel = defObj->_timerWheel;
 
-        if(UNLIKELY(!_timeWheel))
+        if(UNLIKELY((!_timeWheel) && g_Log))
             g_Log->Error(LOGFMT_OBJ_TAG("timer wheel is null please check"));
     }
 }

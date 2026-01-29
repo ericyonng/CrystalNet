@@ -37,9 +37,33 @@ struct GameServer
     std::string HostStr;
     std::vector<Int32> Arr;
 
+    GameServer()
+        :BindPort(0)
+    {
+        
+    }
+
     KERNEL_NS::LibString ToString() const
     {
         return KERNEL_NS::LibString().AppendFormat("bind:%s, bindPort:%d, host:%s, arr:%s", Bind.c_str(), BindPort, HostStr.c_str(), KERNEL_NS::StringUtil::ToString(Arr, ',').c_str());
+    }
+
+    GameServer(GameServer &&obj)
+    {
+        Bind.swap(obj.Bind);
+        BindPort = obj.BindPort;
+        HostStr.swap(obj.HostStr);
+        Arr.swap(obj.Arr);
+    }
+
+    void Release()
+    {
+        delete this;
+    }
+
+    static GameServer * CreateNewObj(GameServer &&obj)
+    {
+        return new GameServer(std::move(obj));
     }
 };
 
@@ -82,7 +106,13 @@ void TestYaml::Run()
     YAML::Node config = YAML::LoadFile(testYamlPath.c_str());
     auto gs = config["GameServer"].as<GameServer>();
 
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestYaml, "gs:%s"), gs.ToString().c_str());
+    KERNEL_NS::FileMonitor<GameServer, KERNEL_NS::YamlDeserializer> testMonitor;
+    testMonitor.Init(testYamlPath);
+
+    {
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestYaml, "gs:%s"), testMonitor.Current()->ToString().c_str());
+    }
+    getchar();
     
     // auto bindStr = gs["Bind"].as<std::string>();
     // auto bindPort = gs["BindPort"].as<Int32>();

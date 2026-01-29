@@ -57,7 +57,8 @@ void LogReciever::Release()
 Int32 LogReciever::_OnGlobalSysInit()
 {
     AccountData info;
-    info.ip = "43.132.198.63";
+    // info.ip = "43.132.198.63";
+    info.ip = "49.234.7.114";
     info.port = 3900;
     info.Account = "test_role_broadcast";
     info.Pwd = "1998569%&Jd20.";
@@ -153,7 +154,9 @@ void LogReciever::_OnFileThread(KERNEL_NS::LibThread *thread)
                         KERNEL_NS::LibString str;
                         auto sd = sourceData.mutable_data();
                         str.Swap(*sd);
-                        KERNEL_NS::FileUtil::WriteFile(*fp, str);
+                        const auto &decodeStr = KERNEL_NS::LibBase64::Decode(str);
+                        KERNEL_NS::FileUtil::WriteFile(*fp, decodeStr);
+                        KERNEL_NS::FileUtil::WriteFile(*fp, "\n");
                     }
                 }
 

@@ -53,16 +53,15 @@ void LibEventLoopThread::Start()
 {
     if(_thread->IsStart())
         return;
-    
-    if (g_Log->IsEnable(LogLevel::Info))
-        g_Log->Info(LOGFMT_OBJ_TAG("thread will start %s"), _thread->ToString().c_str());
-    
+
+    CRYSTAL_TRACE("thread will start %s", _thread->ToString().c_str())
+
      _thread->AddTask2([](LibThread *thread,  KERNEL_NS::Variant *)
      {
         auto poller = KERNEL_NS::TlsUtil::GetPoller();
         if(!poller->PrepareLoop())
         {
-            g_Log->Error(LOGFMT_NON_OBJ_TAG(LibEventLoopThread, "thread1 prepare loop fail."));
+            CRYSTAL_TRACE("thread1 prepare loop fail.")
             return;
         }
 
@@ -93,7 +92,7 @@ void LibEventLoopThread::FinishClose()
     {
         KERNEL_NS::SystemUtil::ThreadSleep(1000);
         poller = _thread->GetPollerNoAsync();
-        if (g_Log->IsEnable(LogLevel::Warn))
+        if (g_Log && g_Log->IsEnable(LogLevel::Warn))
             g_Log->Warn(LOGFMT_OBJ_TAG("thread:%s, poller not ready"), _thread->ToString().c_str());
 
         if (poller)
@@ -104,7 +103,7 @@ void LibEventLoopThread::FinishClose()
     if (poller)
         poller->QuitLoop();
 
-    if (g_Log->IsEnable(LogLevel::Info))
+    if (g_Log && g_Log->IsEnable(LogLevel::Info))
         g_Log->Info(LOGFMT_OBJ_TAG("poller will quit, thread:%s"), _thread->ToString().c_str());
     
     _thread->FinishClose();

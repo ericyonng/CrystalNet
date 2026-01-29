@@ -306,7 +306,8 @@ void MemoryAlloctor::Free(MemoryBlock *block)
     // 引用计数 TODO:重复释放ref为小于0
     if(UNLIKELY(block->_ref == 0))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("block is repeated free please check block:%p, is in pool:%d, block size:%llu, buffer info:%s alloctor info:%s, stack trace:%s")
+        if (g_Log)
+            g_Log->Error(LOGFMT_OBJ_TAG("block is repeated free please check block:%p, is in pool:%d, block size:%llu, buffer info:%s alloctor info:%s, stack trace:%s")
                     , block, block->_isInAlloctor, _blockSizeAfterAlign, block->_buffer ? block->_buffer->ToString().c_str() : "no buffer", ToString().c_str(), BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
         throw std::logic_error("block is repeated free please check block");
     }
@@ -337,8 +338,9 @@ void MemoryAlloctor::Free(MemoryBlock *block)
             _centerMemroyCollector->PushBlock(SystemUtil::GetCurrentThreadId(), block);
             return;
         }
-        
-        g_Log->Error(LOGFMT_OBJ_TAG("check owner fail not in any alloctor, free a error block:%p, not belong to this alloctor:%p, current alloctor info:\n %s,\n block owner buffer:%p, buffer owner alloctor:%p, buffer owner alloctor info:%s, \n backtrace:%s")
+
+        if (g_Log)
+            g_Log->Error(LOGFMT_OBJ_TAG("check owner fail not in any alloctor, free a error block:%p, not belong to this alloctor:%p, current alloctor info:\n %s,\n block owner buffer:%p, buffer owner alloctor:%p, buffer owner alloctor info:%s, \n backtrace:%s")
                                 , block, this, ToString().c_str(), buffer, bufferAlloctor, bufferAlloctor? bufferAlloctor->ToString().c_str() : "", BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
         
         throw std::logic_error("free block error not in any alloctor");

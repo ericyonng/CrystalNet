@@ -46,7 +46,7 @@ template<typename ObjType, typename FileDeserializerType>
 #ifdef CRYSTAL_NET_CPP20
 requires requires(ObjType obj, FileDeserializerType *d, KERNEL_NS::LibString path)
 {
-    ObjType::CreateNewObj(ObjType());
+    ObjType::CreateNewObj(std::move(obj));
     obj.Release();
 
     d = FileDeserializerType::Create();
@@ -91,13 +91,14 @@ template<typename ObjType, typename FileDeserializerType>
 #ifdef CRYSTAL_NET_CPP20
 requires requires(ObjType obj, FileDeserializerType *d, KERNEL_NS::LibString path)
 {
-    ObjType::CreateNewObj(ObjType());
+    ObjType::CreateNewObj(std::move(obj));
     obj.Release();
 
     d = FileDeserializerType::Create();
     d->Release();
     d->template SwapNewData<ObjType>();
     d->template Register<ObjType>(path);
+    
 }
 #endif
 POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(FileMonitor, ObjType, FileDeserializerType);
@@ -106,13 +107,14 @@ template<typename ObjType, typename FileDeserializerType>
 #ifdef CRYSTAL_NET_CPP20
 requires requires(ObjType obj, FileDeserializerType *d, KERNEL_NS::LibString path)
 {
-    ObjType::CreateNewObj(ObjType());
+    ObjType::CreateNewObj(std::move(obj));
     obj.Release();
 
     d = FileDeserializerType::Create();
     d->Release();
     d->template SwapNewData<ObjType>();
     d->template Register<ObjType>(path);
+    
 }
 #endif
 ALWAYS_INLINE SmartPtr<ObjType, AutoDelMethods::Release> FileMonitor<ObjType, FileDeserializerType>::Current() const
@@ -131,13 +133,14 @@ template<typename ObjType, typename FileDeserializerType>
 #ifdef CRYSTAL_NET_CPP20
 requires requires(ObjType obj, FileDeserializerType *d, KERNEL_NS::LibString path)
 {
-    ObjType::CreateNewObj(ObjType());
+    ObjType::CreateNewObj(std::move(obj));
     obj.Release();
 
     d = FileDeserializerType::Create();
     d->Release();
     d->template SwapNewData<ObjType>();
     d->template Register<ObjType>(path);
+    
 }
 #endif
 ALWAYS_INLINE void FileMonitor<ObjType, FileDeserializerType>::Init(const KERNEL_NS::LibString &path)

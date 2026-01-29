@@ -98,8 +98,7 @@ void LibEventLoopThreadPool::Start()
             // 超过1000次让出cpu并打印日志
             KERNEL_NS::SystemUtil::YieldScheduler();
             count = 0;
-            if(g_Log->IsEnable(LogLevel::Debug))
-                g_Log->Debug(LOGFMT_OBJ_TAG("have no poller too long, newThread:%p in thread pool Start"), _threads[idx]);
+            CRYSTAL_TRACE("have no poller too long, newThread:%p in thread pool Start", _threads[idx]);
         }
     }
 }
@@ -204,7 +203,7 @@ Poller *LibEventLoopThreadPool::_SelectPoller(bool priorityToUsingNewThread)
                 // 超过1000次让出cpu并打印日志
                 KERNEL_NS::SystemUtil::YieldScheduler();
                 count = 0;
-                if(g_Log->IsEnable(LogLevel::Debug))
+                if(g_Log && g_Log->IsEnable(LogLevel::Debug))
                     g_Log->Debug(LOGFMT_OBJ_TAG("have no poller too long, newThread:%p in thread pool"), newThread);
             }
             

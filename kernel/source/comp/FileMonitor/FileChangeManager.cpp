@@ -86,7 +86,7 @@ void FileChangeManager::_InitWorker()
            g_Log->Info(LOGFMT_OBJ_TAG("file change manage working"));
 
             // 阻塞等待
-            while (!poller->IsQuit() && _isQuit.load(std::memory_order_acquire))
+            while (!poller->IsQuit() && !_isQuit.load(std::memory_order_acquire))
             {
                 // 唤醒者在当前poller执行唤醒时, 一定处于挂起状态, 即使挂起点在Waiting之后, 只要params一样, 那么一定可以使用同一个param唤醒, 如果不想要那么
                 co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(5));
@@ -101,12 +101,14 @@ void FileChangeManager::_InitWorker()
                     auto newObj = monitorInfo->_loadNewObj->Invoke();
                     if(!newObj)
                     {
-                        g_Log->Error(LOGFMT_OBJ_TAG("file: %s, load file fail"), monitorInfo->_path.c_str());
+                        if (g_Log)
+                            g_Log->Error(LOGFMT_OBJ_TAG("file: %s, load file fail"), monitorInfo->_path.c_str());
 
                         continue;
                     }
 
-                    g_Log->Info(LOGFMT_OBJ_TAG("file: %s, changed, and load new one"), monitorInfo->_path.c_str());
+                    if (g_Log)
+                        g_Log->Info(LOGFMT_OBJ_TAG("file: %s, changed, and load new one"), monitorInfo->_path.c_str());
 
                     {
                         if(monitorInfo->_sourceObj)
@@ -125,7 +127,8 @@ void FileChangeManager::_InitWorker()
                         auto newData = handle->_deserialize->Invoke(newObj);
                         if(!newData)
                         {
-                            g_Log->Warn(LOGFMT_OBJ_TAG("file:%s deserialize from file fail dataName:%s, ")
+                            if (g_Log)
+                                g_Log->Warn(LOGFMT_OBJ_TAG("file:%s deserialize from file fail dataName:%s, ")
                                 , monitorInfo->_path.c_str(), handle->_dataName.c_str());
                             continue;
                         }
@@ -135,7 +138,8 @@ void FileChangeManager::_InitWorker()
                         {
                             handle->_release->Invoke(oldData);
 
-                            g_Log->Info(LOGFMT_OBJ_TAG("new data:%s updated"), handle->_dataName.c_str());
+                            if (g_Log)
+                                g_Log->Info(LOGFMT_OBJ_TAG("new data:%s updated"), handle->_dataName.c_str());
                         }
                     }
                 }
@@ -165,12 +169,12 @@ void FileChangeManager::_OnClose()
     while (_isWorking.load(std::memory_order_acquire))
     {
         KERNEL_NS::SystemUtil::ThreadSleep(1000);
-        g_Log->Info(LOGFMT_OBJ_TAG("waiting worker quit..."));
+        CRYSTAL_TRACE("waiting worker quit...")
     }
 
     KERNEL_NS::ContainerUtil::DelContainer2(_filePathRefFileObj);
 
-    g_Log->Info(LOGFMT_OBJ_TAG("file change manager close."));
+    CRYSTAL_TRACE("file change manager close.")
 }
 
 KERNEL_END

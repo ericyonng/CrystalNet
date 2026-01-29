@@ -124,11 +124,13 @@ void CenterMemoryCollector::WaitClose()
 
     while(IsWorking())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("waiting for center memory close current thread id:%llu..."), threadId);
+        if (g_Log)
+            g_Log->Warn(LOGFMT_OBJ_TAG("waiting for center memory close current thread id:%llu..."), threadId);
         SystemUtil::ThreadSleep(1000);
     }
 
-    g_Log->Info(LOGFMT_OBJ_TAG("center memory is closed current thread id:%llu..."), threadId);
+    if(g_Log)
+        g_Log->Info(LOGFMT_OBJ_TAG("center memory is closed current thread id:%llu..."), threadId);
 }
 
 void CenterMemoryCollector::OnThreadQuit(UInt64 threadId)
@@ -166,7 +168,8 @@ void CenterMemoryCollector::PushBlock(UInt64 freeThreadId, MemoryBlock *block)
     auto iter = _threadIdRefThreadInfo.find(freeThreadId);
     if(UNLIKELY(iter == _threadIdRefThreadInfo.end()))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("thread id :%llu, not register to center memory collector please check."), freeThreadId);
+        if (g_Log)
+            g_Log->Error(LOGFMT_OBJ_TAG("thread id :%llu, not register to center memory collector please check."), freeThreadId);
         return;
     }
 
