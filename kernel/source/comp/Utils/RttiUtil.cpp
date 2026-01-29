@@ -163,24 +163,22 @@ UInt64 RttiUtil::_GenTypeId()
 
 LibString RttiUtil::GetSimpleTypeName(LibString &&fullName)
 {
-    auto iter = fullName.GetRaw().find(":");
-    if(iter != std::string::npos)
+    auto iter = fullName.GetRaw().rfind("::");
+    if (iter != std::string::npos)
     {
-        return fullName.GetRaw().substr(iter);
+        return fullName.GetRaw().substr(iter + 2);
     }
-
-    return fullName;
+    return  fullName;
 }
 
 LibString RttiUtil::GetSimpleTypeName(const LibString &fullName)
 {
-    auto iter = fullName.GetRaw().find(":");
-    if(iter != std::string::npos)
+    auto iter = fullName.GetRaw().rfind("::");
+    if (iter != std::string::npos)
     {
-        return fullName.GetRaw().substr(iter);
+        return fullName.GetRaw().substr(iter + 2);
     }
-
-    return fullName;
+    return  fullName;
 }
 
 
