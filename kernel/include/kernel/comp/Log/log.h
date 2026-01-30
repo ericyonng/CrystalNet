@@ -35,5 +35,6 @@
 #include <kernel/comp/Log/ILog.h>
 #include <kernel/comp/Log/LibLog.h>
 #include <kernel/comp/Log/LogTool.h>
+#include <kernel/comp/Log/LogCfg.h>
 
 #endif

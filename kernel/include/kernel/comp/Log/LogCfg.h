@@ -33,6 +33,7 @@
 #include <vector>
 #include <kernel/comp/TimeSlice.h>
 #include <yaml-cpp/yaml.h>
+#include <kernel/comp/File/ConsoleColorHelper.h>
 
 KERNEL_BEGIN
 
@@ -113,7 +114,7 @@ namespace YAML
 {
     // LogFileDefine序列化反序列化
     template<>
-   struct convert<KERNEL_NS::LogFileDefine>
+   struct KERNEL_EXPORT convert<KERNEL_NS::LogFileDefine>
     {
         static Node encode(const KERNEL_NS::LogFileDefine& rhs)
         {
@@ -132,7 +133,9 @@ namespace YAML
             }
 
             rhs.FileId = node["FileId"].as<Int32>();
-            rhs.FileName = node["FileName"].as<std::string>();
+            auto &fileNameNode = node["FileName"];
+            if(!fileNameNode.IsNull())
+                rhs.FileName = fileNameNode.as<std::string>();
             rhs.ThreadRelationshipId = node["ThreadRelationshipId"].as<Int32>();
             
             return true;
@@ -141,7 +144,7 @@ namespace YAML
 
     // LogPathCfg
     template<>
-    struct convert<KERNEL_NS::LogPathCfg>
+    struct KERNEL_EXPORT convert<KERNEL_NS::LogPathCfg>
     {
         static Node encode(const KERNEL_NS::LogPathCfg& rhs)
         {
@@ -159,7 +162,9 @@ namespace YAML
             }
 
             rhs.IsUseProgramNameAsFirstLevelPath = node["IsUseProgramNameAsFirstLevelPath"].as<Int32>() != 0;
-            rhs.PartPath = node["PartPath"].as<std::string>();
+
+            if(!node["PartPath"].IsNull())
+                rhs.PartPath = node["PartPath"].as<std::string>();
             
             return true;
         }
@@ -167,7 +172,7 @@ namespace YAML
 
     // LogCommonCfg
     template<>
-    struct convert<KERNEL_NS::LogCommonCfg>
+    struct KERNEL_EXPORT convert<KERNEL_NS::LogCommonCfg>
     {
         static Node encode(const KERNEL_NS::LogCommonCfg& rhs)
         {
@@ -189,32 +194,108 @@ namespace YAML
                 return false;
             }
 
-            rhs.LogFileDefineList = node["LogFileDefineList"].as<std::vector<KERNEL_NS::LogFileDefine>>();
-            rhs.ExtName = node["ExtName"].as<std::string>();
-            rhs.LogTimerInterval = KERNEL_NS::TimeSlice(node["LogTimerInterval"].as<std::string>());
+            auto &listNode = node["LogFileDefineList"];
+            if(listNode.IsSequence())
+                rhs.LogFileDefineList = listNode.as<std::vector<KERNEL_NS::LogFileDefine>>();
+
+            if(!node["ExtName"].IsNull())
+                rhs.ExtName = node["ExtName"].as<std::string>();
+
+            if(!node["LogTimerInterval"].IsNull())
+                rhs.LogTimerInterval = KERNEL_NS::TimeSlice(node["LogTimerInterval"].as<std::string>());
+
             rhs.MaxFileSizeMB = node["MaxFileSizeMB"].as<Int32>();
             rhs.IsEnableLog = node["IsEnableLog"].as<Int32>() != 0;
-            rhs.LogPath = node["LogPath"].as<KERNEL_NS::LogPathCfg>();
+
+            auto &pathNode = node["LogPath"];
+            if(pathNode.IsMap())
+                rhs.LogPath = pathNode.as<KERNEL_NS::LogPathCfg>();
 
             return true;
         }
+    };
 
-
-        // LogLevelInfoCfg
-        template<>
-        struct convert<KERNEL_NS::LogLevelInfoCfg>
+    // LogLevelInfoCfg
+    template<>
+    struct KERNEL_EXPORT convert<KERNEL_NS::LogLevelInfoCfg>
+    {
+        static Node encode(const KERNEL_NS::LogLevelInfoCfg& rhs)
         {
-            static Node encode(const KERNEL_NS::LogLevelInfoCfg& rhs)
-            {
-                Node finalNode;
-                finalNode["Enable"] = rhs.Enable ? 1 : 0;
-                finalNode["FileId"] = rhs.FileId;
-                finalNode["EnableConsole"] = rhs.EnableConsole ? 1 : 0;
+            Node finalNode;
+            finalNode["Enable"] = rhs.Enable ? 1 : 0;
+            finalNode["FileId"] = rhs.FileId;
+            finalNode["EnableConsole"] = rhs.EnableConsole ? 1 : 0;
 
-                // TODO:fgColor需要转成字符串
-                finalNode["FgColor"] = rhs.FgColor;
+            finalNode["FgColor"] = KERNEL_NS::ConsoleColorHelper::GetFrontColorStr(rhs.FgColor).GetRaw();
+            finalNode["BgColor"] = KERNEL_NS::ConsoleColorHelper::GetBackColorStr(rhs.BgColor).GetRaw();
+            finalNode["LevelId"] = rhs.LevelId;
+            finalNode["EnableRealTime"] = rhs.EnableRealTime ? 1 : 0;
+            finalNode["PRINT_STACK_TRACE_BACK"] = rhs.PRINT_STACK_TRACE_BACK ? 1 : 0;
+            finalNode["NEED_WRITE_FILE"] = rhs.NEED_WRITE_FILE ? 1 : 0;
+
+            return finalNode;
+        }
+
+        static bool decode(const Node& node, KERNEL_NS::LogLevelInfoCfg& rhs)
+        {
+            if(!node.IsMap())
+            {
+                return false;
             }
-        };
+
+            rhs.Enable = node["Enable"].as<Int32>() != 0;
+            rhs.FileId = node["FileId"].as<Int32>();
+            rhs.EnableConsole = node["EnableConsole"].as<Int32>() != 0;
+
+            auto &fgColorStrNode = node["FgColor"];
+            rhs.FgColor = KERNEL_NS::ConsoleColorHelper::GetFrontColor("White");
+            if(!fgColorStrNode.IsNull())
+                rhs.FgColor = KERNEL_NS::ConsoleColorHelper::GetFrontColor(fgColorStrNode.as<std::string>());
+
+            rhs.BgColor = 0;
+            auto &backNode = node["BgColor"];
+            if(!backNode.IsNull())
+                rhs.BgColor = KERNEL_NS::ConsoleColorHelper::GetBackColor(backNode.as<std::string>());
+
+            rhs.LevelId = node["LevelId"].as<Int32>();
+            rhs.EnableRealTime = node["EnableRealTime"].as<Int32>() != 0;
+            rhs.PRINT_STACK_TRACE_BACK = node["PRINT_STACK_TRACE_BACK"].as<Int32>() != 0;
+            rhs.NEED_WRITE_FILE = node["NEED_WRITE_FILE"].as<Int32>() != 0;
+
+            return true;
+        }
+    };
+
+
+    // LogLevelInfoCfg
+    template<>
+    struct KERNEL_EXPORT convert<KERNEL_NS::LogCfg>
+    {
+        static Node encode(const KERNEL_NS::LogCfg& rhs)
+        {
+            Node finalNode;
+            finalNode["LogCommon"] = rhs.LogCommon;
+            finalNode["LogLevelList"] = rhs.LogLevelList;
+            return finalNode;
+        }
+
+        static bool decode(const Node& node, KERNEL_NS::LogCfg& rhs)
+        {
+            if(!node.IsMap())
+            {
+                return false;
+            }
+
+            auto &commonNode = node["LogCommon"];
+            if(commonNode.IsMap())
+                rhs.LogCommon = commonNode.as<KERNEL_NS::LogCommonCfg>();
+
+            auto &listNode = node["LogLevelList"];
+            if(listNode.IsSequence())
+                rhs.LogLevelList = listNode.as<std::vector<KERNEL_NS::LogLevelInfoCfg>>();
+
+            return true;
+        }
     };
 }
 

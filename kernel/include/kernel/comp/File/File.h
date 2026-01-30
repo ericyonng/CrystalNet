@@ -36,6 +36,7 @@
 #include <kernel/comp/File/LibIniFile.h>
 #include <kernel/comp/File/LibLogFile.h>
 #include <kernel/comp/File/ConsoleConfigMgr.h>
+#include <kernel/comp/File/ConsoleColorHelper.h>
 
 #endif
 

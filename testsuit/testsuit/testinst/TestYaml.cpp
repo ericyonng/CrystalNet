@@ -30,6 +30,8 @@
 #include <vector>
 #include <yaml-cpp/yaml.h>
 
+#include "kernel/comp/Log/LogCfg.h"
+
 struct GameServer
 {
     std::string Bind;
@@ -102,16 +104,29 @@ namespace YAML
 void TestYaml::Run()
 {
     auto &&progPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();
-    auto testYamlPath = progPath + "test.yaml";
-    YAML::Node config = YAML::LoadFile(testYamlPath.c_str());
-    auto gs = config["GameServer"].as<GameServer>();
+    // auto testYamlPath = progPath + "test.yaml";
+    // YAML::Node config = YAML::LoadFile(testYamlPath.c_str());
+    // auto gs = config["GameServer"].as<GameServer>();
+    //
+    // KERNEL_NS::FileMonitor<GameServer, KERNEL_NS::YamlDeserializer> testMonitor;
+    // testMonitor.Init(testYamlPath);
+    //
+    // {
+    //     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestYaml, "gs:%s"), testMonitor.Current()->ToString().c_str());
+    // }
 
-    KERNEL_NS::FileMonitor<GameServer, KERNEL_NS::YamlDeserializer> testMonitor;
-    testMonitor.Init(testYamlPath);
+    auto yamlFile = progPath + "/ini/Log.yaml";
+    KERNEL_NS::FileMonitor<KERNEL_NS::LogCfg, KERNEL_NS::YamlDeserializer> testMonitor;
+    testMonitor.Init(yamlFile);
 
+    auto cfg = testMonitor.Current();
+
+    while (true)
     {
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestYaml, "gs:%s"), testMonitor.Current()->ToString().c_str());
+        KERNEL_NS::SystemUtil::ThreadSleep(10000);
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestYaml, "LogTimerInterval:%s"), testMonitor.Current()->LogCommon.LogTimerInterval.ToString().c_str());
     }
+    
     getchar();
     
     // auto bindStr = gs["Bind"].as<std::string>();
