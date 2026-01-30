@@ -2,10 +2,10 @@
 # Date:2026.01.29
 # Desc:日志配置
 
-LogConfig:
+LogCfg:
   LogCommon:
     # 日志文件配置
-    FileNames:
+    LogFileDefineList:
       # 线程关联性id:1:业务逻辑日志线程, 2:系统日志线程(包括监控等),3:网络日志线程
       # 主逻辑日志文件
       - FileId: 0
@@ -57,8 +57,8 @@ LogConfig:
     ExtName: .log
     # 日志最大缓存限制,超过则即时着盘
     MaxLogCacheMB: 16
-    # 日志着盘时间间隔,定时着盘
-    LogTimerIntervalMs: 1000
+    # 日志着盘时间间隔,定时着盘 格式:00:00:01.xxx, xxx部分是纳秒
+    LogTimerInterval: 00:00:01
     # 日志单文件最大大小,超过会创建分立文件
     MaxFileSizeMB: 256
     # 是否产出日志
@@ -72,7 +72,7 @@ LogConfig:
       PartPath: 
 
   # 日志等级配置
-  LogLevel:
+  LogLevelList:
     # Debug 配置
     - Enable: 1
       # 文件id

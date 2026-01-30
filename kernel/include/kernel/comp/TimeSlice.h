@@ -57,7 +57,7 @@ public:
 
     /**
      * Construct by slice string representation(fmt: 00:00:00.xxxxxx).
-     * @param[in] slice - the slice value string representation, fmt: 00:00:00.xxxxx, the micro-seconds is optional.
+     * @param[in] slice - the slice value string representation, fmt: 00:00:00.xxxxx, the nano-seconds is optional.
      */
     TimeSlice(const LibString &fmtSlice);
 
