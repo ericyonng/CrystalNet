@@ -136,7 +136,13 @@ void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, vo
                             return false;
 
                         auto curSize = KERNEL_NS::FileUtil::GetFileSizeEx(path.c_str());
+                        if(curSize <= 0)
+                            return false;
+                        
                         auto curModifyTime = KERNEL_NS::FileUtil::GetFileModifyTime(path.c_str());
+                        if(!curModifyTime)
+                            return false;
+                        
                         if(curSize != *fileSize || curModifyTime != *modifyTime)
                         {
                             *fileSize = curSize;

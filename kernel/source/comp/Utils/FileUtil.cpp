@@ -343,7 +343,7 @@ LibTime FileUtil::GetFileModifyTime(const Byte8 *filepath)
 #else
     struct stat info;
     if(::stat(filepath, &info) != 0)
-        return -1;
+        return LibTime::FromSeconds(0);
 
     return LibTime::FromSeconds(info.st_mtime);
 #endif
