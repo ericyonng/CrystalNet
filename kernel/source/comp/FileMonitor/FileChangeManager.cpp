@@ -81,6 +81,9 @@ void FileChangeManager::_InitWorker()
            while (!_isStart.load(std::memory_order_acquire))
            {
                co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
+
+                CRYSTAL_TRACE("FileChangeManager waiting worker init...")
+
            }
 
            g_Log->Info(LOGFMT_OBJ_TAG("file change manage working"));
