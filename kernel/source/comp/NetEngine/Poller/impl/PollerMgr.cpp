@@ -44,10 +44,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IPollerMgr);
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(PollerMgr);
-
 PollerMgr::PollerMgr()
 :IPollerMgr(KERNEL_NS::RttiUtil::GetTypeId<PollerMgr>())
 ,_config(NULL)

@@ -45,8 +45,6 @@ KERNEL_NS::IApplication *g_Application = NULL;
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IApplication);
-
 IApplication::IApplication(UInt64 objTypeId)
     :CompHostObject(objTypeId)
     ,_processId(0)

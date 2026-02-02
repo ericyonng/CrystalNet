@@ -112,7 +112,6 @@ private:
 };
 
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(CompA);
 
 
 // 组件B
@@ -195,7 +194,6 @@ private:
     KERNEL_NS::LibString _name = "CompB name field";
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(CompB);
 
 // 故障组件3
 class CompFault : public KERNEL_NS::CompObject
@@ -280,7 +278,6 @@ private:
 };
 
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(CompFault);
 
 
 // 宿主
@@ -401,7 +398,6 @@ private:
 };
 
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(HostA);
 
 
 // 宿主2
@@ -524,7 +520,6 @@ private:
 };
 
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(HostB);
 
 class ICompC : public KERNEL_NS::CompObject
 {
@@ -586,8 +581,6 @@ private:
 };
 
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ICompC);
-POOL_CREATE_OBJ_DEFAULT_IMPL(CompC);
 
 // 简化版 组件C
 class CompD : public KERNEL_NS::CompObject
@@ -618,7 +611,6 @@ public:
     }
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(CompD);
 
 // 简化版 组件C
 class CompE : public KERNEL_NS::CompObject
@@ -649,7 +641,6 @@ public:
     }
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(CompE);
 
 
 // 宿主3 简化版的Host
@@ -710,7 +701,6 @@ private:
 };
 
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(HostC);
 
 
 // 工厂

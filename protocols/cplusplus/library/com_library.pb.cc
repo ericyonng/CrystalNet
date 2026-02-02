@@ -3,24 +3,6 @@
 // source: com_library.proto
 
 #include <protocols/cplusplus/library/com_library.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(RoleTypeFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibararyManagerInfoFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(BorrowBookInfoFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(BorrowBookDetailInfoFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(BorrowOrderStateFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(CancelOrderReasonTypeFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(CancelOrderReasonFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(BorrowOrderInfoFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(BorrowOrderDetailInfoFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(MemberInfoFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(OperationTypeFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(OperationLogInfoFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibraryInfoFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(UserLibraryInfoFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibraryPreviewInfoFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(KeyWordsFieldFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(SnapshotFieldFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(OutStoreParamFactory);
 
 #include <algorithm>
 

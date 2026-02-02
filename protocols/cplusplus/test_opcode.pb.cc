@@ -3,13 +3,6 @@
 // source: test_opcode.proto
 
 #include <protocols/cplusplus/test_opcode.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestOpcodeReqFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestOpcodeResFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestOpcode2ReqFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestOpcodeInfoFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestOpcode2ResFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestRpcReqFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestRpcResFactory);
 
 #include <algorithm>
 

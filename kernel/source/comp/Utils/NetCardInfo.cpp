@@ -108,7 +108,6 @@ bool IpTypeMask::CheckMask(UInt64 ipTypeMask)
     return false;
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(NetCardInfo);
 
 NetCardInfo::NetCardInfo()
 :_mtu(0)

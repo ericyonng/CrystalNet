@@ -32,8 +32,6 @@
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(SnapshotClientInfoOrmData);
-
 SnapshotClientInfoOrmData::SnapshotClientInfoOrmData()
 :_ormRawPbData(new ::CRYSTAL_NET::service::SnapshotClientInfo)
 {
@@ -216,8 +214,6 @@ bool SnapshotClientInfoOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build
 {
     return _ormRawPbData->Decode(stream);
 }
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(SnapshotClientInfoOrmDataFactory);
 
 IOrmData *SnapshotClientInfoOrmDataFactory::Create() const
 {

@@ -34,8 +34,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibAddr);
-
 LibAddr::LibAddr(LibSocket *sock)
     :_sock(sock)
     ,_prepareLocalPort(0)

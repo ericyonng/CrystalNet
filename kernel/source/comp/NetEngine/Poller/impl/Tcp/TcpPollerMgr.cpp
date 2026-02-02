@@ -47,8 +47,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TcpPollerMgr);
-
 TcpPollerMgr::TcpPollerMgr()
 :CompObject(KERNEL_NS::RttiUtil::GetTypeId<TcpPollerMgr>())
 ,_config(NULL)

@@ -31,8 +31,6 @@
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IConfigMgr);
-
 IConfigMgr::IConfigMgr(UInt64 objTypeId)
 :KERNEL_NS::CompObject(objTypeId)
 {

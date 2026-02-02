@@ -38,8 +38,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ILogicSys);
-
 ILogicSys::ILogicSys(UInt64 objTypeId)
 :KERNEL_NS::CompHostObject(objTypeId)
 ,_service(NULL)

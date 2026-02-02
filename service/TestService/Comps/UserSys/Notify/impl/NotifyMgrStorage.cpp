@@ -35,8 +35,6 @@
 SERVICE_BEGIN
 
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(NotifyMgrStorage);
-
 NotifyMgrStorage::NotifyMgrStorage()
 :IStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<NotifyMgrStorage>(), KERNEL_NS::RttiUtil::GetByType<NotifyMgr>())
 {

@@ -57,8 +57,6 @@ static inline void *miniz_realloc_func(void *opaque, void *address, size_t items
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ArchiveFile);
-
 ArchiveFile::ArchiveFile()
 :_init(false)
 {

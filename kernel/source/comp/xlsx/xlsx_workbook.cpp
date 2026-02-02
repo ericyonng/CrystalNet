@@ -39,8 +39,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(XlsxWorkbook);
-
 XlsxWorkbook::XlsxWorkbook(bool useThreadlocal)
 :_useThreadlocal(useThreadlocal)
 {

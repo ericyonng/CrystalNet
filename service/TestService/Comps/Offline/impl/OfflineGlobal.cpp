@@ -40,8 +40,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IOfflineGlobal);
-POOL_CREATE_OBJ_DEFAULT_IMPL(OfflineGlobal);
 
 OfflineGlobal::OfflineGlobal()
 :IOfflineGlobal(KERNEL_NS::RttiUtil::GetTypeId<OfflineGlobal>())

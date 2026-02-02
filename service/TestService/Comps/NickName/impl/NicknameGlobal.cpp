@@ -39,9 +39,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(INicknameGlobal);
-POOL_CREATE_OBJ_DEFAULT_IMPL(NicknameGlobal);
-
 
 NicknameGlobal::NicknameGlobal()
 :INicknameGlobal(KERNEL_NS::RttiUtil::GetTypeId<NicknameGlobal>())

@@ -62,7 +62,6 @@ public:
     Int32 _array[10] = {0};
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestType2);
 
 void TestDestructor::Run()
 {

@@ -32,8 +32,6 @@
 #include <ProtoGen/Exporter/Defs/Defs.h>
 #include <3rd/openssl/openssl_include.h>
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ProtoContentInfo);
-
 ProtoContentInfo::ProtoContentInfo()
 :_isMd5Change(false)
 {

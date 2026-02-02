@@ -50,6 +50,7 @@ class Channel;
 struct KERNEL_EXPORT PollerEvent
 {
     POOL_CREATE_OBJ_DEFAULT(PollerEvent);
+    
     PollerEvent(Int32 type);
     virtual ~PollerEvent();
 
@@ -174,14 +175,6 @@ struct KERNEL_EXPORT ObjectPollerEvent : public StubPollerEvent
     ObjType *_obj;
 };
 
-template<typename ObjType>
-#ifdef CRYSTAL_NET_CPP20
-requires requires(ObjType obj)
-{
-    obj.Release();
-}
-#endif
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(ObjectPollerEvent, ObjType);
 
 struct KERNEL_EXPORT BatchPollerEvent : public PollerEvent
 {

@@ -287,9 +287,6 @@ private:
 };
 
 template<typename BuildType>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(LibStream, BuildType);
-
-template<typename BuildType>
 ALWAYS_INLINE LibStream<BuildType>::LibStream()
 :_size(0)
 ,_writePos(0)

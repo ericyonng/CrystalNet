@@ -30,7 +30,6 @@
 #include <ProtoGen/Exporter/Defs/MessageInfo.h>
 #include <ProtoGen/Exporter/Defs/Defs.h>
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(MessageInfo);
 
 MessageInfo::MessageInfo()
 :_opcode(0)

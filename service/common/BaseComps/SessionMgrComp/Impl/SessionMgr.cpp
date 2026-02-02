@@ -38,9 +38,6 @@
 SERVICE_BEGIN
 
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ISessionMgr);
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(SessionMgr);
 
 SessionMgr::SessionMgr()
 :ISessionMgr(KERNEL_NS::RttiUtil::GetTypeId<SessionMgr>())

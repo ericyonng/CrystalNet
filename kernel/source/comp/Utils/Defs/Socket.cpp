@@ -30,6 +30,5 @@
 #include <kernel/comp/Utils/Defs/Socket.h>
 
 KERNEL_BEGIN
-POOL_CREATE_OBJ_DEFAULT_IMPL(BriefAddrInfo);
 
 KERNEL_END

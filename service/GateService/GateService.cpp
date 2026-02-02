@@ -43,8 +43,6 @@ static const UInt64 s_maxPieceTimeInMicrosecondsDefault = 8*1000;   // 默认的
 static const UInt64 s_maxPollerSleepInMilliSecondsDefault = 20;      // 默认的poller扫描时间间隔(20ms)
 static const UInt64 s_defaultFrameUpdateTimeMs = 50;      // 默认帧更新时间间隔(50ms)
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(GateService);
-
 GateService::GateService()
 :SERVICE_COMMON_NS::IService(KERNEL_NS::RttiUtil::GetTypeId<GateService>())
 ,_timerMgr(NULL)

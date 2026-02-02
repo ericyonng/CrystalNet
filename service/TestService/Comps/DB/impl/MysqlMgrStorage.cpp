@@ -34,7 +34,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(MysqlMgrStorage);
 
 const KERNEL_NS::LibString MysqlMgrStorage::TABLE_NAME = "TableName";
 const KERNEL_NS::LibString MysqlMgrStorage::SIMPLE_INFO = "SimpleInfo";

@@ -34,8 +34,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IClientUser);
-POOL_CREATE_OBJ_DEFAULT_IMPL(ClientUser);
 
 ClientUser::ClientUser(IClientUserMgr *userMgr)
 :IClientUser(KERNEL_NS::RttiUtil::GetTypeId<ClientUser>())

@@ -216,8 +216,6 @@ public:
   std::string response_;
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(HttpRequest);
-
 
 /*http_request.h的实现*/
 int HttpRequest::Init(const std::vector<std::string> &headers) 

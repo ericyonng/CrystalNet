@@ -34,8 +34,6 @@
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(BookBagInfoOrmData);
-
 BookBagInfoOrmData::BookBagInfoOrmData()
 :_ormRawPbData(new ::CRYSTAL_NET::service::BookBagInfo)
 {
@@ -437,8 +435,6 @@ bool BookBagInfoOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &
 
     return ret;
 }
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(BookBagInfoOrmDataFactory);
 
 IOrmData *BookBagInfoOrmDataFactory::Create() const
 {

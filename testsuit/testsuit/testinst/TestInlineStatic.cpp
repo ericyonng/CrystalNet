@@ -87,7 +87,6 @@ private:
     KERNEL_NS::LibString _name = "HostC name field";
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestStaticInlineHostC);
 
 void TestStaticInlineHostC::OnRegisterComps()
 {

@@ -32,8 +32,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TimerWheelTask);
-
 TimerWheelTask::TimerWheelTask()
 :_head(NULL)
 ,_pre(NULL)

@@ -30,7 +30,6 @@
 #include <kernel/comp/NetEngine/Poller/impl/Session/SessionOption.h>
 
 KERNEL_BEGIN
-POOL_CREATE_OBJ_DEFAULT_IMPL(SessionOption);
 
 SessionOption::SessionOption()
 :_noDelay(true)

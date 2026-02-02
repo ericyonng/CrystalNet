@@ -30,6 +30,5 @@
 #include <OptionComp/BehaviorTree/impl/BtNodeData.h>
 
 KERNEL_BEGIN
-POOL_CREATE_OBJ_DEFAULT_IMPL(BtNodeData);
 
 KERNEL_END

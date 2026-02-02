@@ -3,8 +3,6 @@
 // source: com_bookbag.proto
 
 #include <protocols/cplusplus/library/com_bookbag.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(BookInfoItemFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(BookBagInfoFactory);
 
 #include <algorithm>
 

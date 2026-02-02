@@ -34,8 +34,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ICodeAnalyzeMgr);
-POOL_CREATE_OBJ_DEFAULT_IMPL(CodeAnalyzeMgr);
 
 CodeAnalyzeMgr::CodeAnalyzeMgr()
 :ICodeAnalyzeMgr(KERNEL_NS::RttiUtil::GetTypeId<CodeAnalyzeMgr>())

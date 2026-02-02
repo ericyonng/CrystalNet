@@ -50,7 +50,6 @@ bool TimeDataComp::operator()(const TimeData *l, const TimeData *r) const
     return l->_expiredTime < r->_expiredTime;
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TimeData);
 
 TimeData::TimeData(Int64 id, LibTimer *timer)
     :_id(id)

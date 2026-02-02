@@ -32,9 +32,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IServiceRegisterMgr);
-POOL_CREATE_OBJ_DEFAULT_IMPL(ServiceRegisterMgr);
-
 ServiceRegisterMgr::ServiceRegisterMgr()
 :IServiceRegisterMgr(KERNEL_NS::RttiUtil::GetTypeId<ServiceRegisterMgr>())
 {

@@ -36,8 +36,6 @@ SERVICE_BEGIN
 const KERNEL_NS::LibString GlobalUidMgrStorage::MACHINE_ID = "MachineId";
 const KERNEL_NS::LibString GlobalUidMgrStorage::LAST_UID = "LastUid";
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(GlobalUidMgrStorage);
-
 GlobalUidMgrStorage::GlobalUidMgrStorage()
 :IStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<GlobalUidMgrStorage>(), KERNEL_NS::RttiUtil::GetByType<GlobalUidMgr>())
 {

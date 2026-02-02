@@ -84,10 +84,6 @@ ALWAYS_INLINE PerformanceRecord<OutputLogLambda>::~PerformanceRecord()
     _output(ms);
 }
 
-
-template<typename OutputLogLambda>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(PerformanceRecord, OutputLogLambda);
-
 #else
 
 #define PERFORMANCE_RECORD_DEF(PR, GET_CONTENT, OUTPUT_LOG_MS_LINE) 

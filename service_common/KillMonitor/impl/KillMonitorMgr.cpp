@@ -33,8 +33,6 @@
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(KillMonitorMgr);
-
 KillMonitorMgr::KillMonitorMgr()
 :IKillMonitorMgr(KERNEL_NS::RttiUtil::GetTypeId<KillMonitorMgr>())
 ,_isReadyToDie(false)

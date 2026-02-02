@@ -214,13 +214,7 @@ public:                                                                         
             , KERNEL_NS::MemoryAlloctorConfig(sizeof(ObjType), createBufferNumWhenInit));                                           \
             return s_alloctor;                                                                                                      \
         }                                                                                                                           \
-        private:                                                                                                                    \
-        static KERNEL_NS::ObjAlloctor<ObjType> *_static##ObjType##Alloctor;                                                         \
 
-
-#undef __OBJ_POOL_CREATE_IMPL
-#define __OBJ_POOL_CREATE_IMPL(ObjType, createBufferNumWhenInit, initBlockNumPerBuffer)                                             \
-KERNEL_NS::ObjAlloctor<ObjType> *ObjType::_static##ObjType##Alloctor = GetStaticAllocter_##ObjType()
 
 // 禁止直接使用 OBJ_POOL_CREATE_IMPL 直接使用会大概率出现内存非法写入到其他对象内存区 ！！！！！！！！！！！！！！
 
@@ -245,15 +239,6 @@ public:                                                                         
     {                                                                                                                                           \
         collector.Collect(GetThreadLocalAlloctor__##ObjType##objAlloctor()); return true;                                                       \
     }
-
-
-// 请祖先类与派生类选择性使用,
-// 使用各自类的 ObjPoolCollect_ 自检与对象池信息收集，可以实现在编译器检查出基类是不是对象池创建的
-// 若祖先类是对象池创建的那么派生出来的子类必须是对象池创建的,
-// 否则会出现当前对象非法访问本类其他实例内存区，造成不可挽回的内存非法访问，
-#undef __OBJ_POOL_CREATE_ANCESTOR_IMPL
-#define __OBJ_POOL_CREATE_ANCESTOR_IMPL(ObjType)                                                                                                 \
- bool ObjType::ObjPoolCollect_##ObjType(KERNEL_NS::AlloctorInfoCollector &collector){ collector.Collect(GetAlloctor__##ObjType##objAlloctor()); return true; }
 
 
 /* 派生类对象池创建 */

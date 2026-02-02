@@ -35,8 +35,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(CompObject);
-
 CompObject::CompObject(UInt64 objTypeId)
 :IObject(objTypeId)
 {

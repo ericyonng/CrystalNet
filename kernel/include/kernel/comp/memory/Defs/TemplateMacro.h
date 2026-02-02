@@ -209,13 +209,6 @@ public:                                                                         
         {                                                                                                           \
             GetThreadLocalAlloctor_##_objAlloctor().AddRefThreadLocal(this);                               \
         }                                                                                                           \
-        private:                                                                                                    \
-        static KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> *_static##ObjTypeNoTempArgs##Alloctor;      \
-
-#undef __OBJ_POOL_CREATE_TEMPLATE_IMPL
-#define __OBJ_POOL_CREATE_TEMPLATE_IMPL(createBufferNumWhenInit, initBlockNumPerBuffer, ObjTypeNoTempArgs, ...)                                                                            \
-KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> *ObjTypeNoTempArgs< __VA_ARGS__ >::_static##ObjTypeNoTempArgs##Alloctor = GetStaticAllocter_##ObjTypeNoTempArgs()
-
 
 // 禁止直接使用 OBJ_POOL_CREATE_IMPL 直接使用会大概率出现内存非法写入到其他对象内存区 ！！！！！！！！！！！！！！
 

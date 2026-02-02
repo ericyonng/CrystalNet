@@ -31,8 +31,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IMongoDbMgr);
-POOL_CREATE_OBJ_DEFAULT_IMPL(MongoDbMgr);
 
 MongoDbMgr::MongoDbMgr()
  :IMongoDbMgr(KERNEL_NS::RttiUtil::GetTypeId<MongoDbMgr>())

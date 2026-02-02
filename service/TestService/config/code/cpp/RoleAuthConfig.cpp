@@ -18,7 +18,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(RoleAuthConfig);
 RoleAuthConfig::RoleAuthConfig()
 :_accountType(0)
 {
@@ -270,8 +269,6 @@ void RoleAuthConfig::Serialize(KERNEL_NS::LibString &lineData) const
         g_Log->Error(LOGFMT_OBJ_TAG("field num not enough countFieldNum:%d, need fieldNum:%d"), countFieldNum, fieldNum);
     }
 }
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(RoleAuthConfigMgr);
 
 const std::vector<RoleAuthConfig *> RoleAuthConfigMgr::s_empty;
 

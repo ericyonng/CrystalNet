@@ -33,10 +33,6 @@
 #include <ConfigExporter/ConfigExporterApp.h>
 #include <service_common/config/DataTypeHelper.h>
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IXlsxExporterMgr);
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(XlsxExporterMgr);
-
 XlsxExporterMgr::XlsxExporterMgr()
 :IXlsxExporterMgr(KERNEL_NS::RttiUtil::GetTypeId<XlsxExporterMgr>())
 {
@@ -1901,7 +1897,6 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
     fileContent.AppendFormat("SERVICE_BEGIN\n");
 
     fileContent.AppendFormat("\n");
-    fileContent.AppendFormat("POOL_CREATE_OBJ_DEFAULT_IMPL(%s);\n", className.c_str());
 
 
     // 初始化列表
@@ -2076,8 +2071,6 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
     }
 
     {// ConfigMgr
-        fileContent.AppendFormat("\n");
-        fileContent.AppendFormat("POOL_CREATE_OBJ_DEFAULT_IMPL(%s);\n", mgrClassName.c_str());
         fileContent.AppendFormat("\n");
         fileContent.AppendFormat("const std::vector<%s *> %s::s_empty;\n", className.c_str(), mgrClassName.c_str());
         fileContent.AppendFormat("\n");

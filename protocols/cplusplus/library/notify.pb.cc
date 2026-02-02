@@ -3,14 +3,6 @@
 // source: notify.proto
 
 #include <protocols/cplusplus/library/notify.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(UserNotifyDataNtyFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(UserNotifyChangeNtyFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(AddUserNotifyDataItemNtyFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(RemoveUserNotifyDataItemNtyFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(ReadNotifyReqFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(ReadNotifyResFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(OnekeyClearNotifyReqFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(OnekeyClearNotifyResFactory);
 
 #include <algorithm>
 

@@ -33,7 +33,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(Variant);
 
 const LibString VariantAssist::__g_nullStr;   // 前提必须是str类型
 const LibString VariantAssist::__g_nilStr = "nil";   // nil 类型

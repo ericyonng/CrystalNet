@@ -35,9 +35,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ISysLogicMgr);
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(SysLogicMgr);
 
 SysLogicMgr::SysLogicMgr()
 :ISysLogicMgr(KERNEL_NS::RttiUtil::GetTypeId<SysLogicMgr>())

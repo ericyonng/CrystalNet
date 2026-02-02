@@ -3,13 +3,6 @@
 // source: bookbag.proto
 
 #include <protocols/cplusplus/library/bookbag.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(BookBagInfoReqFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(BookBagInfoNtyFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(BookBagInfoResFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(SetBookBagInfoReqFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(SetBookBagInfoResFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(SubmitBookBagBorrowInfoReqFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(SubmitBookBagBorrowInfoResFactory);
 
 #include <algorithm>
 

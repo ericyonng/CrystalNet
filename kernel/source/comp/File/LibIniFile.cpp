@@ -40,8 +40,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibIniFile);
-
 LibIniFile::LibIniFile()
     :_isDirtied(false)
     ,_maxLine(0)

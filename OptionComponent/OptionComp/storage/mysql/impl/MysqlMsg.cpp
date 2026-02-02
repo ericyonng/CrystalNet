@@ -34,10 +34,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(MysqlMsgQueue);
-POOL_CREATE_OBJ_DEFAULT_IMPL(MysqlRequest);
-POOL_CREATE_OBJ_DEFAULT_IMPL(MysqlResponse);
-POOL_CREATE_OBJ_DEFAULT_IMPL(MysqlSqlBuilderInfo);
 
 MysqlMsgQueue::MysqlMsgQueue()
 :_msgQueue(KERNEL_NS::ConcurrentPriorityQueue<MysqlResponse *>::New_ConcurrentPriorityQueue())

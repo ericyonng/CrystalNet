@@ -223,7 +223,6 @@ private:
 private:
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(HostObj);
 
 class HostObjFactory : public KERNEL_NS::CompFactory
 {
@@ -264,7 +263,6 @@ struct HelloWorldRes
         return "HelloWorldRes";
     }
 };
-POOL_CREATE_OBJ_DEFAULT_IMPL(HelloWorldRes);
 
 struct  HelloWorldReq : public KERNEL_NS::PollerEvent
 {
@@ -292,7 +290,6 @@ struct  HelloWorldReq : public KERNEL_NS::PollerEvent
     }
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(HelloWorldReq);
 
 
 // static void HelloWorldEventWork(KERNEL_NS::LibThread *t, KERNEL_NS::Variant *var)
@@ -385,7 +382,6 @@ struct AcEvent : public KERNEL_NS::PollerEvent
 
 };
 
-POOL_CREATE_OBJ_IMPL(1, 1024, AcEvent);
 //
 // static void _OnPoller(KERNEL_NS::LibThread *t)
 // {
@@ -525,8 +521,6 @@ public:
     KERNEL_NS::LibString _info;
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(HelloCrossPollerRequest);
-POOL_CREATE_OBJ_DEFAULT_IMPL(HelloCrossPollerResponse);
 
 class ThreadStartup : public KERNEL_NS::IThreadStartUp
 {
@@ -625,7 +619,6 @@ private:
     std::atomic<CRYSTAL_NET::kernel::Poller *> &_otherPoller;
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ThreadStartup);
 
 // 可以使用策略来实现编译期多态
 // CRTP技术：奇异递归模板模式，C++的编译期多态技术，核心是，一个类派生自以自身作为模版参数的模板基类

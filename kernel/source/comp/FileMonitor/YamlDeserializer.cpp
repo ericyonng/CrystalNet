@@ -31,10 +31,9 @@
 
 #include "kernel/comp/Poller/Poller.h"
 #include "kernel/comp/Utils/FileUtil.h"
+#include <kernel/comp/FileMonitor/YamlMemory.h>
 
 KERNEL_BEGIN
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(YamlDeserializer);
 
 YamlDeserializer::YamlDeserializer()
     :_handle(NULL)
@@ -61,7 +60,7 @@ YamlDeserializer *YamlDeserializer::Create()
     return YamlDeserializer::NewThreadLocal_YamlDeserializer();
 }
 
-void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, void *> * releaseObj, IDelegate<void *, YAML::Node *> *deserializeObj)
+void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, void *> * releaseObj, IDelegate<void *, YAML::Node *> *deserializeObj, YamlMemory *fromMemory)
 {
     auto poller = g_FileChangeManager->GetPoller();
     auto fileChangeManager = g_FileChangeManager;
@@ -70,10 +69,11 @@ void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, vo
     void *registerKey = this;
     auto path = _path;
     // 不用担心投递到poller线程后由于没执行导致delegate泄露, 因为如果没执行那么程序应该处于关闭状态, 无所谓内存泄露
-    poller->Push([this, dataName, registerKey, releaseObj, deserializeObj, &isFinish, &obj, path, fileChangeManager]()
+    poller->Push([this, dataName, registerKey, releaseObj, deserializeObj, &isFinish, &obj, path, fileChangeManager, fromMemory]()
     {
         KERNEL_NS::SmartPtr<IDelegate<void *, YAML::Node *>, KERNEL_NS::AutoDelMethods::Release> deserializePtr(deserializeObj);
         KERNEL_NS::SmartPtr<IDelegate<void, void *>, KERNEL_NS::AutoDelMethods::Release> releaseObjPtr(releaseObj);
+        KERNEL_NS::SmartPtr<YamlMemory, KERNEL_NS::AutoDelMethods::Release> fromMemoryPtr(fromMemory);
 
         // 注册monitorInfo
         auto &filePathRefFileObj = fileChangeManager->GetFilePathRefFileObj();
@@ -83,77 +83,147 @@ void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, vo
 
         if(iter == filePathRefFileObj.end())
         {
-            auto loadNewObjLamb = [path]()-> void *
+            auto loadNewObjLamb = [path](void *fromMemoryData) mutable  -> void *
             {
                 YAML::Node *config = NULL;
+                // fromMemoryData 加载后就得释放, 已经脱离生命周期，这里用智能指针管理
+                KERNEL_NS::SmartPtr<YamlMemoryData, KERNEL_NS::AutoDelMethods::Release> fromMemoryCache(KERNEL_NS::KernelCastTo<YamlMemoryData>(fromMemoryData));
                 try
                 {
-                    config = new YAML::Node(YAML::LoadFile(path.c_str()));
+                    // 优先使用内存的
+                    if (fromMemoryData)
+                    {
+                        if (fromMemoryCache && (!fromMemoryCache->_data.empty()))
+                        {
+                            config = new YAML::Node(YAML::Load(fromMemoryCache->_data.GetRaw()));
+                        }
+                    }
+
+                    // 内存的没有就使用path
+                    if (!config)
+                        config = new YAML::Node(YAML::LoadFile(path.c_str()));
                 }
                 catch (std::exception &e)
                 {
                     if (g_Log)
-                        g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "path:%s, load yaml fail, exception:%s"), path.c_str(), e.what());
+                        g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "path:%s, load yaml fail, exception:%s, fromMemoryData:%p"), path.c_str(), e.what(), fromMemoryData);
                 }
                 catch (...)
-                {
+                {                    
                     if (g_Log)
-                        g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "path:%s, load yaml fail"), path.c_str());
+                        g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "path:%s, load yaml fail, fromMemoryData:%p"), path.c_str(), fromMemoryData);
                 }
 
                 return config;
             };
 
-            config = KERNEL_NS::KernelCastTo<YAML::Node>(loadNewObjLamb());
+            // 内存yaml(交换出memoryData)
+            YamlMemoryData *memoryData = NULL;
+            if (fromMemoryPtr)
+            {
+                memoryData = fromMemoryPtr->CheckAndChange();
+                if (!memoryData)
+                {
+                    if (g_Log && g_Log->IsEnable(LogLevel::Error))
+                    {
+                        g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "use yaml memory data, but have no yaml memory data, from memory:%p, dataName:%s, path:%s")
+                            , fromMemoryPtr.AsSelf(), dataName.c_str(), path.c_str());
+                    }
+                }
+            }
+
+            // memoryData在loadNewObjLamb中释放
+            config = KERNEL_NS::KernelCastTo<YAML::Node>(loadNewObjLamb(memoryData));
             if(config)
             {
                 monitorInfo = FileMonitorInfo::New_FileMonitorInfo();
                 monitorInfo->_path = path;
                 monitorInfo->_sourceObj = config;
 
+                // fromMemory
+                if (monitorInfo->_fromMemory && monitorInfo->_releaseFromMemory)
+                {
+                    monitorInfo->_releaseFromMemory->Invoke(monitorInfo->_fromMemory);
+                    monitorInfo->_fromMemory = NULL;
+                }
+                if (monitorInfo->_releaseFromMemory)
+                    monitorInfo->_releaseFromMemory->Release();
+
+                // 来自内存
+                monitorInfo->_fromMemory = fromMemoryPtr.pop();
+                if (monitorInfo->_fromMemory)
+                {
+                    auto releaseFromMemory = [](void *fromMemory)
+                    {
+                        if (fromMemory)
+                            KERNEL_NS::KernelCastTo<YamlMemory>(fromMemory)->Release();
+                    };
+                    monitorInfo->_releaseFromMemory = KERNEL_CREATE_CLOSURE_DELEGATE(releaseFromMemory, void, void *);
+                }
+
                 // 加载新的配置
-                monitorInfo->_loadNewObj = KERNEL_CREATE_CLOSURE_DELEGATE(loadNewObjLamb, void *);
+                monitorInfo->_loadNewObj = KERNEL_CREATE_CLOSURE_DELEGATE(loadNewObjLamb, void *, void *);
 
                 // 处理文件变化
                 {
-                    KERNEL_NS::SmartPtr<Int64> fileSize(new Int64);
-                    KERNEL_NS::SmartPtr<KERNEL_NS::LibTime> modifyTime(new KERNEL_NS::LibTime());
-
-                    *fileSize = 0;
-                    if(KERNEL_NS::FileUtil::IsFileExist(path.c_str()))
+                    // 内存yaml
+                    if (monitorInfo->_fromMemory)
                     {
-                        // 初始化文件大小
-                        *fileSize = KERNEL_NS::FileUtil::GetFileSizeEx(path.c_str());
-
-                        // 初始化文件时间
-                        *modifyTime = KERNEL_NS::FileUtil::GetFileModifyTime(path.c_str());
-                    }
-
-                    // 检查文件是否变化回调
-                    auto ckeckChange = [path, fileSize, modifyTime]() mutable -> bool
-                    {
-                        if(!KERNEL_NS::FileUtil::IsFileExist(path.c_str()))
-                            return false;
-
-                        auto curSize = KERNEL_NS::FileUtil::GetFileSizeEx(path.c_str());
-                        if(curSize <= 0)
-                            return false;
-                        
-                        auto curModifyTime = KERNEL_NS::FileUtil::GetFileModifyTime(path.c_str());
-                        if(!curModifyTime)
-                            return false;
-                        
-                        if(curSize != *fileSize || curModifyTime != *modifyTime)
+                        // 检查文件是否变化回调
+                        auto ckeckChange = [monitorInfo](void *&outFromMemoryData) mutable -> bool
                         {
-                            *fileSize = curSize;
-                            *modifyTime = curModifyTime;
-                            return true;
+                            if (!monitorInfo->_fromMemory)
+                                return false;
+                            
+                            auto yamlMemory = KERNEL_NS::KernelCastTo<YamlMemory>(monitorInfo->_fromMemory);
+                            outFromMemoryData = yamlMemory->CheckAndChange();
+
+                            return outFromMemoryData != NULL;
+                        };
+                
+                        monitorInfo->_checkChange = KERNEL_CREATE_CLOSURE_DELEGATE(ckeckChange, bool, void *&);
+                    }
+                    else
+                    {
+                        KERNEL_NS::SmartPtr<Int64> fileSize(new Int64);
+                        KERNEL_NS::SmartPtr<KERNEL_NS::LibTime> modifyTime(new KERNEL_NS::LibTime());
+
+                        *fileSize = 0;
+                        if(KERNEL_NS::FileUtil::IsFileExist(path.c_str()))
+                        {
+                            // 初始化文件大小
+                            *fileSize = KERNEL_NS::FileUtil::GetFileSizeEx(path.c_str());
+
+                            // 初始化文件时间
+                            *modifyTime = KERNEL_NS::FileUtil::GetFileModifyTime(path.c_str());
                         }
 
-                        return false;
-                    };
+                        // 检查文件是否变化回调
+                        auto ckeckChange = [path, fileSize, modifyTime](void *&) mutable -> bool
+                        {
+                            if(!KERNEL_NS::FileUtil::IsFileExist(path.c_str()))
+                                return false;
+
+                            auto curSize = KERNEL_NS::FileUtil::GetFileSizeEx(path.c_str());
+                            if(curSize <= 0)
+                                return false;
+                        
+                            auto curModifyTime = KERNEL_NS::FileUtil::GetFileModifyTime(path.c_str());
+                            if(!curModifyTime)
+                                return false;
+                        
+                            if(curSize != *fileSize || curModifyTime != *modifyTime)
+                            {
+                                *fileSize = curSize;
+                                *modifyTime = curModifyTime;
+                                return true;
+                            }
+
+                            return false;
+                        };
                 
-                    monitorInfo->_checkChange = KERNEL_CREATE_CLOSURE_DELEGATE(ckeckChange, bool);
+                        monitorInfo->_checkChange = KERNEL_CREATE_CLOSURE_DELEGATE(ckeckChange, bool, void *&);
+                    }
                 }
 
                 // 释放config

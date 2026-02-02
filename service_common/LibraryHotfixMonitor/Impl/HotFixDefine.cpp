@@ -31,8 +31,6 @@
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(HotFixCommonParam);
-
 KERNEL_NS::LibString HotFixCommonParam::ToString() const
 {
   return KERNEL_NS::LibString().AppendFormat("_shareLib:%p,%s, hotfixKey:%s"

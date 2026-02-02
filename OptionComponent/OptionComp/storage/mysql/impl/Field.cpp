@@ -34,7 +34,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(Field);
 
 Field::Field(const LibString &tableName, const LibString &name, Int32 dataType, UInt64 flags, Record *owner)
 :_owner(owner)

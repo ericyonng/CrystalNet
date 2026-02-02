@@ -30,6 +30,5 @@
 #include <kernel/comp/Poller/PollerCompStatistics.h>
 
 KERNEL_BEGIN
-POOL_CREATE_OBJ_DEFAULT_IMPL(PollerCompStatistics);
 
 KERNEL_END

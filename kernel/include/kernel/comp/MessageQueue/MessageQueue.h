@@ -88,9 +88,6 @@ private:
 };
 
 template<typename Elem, typename BuildType, typename LockType>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(MessageQueue, Elem, BuildType, LockType);
-
-template<typename Elem, typename BuildType, typename LockType>
 ALWAYS_INLINE MessageQueue<Elem, BuildType, LockType>::MessageQueue()
 :_queueCount{0}
 ,_queue(LibList<Elem, BuildType>::NewByAdapter_LibList(BuildType::V))

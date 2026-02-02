@@ -35,7 +35,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IoEvent);
 
 LibString IoEvent::ToString() const
 {

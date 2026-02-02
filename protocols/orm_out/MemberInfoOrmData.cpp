@@ -34,8 +34,6 @@
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(MemberInfoOrmData);
-
 MemberInfoOrmData::MemberInfoOrmData()
 :_ormRawPbData(new ::CRYSTAL_NET::service::MemberInfo)
 {
@@ -533,8 +531,6 @@ bool MemberInfoOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &s
 
     return ret;
 }
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(MemberInfoOrmDataFactory);
 
 IOrmData *MemberInfoOrmDataFactory::Create() const
 {

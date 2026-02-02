@@ -44,8 +44,6 @@ KERNEL_NS::FileChangeManager *g_FileChangeManager = NULL;
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(FileChangeManager);
-
 FileChangeManager::FileChangeManager()
     :CompObject(KERNEL_NS::RttiUtil::GetTypeId<FileChangeManager>())
 ,_isQuit{false}
@@ -98,10 +96,11 @@ void FileChangeManager::_InitWorker()
                 for(auto iter : _filePathRefFileObj)
                 {
                     auto monitorInfo = iter.second;
-                    if(!monitorInfo->_checkChange->Invoke())
+                    void *fromMemory = NULL;
+                    if(!monitorInfo->_checkChange->Invoke(fromMemory))
                         continue;
 
-                    auto newObj = monitorInfo->_loadNewObj->Invoke();
+                    auto newObj = monitorInfo->_loadNewObj->Invoke(fromMemory);
                     if(!newObj)
                     {
                         if (g_Log)

@@ -29,6 +29,5 @@
 #include <kernel/comp/NetEngine/Defs/sockaddr_in.h>
 
 KERNEL_BEGIN
-POOL_CREATE_OBJ_DEFAULT_IMPL(KernelSockAddrIn);
 
 KERNEL_END

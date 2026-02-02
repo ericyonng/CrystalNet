@@ -100,8 +100,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(Poller);
-
 Poller::Poller()
 :CompObject(KERNEL_NS::RttiUtil::GetTypeId<Poller>())
 ,_maxPieceTime(LibCpuSlice::FromMilliseconds(8))  // 经验值8ms

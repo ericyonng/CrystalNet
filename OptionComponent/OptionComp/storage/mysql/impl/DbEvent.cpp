@@ -31,7 +31,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(DbEvent);
 
 DbEvent::DbEvent(Int32 type)
 :PollerEvent(type)

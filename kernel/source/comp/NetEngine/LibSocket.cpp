@@ -52,8 +52,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibSocket);
-
 LibSocket::LibSocket()
 :_af(0)
 ,_type(0)

@@ -29,5 +29,3 @@
 #include <pch.h>
 #include <ProtoGen/Exporter/Defs/PbRawInfo.h>
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ProtobufDataTypeInfo);
-POOL_CREATE_OBJ_DEFAULT_IMPL(ProtobufFieldInfo);

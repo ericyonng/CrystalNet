@@ -32,8 +32,6 @@
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestCustomDataOrmData);
-
 TestCustomDataOrmData::TestCustomDataOrmData()
 :_ormRawPbData(new ::CRYSTAL_NET::service::TestCustomData)
 {
@@ -193,8 +191,6 @@ bool TestCustomDataOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL
 {
     return _ormRawPbData->Decode(stream);
 }
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestCustomDataOrmDataFactory);
 
 IOrmData *TestCustomDataOrmDataFactory::Create() const
 {

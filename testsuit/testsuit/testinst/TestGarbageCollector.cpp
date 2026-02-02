@@ -45,7 +45,6 @@ public:
     Byte8 str[4096];
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestGarbageObj);
 
 
 class TestSysTemStringObj

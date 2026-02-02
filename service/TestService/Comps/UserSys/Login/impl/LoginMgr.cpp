@@ -37,8 +37,6 @@
 #include <protocols/protocols.h>
 
 SERVICE_BEGIN
-POOL_CREATE_OBJ_DEFAULT_IMPL(ILoginMgr);
-POOL_CREATE_OBJ_DEFAULT_IMPL(LoginMgr);
 
 
 

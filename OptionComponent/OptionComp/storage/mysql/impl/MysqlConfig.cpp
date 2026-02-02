@@ -31,7 +31,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(MysqlConfig);
 
 MysqlConfig::MysqlConfig()
 :_port(3306)

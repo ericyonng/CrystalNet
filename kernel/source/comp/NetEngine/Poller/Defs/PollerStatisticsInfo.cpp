@@ -31,8 +31,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(NetPollerCompStatistics);
-POOL_CREATE_OBJ_DEFAULT_IMPL(PollerMgrStatisticsInfo);
 
 LibString PollerMgrStatisticsInfo::ToString() const
 {

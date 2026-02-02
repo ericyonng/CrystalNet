@@ -40,8 +40,6 @@
 SERVICE_BEGIN
 
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(UserMgrStorage);
-
 UserMgrStorage::UserMgrStorage()
 :IStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<UserMgrStorage>(), KERNEL_NS::RttiUtil::GetByType<UserMgr>())
 {

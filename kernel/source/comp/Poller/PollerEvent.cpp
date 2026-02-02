@@ -33,10 +33,6 @@
 #include "kernel/comp/Utils/ContainerUtil.h"
 
 KERNEL_BEGIN
-    POOL_CREATE_OBJ_DEFAULT_IMPL(PollerEvent);
-POOL_CREATE_OBJ_DEFAULT_IMPL(ActionPollerEvent);
-POOL_CREATE_OBJ_DEFAULT_IMPL(EmptyPollerEvent);
-POOL_CREATE_OBJ_DEFAULT_IMPL(AsyncTaskPollerEvent);
 
 PollerEvent::PollerEvent(Int32 type)
     :_type(type)
@@ -104,7 +100,6 @@ void AsyncTaskPollerEvent::Release()
     AsyncTaskPollerEvent::DeleteThreadLocal_AsyncTaskPollerEvent(this);
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(StubPollerEvent);
 
 StubPollerEvent::StubPollerEvent(Int32 type, UInt64 stub, UInt64 objTypeId, Poller *poller, Channel *srcChannel)
     :PollerEvent(type)
@@ -131,10 +126,9 @@ LibString StubPollerEvent::ToString() const
     return info;
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(BatchPollerEvent);
 
 BatchPollerEvent::BatchPollerEvent()
-    :PollerEvent(PollerEventInternalType::BatchPollerEventType)
+    : PollerEvent(PollerEventInternalType::BatchPollerEventType)
     ,_events(NULL)
 {
     
@@ -178,8 +172,5 @@ LibString BatchPollerEvent::ToString() const
     return info;
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ApplyChannelEvent);
-POOL_CREATE_OBJ_DEFAULT_IMPL(ApplyChannelEventResponse);
-POOL_CREATE_OBJ_DEFAULT_IMPL(DestroyChannelEvent);
 
 KERNEL_END

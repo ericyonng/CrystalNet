@@ -33,8 +33,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(BuildSessionInfo);
-
 BuildSessionInfo::BuildSessionInfo(bool isIpv4)
     :_protocolType(0)
     ,_family(0)

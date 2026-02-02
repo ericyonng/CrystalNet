@@ -34,7 +34,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(LoginMgrStorage);
 
 LoginMgrStorage::LoginMgrStorage()
 :IStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<LoginMgrStorage>(), KERNEL_NS::RttiUtil::GetByType<LoginMgr>())

@@ -45,7 +45,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(EpollTcpSession);
 
 EpollTcpSession::EpollTcpSession(UInt64 sessionId, bool isLinker, bool isConnectToRemote)
 :LibSession(sessionId, isLinker, isConnectToRemote)

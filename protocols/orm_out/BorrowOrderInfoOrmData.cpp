@@ -36,8 +36,6 @@
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(BorrowOrderInfoOrmData);
-
 BorrowOrderInfoOrmData::BorrowOrderInfoOrmData()
 :_ormRawPbData(new ::CRYSTAL_NET::service::BorrowOrderInfo)
 {
@@ -731,8 +729,6 @@ bool BorrowOrderInfoOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::T
 
     return ret;
 }
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(BorrowOrderInfoOrmDataFactory);
 
 IOrmData *BorrowOrderInfoOrmDataFactory::Create() const
 {

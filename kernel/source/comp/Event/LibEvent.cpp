@@ -40,8 +40,6 @@ KERNEL_END
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibEvent);
-
 LibEvent::LibEvent(int id /*= 0*/, bool dontDelAfterFire /*= false*/)
 {
     _id = id;

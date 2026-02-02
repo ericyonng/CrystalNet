@@ -3,8 +3,6 @@
 // source: title.proto
 
 #include <protocols/cplusplus/title.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(TitleInfoReqFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(TitleInfoResFactory);
 
 #include <algorithm>
 

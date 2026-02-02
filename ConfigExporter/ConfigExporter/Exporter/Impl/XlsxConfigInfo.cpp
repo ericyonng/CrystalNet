@@ -29,12 +29,6 @@
 #include <pch.h>
 #include <ConfigExporter/Exporter/Impl/XlsxConfigInfo.h>
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(XlsxConfigFieldInfo);
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(XlsxConfigTableInfo);
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(XlsxConfigMetaInfo);
-
 XlsxConfigFieldInfo::XlsxConfigFieldInfo(const XlsxConfigTableInfo *owner)
 :_owner(owner)
 ,_columnId(KERNEL_NS::XlsxCell::COLUMN_BEGIN)

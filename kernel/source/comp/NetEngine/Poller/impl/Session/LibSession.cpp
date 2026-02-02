@@ -40,8 +40,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibSession);
-
 LibSession::LibSession(UInt64 sessionId, bool isLinker, bool isConnectToRemote)
 :_inited{false}
 ,_id(sessionId)

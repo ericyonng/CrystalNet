@@ -35,8 +35,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibTraceId);
-POOL_CREATE_OBJ_DEFAULT_IMPL(TlsLibTrace);
 
 LibTraceId::LibTraceId()
 {

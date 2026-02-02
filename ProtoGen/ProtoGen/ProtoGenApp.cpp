@@ -31,8 +31,6 @@
 #include <ProtoGen/Exporter/Exporter.h>
 #include <OptionComponent/OptionComp/CodeAnalyze/CodeAnalyze.h>
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ProtoGenApp);
-
 Int32 ProtoGenApp::_OnCompsCreated()
 {
     _appName = KERNEL_NS::SystemUtil::GetCurProgramNameWithoutExt();

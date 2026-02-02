@@ -72,7 +72,6 @@ public:
     BUFFER128 _buffer = {0};
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestMqBlock);
 
 // mid:4247kqps, average:4246kqps
 // static void Generator(KERNEL_NS::LibThreadPool *t)

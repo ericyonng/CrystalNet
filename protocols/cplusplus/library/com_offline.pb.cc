@@ -3,8 +3,6 @@
 // source: com_offline.proto
 
 #include <protocols/cplusplus/library/com_offline.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(OfflineDataFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(OfflineTypeFactory);
 
 #include <algorithm>
 

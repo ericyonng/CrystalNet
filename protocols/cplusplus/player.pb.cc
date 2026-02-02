@@ -3,11 +3,6 @@
 // source: player.proto
 
 #include <protocols/cplusplus/player.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(PlayerDataReqFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(PlayerDataResFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(ModifyPlayerNameReqFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(ModifyPlayerNameResFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(PlayerDataNtyFactory);
 
 #include <algorithm>
 

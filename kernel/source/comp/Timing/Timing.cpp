@@ -34,8 +34,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(Timing);
-
 Timing::Timing()
 :CompObject(RttiUtil::GetTypeId<Timing>())
 ,_flushInterval(TimeSlice::FromMilliSeconds(1))

@@ -41,7 +41,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(PendingUser);
 
 PendingUser::PendingUser()
 :_status(UserStatus::USER_PENDING)
@@ -73,8 +72,6 @@ KERNEL_NS::LibString PendingUser::ToString() const
 }
 
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IUser);
-POOL_CREATE_OBJ_DEFAULT_IMPL(User);
 
 User::User(IUserMgr *userMgr)
 :IUser(KERNEL_NS::RttiUtil::GetTypeId<User>())

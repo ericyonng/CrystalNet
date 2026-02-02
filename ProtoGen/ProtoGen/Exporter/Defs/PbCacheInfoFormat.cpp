@@ -30,9 +30,6 @@
 #include <ProtoGen/Exporter/Defs/PbCacheInfoFormat.h>
 #include <ProtoGen/Exporter/Defs/Defs.h>
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(PbCaheInfo);
-POOL_CREATE_OBJ_DEFAULT_IMPL(PbCacheFileInfo);
-POOL_CREATE_OBJ_DEFAULT_IMPL(PbCacheFileContent);
 
 PbCaheInfo::PbCaheInfo()
 :_opcode(0)

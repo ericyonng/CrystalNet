@@ -77,7 +77,6 @@ public:
     }
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestThreadTask3);
 
 class TestThreadTask2
 {
@@ -138,7 +137,6 @@ public:
     }
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestThreadTPoolask3);
 
 // static void ThreadPoolRun2(KERNEL_NS::LibThreadPool *pool)
 // {

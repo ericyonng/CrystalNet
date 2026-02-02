@@ -32,8 +32,6 @@
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibararyManagerInfoOrmData);
-
 LibararyManagerInfoOrmData::LibararyManagerInfoOrmData()
 :_ormRawPbData(new ::CRYSTAL_NET::service::LibararyManagerInfo)
 {
@@ -193,8 +191,6 @@ bool LibararyManagerInfoOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Buil
 {
     return _ormRawPbData->Decode(stream);
 }
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibararyManagerInfoOrmDataFactory);
 
 IOrmData *LibararyManagerInfoOrmDataFactory::Create() const
 {

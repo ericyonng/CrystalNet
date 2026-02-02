@@ -38,7 +38,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IUserSys);
 
 IUserSys::IUserSys(UInt64 objTypeId)
 :ILogicSys(objTypeId)

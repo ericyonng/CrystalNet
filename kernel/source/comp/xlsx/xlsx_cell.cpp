@@ -32,8 +32,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(XlsxCell);
-
 XlsxCell::XlsxCell(XlsxSheet *sheet)
 :_row(ROW_BEGIN)
 ,_column(COLUMN_BEGIN)

@@ -33,8 +33,6 @@
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IOrmData);
-
 IOrmData::IOrmData()
 :_lastPurgeTime(0)
 ,_lastMaskDirtyTime(0)
@@ -164,8 +162,6 @@ void IOrmData::_MaskDirty(bool isForce)
     if((!isDirty || isForce) && _maskDirtyCb)
         _maskDirtyCb->Invoke(this);
 }
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(IOrmDataFactory);
 
 SERVICE_COMMON_END
 

@@ -3,8 +3,6 @@
 // source: com_variant.proto
 
 #include <protocols/cplusplus/library/com_variant.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(VariantParamTypeFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(VariantParamFactory);
 
 #include <algorithm>
 

@@ -52,12 +52,6 @@ void LibCpuFrequency::InitFrequancy()
 // #endif // CRYSTAL_TARGET_PLATFORM_LINUX
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibCpuSlice);
-
-
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibCpuCounter);
-
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
 
 void LibCpuCounter::_UpdateWin()

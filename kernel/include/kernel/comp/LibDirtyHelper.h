@@ -147,10 +147,6 @@ struct DirtyMask
 };
 
 template<typename KeyType, typename MaskValue>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(DirtyMask, KeyType, MaskValue);
-
-
-template<typename KeyType, typename MaskValue>
 struct DirtyHelperDelayOp
 {
     POOL_CREATE_TEMPLATE_OBJ_DEFAULT(DirtyHelperDelayOp, KeyType, MaskValue);
@@ -173,9 +169,6 @@ struct DirtyHelperDelayOp
     DirtyMask<KeyType, MaskValue> *_mask;
     KeyType _key;
 };
-
-template<typename KeyType, typename MaskValue>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(DirtyHelperDelayOp, KeyType, MaskValue);
 
 
 template<typename KeyType, typename MaskValue>
@@ -224,9 +217,6 @@ private:
     std::vector<DirtyHelperDelayOp<KeyType, MaskValue> *> _delayOperations;
     std::map<KeyType, DirtyHelperDelayOp<KeyType, MaskValue> *> _delayOpDict;
 };
-
-template<typename KeyType, typename MaskValue>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(LibDirtyHelper, KeyType, MaskValue);
 
 
 template<typename KeyType, typename MaskValue>

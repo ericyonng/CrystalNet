@@ -3,7 +3,6 @@
 // source: com_passtime.proto
 
 #include <protocols/cplusplus/com_passtime.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(PassTimeDataFactory);
 
 #include <algorithm>
 

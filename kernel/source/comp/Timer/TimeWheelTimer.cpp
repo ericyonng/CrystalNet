@@ -36,8 +36,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TimeWheelTimer);
-
 TimeWheelTimer::TimeWheelTimer(TimerWheel *timerWheel)
 :_timeWheel(timerWheel)
 ,_attachTimerTask(TimerWheelTask::NewThreadLocal_TimerWheelTask())

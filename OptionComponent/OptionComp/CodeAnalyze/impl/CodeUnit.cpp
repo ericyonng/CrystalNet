@@ -30,9 +30,6 @@
 #include <OptionComp/CodeAnalyze/impl/CodeUnit.h>
 
 KERNEL_BEGIN
-POOL_CREATE_OBJ_DEFAULT_IMPL(CodeUnit);
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(CodeUnitStack);
 
 CodeUnit::CodeUnit()
 {

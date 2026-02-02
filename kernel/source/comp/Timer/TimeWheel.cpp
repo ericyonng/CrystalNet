@@ -78,9 +78,6 @@ static ALWAYS_INLINE void InitSlots(TimeWheelLevelSlots *slots, Int32 initPos = 
         slots->_slots[idx] = TaskList::NewThreadLocal_TaskList();
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TaskList);
-POOL_CREATE_OBJ_DEFAULT_IMPL(TimeWheelLevelSlots);
-POOL_CREATE_OBJ_DEFAULT_IMPL(TimerWheel);
 
 UInt64 TimeWheelLevel::SLOTS_TIME_RANGE_BASE_WHEEL_START[TimeWheelLevel::MAX] = {
     0,

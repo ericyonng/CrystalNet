@@ -38,9 +38,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TlsMemoryCleanerComp);
-
-
 TlsMemoryCleanerComp::TlsMemoryCleanerComp()
 :CompObject(KERNEL_NS::RttiUtil::GetTypeId<TlsMemoryCleanerComp>())
 ,_timerMgr(NULL)

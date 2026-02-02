@@ -47,8 +47,6 @@
 
 
 SERVICE_BEGIN
-POOL_CREATE_OBJ_DEFAULT_IMPL(IMysqlMgr);
-POOL_CREATE_OBJ_DEFAULT_IMPL(MysqlMgr);
 
 MysqlMgr::MysqlMgr()
 :IMysqlMgr(KERNEL_NS::RttiUtil::GetTypeId<MysqlMgr>())

@@ -36,29 +36,22 @@
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/SmartPtr.h>
 #include <atomic>
+#include <kernel/comp/FileMonitor/FileMonitorConcepts.h>
 
 KERNEL_BEGIN
+
+class YamlMemory;
 
 // @param(ObjType): 反序列化最终的结果, 需要有:CreateNewObj/Release 接口
 // @param(FileDeserializer): 反序列化器, 将文件反序列化成ObjType, 需要有SwapNewData/Register接口, 
 // @param(FileDeserializerFactoryType): 反序列化器工厂, 需要有Create/Release接口, 
 template<typename ObjType, typename FileDeserializerType>
 #ifdef CRYSTAL_NET_CPP20
-requires requires(ObjType obj, FileDeserializerType *d, KERNEL_NS::LibString path)
-{
-    ObjType::CreateNewObj(std::move(obj));
-    obj.Release();
-
-    d = FileDeserializerType::Create();
-    d->Release();
-    d->template SwapNewData<ObjType>();
-    d->template Register<ObjType>(path);
-    
-}
+requires FileMonitorConcept<ObjType, FileDeserializerType>
 #endif
 class FileMonitor
 {
-    POOL_CREATE_TEMPLATE_OBJ_DEFAULT(FileMonitor, ObjType, FileDeserializerType);
+    POOL_CREATE_TEMPLATE_OBJ_DEFAULT(FileMonitor, ObjType, FileDeserializerType)
 
 public:
     FileMonitor()
@@ -76,7 +69,7 @@ public:
     // 获取当前配置
     SmartPtr<ObjType, AutoDelMethods::Release> Current() const;
     // 初始化
-    void Init(const KERNEL_NS::LibString &path);
+    void Init(const KERNEL_NS::LibString &path, YamlMemory *fromMemory);
 
     const LibString &GetPath() const;
 
@@ -89,33 +82,7 @@ private:
 
 template<typename ObjType, typename FileDeserializerType>
 #ifdef CRYSTAL_NET_CPP20
-requires requires(ObjType obj, FileDeserializerType *d, KERNEL_NS::LibString path)
-{
-    ObjType::CreateNewObj(std::move(obj));
-    obj.Release();
-
-    d = FileDeserializerType::Create();
-    d->Release();
-    d->template SwapNewData<ObjType>();
-    d->template Register<ObjType>(path);
-    
-}
-#endif
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(FileMonitor, ObjType, FileDeserializerType);
-
-template<typename ObjType, typename FileDeserializerType>
-#ifdef CRYSTAL_NET_CPP20
-requires requires(ObjType obj, FileDeserializerType *d, KERNEL_NS::LibString path)
-{
-    ObjType::CreateNewObj(std::move(obj));
-    obj.Release();
-
-    d = FileDeserializerType::Create();
-    d->Release();
-    d->template SwapNewData<ObjType>();
-    d->template Register<ObjType>(path);
-    
-}
+requires FileMonitorConcept<ObjType, FileDeserializerType>
 #endif
 ALWAYS_INLINE SmartPtr<ObjType, AutoDelMethods::Release> FileMonitor<ObjType, FileDeserializerType>::Current() const
 {
@@ -131,23 +98,13 @@ ALWAYS_INLINE SmartPtr<ObjType, AutoDelMethods::Release> FileMonitor<ObjType, Fi
 
 template<typename ObjType, typename FileDeserializerType>
 #ifdef CRYSTAL_NET_CPP20
-requires requires(ObjType obj, FileDeserializerType *d, KERNEL_NS::LibString path)
-{
-    ObjType::CreateNewObj(std::move(obj));
-    obj.Release();
-
-    d = FileDeserializerType::Create();
-    d->Release();
-    d->template SwapNewData<ObjType>();
-    d->template Register<ObjType>(path);
-    
-}
+requires FileMonitorConcept<ObjType, FileDeserializerType>
 #endif
-ALWAYS_INLINE void FileMonitor<ObjType, FileDeserializerType>::Init(const KERNEL_NS::LibString &path)
+ALWAYS_INLINE void FileMonitor<ObjType, FileDeserializerType>::Init(const KERNEL_NS::LibString &path, YamlMemory *fromMemory)
 {
     _filePath = path;
     _deserialize = FileDeserializerType::Create();
-    _currentObject = _deserialize->template Register<ObjType>(_filePath);
+    _currentObject = _deserialize->template Register<ObjType>(_filePath, fromMemory);
 }
 
 KERNEL_END

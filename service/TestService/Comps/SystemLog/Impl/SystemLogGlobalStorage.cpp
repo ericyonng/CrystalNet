@@ -39,8 +39,6 @@ const KERNEL_NS::LibString SystemLogGlobalStorage::ID = "Id";
 const KERNEL_NS::LibString SystemLogGlobalStorage::LIBRARY_ID_NAME = "LibraryId";
 const KERNEL_NS::LibString SystemLogGlobalStorage::LOG_DATA_NAME = "LogData";
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(SystemLogGlobalStorage);
-
 SystemLogGlobalStorage::SystemLogGlobalStorage()
 :IStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<SystemLogGlobalStorage>(), KERNEL_NS::RttiUtil::GetByType<SystemLogGlobal>())
 {

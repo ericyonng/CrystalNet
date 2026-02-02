@@ -35,7 +35,6 @@
 #include <OptionComp/storage/mysql/impl/Field.h>
 
 KERNEL_BEGIN
-POOL_CREATE_OBJ_DEFAULT_IMPL(PrepareStmt);
 
 PrepareStmt::PrepareStmt(MysqlConnect *conn, const LibString &sql, UInt64 id)
 :_conn(conn)

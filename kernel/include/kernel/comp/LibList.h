@@ -113,9 +113,6 @@ public:
 };
 
 
-template<typename ObjType>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(ListNode, ObjType);
-
 template<typename ObjType, typename BuildType = _Build::MT>
 class LibList
 {
@@ -470,9 +467,6 @@ private:
     ListNode<ObjType> *_tail;
     UInt64 _nodeAmount;
 };
-
-template<typename ObjType, typename BuildType>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(LibList, ObjType, BuildType);
 
 KERNEL_END
 

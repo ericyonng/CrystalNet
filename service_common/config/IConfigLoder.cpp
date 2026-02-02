@@ -32,8 +32,6 @@
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IConfigLoader);
-
 IConfigLoader::IConfigLoader(UInt64 objTypeId)
 :KERNEL_NS::CompHostObject(objTypeId)
 {

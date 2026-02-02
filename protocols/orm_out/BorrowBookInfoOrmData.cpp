@@ -32,8 +32,6 @@
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(BorrowBookInfoOrmData);
-
 BorrowBookInfoOrmData::BorrowBookInfoOrmData()
 :_ormRawPbData(new ::CRYSTAL_NET::service::BorrowBookInfo)
 {
@@ -335,8 +333,6 @@ bool BorrowBookInfoOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL
 {
     return _ormRawPbData->Decode(stream);
 }
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(BorrowBookInfoOrmDataFactory);
 
 IOrmData *BorrowBookInfoOrmDataFactory::Create() const
 {

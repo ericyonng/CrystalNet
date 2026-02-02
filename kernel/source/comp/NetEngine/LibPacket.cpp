@@ -34,8 +34,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibPacket);
-
 LibPacket::LibPacket()
 :_packetId(0)
 ,_sessionId(0)

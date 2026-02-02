@@ -37,8 +37,6 @@
 #include <TestServicePlugin/TestServicePlugin.h>
 
 SERVICE_BEGIN
-    POOL_CREATE_OBJ_DEFAULT_IMPL(IPluginMgr);
-POOL_CREATE_OBJ_DEFAULT_IMPL(PluginMgr);
 
 PluginMgr::PluginMgr()
 : IPluginMgr(KERNEL_NS::RttiUtil::GetTypeId<PluginMgr>())

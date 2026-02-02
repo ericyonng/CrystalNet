@@ -31,7 +31,6 @@
 
 
 KERNEL_BEGIN
-POOL_CREATE_OBJ_DEFAULT_IMPL(SelectNode);
 
 SelectNode::SelectNode(IBtNode *parent)
 :IBtNode(BtNodeType::SELECT, parent)

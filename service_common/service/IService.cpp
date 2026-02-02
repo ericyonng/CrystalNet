@@ -36,8 +36,6 @@
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IService);
-
 IService::IService(UInt64 objTypeId)
 :KERNEL_NS::CompHostObject(objTypeId)
 ,_serviceId(0)

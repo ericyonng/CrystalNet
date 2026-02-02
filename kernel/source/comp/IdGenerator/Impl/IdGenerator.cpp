@@ -36,8 +36,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IdGenerator);
-
 IdGenerator::IdGenerator()
  :CompObject(RttiUtil::GetTypeId<IdGenerator>())
 ,_lastSequanceId(0)

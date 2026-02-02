@@ -48,9 +48,6 @@ bool ClientUserHeartbeatComp::operator()(const IClientUser *l, const IClientUser
     return l->GetHeartbeatExpireTime() < r->GetHeartbeatExpireTime();
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IClientUserMgr);
-POOL_CREATE_OBJ_DEFAULT_IMPL(ClientUserMgr);
-
 ClientUserMgr::ClientUserMgr()
 :IClientUserMgr(KERNEL_NS::RttiUtil::GetTypeId<ClientUserMgr>())
 ,_heartbeatRemoveUserTimer(NULL)

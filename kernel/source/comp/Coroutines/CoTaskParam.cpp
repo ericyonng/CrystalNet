@@ -38,10 +38,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(CoTaskParam);
-POOL_CREATE_OBJ_DEFAULT_IMPL(CoCurrentTaskParam);
-POOL_CREATE_OBJ_DEFAULT_IMPL(TaskParamRefWrapper);
-
 CoTaskParam::~CoTaskParam()
 {
     if(_timeout)

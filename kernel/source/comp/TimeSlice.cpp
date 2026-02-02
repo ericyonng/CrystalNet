@@ -32,8 +32,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TimeSlice);
-
 TimeSlice::TimeSlice(const LibString &fmtSlice)
 {
     // Ensure the slice string is time format, not datetime format.

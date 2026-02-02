@@ -35,7 +35,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibConnectInfo);
 
 LibConnectInfo::LibConnectInfo()
 :_localPort(0)
@@ -65,7 +64,6 @@ LibString LibConnectInfo::ToString() const
     return info;
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibConnectPendingInfo);
 
 LibConnectPendingInfo::LibConnectPendingInfo()
 :_connectInfo(NULL)

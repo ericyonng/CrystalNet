@@ -40,9 +40,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IBookBagMgr);
-POOL_CREATE_OBJ_DEFAULT_IMPL(BookBagMgr);
-
 BookBagMgr::BookBagMgr()
 :IBookBagMgr(KERNEL_NS::RttiUtil::GetTypeId<BookBagMgr>())
 ,_bookBagInfo(SERVICE_COMMON_NS::BookBagInfoOrmData::NewThreadLocal_BookBagInfoOrmData())

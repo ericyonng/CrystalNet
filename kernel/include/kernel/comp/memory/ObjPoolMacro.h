@@ -61,9 +61,6 @@ __OBJ_POOL_CREATE_GEN_END()\
 __OBJ_POOL_CREATE_THREAD_LOCAL_BEGIN(ObjType)\
 __OBJ_POOL_CREATE_THREAD_LOCAL_END()
 
-#undef POOL_CREATE_OBJ_IMPL
-#define POOL_CREATE_OBJ_IMPL(createBufferNumWhenInit, initBlockNumPerBuffer, ObjType)   \
-__OBJ_POOL_CREATE_IMPL(ObjType, createBufferNumWhenInit, initBlockNumPerBuffer)
 
 // 单继承
 #undef POOL_CREATE_OBJ_P1
@@ -145,10 +142,6 @@ __OBJ_POOL_CREATE_THREAD_LOCAL_END()
 #undef POOL_CREATE_OBJ_DEFAULT_NO_BUFFER_INIT_P4
 #define POOL_CREATE_OBJ_DEFAULT_NO_BUFFER_INIT_P4(ParentClass1, ParentClass2, ParentClass3, ParentClass4, ObjType) POOL_CREATE_OBJ_P4(0, MEMORY_BUFFER_BLOCK_INIT, ParentClass1, ParentClass2, ParentClass3, ParentClass4, ObjType)
 
-#undef POOL_CREATE_OBJ_DEFAULT_IMPL
-#define POOL_CREATE_OBJ_DEFAULT_IMPL(ObjType)               \
-POOL_CREATE_OBJ_IMPL(0, MEMORY_BUFFER_BLOCK_INIT, ObjType)
-
 // // 泛型宏
 
 // 无继承 
@@ -161,14 +154,6 @@ __OBJ_POOL_CREATE_GEN_TEMPLATE_BEGIN(ObjType)\
 __OBJ_POOL_CREATE_GEN_TEMPLATE_END()\
 __OBJ_POOL_CREATE_THREAD_LOCAL_TEMPLATE_BEGIN(ObjType)\
 __OBJ_POOL_CREATE_THREAD_LOCAL_TEMPLATE_END()
-
-#undef POOL_CREATE_TEMPLATE_OBJ_IMPL
-#define POOL_CREATE_TEMPLATE_OBJ_IMPL(createBufferNumWhenInit, initBlockNumPerBuffer, ObjType, ...) \
-__OBJ_POOL_CREATE_TEMPLATE_IMPL(createBufferNumWhenInit, initBlockNumPerBuffer, ObjType, ##__VA_ARGS__)
-
-#undef POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL
-#define POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(ObjType, ...)     \
-POOL_CREATE_TEMPLATE_OBJ_IMPL(0, MEMORY_BUFFER_BLOCK_INIT, ObjType, ##__VA_ARGS__)
 
 // 单继承
 // param(ObjType):泛型类型,

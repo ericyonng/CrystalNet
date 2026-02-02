@@ -59,8 +59,6 @@ public:
 
 
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(MyTestConfigLoader);
-
 void TestConfig::Run()
 {
     auto configLoader = MyTestConfigLoader::New_MyTestConfigLoader();

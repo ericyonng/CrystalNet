@@ -30,8 +30,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestAnalyzeInfo);
-
 TestAnalyzeInfo::~TestAnalyzeInfo()
 {
 }
@@ -41,7 +39,6 @@ void TestAnalyzeInfo::Release()
     TestAnalyzeInfo::DeleteThreadLocal_TestAnalyzeInfo(this);
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(SessionAnalyzeInfo);
 SessionAnalyzeInfo::~SessionAnalyzeInfo()
 {
     KERNEL_NS::ContainerUtil::DelContainer2(_packetIdRefAnalyzeInfo);

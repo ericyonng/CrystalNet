@@ -32,8 +32,6 @@
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ServiceProxyStatisticsInfo);
-
 KERNEL_NS::LibString ServiceProxyStatisticsInfo::ToString() const
 {
     KERNEL_NS::LibString info;

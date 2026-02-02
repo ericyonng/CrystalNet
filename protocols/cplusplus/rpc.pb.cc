@@ -3,8 +3,6 @@
 // source: rpc.proto
 
 #include <protocols/cplusplus/rpc.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(RpcReqFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(RpcResFactory);
 
 #include <algorithm>
 

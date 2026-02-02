@@ -32,8 +32,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ServiceFactory);
-
 SERVICE_COMMON_NS::IService *ServiceFactory::Create(const KERNEL_NS::LibString &serviceName)
 {
     if(serviceName == "GateService")

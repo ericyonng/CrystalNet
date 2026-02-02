@@ -3,14 +3,6 @@
 // source: heartbeat.proto
 
 #include <protocols/cplusplus/heartbeat.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(NodeHeartbeatReqFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(NodeHeartbeatResFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(RegisterNodeReqFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(RegisterNodeResFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(GetNodeListReqFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(GetNodeListResFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(ClientHeartbeatReqFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(ClientHeartbeatResFactory);
 
 #include <algorithm>
 

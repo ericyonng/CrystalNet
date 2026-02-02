@@ -31,7 +31,6 @@
 #include <OptionComp/BehaviorTree/impl/IBt.h>
 
 KERNEL_BEGIN
-POOL_CREATE_OBJ_DEFAULT_IMPL(IBtNode);
 
 IBtNode::IBtNode(Int32 nodeType, IBtNode *parent)
 :_isInited(false)

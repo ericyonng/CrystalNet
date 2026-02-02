@@ -34,9 +34,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(EventManager);
-
-
 EventManager::~EventManager()
 {
     _eventIdRefListenerOwners.clear();

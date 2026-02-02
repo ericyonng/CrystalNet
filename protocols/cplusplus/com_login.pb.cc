@@ -3,7 +3,6 @@
 // source: com_login.proto
 
 #include <protocols/cplusplus/com_login.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(UserLoginInfoFactory);
 
 #include <algorithm>
 

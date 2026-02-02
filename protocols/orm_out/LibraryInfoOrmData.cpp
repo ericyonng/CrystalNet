@@ -38,8 +38,6 @@
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibraryInfoOrmData);
-
 LibraryInfoOrmData::LibraryInfoOrmData()
 :_ormRawPbData(new ::CRYSTAL_NET::service::LibraryInfo)
 {
@@ -1072,8 +1070,6 @@ bool LibraryInfoOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &
 
     return ret;
 }
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibraryInfoOrmDataFactory);
 
 IOrmData *LibraryInfoOrmDataFactory::Create() const
 {

@@ -68,10 +68,15 @@ struct KERNEL_EXPORT FileMonitorInfo
     void Release();
 
     KERNEL_NS::LibString _path;
-    IDelegate<bool> *_checkChange;
+    // void *&: fromMemory
+    IDelegate<bool, void *&> *_checkChange;
     IDelegate<void, void *> *_releaseObj;
-    IDelegate<void *> *_loadNewObj;
+    // 第二个:void *:fromMemory
+    IDelegate<void *, void *> *_loadNewObj;
     void *_sourceObj;
+    
+    IDelegate<void, void *> *_releaseFromMemory;
+    void *_fromMemory;  // 来自内存的数据
 
     std::unordered_map<void *, FileChangeHandle *> _keyRefFileChangeHandle;
 };

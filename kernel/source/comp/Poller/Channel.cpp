@@ -29,8 +29,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(Channel);
-
 Channel::Channel(UInt64 channelId, Poller *target, SPSCQueue<PollerEvent *> *queue)
 :_channelId(channelId)
 ,_events(queue)

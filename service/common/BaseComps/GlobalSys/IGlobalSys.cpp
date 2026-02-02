@@ -41,8 +41,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IGlobalSys);
-
 
 const KERNEL_NS::LibString IGlobalSys::OpcodeToString(Int32 opcode)
 {

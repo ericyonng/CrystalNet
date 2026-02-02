@@ -34,8 +34,6 @@
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestOrmOrmData);
-
 TestOrmOrmData::TestOrmOrmData()
 :_ormRawPbData(new ::CRYSTAL_NET::service::TestOrm)
 {
@@ -1022,8 +1020,6 @@ bool TestOrmOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stre
 
     return ret;
 }
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestOrmOrmDataFactory);
 
 IOrmData *TestOrmOrmDataFactory::Create() const
 {

@@ -54,7 +54,6 @@ public:
    Byte8 str[4096];
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestString);
 
 class ChildTestString : public TestString
 {
@@ -75,7 +74,6 @@ public:
    Byte8 str2[128];
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ChildTestString);
 
 
 class TestSysTemStringObj
@@ -111,7 +109,6 @@ public:
     Byte8 str2[128];
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestDeriveAncestor);
 
 
 class TestDeriveAncestorDerive : public TestDeriveAncestor
@@ -136,7 +133,6 @@ public:
     Byte8 str3[128];
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestDeriveAncestorDerive);
 
 
 
@@ -158,9 +154,7 @@ public:
 
     }
 };
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestDeriveAncestorDerive2);
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(SmartPtrRaw);
 
 // TODO:测试性能+测试相邻内存的内存践踏，测试继承的内存践踏 性能与内存践踏已通过测试
 

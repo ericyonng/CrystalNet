@@ -3,7 +3,6 @@
 // source: com.proto
 
 #include <protocols/cplusplus/com.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(CreatureAttrKeyFactory);
 
 #include <algorithm>
 

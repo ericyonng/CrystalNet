@@ -34,7 +34,6 @@
 #include <service/common/BaseComps/SessionMgrComp/Impl/SessionMgr.h>
 
 SERVICE_BEGIN
-POOL_CREATE_OBJ_DEFAULT_IMPL(ServiceSession);
 
 ServiceSession::ServiceSession(SessionMgr *sessionMgr)
 :_sessionInfo(ServiceSessionInfo::NewThreadLocal_ServiceSessionInfo())

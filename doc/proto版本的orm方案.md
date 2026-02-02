@@ -244,8 +244,6 @@
   
   ```
   
-  POOL_CREATE_OBJ_DEFAULT_IMPL(TestOrmOrmData);
-  
   TestOrmOrmData::TestOrmOrmData()
   :_ormRawPbData(new ::CRYSTAL_NET::service::TestOrm)
   {
@@ -1232,8 +1230,6 @@
   
       return ret;
   }
-  
-  POOL_CREATE_OBJ_DEFAULT_IMPL(TestOrmOrmDataFactory);
   
   IOrmData *TestOrmOrmDataFactory::Create() const
   {

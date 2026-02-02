@@ -18,7 +18,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ItemConfig);
 ItemConfig::ItemConfig()
 :_id(0)
 ,_type(0)
@@ -199,8 +198,6 @@ void ItemConfig::Serialize(KERNEL_NS::LibString &lineData) const
         g_Log->Error(LOGFMT_OBJ_TAG("field num not enough countFieldNum:%d, need fieldNum:%d"), countFieldNum, fieldNum);
     }
 }
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(ItemConfigMgr);
 
 const std::vector<ItemConfig *> ItemConfigMgr::s_empty;
 

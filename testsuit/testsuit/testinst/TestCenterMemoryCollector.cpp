@@ -36,8 +36,6 @@ public:
     BUFFER1024 _buffer;
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestCenterMemroyAlloc);
-
 #define TEST_CENTER_COLLECT_COUNT 10
 
 static KERNEL_NS::Locker g_TestCenterMemCollectorGuard;

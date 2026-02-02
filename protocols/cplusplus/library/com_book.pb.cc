@@ -3,11 +3,6 @@
 // source: com_book.proto
 
 #include <protocols/cplusplus/library/com_book.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(BookTypeFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(SnapshotClientInfoFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(BookInfoFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(BookVariantInfoFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(BookVariantInfoItemFactory);
 
 #include <algorithm>
 

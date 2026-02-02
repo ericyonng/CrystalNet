@@ -35,8 +35,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(BookBagGlobalStorage);
-
 
 BookBagGlobalStorage::BookBagGlobalStorage()
 :IStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<BookBagGlobalStorage>(), KERNEL_NS::RttiUtil::GetByType<BookBagGlobal>())

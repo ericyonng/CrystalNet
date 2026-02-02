@@ -40,7 +40,6 @@
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(Application);
 
 Application::Application()
 :IApplication(KERNEL_NS::RttiUtil::GetTypeId<Application>())

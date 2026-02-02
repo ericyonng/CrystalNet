@@ -32,8 +32,6 @@
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(CancelOrderReasonOrmData);
-
 CancelOrderReasonOrmData::CancelOrderReasonOrmData()
 :_ormRawPbData(new ::CRYSTAL_NET::service::CancelOrderReason)
 {
@@ -216,8 +214,6 @@ bool CancelOrderReasonOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build:
 {
     return _ormRawPbData->Decode(stream);
 }
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(CancelOrderReasonOrmDataFactory);
 
 IOrmData *CancelOrderReasonOrmDataFactory::Create() const
 {

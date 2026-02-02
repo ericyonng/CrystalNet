@@ -267,22 +267,6 @@ requires std::movable<Elem> && requires
   requires (sizeof(QueueSlot<Elem>) % SYSTEM_ALIGN_SIZE) == 0;
 }
 #endif
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(MPMCQueue, Elem, CapacitySize);
-
-template <typename Elem, UInt64 CapacitySize>
-#ifdef CRYSTAL_NET_CPP20
-requires std::movable<Elem> && requires
-{
-  // 2的整数倍
-  requires IsPowerOfTwo<CapacitySize>;
-
-  // QueueSlot<Elem> 必须与 SYSTEM_ALIGN_SIZE对齐, QueueSlot 必须按缓存行边界对齐，以防止伪共享。
-  requires alignof(QueueSlot<Elem>) == SYSTEM_ALIGN_SIZE;
-
-  // 需要保证 QueueSlot<Elem>大小是SYSTEM_ALIGN_SIZE的整数倍：槽位大小必须是缓存行大小的整数倍，以防止相邻槽位间的伪共享。
-  requires (sizeof(QueueSlot<Elem>) % SYSTEM_ALIGN_SIZE) == 0;
-}
-#endif
 template <typename... Args>
 ALWAYS_INLINE void MPMCQueue<Elem, CapacitySize>::Emplace(Args &&...args) noexcept
 {

@@ -37,9 +37,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ITestMgr);
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestMgr);
 
 TestMgr::TestMgr()
 :ITestMgr(KERNEL_NS::RttiUtil::GetTypeId<TestMgr>())

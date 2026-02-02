@@ -32,7 +32,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TcpPollerInstConfig);
 
 TcpPollerInstConfig::TcpPollerInstConfig(const TcpPollerFeatureConfig *owner, UInt32 id)
 :_id(id)
@@ -79,7 +78,6 @@ void TcpPollerInstConfig::Copy(const TcpPollerInstConfig &cfg)
     _bufferCapacity = cfg._bufferCapacity;
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TcpPollerFeatureConfig);
 
 TcpPollerFeatureConfig::TcpPollerFeatureConfig(const TcpPollerConfig *owner, Int32 pollerFeature)
 :_pollerFeature(pollerFeature)
@@ -121,7 +119,6 @@ void TcpPollerFeatureConfig::Copy(const TcpPollerFeatureConfig &cfg)
     }
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TcpPollerConfig);
 
 TcpPollerConfig::TcpPollerConfig()
 {

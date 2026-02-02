@@ -115,7 +115,6 @@ class EventLoopThreadStartup : public KERNEL_NS::IThreadStartUp
     }
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(EventLoopThreadStartup);
 
 void TestEventLoopThread::Run()
 {

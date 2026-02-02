@@ -36,8 +36,6 @@
 SERVICE_BEGIN
 
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(PassTimeGlobalStorage);
-
 const KERNEL_NS::LibString PassTimeGlobalStorage::ID = "Id";
 const KERNEL_NS::LibString PassTimeGlobalStorage::DATA = "PassTime";
 

@@ -39,8 +39,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IPassTimeGlobal);
-POOL_CREATE_OBJ_DEFAULT_IMPL(PassTimeGlobal);
 
 PassTimeGlobal::PassTimeGlobal()
 :IPassTimeGlobal(KERNEL_NS::RttiUtil::GetTypeId<PassTimeGlobal>())

@@ -3,10 +3,6 @@
 // source: broadcast_msg.proto
 
 #include <protocols/cplusplus/broadcast_msg.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(SendDataRequestFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(SendDataResponseFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(BroadcastSendDataNtyFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(BroadcastSendDataConfirmResponseFactory);
 
 #include <algorithm>
 

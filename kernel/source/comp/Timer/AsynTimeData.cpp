@@ -30,6 +30,5 @@
 #include <kernel/comp/Timer/AsynTimeData.h>
 
 KERNEL_BEGIN
-POOL_CREATE_OBJ_DEFAULT_IMPL(AsynTimeData);
 
 KERNEL_END

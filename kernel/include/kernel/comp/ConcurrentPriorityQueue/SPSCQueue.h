@@ -169,16 +169,6 @@ requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requi
   requires CapacitySize >= 1 && (CapacitySize <= (SIZE_MAX -1 ));
 }
 #endif
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(SPSCQueue, Elem, CapacitySize);
-
-template <typename Elem, UInt64 CapacitySize>
-#ifdef CRYSTAL_NET_CPP20
-requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
-{
-  // 需要至少一个元素, 避免溢出
-  requires CapacitySize >= 1 && (CapacitySize <= (SIZE_MAX -1 ));
-}
-#endif
 template <typename... Args>
 #ifdef CRYSTAL_NET_CPP20
 requires std::is_constructible<Elem, Args &&...>::value

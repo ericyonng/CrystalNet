@@ -35,8 +35,6 @@
 SERVICE_BEGIN
 
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestMgrStorage);
-
 TestMgrStorage::TestMgrStorage()
 :IStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<TestMgrStorage>(), KERNEL_NS::RttiUtil::GetByType<TestMgr>())
 {

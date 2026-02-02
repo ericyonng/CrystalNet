@@ -30,6 +30,7 @@
 #include <vector>
 #include <yaml-cpp/yaml.h>
 
+#include "kernel/comp/FileMonitor/YamlMemory.h"
 #include "kernel/comp/Log/LogCfg.h"
 
 struct GameServer
@@ -116,8 +117,15 @@ void TestYaml::Run()
     // }
 
     auto yamlFile = progPath + "/ini/Log.yaml";
+    auto yamlFromMemory = KERNEL_NS::YamlMemory::New_YamlMemory();
+    auto data = KERNEL_NS::YamlMemoryData::New_YamlMemoryData();
+    data->_data.AppendFormat("GameServer:\n  Bind: 127.0.0.1\n  BindPort: 1207\n  HostStr: www.baidu.com\n  Arr: [1, 2, 3, 4]");
+    yamlFromMemory->SetNewData(data);
+    KERNEL_NS::FileMonitor<GameServer, KERNEL_NS::YamlDeserializer> gs;
+    gs.Init("", yamlFromMemory);
+
     KERNEL_NS::FileMonitor<KERNEL_NS::LogCfg, KERNEL_NS::YamlDeserializer> testMonitor;
-    testMonitor.Init(yamlFile);
+    testMonitor.Init(yamlFile, NULL);
 
     auto cfg = testMonitor.Current();
 

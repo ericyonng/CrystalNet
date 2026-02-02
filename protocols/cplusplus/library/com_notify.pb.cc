@@ -3,9 +3,6 @@
 // source: com_notify.proto
 
 #include <protocols/cplusplus/library/com_notify.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(UserNotifyDataItemFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(UserNotifyDataFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(ClearNotifyTypeFactory);
 
 #include <algorithm>
 

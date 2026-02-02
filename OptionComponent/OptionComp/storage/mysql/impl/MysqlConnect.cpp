@@ -37,7 +37,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(MysqlConnect);
 
 
 MysqlConnect::MysqlConnect(UInt64 id)

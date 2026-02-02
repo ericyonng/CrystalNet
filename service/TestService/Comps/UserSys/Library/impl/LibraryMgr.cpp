@@ -36,8 +36,6 @@
 #include <protocols/protocols.h>
 
 SERVICE_BEGIN
-POOL_CREATE_OBJ_DEFAULT_IMPL(ILibraryMgr);
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibraryMgr);
 
 LibraryMgr::LibraryMgr()
 :ILibraryMgr(KERNEL_NS::RttiUtil::GetTypeId<LibraryMgr>())

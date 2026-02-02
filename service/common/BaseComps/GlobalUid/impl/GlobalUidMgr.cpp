@@ -36,9 +36,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IGlobalUidMgr);
-POOL_CREATE_OBJ_DEFAULT_IMPL(GlobalUidMgr);
-
 GlobalUidMgr::GlobalUidMgr()
 :IGlobalUidMgr(KERNEL_NS::RttiUtil::GetTypeId<GlobalUidMgr>())
 ,_curAllocUid(0)

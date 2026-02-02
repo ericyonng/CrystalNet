@@ -39,9 +39,6 @@
 SERVICE_BEGIN
 
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IEventRelayGlobal);
-POOL_CREATE_OBJ_DEFAULT_IMPL(EventRelayGlobal);
-
 EventRelayGlobal::EventRelayGlobal()
 :IEventRelayGlobal(KERNEL_NS::RttiUtil::GetTypeId<EventRelayGlobal>())
 ,_removeLibraryMemberStub(INVALID_LISTENER_STUB)

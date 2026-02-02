@@ -44,8 +44,6 @@ namespace
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibraryHotfixMonitor);
-
 LibraryHotfixMonitor::LibraryHotfixMonitor()
 :ILibraryHotfixMonitor(KERNEL_NS::RttiUtil::GetTypeId<LibraryHotfixMonitor>())
 ,_tick(KERNEL_NS::LibTimer::NewThreadLocal_LibTimer())

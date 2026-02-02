@@ -109,9 +109,6 @@ private:
     Int32 _targetCount;
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(KillNode);
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestBehaviorTree);
 
 void TestBt::Run()
 {

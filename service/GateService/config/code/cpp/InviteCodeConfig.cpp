@@ -18,7 +18,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(InviteCodeConfig);
 InviteCodeConfig::InviteCodeConfig()
 :_id(0)
 {
@@ -198,8 +197,6 @@ void InviteCodeConfig::Serialize(KERNEL_NS::LibString &lineData) const
         g_Log->Error(LOGFMT_OBJ_TAG("field num not enough countFieldNum:%d, need fieldNum:%d"), countFieldNum, fieldNum);
     }
 }
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(InviteCodeConfigMgr);
 
 const std::vector<InviteCodeConfig *> InviteCodeConfigMgr::s_empty;
 

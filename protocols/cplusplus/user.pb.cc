@@ -3,10 +3,6 @@
 // source: user.proto
 
 #include <protocols/cplusplus/user.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(UserClientInfoNtyFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(ModifyPwdInfoFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(ModifyUserInfoReqFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(ModifyUserInfoResFactory);
 
 #include <algorithm>
 

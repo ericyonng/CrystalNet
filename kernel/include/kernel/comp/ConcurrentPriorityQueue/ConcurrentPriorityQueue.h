@@ -228,10 +228,6 @@ private:
 };
 
 template<typename Elem, typename BuildType, typename LockType>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(ConcurrentPriorityQueue, Elem, BuildType, LockType);
-
-
-template<typename Elem, typename BuildType, typename LockType>
 ALWAYS_INLINE ConcurrentPriorityQueue<Elem, BuildType, LockType>::ConcurrentPriorityQueue()
 :_maxLevel(0)
 , _elemAmount{0}

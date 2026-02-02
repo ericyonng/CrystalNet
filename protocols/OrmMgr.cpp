@@ -35,9 +35,6 @@
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IOrmMgr);
-POOL_CREATE_OBJ_DEFAULT_IMPL(OrmMgr);
-
 OrmMgr::OrmMgr()
 :IOrmMgr(KERNEL_NS::RttiUtil::GetTypeId<OrmMgr>())
 {

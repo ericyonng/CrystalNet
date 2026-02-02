@@ -3,8 +3,6 @@
 // source: com_heartbeat.proto
 
 #include <protocols/cplusplus/com_heartbeat.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(NODE_IPTYPEFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(NodeHeartbeatInfoFactory);
 
 #include <algorithm>
 

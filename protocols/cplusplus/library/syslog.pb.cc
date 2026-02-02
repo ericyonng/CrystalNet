@@ -3,8 +3,6 @@
 // source: syslog.proto
 
 #include <protocols/cplusplus/library/syslog.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(SystemLogDataListReqFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(SystemLogDataListResFactory);
 
 #include <algorithm>
 

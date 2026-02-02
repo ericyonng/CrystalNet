@@ -3,14 +3,6 @@
 // source: com_user.proto
 
 #include <protocols/cplusplus/com_user.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(UserBaseInfoFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestCustomDataFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestOrmFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(LoginModeFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(RegisterUserInfoFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(LoginInfoFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(LogoutReasonFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(SimpleUserInfoFactory);
 
 #include <algorithm>
 

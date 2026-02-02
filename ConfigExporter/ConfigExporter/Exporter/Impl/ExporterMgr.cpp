@@ -31,9 +31,6 @@
 #include <ConfigExporter/Exporter/Impl/ExporterMgrFactory.h>
 #include <ConfigExporter/Exporter/Interface/IXlsxExporterMgr.h>
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IExporterMgr);
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(ExporterMgr);
 
 ExporterMgr::ExporterMgr()
 :IExporterMgr(KERNEL_NS::RttiUtil::GetTypeId<ExporterMgr>())

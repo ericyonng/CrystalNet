@@ -3,13 +3,6 @@
 // source: login.proto
 
 #include <protocols/cplusplus/login.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(LoginReqFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(LoginResFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(LoginInfoNtyFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(LogoutReqFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(LogoutNtyFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(LoginFinishReqFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(LoginFinishResFactory);
 
 #include <algorithm>
 

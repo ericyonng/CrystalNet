@@ -35,8 +35,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(AddrConfig);
-
 
 bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent)
 {
@@ -374,8 +372,6 @@ bool AddrConfig::ParseIpInfo(const KERNEL_NS::LibString &addrInfo, KERNEL_NS::Ad
     return true;
 }
 
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(ServiceConfig);
 
 bool ServiceConfig::Parse(const KERNEL_NS::LibString &seg, const KERNEL_NS::LibIniFile *ini)
 {

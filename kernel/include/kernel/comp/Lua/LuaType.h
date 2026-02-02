@@ -207,9 +207,6 @@ struct LuaTypeRttiStr
 };
 
 template<typename T>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(LuaTypeRttiStr, T);
-
-template<typename T>
 struct LuaTypeInfo
 {
 	static void SetName(const std::string &name, std::string &&inheritName = std::string(""))

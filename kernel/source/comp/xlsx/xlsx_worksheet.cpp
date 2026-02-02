@@ -33,8 +33,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(XlsxSheet);
-
 XlsxSheet::XlsxSheet(XlsxWorkbook *workbook, const LibString &sheetName, UInt64 sheetId)
 :_workbook(workbook)
 ,_sheetName(sheetName)

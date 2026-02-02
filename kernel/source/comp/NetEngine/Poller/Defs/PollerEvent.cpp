@@ -45,7 +45,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(MonitorPollerEvent);
 
 MonitorPollerEvent::MonitorPollerEvent()
     :PollerEvent(PollerEventType::Monitor)
@@ -98,7 +97,6 @@ LibString MonitorPollerEvent::ToString() const
     return info;
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(AsynSendEvent);
 
 AsynSendEvent::AsynSendEvent()
     :PollerEvent(PollerEventType::Write)
@@ -145,7 +143,6 @@ LibString AsynSendEvent::ToString() const
     return info;  
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(AsynConnectEvent);
 
 AsynConnectEvent::AsynConnectEvent()
     :PollerEvent(PollerEventType::AsynConnect)
@@ -167,7 +164,6 @@ LibString AsynConnectEvent::ToString() const
     return info; 
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(NewSessionEvent);
 
 NewSessionEvent::NewSessionEvent()
 :PollerEvent(PollerEventType::NewSession)
@@ -190,7 +186,6 @@ LibString NewSessionEvent::ToString() const
     return info;
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(CloseSessionEvent);
 
 CloseSessionEvent::CloseSessionEvent()
 :PollerEvent(PollerEventType::CloseSession)
@@ -223,7 +218,6 @@ LibString CloseSessionEvent::ToString() const
     return info;
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(QuitServiceSessionsEvent);
 
 QuitServiceSessionsEvent::QuitServiceSessionsEvent()
 :PollerEvent(PollerEventType::QuitServiceSessionsEvent)
@@ -246,8 +240,6 @@ LibString QuitServiceSessionsEvent::ToString() const
     return info;
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(QuitSessionInfo);
-POOL_CREATE_OBJ_DEFAULT_IMPL(RealDoQuitServiceSessionEvent);
 
 RealDoQuitServiceSessionEvent::RealDoQuitServiceSessionEvent()
 :PollerEvent(PollerEventType::RealDoQuitServiceSessionEvent)
@@ -278,7 +270,6 @@ LibString RealDoQuitServiceSessionEvent::ToString() const
     return info;
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(AddListenEvent);
 
 AddListenEvent::AddListenEvent()
 :PollerEvent(PollerEventType::AddListen)
@@ -305,7 +296,6 @@ LibString AddListenEvent::ToString() const
     return info;
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(SessionCreatedEvent);
 
 SessionCreatedEvent::SessionCreatedEvent()
 :PollerEvent(PollerEventType::SessionCreated)
@@ -353,7 +343,6 @@ LibString SessionCreatedEvent::ToString() const
     return info;
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(AsynConnectResEvent);
 
 AsynConnectResEvent::AsynConnectResEvent()
 :PollerEvent(PollerEventType::AsynConnectRes)
@@ -395,7 +384,6 @@ LibString AsynConnectResEvent::ToString() const
     return info; 
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(AddListenResEvent);
 
 AddListenResEvent::AddListenResEvent()
 :PollerEvent(PollerEventType::AddListenRes)
@@ -431,7 +419,6 @@ LibString AddListenResEvent::ToString() const
     return info;
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(SessionDestroyEvent);
 
 SessionDestroyEvent::SessionDestroyEvent()
 :PollerEvent(PollerEventType::SessionDestroy)
@@ -461,7 +448,6 @@ LibString SessionDestroyEvent::ToString() const
     return info;
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(RecvMsgEvent);
 
 RecvMsgEvent::RecvMsgEvent()
 :PollerEvent(PollerEventType::RecvMsg)
@@ -520,7 +506,6 @@ LibString RecvMsgEvent::ToString() const
     return info;
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IpControlInfo);
 
 IpControlInfo *IpControlInfo::Create()
 {
@@ -556,7 +541,6 @@ LibString IpControlInfo::ToString() const
     return info;
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IpRuleControlEvent);
 
 IpRuleControlEvent::IpRuleControlEvent()
 :PollerEvent(PollerEventType::IpRuleControl)
@@ -590,7 +574,6 @@ LibString IpRuleControlEvent::ToString() const
     return info;
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(QuitServiceEvent);
 
 QuitServiceEvent::QuitServiceEvent()
 :PollerEvent(PollerEventType::QuitServiceEvent)
@@ -616,7 +599,6 @@ LibString QuitServiceEvent::ToString() const
     return info;
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(QuitApplicationEvent);
 
 QuitApplicationEvent::QuitApplicationEvent()
 :PollerEvent(PollerEventType::QuitApplicationEvent)
@@ -642,7 +624,6 @@ LibString QuitApplicationEvent::ToString() const
     return info;
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(HotfixShareLibraryEvent);
 
 HotfixShareLibraryEvent::HotfixShareLibraryEvent()
 :PollerEvent(PollerEventType::HotfixShareLibrary)
@@ -667,8 +648,6 @@ LibString HotfixShareLibraryEvent::ToString() const
 
     return info;
 }
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(HotfixShareLibraryCompleteEvent);
 
 HotfixShareLibraryCompleteEvent::HotfixShareLibraryCompleteEvent()
 :PollerEvent(PollerEventType::HotfixShareLibraryComplete)

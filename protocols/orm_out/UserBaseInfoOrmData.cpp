@@ -32,8 +32,6 @@
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(UserBaseInfoOrmData);
-
 UserBaseInfoOrmData::UserBaseInfoOrmData()
 :_ormRawPbData(new ::CRYSTAL_NET::service::UserBaseInfo)
 {
@@ -491,8 +489,6 @@ bool UserBaseInfoOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> 
 {
     return _ormRawPbData->Decode(stream);
 }
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(UserBaseInfoOrmDataFactory);
 
 IOrmData *UserBaseInfoOrmDataFactory::Create() const
 {

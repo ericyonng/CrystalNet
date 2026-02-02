@@ -36,8 +36,6 @@
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ServiceProxy);
-
 ServiceProxy::ServiceProxy()
 :IServiceProxy(KERNEL_NS::RttiUtil::GetTypeId<ServiceProxy>())
 ,_maxServiceId{0}

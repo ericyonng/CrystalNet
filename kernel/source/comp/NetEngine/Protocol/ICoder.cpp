@@ -32,9 +32,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ICoder);
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(ICoderFactory);
 
 // bool ICoder::Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream)
 // {

@@ -18,7 +18,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(CommonConfig);
 CommonConfig::CommonConfig()
 :_id(0)
 ,_value(0)
@@ -344,8 +343,6 @@ void CommonConfig::Serialize(KERNEL_NS::LibString &lineData) const
         g_Log->Error(LOGFMT_OBJ_TAG("field num not enough countFieldNum:%d, need fieldNum:%d"), countFieldNum, fieldNum);
     }
 }
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(CommonConfigMgr);
 
 const std::vector<CommonConfig *> CommonConfigMgr::s_empty;
 

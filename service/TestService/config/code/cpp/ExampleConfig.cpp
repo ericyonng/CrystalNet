@@ -1,7 +1,7 @@
 // Generate by ConfigExporter, Dont modify it!!!
 // file path:../../service/TestService/config/xlsx/example.xlsx
 // file path:../../service/TestService/config/xlsx/example.xlsx
-// sheet name:示例part1|Example;示例part2|Example
+// sheet name:示例part2|Example;示例part1|Example
 
 #include <pch.h>
 #include <kernel/kernel.h>
@@ -19,7 +19,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ExampleConfig);
 ExampleConfig::ExampleConfig()
 :_id(0)
 ,_type(0)
@@ -705,8 +704,6 @@ void ExampleConfig::Serialize(KERNEL_NS::LibString &lineData) const
         g_Log->Error(LOGFMT_OBJ_TAG("field num not enough countFieldNum:%d, need fieldNum:%d"), countFieldNum, fieldNum);
     }
 }
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(ExampleConfigMgr);
 
 const std::vector<ExampleConfig *> ExampleConfigMgr::s_empty;
 

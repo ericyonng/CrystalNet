@@ -30,6 +30,5 @@
 #include <kernel/comp/Log/LogData.h>
 
 KERNEL_BEGIN
-POOL_CREATE_OBJ_DEFAULT_IMPL(LogData);
 
 KERNEL_END

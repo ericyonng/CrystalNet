@@ -31,8 +31,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ParallelNode);
-
 ParallelNode::ParallelNode(IBtNode *parent)
 :IBtNode(BtNodeType::PARALLEL, parent)
 {

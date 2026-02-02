@@ -33,7 +33,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TableInfo);
 
 TableInfo::TableInfo()
 :_simpleInfo(CRYSTAL_NEW(SimpleInfo))

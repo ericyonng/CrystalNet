@@ -32,8 +32,6 @@
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(SimpleInfoOrmData);
-
 SimpleInfoOrmData::SimpleInfoOrmData()
 :_ormRawPbData(new ::CRYSTAL_NET::service::SimpleInfo)
 {
@@ -227,8 +225,6 @@ bool SimpleInfoOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &s
 {
     return _ormRawPbData->Decode(stream);
 }
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(SimpleInfoOrmDataFactory);
 
 IOrmData *SimpleInfoOrmDataFactory::Create() const
 {

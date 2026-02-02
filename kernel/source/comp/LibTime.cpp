@@ -46,9 +46,6 @@ static inline const KERNEL_NS::LibString &GetZeroTimeString()
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibTime);
-
-
 LibTime::LibTime()
     :_rawTime(0)
     ,_gmtTimeStruct{0}

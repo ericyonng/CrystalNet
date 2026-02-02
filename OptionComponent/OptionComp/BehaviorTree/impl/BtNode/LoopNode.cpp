@@ -30,7 +30,6 @@
 #include <OptionComp/BehaviorTree/impl/BtNode/LoopNode.h>
 
 KERNEL_BEGIN
-POOL_CREATE_OBJ_DEFAULT_IMPL(LoopNode);
 
 LoopNode::LoopNode(IBtNode *parent)
 :IBtNode(BtNodeType::LOOP, parent)

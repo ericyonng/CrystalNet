@@ -30,7 +30,6 @@
 #include <service_common/application/ResponseInfo.h>
 
 SERVICE_COMMON_BEGIN
-POOL_CREATE_OBJ_DEFAULT_IMPL(ResponseInfo);
 
 bool ResponseInfoCompare::operator()(const ResponseInfo *l, const ResponseInfo *r) const
 {
@@ -46,6 +45,5 @@ bool ResponseInfoCompare::operator()(const ResponseInfo *l, const ResponseInfo *
     return l->_resMicroSeconds < r->_resMicroSeconds;
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(StatisticsInfo);
 
 SERVICE_COMMON_END

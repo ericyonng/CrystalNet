@@ -32,9 +32,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ILogReciever);
-POOL_CREATE_OBJ_DEFAULT_IMPL(LogReciever);
-
 LogReciever::LogReciever()
     :ILogReciever(KERNEL_NS::RttiUtil::GetTypeId<LogReciever>())
 ,_thread(NULL)

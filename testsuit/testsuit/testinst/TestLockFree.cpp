@@ -53,8 +53,6 @@ public:
     Int64 _version = 0;
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestGenReq);
-
 
 struct TestGenRes
 {
@@ -73,7 +71,6 @@ public:
     
     char TestStr[256] = {'h','e','l','l','o','!', 'r','e','s','.'};
 };
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestGenRes);
 
 static std::atomic<Int64> g_GenNum = 0;
 static std::atomic<Int64> g_ConsumeNum = 0;

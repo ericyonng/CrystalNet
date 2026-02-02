@@ -33,8 +33,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(BookBagMgrStorage);
-
 BookBagMgrStorage::BookBagMgrStorage()
 :IStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<BookBagMgrStorage>(), KERNEL_NS::RttiUtil::GetByType<BookBagMgr>())
 {

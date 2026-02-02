@@ -41,9 +41,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IBookBagGlobal);
-POOL_CREATE_OBJ_DEFAULT_IMPL(BookBagGlobal);
-
 BookBagGlobal::BookBagGlobal()
 :IBookBagGlobal(KERNEL_NS::RttiUtil::GetTypeId<BookBagGlobal>())
 {

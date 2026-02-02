@@ -43,8 +43,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(UserSessionMgr);
-
 UserSessionMgr::UserSessionMgr()
 :KERNEL_NS::CompObject(KERNEL_NS::RttiUtil::GetTypeId<UserSessionMgr>())
 ,_eventMgr(NULL)

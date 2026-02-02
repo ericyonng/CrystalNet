@@ -3,8 +3,6 @@
 // source: com_client_user.proto
 
 #include <protocols/cplusplus/com_client_user.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(ClientUserStatusFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(ClientUserInfoFactory);
 
 #include <algorithm>
 

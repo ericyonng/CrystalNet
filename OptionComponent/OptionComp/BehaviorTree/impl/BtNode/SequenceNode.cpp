@@ -33,7 +33,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(SequenceNode);
 
 SequenceNode::SequenceNode(IBtNode *parent)
 :IBtNode(BtNodeType::SEQUENCE, parent)

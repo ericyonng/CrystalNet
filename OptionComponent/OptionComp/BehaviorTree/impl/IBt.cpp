@@ -32,7 +32,6 @@
 #include <kernel/comp/Log/log.h>
 
 KERNEL_BEGIN
-POOL_CREATE_OBJ_DEFAULT_IMPL(IBt);
 
 IBt::IBt(UInt64 id)
 :_isInited(false)

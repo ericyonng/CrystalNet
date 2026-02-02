@@ -42,8 +42,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibFile);
-
 LibFile::LibFile()
     :_fp(NULL)
     ,_fileSize(0)

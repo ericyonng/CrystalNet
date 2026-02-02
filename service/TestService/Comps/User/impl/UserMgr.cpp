@@ -47,8 +47,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IUserMgr);
-POOL_CREATE_OBJ_DEFAULT_IMPL(UserMgr);
 
 UserMgr::UserMgr()
 :IUserMgr(KERNEL_NS::RttiUtil::GetTypeId<UserMgr>())

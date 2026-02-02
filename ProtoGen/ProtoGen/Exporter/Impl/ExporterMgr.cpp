@@ -89,9 +89,6 @@ namespace
     };
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IExporterMgr);
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(ExporterMgr);
 
 
 ExporterMgr::ExporterMgr()
@@ -1222,9 +1219,6 @@ bool ExporterMgr::_ModifyCppPbCC(const KERNEL_NS::LibString &pbCCName, std::vect
 
     {
         std::vector<KERNEL_NS::LibString> addFactoryImpls;
-        for(auto &factoryName : newFactoryNames)
-            addFactoryImpls.push_back(KERNEL_NS::LibString().AppendFormat("POOL_CREATE_OBJ_DEFAULT_IMPL(%s);", factoryName.c_str()));
-
         const auto protoNameWithoutExtention = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(protoFileInfo->_protoInfo._fileName);
         auto appPath = app->GetAppPath();
         appPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(appPath);
@@ -1239,13 +1233,13 @@ bool ExporterMgr::_ModifyCppPbCC(const KERNEL_NS::LibString &pbCCName, std::vect
         KERNEL_NS::LibString pattenString = KERNEL_NS::LibString().AppendFormat("^#include.*%s%s\\.pb\\.h.*", headerRelationPath.c_str(), protoNameWithoutExtention.c_str());
         const auto &includeRegex = std::regex(pattenString.c_str());
 
-        ProtobuffHelper::Modifylines(lines, addFactoryImpls, [&includeRegex](Int32 curLine, KERNEL_NS::LibString &lineData
-                , std::vector<KERNEL_NS::LibString> &addLinesBefore // 默认为空
-                , std::vector<KERNEL_NS::LibString> &addLinesAfter  // 默认把 addLines 添加到 addLinesAfter
-                , bool &isContinue) -> bool
-        {
-            return std::regex_match(lineData.GetRaw(), includeRegex);
-        });
+        // ProtobuffHelper::Modifylines(lines, addFactoryImpls, [&includeRegex](Int32 curLine, KERNEL_NS::LibString &lineData
+        //         , std::vector<KERNEL_NS::LibString> &addLinesBefore // 默认为空
+        //         , std::vector<KERNEL_NS::LibString> &addLinesAfter  // 默认把 addLines 添加到 addLinesAfter
+        //         , bool &isContinue) -> bool
+        // {
+        //     return std::regex_match(lineData.GetRaw(), includeRegex);
+        // });
     }
 
     // {
@@ -3672,9 +3666,6 @@ bool ExporterMgr::_GenOrmImpl(const KERNEL_NS::LibString &ormRootPath, const KER
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("SERVICE_COMMON_BEGIN"));
     implCodeLines.push_back(KERNEL_NS::LibString());
 
-    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("POOL_CREATE_OBJ_DEFAULT_IMPL(%s);", messageName.c_str()));
-    implCodeLines.push_back(KERNEL_NS::LibString());
-
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("%s::%s()", messageName.c_str(), messageName.c_str()));
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat(":_ormRawPbData(new ::%s::%s)", nameSpace.c_str(), codeUnit->_unitName.c_str()));
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
@@ -4280,9 +4271,6 @@ bool ExporterMgr::_GenOrmImpl(const KERNEL_NS::LibString &ormRootPath, const KER
     }
 
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
-    implCodeLines.push_back(KERNEL_NS::LibString());
-
-    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("POOL_CREATE_OBJ_DEFAULT_IMPL(%sFactory);", messageName.c_str()));
     implCodeLines.push_back(KERNEL_NS::LibString());
 
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("IOrmData *%sFactory::Create() const", messageName.c_str()));

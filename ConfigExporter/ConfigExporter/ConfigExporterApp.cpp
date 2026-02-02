@@ -30,7 +30,6 @@
 #include <ConfigExporter/ConfigExporterApp.h>
 #include <ConfigExporter/Exporter/exporter.h>
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ConfigExporterApp);
 
 Int32 ConfigExporterApp::_OnHostInit() 
 { 

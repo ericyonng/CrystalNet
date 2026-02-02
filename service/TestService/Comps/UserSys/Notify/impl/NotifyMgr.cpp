@@ -38,8 +38,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(INotifyMgr);
-POOL_CREATE_OBJ_DEFAULT_IMPL(NotifyMgr);
 
 
 NotifyMgr::NotifyMgr()

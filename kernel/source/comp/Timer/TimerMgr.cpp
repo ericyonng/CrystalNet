@@ -39,8 +39,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TimerMgr);
-
 ALWAYS_INLINE void TimerMgr::_AfterDrive()
 {
     if(--_driving > 0)

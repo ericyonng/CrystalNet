@@ -33,8 +33,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(MyServiceComp);
-
 MyServiceComp::MyServiceComp()
 :KERNEL_NS::CompObject(KERNEL_NS::RttiUtil::GetTypeId<MyServiceComp>())
 {

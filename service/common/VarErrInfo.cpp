@@ -30,7 +30,5 @@
 #include <service/common/VarErrInfo.h>
 
 SERVICE_BEGIN
-POOL_CREATE_OBJ_DEFAULT_IMPL(VarErrInfo);
-POOL_CREATE_OBJ_DEFAULT_IMPL(VarErrInfoList);
 
 SERVICE_END

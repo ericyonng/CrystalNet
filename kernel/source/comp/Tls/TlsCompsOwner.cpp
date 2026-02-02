@@ -39,8 +39,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TlsCompsOwner);
-
 TlsCompsOwner::TlsCompsOwner()
 :CompHostObject(KERNEL_NS::RttiUtil::GetTypeId<TlsCompsOwner>())
 ,_poller(NULL)

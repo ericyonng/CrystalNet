@@ -20,9 +20,6 @@ bool DataSourceInfoCompare::operator()(const DataSourceInfo *left, const DataSou
 }
 
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ISendLog);
-POOL_CREATE_OBJ_DEFAULT_IMPL(SendLog);
-
 SendLog::SendLog()
     :ISendLog(KERNEL_NS::RttiUtil::GetTypeId<SendLog>())
 ,_waitConfirmId(0)

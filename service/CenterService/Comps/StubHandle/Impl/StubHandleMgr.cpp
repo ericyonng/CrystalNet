@@ -35,10 +35,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IStubHandleMgr);
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(StubHandleMgr);
-
 StubHandleMgr::StubHandleMgr()
 :SERVICE_NS::IStubHandleMgr(KERNEL_NS::RttiUtil::GetTypeId<StubHandleMgr>())
 ,_maxStub(0)

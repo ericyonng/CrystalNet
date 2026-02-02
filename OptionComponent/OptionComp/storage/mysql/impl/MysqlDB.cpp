@@ -38,7 +38,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(DBBalanceInfo);
 
 DBBalanceInfo::DBBalanceInfo(Int32 idx)
 :_index(idx)
@@ -72,7 +71,6 @@ LibString DBBalanceInfo::ToString() const
     return info;
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(MysqlDB);
 
 MysqlDB::MysqlDB(MysqlDBMgr *owner)
 :_owner(owner)

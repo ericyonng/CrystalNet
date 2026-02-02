@@ -154,8 +154,6 @@ public:
     BUFFER128 _buffer = {0};
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestMqBlock2);
-
 // 测试性能
 static std::atomic<Int64> g_genNum{0};
 static std::atomic<Int64> g_consumNum{0};

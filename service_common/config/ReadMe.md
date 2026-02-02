@@ -115,8 +115,6 @@
     #include <pch.h>
     #include "ExampleConfig.h"
     
-    POOL_CREATE_OBJ_DEFAULT_IMPL(ExampleConfig);
-    
     ExampleConfig::ExampleConfig()
     :_Id(0)
     ,_Type(0)
@@ -236,7 +234,6 @@
       }
     }
     
-    POOL_CREATE_OBJ_DEFAULT_IMPL(ExampleConfigMgr);
     
     ExampleConfigMgr::ExampleConfigMgr()
     {

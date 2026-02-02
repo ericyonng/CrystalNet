@@ -37,8 +37,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(CompHostObject);
-
 std::vector<CompObject *> CompHostObject::_emptyComps;
 
 CompHostObject::CompHostObject(UInt64 objTypeId)

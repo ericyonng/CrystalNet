@@ -46,8 +46,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ISystemLogGlobal);
-POOL_CREATE_OBJ_DEFAULT_IMPL(SystemLogGlobal);
 
 SystemLogGlobal::SystemLogGlobal()
 :ISystemLogGlobal(KERNEL_NS::RttiUtil::GetTypeId<SystemLogGlobal>())

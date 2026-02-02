@@ -3,7 +3,6 @@
 // source: com_player.proto
 
 #include <protocols/cplusplus/com_player.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(PlayerDataFactory);
 
 #include <algorithm>
 

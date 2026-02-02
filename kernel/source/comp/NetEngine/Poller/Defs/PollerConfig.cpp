@@ -31,7 +31,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(PollerConfig);
 
 PollerConfig::PollerConfig()
 :_blackWhiteListFlag(0)

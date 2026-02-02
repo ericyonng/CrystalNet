@@ -36,8 +36,6 @@
 
 SERVICE_COMMON_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(CrystalMsgHeader);
-
 static ALWAYS_INLINE KERNEL_NS::LibString StackOpcodeToString(Int32 opcode)
 {
     KERNEL_NS::LibString opcodeName;

@@ -40,8 +40,6 @@
 
 
 SERVICE_BEGIN
-POOL_CREATE_OBJ_DEFAULT_IMPL(INotifyGlobal);
-POOL_CREATE_OBJ_DEFAULT_IMPL(NotifyGlobal);
 
 
 NotifyGlobal::NotifyGlobal()

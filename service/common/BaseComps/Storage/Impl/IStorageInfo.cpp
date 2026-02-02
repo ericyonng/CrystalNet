@@ -463,8 +463,6 @@ bool StorageFlagType::CheckCanSupportMysqlDataType(const KERNEL_NS::LibString &d
     return false;
 }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IStorageInfo);
-
 IStorageInfo::IStorageInfo(UInt64 objTypeId,const KERNEL_NS::LibString &systemName)
 :KERNEL_NS::CompObject(objTypeId == 0 ? KERNEL_NS::RttiUtil::GetTypeId<IStorageInfo>() : objTypeId)
 ,_systemName(systemName)

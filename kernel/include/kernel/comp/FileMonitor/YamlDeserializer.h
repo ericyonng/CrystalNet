@@ -41,6 +41,7 @@
 KERNEL_BEGIN
 
 struct FileChangeHandle;
+class YamlMemory;
 
 class KERNEL_EXPORT YamlDeserializer
 {
@@ -69,7 +70,7 @@ public:
         YAML::convert<T>::decode(node, t);
     }
 #endif
-    T *Register(const LibString &path)
+    T *Register(const LibString &path, YamlMemory *fromMemory)
     {
         _path = path;
         
@@ -110,7 +111,7 @@ public:
         };
         auto deserializeDelg = KERNEL_CREATE_CLOSURE_DELEGATE(deserializeLamb, void *, YAML::Node *);
         
-        return KERNEL_NS::KernelCastTo<T>(_Register(dataName, releaseDeleg, deserializeDelg));
+        return KERNEL_NS::KernelCastTo<T>(_Register(dataName, releaseDeleg, deserializeDelg, fromMemory));
     }
 
     template<typename T>
@@ -125,7 +126,7 @@ public:
     
 private:
     // return:具体的对象T
-    void *_Register(const LibString &dataName, IDelegate<void, void *> * releaseObj, IDelegate<void *, YAML::Node *> *deserializeObj);
+    void *_Register(const LibString &dataName, IDelegate<void, void *> * releaseObj, IDelegate<void *, YAML::Node *> *deserializeObj, YamlMemory *fromMemory);
 
 private:
     LibString _path;

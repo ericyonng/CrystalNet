@@ -36,8 +36,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(FilePipe);
-
 FilePipe::FilePipe()
 :IPipe(PipeType::FILE)
 ,_fp(NULL)

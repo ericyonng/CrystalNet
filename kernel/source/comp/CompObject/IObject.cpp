@@ -39,8 +39,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IObject);
-
 IObject::IObject(UInt64 objTypeId)
     :_id(IObject::NewId())
     ,_entityId(0)

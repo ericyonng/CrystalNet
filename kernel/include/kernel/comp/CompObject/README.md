@@ -123,7 +123,7 @@
 
 * 注意
 
-  * 所有组件需要基于对象池创建，只要添加对象池宏即可, 例如：POOL_CREATE_OBJ_DEFAULT_P1(CompObject, IKillMonitorMgr);, 在实现文件加上:POOL_CREATE_OBJ_DEFAULT_IMPL(IKillMonitorMgr);
+  * 所有组件需要基于对象池创建，只要添加对象池宏即可, 例如：POOL_CREATE_OBJ_DEFAULT_P1(CompObject, IKillMonitorMgr);, 在实现文件加上
 
     
 
@@ -151,7 +151,6 @@
       };
       
       // 对外提供的接口类 .cpp
-      POOL_CREATE_OBJ_DEFAULT_IMPL(IKillMonitorMgr);
       
       // 真正的实现类对象 .h
       class KillMonitorMgr : public IKillMonitorMgr
@@ -198,7 +197,6 @@
       
       // 真正的实现类对象 .cpp
       
-      POOL_CREATE_OBJ_DEFAULT_IMPL(KillMonitorMgr);
       
       KillMonitorMgr::KillMonitorMgr()
       :_isReadyToDie(false)
@@ -497,9 +495,6 @@
       
       // 真实类 .cpp
       
-      POOL_CREATE_OBJ_DEFAULT_IMPL(IPollerMgr);
-      
-      POOL_CREATE_OBJ_DEFAULT_IMPL(PollerMgr);
       
       PollerMgr::PollerMgr()
       :_config(NULL)

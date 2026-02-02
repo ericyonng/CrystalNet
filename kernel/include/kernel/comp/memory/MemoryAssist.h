@@ -285,9 +285,6 @@ struct MemoryAssistInfoByType
     std::map<void *, LibString> _newObjPtrRefPos;                                   // 指针与位置映射
 };
 
-template<typename BuildType>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(MemoryAssistInfoByType, BuildType);
-
 template<typename ObjType, typename BuildType, LockParticleType::ENUMS ParticleType = LockParticleType::Light>
 class MemoryAssist
 {

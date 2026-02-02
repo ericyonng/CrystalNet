@@ -3,7 +3,6 @@
 // source: com_system_table.proto
 
 #include <protocols/cplusplus/com_system_table.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(SimpleInfoFactory);
 
 #include <algorithm>
 

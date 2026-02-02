@@ -39,8 +39,6 @@ std::unordered_map<Int32, KERNEL_NS::ICoderFactory *> Opcodes::_opcodeRefCoderFa
 
 const KERNEL_NS::LibString Opcodes::_unknownOpcode = "UNKNOWN_OPCOE";
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(OpcodeInfo);
-
 Int32 Opcodes::Init()
 {
     if(!_opcodeIdRefInfo.empty())

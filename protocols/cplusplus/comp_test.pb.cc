@@ -3,7 +3,6 @@
 // source: comp_test.proto
 
 #include <protocols/cplusplus/comp_test.pb.h>
-POOL_CREATE_OBJ_DEFAULT_IMPL(TestMgrDataFactory);
 
 #include <algorithm>
 

@@ -33,7 +33,6 @@
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibraryMgrStorage);
 
 LibraryMgrStorage::LibraryMgrStorage()
 :IStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<LibraryMgrStorage>(), KERNEL_NS::RttiUtil::GetByType<LibraryMgr>())

@@ -36,8 +36,6 @@
 SERVICE_BEGIN
 
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(OfflineGlobalStorage);
-
 OfflineGlobalStorage::OfflineGlobalStorage()
 :IStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<OfflineGlobalStorage>(), KERNEL_NS::RttiUtil::GetByType<OfflineGlobal>())
 {

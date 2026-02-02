@@ -73,7 +73,6 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(EpollTcpPoller);
 
 EpollTcpPoller::EpollTcpPoller(TcpPollerMgr *pollerMgr, UInt64 pollerId, const TcpPollerInstConfig *cfg)
 :CompHostObject(KERNEL_NS::RttiUtil::GetTypeId<EpollTcpPoller>())
