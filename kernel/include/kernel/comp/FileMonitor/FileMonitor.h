@@ -37,6 +37,7 @@
 #include <kernel/comp/SmartPtr.h>
 #include <atomic>
 #include <kernel/comp/FileMonitor/FileMonitorConcepts.h>
+#include <unordered_map>
 
 KERNEL_BEGIN
 
@@ -74,7 +75,7 @@ public:
     // 对于多线程访问, 应该对_currentObject/_deserialize放在thread_load级别, 这样避免了多线程竞争问题
 private:
     // 多线程访问
-    DEF_STATIC_THREAD_LOCAL_DECLEAR alignas(SYSTEM_ALIGN_SIZE) std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *> * _currentObjAndDeserialize = NULL;
+    DEF_STATIC_THREAD_LOCAL_DECLEAR alignas(SYSTEM_ALIGN_SIZE) std::unordered_map<void *, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>> * s_FileMonitorInstRefCurrentObjAndDeserialize = NULL;
 
     alignas(SYSTEM_ALIGN_SIZE) LibString _filePath;
 
@@ -88,21 +89,30 @@ requires FileMonitorConcept<ObjType, FileDeserializerType>
 #endif
 ALWAYS_INLINE SmartPtr<ObjType, AutoDelMethods::Release> FileMonitor<ObjType, FileDeserializerType>::Current() const
 {
-    if(UNLIKELY(_currentObjAndDeserialize == NULL))
+    if(UNLIKELY(s_FileMonitorInstRefCurrentObjAndDeserialize == NULL))
     {
-        _currentObjAndDeserialize = new  std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>();
-        _currentObjAndDeserialize->second = FileDeserializerType::Create();
-        _currentObjAndDeserialize->first = _currentObjAndDeserialize->second->template Register<ObjType>(_filePath, _fromMemory);
-    }
-    
-    // 如果配置有变更, 则更新配置
-    ObjType *newObj = _currentObjAndDeserialize->second->template SwapNewData<ObjType>();
-    if(UNLIKELY((newObj != NULL) && (newObj != _currentObjAndDeserialize->first.AsSelf())))
-    {
-        _currentObjAndDeserialize->first = newObj;
+        s_FileMonitorInstRefCurrentObjAndDeserialize = new std::unordered_map<void *, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>>();
     }
 
-    return _currentObjAndDeserialize->first;
+    auto iter = s_FileMonitorInstRefCurrentObjAndDeserialize->find(this);
+    if(UNLIKELY(iter == s_FileMonitorInstRefCurrentObjAndDeserialize->end()))
+    {
+        auto deserializeObj = FileDeserializerType::Create();
+        iter = s_FileMonitorInstRefCurrentObjAndDeserialize->insert(std::make_pair(this, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>( deserializeObj,
+            deserializeObj->template Register<ObjType>(_filePath, _fromMemory)
+        ))).first;
+    }
+
+    auto &currentAndDeserialize = iter->second;
+    
+    // 如果配置有变更, 则更新配置
+    ObjType *newObj = currentAndDeserialize.second->template SwapNewData<ObjType>();
+    if(UNLIKELY((newObj != NULL) && (newObj != currentAndDeserialize.first.AsSelf())))
+    {
+        currentAndDeserialize.first = newObj;
+    }
+
+    return currentAndDeserialize.first;
 }
 
 template<typename ObjType, typename FileDeserializerType>
