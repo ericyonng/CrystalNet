@@ -69,7 +69,7 @@ public:
     // 获取当前配置
     SmartPtr<ObjType, AutoDelMethods::Release> Current() const;
     // 初始化
-    void Init(const KERNEL_NS::LibString &path, YamlMemory *fromMemory);
+    bool Init(const KERNEL_NS::LibString &path, YamlMemory *fromMemory);
 
     const LibString &GetPath() const;
 
@@ -100,11 +100,13 @@ template<typename ObjType, typename FileDeserializerType>
 #ifdef CRYSTAL_NET_CPP20
 requires FileMonitorConcept<ObjType, FileDeserializerType>
 #endif
-ALWAYS_INLINE void FileMonitor<ObjType, FileDeserializerType>::Init(const KERNEL_NS::LibString &path, YamlMemory *fromMemory)
+ALWAYS_INLINE bool FileMonitor<ObjType, FileDeserializerType>::Init(const KERNEL_NS::LibString &path, YamlMemory *fromMemory)
 {
     _filePath = path;
     _deserialize = FileDeserializerType::Create();
     _currentObject = _deserialize->template Register<ObjType>(_filePath, fromMemory);
+
+    return _currentObject != NULL;
 }
 
 KERNEL_END

@@ -34,6 +34,9 @@
 #include <kernel/comp/Log/ILog.h>
 #include <atomic>
 #include <vector>
+#include <kernel/comp/FileMonitor/FileMonitor.h>
+#include <kernel/comp/FileMonitor/YamlDeserializer.h>
+#include <kernel/comp/Log/LogCfg.h>
 
 KERNEL_BEGIN
 
@@ -50,7 +53,7 @@ public:
     virtual ~LibLog();
 
 public:
-    virtual bool Init(const Byte8 *logConfigFile = "LogCfg.ini", const Byte8 *logCfgDir = NULL, const LibString &logContent = LibString(), const LibString &consoleConntent = LibString()) override;
+    virtual bool Init(const Byte8 *logConfigFile = "Log.yaml", const Byte8 *logCfgDir = NULL, YamlMemory *yamlMemory) override;
     virtual void Start() override;
     virtual void Close() override;
     virtual void FlushAll() override;
@@ -82,9 +85,11 @@ private:
     std::atomic_bool _isStart;
     std::atomic_bool _isFinish;
     LibString _rootDirName;
-    LogIniCfgMgr *_logConfigMgr;
+    // LogIniCfgMgr *_logConfigMgr;
+    FileMonitor<LogCfg, YamlDeserializer> *_fileMonitor;
+    
     std::atomic<Int64> _curCacheBytes;
-    UInt64 _logTimerIntervalMs;
+    // UInt64 _logTimerIntervalMs;
 
     std::vector<SpecifyLog *> _fileIdIdxRefLog;     
 
@@ -100,7 +105,7 @@ private:
 ALWAYS_INLINE UInt64 LibLog::_GetDynamicInterval(UInt64 logCount) const
 {
     if(logCount < 10000)
-        return _logTimerIntervalMs;
+        return _fileMonitor->Current()->LogCommon.LogTimerInterval.GetTotalMilliSeconds();
     
     if(logCount < 200000)
         return 10;

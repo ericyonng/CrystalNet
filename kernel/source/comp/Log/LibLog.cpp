@@ -45,14 +45,16 @@
 #include <kernel/comp/Lock/Impl/ConditionLocker.h>
 #include <kernel/comp/Poller/Poller.h>
 
+#include "kernel/comp/FileMonitor/YamlMemory.h"
+
 
 KERNEL_BEGIN
-
-LibLog::LibLog()
+    LibLog::LibLog()
     :_isInit{false}
     ,_isStart{false}
     ,_isFinish{false}
     ,_logConfigMgr(NULL)
+    ,_fileMonitor(FileMonitor<LogCfg, YamlDeserializer>::New_FileMonitor())
     ,_curCacheBytes{0}
     ,_logTimerIntervalMs(0)
     ,_isForceLogDiskAll{false}
@@ -65,7 +67,7 @@ LibLog::~LibLog()
     Close();
 }
 
-bool LibLog::Init(const Byte8 *logConfigFile, const Byte8 *logCfgDir, const LibString &logContent, const LibString &consoleConntent)
+bool LibLog::Init(const Byte8 *logConfigFile, const Byte8 *logCfgDir, YamlMemory *yamlMemory)
 {
     if (_isInit.exchange(true, std::memory_order_acq_rel))
     {
@@ -91,7 +93,7 @@ bool LibLog::Init(const Byte8 *logConfigFile, const Byte8 *logCfgDir, const LibS
     cfgFile += logConfigFile;
 
     // 不使用内存配置
-    if(logContent.empty())
+    if(yamlMemory == NULL)
     {
         CRYSTAL_TRACE("log init log config file:%s", cfgFile.c_str());
 
@@ -109,43 +111,53 @@ bool LibLog::Init(const Byte8 *logConfigFile, const Byte8 *logCfgDir, const LibS
             auto fp = FileUtil::OpenFile(cfgFile.c_str(), true);
             if(!fp)
             {
-                CRYSTAL_TRACE("create ini file fail :%s", cfgFile.c_str());
+                CRYSTAL_TRACE("create ini file fail :%s", cfgFile.c_str())
                 return false;
             }
             
-            const auto &content = LogConfigTemplate::GetLogConfigIniContent();
+            const auto &content = LogConfigTemplate::GetLogConfigYamlContent();
             FileUtil::WriteFile(*fp, content.data(), content.size());
             FileUtil::FlushFile(*fp);
             FileUtil::CloseFile(*fp);
         }
     }
-
+    
     // 初始化配置
-    _logConfigMgr = new LogIniCfgMgr();
-    if(!_logConfigMgr->Init(cfgFile.c_str(), logContent, consoleConntent))
+    if (!_fileMonitor->Init(cfgFile, yamlMemory))
     {
         CRYSTAL_TRACE("log config init fail %s", cfgFile.c_str());
         return false;
     }
+    
+    // _logConfigMgr = new LogIniCfgMgr();
+    // if(!_logConfigMgr->Init(cfgFile.c_str(), logContent, consoleConntent))
+    // {
+    //     CRYSTAL_TRACE("log config init fail %s", cfgFile.c_str());
+    //     return false;
+    // }
 
     // 是否需要开启日志
-    if(!_logConfigMgr->IsEnableLog())
+    auto currentConfig = _fileMonitor->Current();
+    if(!currentConfig->LogCommon.IsEnableLog)
     {
         CRYSTAL_TRACE("LOG IS CLOSE!!!");
         return true;
     }
 
-    _logTimerIntervalMs = _logConfigMgr->GetIntervalMs();
-    LibString specifyLogFileDir = _logConfigMgr->GetLogPath();
-
     // 初始化日志对象
-    auto &logCfgs = _logConfigMgr->GetLogFileCfgs();
-    const Int32 logCount = static_cast<Int32>(logCfgs.size());
-    _fileIdIdxRefLog.resize(_logConfigMgr->GetMaxLogFileId() + 1);
+    Int32 maxFileId = 0;
+    for (Int32 idx = 0; idx < static_cast<Int32>(currentConfig->LogLevelList.size()); ++idx)
+    {
+        auto &levelConfig = currentConfig->LogLevelList[idx];
+        if (maxFileId < levelConfig.FileId)
+            maxFileId = levelConfig.FileId;
+    }
+    const Int32 logCount = static_cast<Int32>(currentConfig->LogLevelList.size());
+    _fileIdIdxRefLog.resize(maxFileId + 1);
     for(Int32 i = 0; i < logCount; ++i)
     {
-        auto cfg = logCfgs[i];
-        if(cfg && cfg->_isEnable)
+        auto &cfg = currentConfig->LogLevelList[i];
+        if(cfg.Enable)
         {
             auto newSpecifyLog = SpecifyLog::New_SpecifyLog();
             const Int32 status = newSpecifyLog->Init(specifyLogFileDir, cfg);
@@ -311,6 +323,11 @@ void LibLog::Close()
 
     _logConfigMgr->Close();
     CRYSTAL_DELETE_SAFE(_logConfigMgr);
+
+    if (_fileMonitor)
+        FileMonitor<LogCfg, YamlDeserializer>::Delete_FileMonitor(_fileMonitor);
+
+    _fileMonitor = NULL;
 }
 
 void LibLog::FlushAll()

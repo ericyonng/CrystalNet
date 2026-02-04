@@ -55,6 +55,8 @@
 
 KERNEL_BEGIN
 
+class YamlMemory;
+
 class KERNEL_EXPORT ILog
 {
     friend class LogTool;
@@ -65,7 +67,7 @@ public:
     
     // static ILog *GetDefaultInstance();
 
-    virtual bool Init(const Byte8 *logConfigFile = "LogCfg.ini", const Byte8 *logCfgDir = NULL, const LibString &logContent = LibString(), const LibString &consoleConntent = LibString()) = 0;
+    virtual bool Init(const Byte8 *logConfigFile = "Log.yaml", const Byte8 *logCfgDir = NULL, YamlMemory *yamlMemory) = 0;
     virtual void Start() = 0;
     virtual void Close() = 0;
     virtual void FlushAll() = 0;
