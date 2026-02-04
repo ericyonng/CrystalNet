@@ -55,7 +55,7 @@ SpecifyLog::~SpecifyLog()
     Close();
 }
 
-Int32 SpecifyLog::Init(const LibString &rootDirName, const LogConfig *cfg)
+Int32 SpecifyLog::Init(const LibString &rootDirName, , FileMonitor<LogCfg, YamlDeserializer> *configMonitor, Int32 fileConfigId)
 {
     if(_isInit.exchange(true, std::memory_order_acq_rel))
     {
@@ -69,7 +69,8 @@ Int32 SpecifyLog::Init(const LibString &rootDirName, const LogConfig *cfg)
         return Status::Repeat;
     }
 
-    _config = cfg;
+    _fileMonitor = configMonitor;
+    _fileConfigId = fileConfigId;
 
     // hook
     const auto refLevelCount = _config->_levelIdxRefCfg.size();

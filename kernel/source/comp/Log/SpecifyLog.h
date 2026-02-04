@@ -37,6 +37,9 @@
 #include <list>
 #include <atomic>
 #include <vector>
+#include <kernel/comp/FileMonitor/FileMonitor.h>
+#include <kernel/comp/FileMonitor/YamlDeserializer.h>
+#include <kernel/comp/Log/LogCfg.h>
 
 KERNEL_BEGIN
 
@@ -59,7 +62,7 @@ public:
     ~SpecifyLog();
 
 public:
-    Int32 Init(const LibString &rootDirName, const LogConfig *cfg);
+    Int32 Init(const LibString &rootDirName, FileMonitor<LogCfg, YamlDeserializer> *configMonitor, Int32 fileConfigId);
     void BindWakeupFlush(ConditionLocker *flusher);
     Int32 Start();
     void Close();
@@ -92,7 +95,8 @@ private:
     std::atomic_bool _isInit = {false};
     std::atomic_bool _isStart = {false};
     std::atomic_bool _isClose = {false};
-    const LogConfig *_config = NULL;
+    Int32 _fileConfigId = 0;
+    FileMonitor<LogCfg, YamlDeserializer> *_fileMonitor = NULL;
     std::vector<std::list<IDelegate<void, LogData *> *> *> _beforeHook; // level 做下标索引
     std::vector<std::list<IDelegate<void> *> *> _afterHook;    // level 做下标索引
     LibLogFile *_logFile = NULL;

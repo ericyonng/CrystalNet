@@ -55,7 +55,7 @@ FileChangeHandle::~FileChangeHandle()
 
 void FileChangeHandle::Release()
 {
-    FileChangeHandle::Delete_FileChangeHandle(this);
+    delete this;
 }
 
 FileMonitorInfo::FileMonitorInfo()
@@ -89,7 +89,7 @@ FileMonitorInfo::~FileMonitorInfo()
 
 void FileMonitorInfo::Release()
 {
-    FileMonitorInfo::Delete_FileMonitorInfo(this);
+    delete this;
 }
 
 

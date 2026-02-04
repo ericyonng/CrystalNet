@@ -37,6 +37,7 @@ KERNEL_BEGIN
     YamlMemoryData::Delete_YamlMemoryData(this);
 }
 
+
 YamlMemory::YamlMemory()
     :_source{NULL}
 {

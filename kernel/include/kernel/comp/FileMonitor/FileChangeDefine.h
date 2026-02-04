@@ -41,8 +41,6 @@ KERNEL_BEGIN
 // 由FileManager释放, 其他只需要attach它的地址, 并在生命周期结束的时候, 设置原子变量NotListen即可
 struct KERNEL_EXPORT FileChangeHandle
 {
-    POOL_CREATE_OBJ_DEFAULT(FileChangeHandle);
-
     FileChangeHandle();
     ~FileChangeHandle();
     void Release();
@@ -61,8 +59,6 @@ struct KERNEL_EXPORT FileChangeHandle
 
 struct KERNEL_EXPORT FileMonitorInfo
 {
-    POOL_CREATE_OBJ_DEFAULT(FileMonitorInfo);
-
     FileMonitorInfo();
     ~FileMonitorInfo();
     void Release();
@@ -74,8 +70,8 @@ struct KERNEL_EXPORT FileMonitorInfo
     // 第二个:void *:fromMemory
     IDelegate<void *, void *> *_loadNewObj;
     void *_sourceObj;
-    
-    IDelegate<void, void *> *_releaseFromMemory;
+
+    // 不释放FromMemory
     void *_fromMemory;  // 来自内存的数据
 
     std::unordered_map<void *, FileChangeHandle *> _keyRefFileChangeHandle;

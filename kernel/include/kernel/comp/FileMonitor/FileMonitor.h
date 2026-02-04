@@ -55,29 +55,31 @@ class FileMonitor
 
 public:
     FileMonitor()
-        :_deserialize(NULL)
     {
         
     }
     
     ~FileMonitor()
     {
-        CRYSTAL_RELEASE_SAFE(_deserialize);
     }
 
 public:
-    // 获取当前配置
+    // 获取当前配置,注意如果是多线程环境Current则不安全 TODO:
     SmartPtr<ObjType, AutoDelMethods::Release> Current() const;
     // 初始化
     bool Init(const KERNEL_NS::LibString &path, YamlMemory *fromMemory);
 
     const LibString &GetPath() const;
 
+    // 对于多线程访问, 应该对_currentObject/_deserialize放在thread_load级别, 这样避免了多线程竞争问题
 private:
-    mutable alignas(SYSTEM_ALIGN_SIZE) SmartPtr<ObjType, AutoDelMethods::Release> _currentObject;
-    alignas(SYSTEM_ALIGN_SIZE) FileDeserializerType *_deserialize;
+    // 多线程访问
+    DEF_STATIC_THREAD_LOCAL_DECLEAR alignas(SYSTEM_ALIGN_SIZE) std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *> * _currentObjAndDeserialize = NULL;
 
     alignas(SYSTEM_ALIGN_SIZE) LibString _filePath;
+
+    // 共享的一块内存配置, FileMonitor不能操作, 由FileChangeManager检查是否内容变化
+    alignas(SYSTEM_ALIGN_SIZE) YamlMemory *_fromMemory;
 };
 
 template<typename ObjType, typename FileDeserializerType>
@@ -86,14 +88,21 @@ requires FileMonitorConcept<ObjType, FileDeserializerType>
 #endif
 ALWAYS_INLINE SmartPtr<ObjType, AutoDelMethods::Release> FileMonitor<ObjType, FileDeserializerType>::Current() const
 {
-    // 如果配置有变更, 则更新配置
-    ObjType *newObj = _deserialize->template SwapNewData<ObjType>();
-    if(UNLIKELY((newObj != NULL) && (newObj != _currentObject.AsSelf())))
+    if(UNLIKELY(_currentObjAndDeserialize == NULL))
     {
-        _currentObject = newObj;
+        _currentObjAndDeserialize = new  std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>();
+        _currentObjAndDeserialize->second = FileDeserializerType::Create();
+        _currentObjAndDeserialize->first = _currentObjAndDeserialize->second->template Register<ObjType>(_filePath, _fromMemory);
+    }
+    
+    // 如果配置有变更, 则更新配置
+    ObjType *newObj = _currentObjAndDeserialize->second->template SwapNewData<ObjType>();
+    if(UNLIKELY((newObj != NULL) && (newObj != _currentObjAndDeserialize->first.AsSelf())))
+    {
+        _currentObjAndDeserialize->first = newObj;
     }
 
-    return _currentObject;
+    return _currentObjAndDeserialize->first;
 }
 
 template<typename ObjType, typename FileDeserializerType>
@@ -103,10 +112,9 @@ requires FileMonitorConcept<ObjType, FileDeserializerType>
 ALWAYS_INLINE bool FileMonitor<ObjType, FileDeserializerType>::Init(const KERNEL_NS::LibString &path, YamlMemory *fromMemory)
 {
     _filePath = path;
-    _deserialize = FileDeserializerType::Create();
-    _currentObject = _deserialize->template Register<ObjType>(_filePath, fromMemory);
+    _fromMemory = fromMemory;
 
-    return _currentObject != NULL;
+    return Current();
 }
 
 KERNEL_END

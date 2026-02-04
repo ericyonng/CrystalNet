@@ -45,8 +45,6 @@ class YamlMemory;
 
 class KERNEL_EXPORT YamlDeserializer
 {
-    POOL_CREATE_OBJ_DEFAULT(YamlDeserializer);
-    
 public:
     YamlDeserializer();
     ~YamlDeserializer();

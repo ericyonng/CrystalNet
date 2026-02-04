@@ -75,6 +75,8 @@ LogCfg:
   LogLevelList:
     # Debug 配置
     - Enable: 1
+      # 级别名
+      LevelName: Debug
       # 文件id
       FileId: 0
       # 是否输出到控制台
@@ -94,6 +96,8 @@ LogCfg:
 
     # Info 配置
     - Enable: 1
+      # 级别名
+      LevelName: Info
       # 文件id
       FileId: 0
       # 是否输出到控制台
@@ -113,6 +117,8 @@ LogCfg:
 
     # Warn 配置
     - Enable: 1
+      # 级别名
+      LevelName: Warn
       # 文件id
       FileId: 0
       # 是否输出到控制台
@@ -132,6 +138,8 @@ LogCfg:
 
     # Error 配置
     - Enable: 1
+      # 级别名
+      LevelName: Error
       # 文件id
       FileId: 0
       # 是否输出到控制台
@@ -151,6 +159,8 @@ LogCfg:
 
     # Crash 配置
     - Enable: 1
+      # 级别名
+      LevelName: Crash
       # 文件id
       FileId: 1
       # 是否输出到控制台
@@ -170,6 +180,8 @@ LogCfg:
 
     # Net 配置
     - Enable: 1
+      # 级别名
+      LevelName: Net
       # 文件id
       FileId: 2
       # 是否输出到控制台
@@ -189,6 +201,8 @@ LogCfg:
 
     # NetDebug 配置
     - Enable: 1
+      # 级别名
+      LevelName: NetDebug
       # 文件id
       FileId: 2
       # 是否输出到控制台
@@ -208,6 +222,8 @@ LogCfg:
 
     # NetInfo 配置
     - Enable: 1
+      # 级别名
+      LevelName: NetInfo
       # 文件id
       FileId: 2
       # 是否输出到控制台
@@ -227,6 +243,8 @@ LogCfg:
 
     # NetWarn 配置
     - Enable: 1
+      # 级别名
+      LevelName: NetWarn
       # 文件id
       FileId: 2
       # 是否输出到控制台
@@ -246,6 +264,8 @@ LogCfg:
 
     # NetError 配置
     - Enable: 1
+      # 级别名
+      LevelName: NetError
       # 文件id
       FileId: 2
       # 是否输出到控制台
@@ -265,6 +285,8 @@ LogCfg:
 
     # NetTrace 配置
     - Enable: 1
+      # 级别名
+      LevelName: NetTrace
       # 文件id
       FileId: 2
       # 是否输出到控制台
@@ -284,6 +306,8 @@ LogCfg:
 
     # Custom 配置
     - Enable: 1
+      # 级别名
+      LevelName: Custom
       # 文件id
       FileId: 3
       # 是否输出到控制台
@@ -303,6 +327,8 @@ LogCfg:
 
     # Sys 配置
     - Enable: 1
+      # 级别名
+      LevelName: Sys
       # 文件id
       FileId: 4
       # 是否输出到控制台
@@ -322,6 +348,8 @@ LogCfg:
 
     # MemMonitor 配置
     - Enable: 1
+      # 级别名
+      LevelName: MemMonitor
       # 文件id
       FileId: 5
       # 是否输出到控制台
@@ -341,6 +369,8 @@ LogCfg:
 
     # Trace 配置
     - Enable: 1
+      # 级别名
+      LevelName: Trace
       # 文件id
       FileId: 6
       # 是否输出到控制台
@@ -360,6 +390,8 @@ LogCfg:
 
     # MonitorInfo 配置
     - Enable: 1
+      # 级别名
+      LevelName: MonitorInfo
       # 文件id
       FileId: 7
       # 是否输出到控制台
@@ -379,6 +411,8 @@ LogCfg:
 
     # FailSql 配置
     - Enable: 1
+      # 级别名
+      LevelName: FailSql
       # 文件id
       FileId: 8
       # 是否输出到控制台
@@ -398,6 +432,8 @@ LogCfg:
 
     # DumpSql 配置
     - Enable: 1
+      # 级别名
+      LevelName: DumpSql
       # 文件id
       FileId: 8
       # 是否输出到控制台

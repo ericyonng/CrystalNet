@@ -67,6 +67,8 @@ private:
     Int32 _OnInit() override;
     // start 可以启动线程，再此之前都不可以启动线程
     Int32 _OnStart() override;
+    void _OnWillClose() override;
+
     void _OnClose() override;
     
 private:

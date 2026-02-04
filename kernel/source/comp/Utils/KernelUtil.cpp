@@ -231,7 +231,7 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     g_LibEventLoopThreadPool->Start();
     
     // 文件监控
-    g_FileChangeManager = FileChangeManager::New_FileChangeManager();
+    g_FileChangeManager = new FileChangeManager();
     err = g_FileChangeManager->Init();
     if(err != Status::Success)
     {
@@ -372,19 +372,21 @@ void KernelUtil::Destroy()
     
     // CRYSTAL_TRACE("kernel will close gc.");
 
-    g_FileChangeManager->Close();
-    g_FileChangeManager->Release();
-    g_FileChangeManager = NULL;
+    g_FileChangeManager->WillClose();
 
     g_LibEventLoopThreadPool->Close();
     g_LibEventLoopThreadPool->Release();
     g_LibEventLoopThreadPool = NULL;
+
+    // 文件监控数据最后销毁, 避免数据出问题 战术性泄露
+    // g_FileChangeManager->Release();
+    // g_FileChangeManager = NULL;
     
     // gc停止
     KERNEL_NS::GarbageThread::GetInstence()->Close();
 
     // CRYSTAL_TRACE("kernel will destroy main thread resource.");
-
+    
     // 销毁资源
     ThreadTool::OnDestroy();
 

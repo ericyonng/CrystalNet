@@ -154,13 +154,14 @@ bool LibLog::Init(const Byte8 *logConfigFile, const Byte8 *logCfgDir, YamlMemory
     }
     const Int32 logCount = static_cast<Int32>(currentConfig->LogLevelList.size());
     _fileIdIdxRefLog.resize(maxFileId + 1);
+    auto logPath = currentConfig->GetLogPath();
     for(Int32 i = 0; i < logCount; ++i)
     {
         auto &cfg = currentConfig->LogLevelList[i];
         if(cfg.Enable)
         {
             auto newSpecifyLog = SpecifyLog::New_SpecifyLog();
-            const Int32 status = newSpecifyLog->Init(specifyLogFileDir, cfg);
+            const Int32 status = newSpecifyLog->Init(logPath, cfg);
             if(status != Status::Success)
             {
                 CRYSTAL_TRACE("newSpecifyLog INIT fail log file name=%s, specifyLogFileDir=%s, status=%d"

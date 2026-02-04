@@ -52,12 +52,12 @@ YamlDeserializer::~YamlDeserializer()
 
 void YamlDeserializer::Release()
 {
-    YamlDeserializer::DeleteThreadLocal_YamlDeserializer(this);
+    delete this;
 }
 
 YamlDeserializer *YamlDeserializer::Create()
 {
-    return YamlDeserializer::NewThreadLocal_YamlDeserializer();
+    return new YamlDeserializer();
 }
 
 void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, void *> * releaseObj, IDelegate<void *, YAML::Node *> *deserializeObj, YamlMemory *fromMemory)
@@ -73,7 +73,6 @@ void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, vo
     {
         KERNEL_NS::SmartPtr<IDelegate<void *, YAML::Node *>, KERNEL_NS::AutoDelMethods::Release> deserializePtr(deserializeObj);
         KERNEL_NS::SmartPtr<IDelegate<void, void *>, KERNEL_NS::AutoDelMethods::Release> releaseObjPtr(releaseObj);
-        KERNEL_NS::SmartPtr<YamlMemory, KERNEL_NS::AutoDelMethods::Release> fromMemoryPtr(fromMemory);
 
         // 注册monitorInfo
         auto &filePathRefFileObj = fileChangeManager->GetFilePathRefFileObj();
@@ -119,15 +118,15 @@ void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, vo
 
             // 内存yaml(交换出memoryData)
             YamlMemoryData *memoryData = NULL;
-            if (fromMemoryPtr)
+            if (fromMemory)
             {
-                memoryData = fromMemoryPtr->CheckAndChange();
+                memoryData = fromMemory->CheckAndChange();
                 if (!memoryData)
                 {
                     if (g_Log && g_Log->IsEnable(LogLevel::Error))
                     {
                         g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "use yaml memory data, but have no yaml memory data, from memory:%p, dataName:%s, path:%s")
-                            , fromMemoryPtr.AsSelf(), dataName.c_str(), path.c_str());
+                            , fromMemory, dataName.c_str(), path.c_str());
                     }
                 }
             }
@@ -136,30 +135,12 @@ void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, vo
             config = KERNEL_NS::KernelCastTo<YAML::Node>(loadNewObjLamb(memoryData));
             if(config)
             {
-                monitorInfo = FileMonitorInfo::New_FileMonitorInfo();
+                monitorInfo = new FileMonitorInfo();
                 monitorInfo->_path = path;
                 monitorInfo->_sourceObj = config;
 
-                // fromMemory
-                if (monitorInfo->_fromMemory && monitorInfo->_releaseFromMemory)
-                {
-                    monitorInfo->_releaseFromMemory->Invoke(monitorInfo->_fromMemory);
-                    monitorInfo->_fromMemory = NULL;
-                }
-                if (monitorInfo->_releaseFromMemory)
-                    monitorInfo->_releaseFromMemory->Release();
-
                 // 来自内存
-                monitorInfo->_fromMemory = fromMemoryPtr.pop();
-                if (monitorInfo->_fromMemory)
-                {
-                    auto releaseFromMemory = [](void *fromMemory)
-                    {
-                        if (fromMemory)
-                            KERNEL_NS::KernelCastTo<YamlMemory>(fromMemory)->Release();
-                    };
-                    monitorInfo->_releaseFromMemory = KERNEL_CREATE_CLOSURE_DELEGATE(releaseFromMemory, void, void *);
-                }
+                monitorInfo->_fromMemory =  fromMemory;
 
                 // 加载新的配置
                 monitorInfo->_loadNewObj = KERNEL_CREATE_CLOSURE_DELEGATE(loadNewObjLamb, void *, void *);
@@ -251,7 +232,7 @@ void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, vo
             auto iterHandle = monitorInfo->_keyRefFileChangeHandle.find(registerKey);
             if(iterHandle == monitorInfo->_keyRefFileChangeHandle.end())
             {
-                auto handle = FileChangeHandle::New_FileChangeHandle();
+                auto handle = new FileChangeHandle();
                 auto deserializeLamb = [deserializePtr](void *config)->void *
                 {
                     return deserializePtr->Invoke(KERNEL_NS::KernelCastTo<YAML::Node>(config));
@@ -300,7 +281,7 @@ void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, vo
     // 等待完成
     while (!isFinish.load(std::memory_order_acquire))
     {
-        KERNEL_NS::SystemUtil::ThreadSleep(5);
+        KERNEL_NS::SystemUtil::ThreadSleep(2);
     }
 
     if(!obj)

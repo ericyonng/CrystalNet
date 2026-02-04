@@ -55,12 +55,13 @@ FileChangeManager::FileChangeManager()
 
 FileChangeManager::~FileChangeManager()
 {
-    KERNEL_NS::ContainerUtil::DelContainer2(_filePathRefFileObj);
+    // 战术性泄露
+    // KERNEL_NS::ContainerUtil::DelContainer2(_filePathRefFileObj);
 }
 
 void FileChangeManager::Release()
 {
-    FileChangeManager::DeleteByAdapter_FileChangeManager(FileChangeManagerFactory::_buildType.V, this);
+    delete this;
 }
 
 void FileChangeManager::_InitWorker()
@@ -165,7 +166,7 @@ Int32 FileChangeManager::_OnStart()
     return Status::Success;
 }
 
-void FileChangeManager::_OnClose()
+void FileChangeManager::_OnWillClose()
 {
     _isQuit.store(true, std::memory_order_release);
     while (_isWorking.load(std::memory_order_acquire))
@@ -173,8 +174,12 @@ void FileChangeManager::_OnClose()
         KERNEL_NS::SystemUtil::ThreadSleep(1000);
         CRYSTAL_TRACE("waiting worker quit...")
     }
+}
 
-    KERNEL_NS::ContainerUtil::DelContainer2(_filePathRefFileObj);
+void FileChangeManager::_OnClose()
+{
+    // 战术性泄露
+    // KERNEL_NS::ContainerUtil::DelContainer2(_filePathRefFileObj);
 
     CRYSTAL_TRACE("file change manager close.")
 }
