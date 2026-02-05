@@ -129,7 +129,7 @@ void TestYaml::Run()
 
     auto cfg = testMonitor.Current();
 
-    while (true)
+    //while (true)
     {
         KERNEL_NS::SystemUtil::ThreadSleep(10000);
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestYaml, "LogTimerInterval:%s"), testMonitor.Current()->LogCommon.LogTimerInterval.ToString().c_str());

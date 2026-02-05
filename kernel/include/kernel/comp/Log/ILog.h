@@ -144,8 +144,10 @@ public:
     bool IsEnable(Int32 level) const;
     virtual bool IsLogOpen() const = 0;
 
-protected:
+    virtual const void * GetFileMonitor() const = 0;
     virtual SmartPtr<LogCfg, AutoDelMethods::Release> GetLogCfg() const = 0;
+
+protected:
     virtual void _WriteLog(const LogLevelInfoCfg *levelCfg, LogData *logData) = 0;
 
     // 继承后可调用的写日志模版

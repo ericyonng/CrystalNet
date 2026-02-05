@@ -150,6 +150,12 @@ void FileChangeManager::_InitWorker()
            _isWorking.exchange(false, std::memory_order_release);
        }); 
     });
+
+    while (_workerPoller.load(std::memory_order_acquire) == NULL)
+    {
+        KERNEL_NS::SystemUtil::ThreadSleep(1000);
+        CRYSTAL_TRACE("FileChangeManager waiting worker poll...")
+    }
 }
 
 Int32 FileChangeManager::_OnInit()

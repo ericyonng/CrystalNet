@@ -53,7 +53,7 @@ namespace YAML
             rhs.LogCommon = commonNode.as<KERNEL_NS::LogCommonCfg>();
 
         rhs.MaxLogSizeBytes = static_cast<Int64>(rhs.LogCommon.MaxFileSizeMB) * 1024 * 1024;
-        rhs.MaxLogCacheSizeBytes = static_cast<Int64>(rhs.LogCommon.MaxFileSizeMB) * 1024 * 1024;
+        rhs.MaxLogCacheSizeBytes = static_cast<Int64>(rhs.LogCommon.MaxLogCacheMB) * 1024 * 1024;
 
         auto &listNode = node["LogLevelList"];
         if(listNode.IsSequence())

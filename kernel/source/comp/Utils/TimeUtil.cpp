@@ -56,13 +56,17 @@ void TimeUtil::SetTimeZone(bool invokeSetZone)
 {
     // 设置成服务器所在时区
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-    tzset();
+    if (invokeSetZone)
+        tzset();
+
     time_t now = time(NULL);
     // __g_timezone = -1 * static_cast<Int32>(localtime(&now)->tm_gmtoff);         // linux下localtime(&now)->tm_gmtoff是个整数，但是本框架需要取得相反的数，如+8时区，这里需要输出-28800
 
     __g_timezone.store(-1 * static_cast<Int32>(localtime(&now)->tm_gmtoff), std::memory_order_release);
 #else // WIN32
-    _tzset();
+    if (invokeSetZone)
+        _tzset();
+    
     __g_timezone.store(_timezone, std::memory_order_release);
 #endif // Non-WIN32
 }

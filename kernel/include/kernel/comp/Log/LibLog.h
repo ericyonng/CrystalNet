@@ -65,13 +65,14 @@ public:
     virtual void UnInstallAfterLogHookFunc(Int32 level, const IDelegate<void> *delegate) override;
     virtual void UnInstallBeforeLogHookFunc(Int32 level, const IDelegate<void, LogData *> *delegate) override;
 
+    virtual const void *GetFileMonitor() const override;
+    virtual SmartPtr<LogCfg, AutoDelMethods::Release> GetLogCfg() const override;
+
 protected:
     virtual void _InstallAfterLogHookFunc(const LogLevelInfoCfg *levelCfg, IDelegate<void> *delegate) override;
     virtual void _InstallBeforeLogHookFunc(const LogLevelInfoCfg *levelCfg, IDelegate<void, LogData *> *delegate) override;
 
 protected:
-    virtual SmartPtr<LogCfg, AutoDelMethods::Release> GetLogCfg() const override;
-
     virtual void _WriteLog(const LogLevelInfoCfg *levelCfg, LogData *logData) override;
     void _OnLogThreadFlush(LibThread *t, Variant *params);
     void _OnLogFlush(std::vector<SpecifyLog *> &logs, Int32 threadRelationIdx, Int32 logCount);

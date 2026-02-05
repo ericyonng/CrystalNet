@@ -440,6 +440,12 @@ void LibLog::UnInstallBeforeLogHookFunc(Int32 level, const IDelegate<void, LogDa
     auto specifyLog = _fileIdIdxRefLog[logCfg->FileId];
     specifyLog->UnInstallBeforeLogHookFunc(level, delegate);
 }
+
+const void *LibLog::GetFileMonitor() const
+{
+    return _fileMonitor;
+}
+
     
 void LibLog::_InstallAfterLogHookFunc(const LogLevelInfoCfg *levelCfg, IDelegate<void> *delegate)
 {

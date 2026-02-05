@@ -77,7 +77,8 @@ private:
     // 多线程访问
     static  std::unordered_map<const FileMonitor<ObjType, FileDeserializerType> *, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>> *&GetFileMonitorInstRefCurrentObjAndDeserialize()
     {
-        DEF_STATIC_THREAD_LOCAL_DECLEAR std::unordered_map<const FileMonitor<ObjType, FileDeserializerType> *, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>> * s_FileMonitorInstRefCurrentObjAndDeserialize = NULL;
+        DEF_STATIC_THREAD_LOCAL_DECLEAR std::unordered_map<const FileMonitor<ObjType, FileDeserializerType> *, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>> * s_FileMonitorInstRefCurrentObjAndDeserialize =
+            new std::unordered_map<const  FileMonitor<ObjType, FileDeserializerType> *, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>>();
         return s_FileMonitorInstRefCurrentObjAndDeserialize;
 
     }
@@ -95,11 +96,6 @@ requires FileMonitorConcept<ObjType, FileDeserializerType>
 ALWAYS_INLINE SmartPtr<ObjType, AutoDelMethods::Release> FileMonitor<ObjType, FileDeserializerType>::Current() const
 {
     auto &dict = GetFileMonitorInstRefCurrentObjAndDeserialize();
-    if(UNLIKELY(dict == NULL))
-    {
-        dict = new std::unordered_map<const  FileMonitor<ObjType, FileDeserializerType> *, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>>();
-    }
-
     auto iter = dict->find(this);
     if(UNLIKELY(iter == dict->end()))
     {

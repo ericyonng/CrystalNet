@@ -68,8 +68,9 @@ void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, vo
     std::atomic_bool isFinish = {false};
     void *registerKey = this;
     auto path = _path;
+
     // 不用担心投递到poller线程后由于没执行导致delegate泄露, 因为如果没执行那么程序应该处于关闭状态, 无所谓内存泄露
-    poller->Push([this, dataName, registerKey, releaseObj, deserializeObj, &isFinish, &obj, path, fileChangeManager, fromMemory]()
+    auto handleRegisterLamb = [this, dataName, registerKey, releaseObj, deserializeObj, &isFinish, &obj, path, fileChangeManager, fromMemory]()
     {
         KERNEL_NS::SmartPtr<IDelegate<void *, YAML::Node *>, KERNEL_NS::AutoDelMethods::Release> deserializePtr(deserializeObj);
         KERNEL_NS::SmartPtr<IDelegate<void, void *>, KERNEL_NS::AutoDelMethods::Release> releaseObjPtr(releaseObj);
@@ -276,18 +277,31 @@ void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, vo
         }
 
         isFinish.store(true, std::memory_order_release);
-    });
-
-    // 等待完成
-    while (!isFinish.load(std::memory_order_acquire))
+    };
+    
+    // 判断如果当前线程是poller线程则不需要Push, 直接处理
+    if (poller->GetWorkerThreadId() != KERNEL_NS::SystemUtil::GetCurrentThreadId())
     {
-        KERNEL_NS::SystemUtil::ThreadSleep(2);
+        poller->Push(handleRegisterLamb);
+
+        // 等待完成(如果是在FileChangeManager同一个线程就G了)
+        while (!isFinish.load(std::memory_order_acquire))
+        {
+            KERNEL_NS::SystemUtil::ThreadSleep(2);
+            CRYSTAL_TRACE("YamlDeserializer register waiting... path:%s, dataName:%s, fromMemory:%p", path.c_str(), dataName.c_str(), fromMemory);
+        }
+    }
+    else
+    {
+        // 在Poller线程中, 直接执行, 避免后面阻塞
+        handleRegisterLamb();
     }
 
+    // 以上执行如果是NULL则失败
     if(!obj)
     {
-        if (g_Log)
-            g_Log->Error(LOGFMT_OBJ_TAG("register yaml fail path:%s"), _path.c_str());
+        CRYSTAL_TRACE("register yaml fail path:%s, data name:%s, from memory:%p", _path.c_str(), dataName.c_str(), fromMemory);
+
         return NULL;
     }
 
