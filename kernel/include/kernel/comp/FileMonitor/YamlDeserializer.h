@@ -35,7 +35,7 @@
 #include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/LibString.h>
 #include <yaml-cpp/yaml.h>
-#include <kernel/comp/Log/log.h>
+#include <kernel/comp/Log/ILog.h>
 #include <kernel/comp/FileMonitor/FileChangeDefine.h>
 
 KERNEL_BEGIN

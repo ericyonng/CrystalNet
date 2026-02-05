@@ -622,7 +622,7 @@ void Poller::SafeEventLoop()
                     if(firstExpiredNano > 0)
                     {
                         firstExpiredNano /= KERNEL_NS::TimeDefs::NANO_SECOND_PER_MILLI_SECOND;
-                        _eventGuard.TimeWait(firstExpiredNano  > maxSleepMilliseconds ? firstExpiredNano : maxSleepMilliseconds);
+                        _eventGuard.TimeWait(static_cast<UInt64>(firstExpiredNano)  > maxSleepMilliseconds ? static_cast<UInt64>(firstExpiredNano) : maxSleepMilliseconds);
                     }
                     else
                     {

@@ -49,14 +49,13 @@
 
 
 KERNEL_BEGIN
-    LibLog::LibLog()
+
+LibLog::LibLog()
     :_isInit{false}
     ,_isStart{false}
     ,_isFinish{false}
-    ,_logConfigMgr(NULL)
     ,_fileMonitor(FileMonitor<LogCfg, YamlDeserializer>::New_FileMonitor())
     ,_curCacheBytes{0}
-    ,_logTimerIntervalMs(0)
     ,_isForceLogDiskAll{false}
 {
     
@@ -145,27 +144,23 @@ bool LibLog::Init(const Byte8 *logConfigFile, const Byte8 *logCfgDir, YamlMemory
     }
 
     // 初始化日志对象
-    Int32 maxFileId = 0;
-    for (Int32 idx = 0; idx < static_cast<Int32>(currentConfig->LogLevelList.size()); ++idx)
-    {
-        auto &levelConfig = currentConfig->LogLevelList[idx];
-        if (maxFileId < levelConfig.FileId)
-            maxFileId = levelConfig.FileId;
-    }
+    const Int32 maxFileId = currentConfig->GetMaxLogFileId();
     const Int32 logCount = static_cast<Int32>(currentConfig->LogLevelList.size());
     _fileIdIdxRefLog.resize(maxFileId + 1);
-    auto logPath = currentConfig->GetLogPath();
+    const auto logPath = currentConfig->GetLogPath();
     for(Int32 i = 0; i < logCount; ++i)
     {
         auto &cfg = currentConfig->LogLevelList[i];
         if(cfg.Enable)
         {
             auto newSpecifyLog = SpecifyLog::New_SpecifyLog();
-            const Int32 status = newSpecifyLog->Init(logPath, cfg);
+            auto logFileCfg = currentConfig->GetLogFile(cfg.LevelId);
+
+            const Int32 status = newSpecifyLog->Init(logPath, _fileMonitor, cfg.FileId, logFileCfg->ThreadRelationshipId);
             if(status != Status::Success)
             {
-                CRYSTAL_TRACE("newSpecifyLog INIT fail log file name=%s, specifyLogFileDir=%s, status=%d"
-                , cfg->_logFileName.c_str(), specifyLogFileDir.c_str(), status);
+                CRYSTAL_TRACE("newSpecifyLog INIT fail log file name=%s, file id:%d logPath=%s, status=%d"
+                , logFileCfg ? logFileCfg->FileName.c_str() : "", cfg.FileId, logPath.c_str(), status);
 
                 CRYSTAL_DELETE_SAFE(newSpecifyLog);
                 return false;
@@ -194,11 +189,11 @@ bool LibLog::Init(const Byte8 *logConfigFile, const Byte8 *logCfgDir, YamlMemory
             threadBindLogs->push_back(newSpecifyLog);
 
             newSpecifyLog->BindWakeupFlush(_flushLocks[newSpecifyLog->GetThreadRelationId()]);
-            _fileIdIdxRefLog[cfg->_logFileId] = newSpecifyLog;
+            _fileIdIdxRefLog[cfg.FileId] = newSpecifyLog;
         }
     }
 
-    _rootDirName = specifyLogFileDir;
+    _rootDirName = logPath;
 
     _isForceDiskFlag.resize(_flushThreads.size());
     for(Int32 idx = 0; idx < static_cast<Int32>(_isForceDiskFlag.size()); ++idx)
@@ -322,9 +317,6 @@ void LibLog::Close()
 
     _fileIdIdxRefLog.clear();
 
-    _logConfigMgr->Close();
-    CRYSTAL_DELETE_SAFE(_logConfigMgr);
-
     if (_fileMonitor)
         FileMonitor<LogCfg, YamlDeserializer>::Delete_FileMonitor(_fileMonitor);
 
@@ -412,7 +404,7 @@ bool LibLog::IsStart() const
 
 bool LibLog::IsLogOpen() const
 {
-    return (!_isFinish.load(std::memory_order_acquire)) && _logConfigMgr && _logConfigMgr->IsEnableLog();
+    return (!_isFinish.load(std::memory_order_acquire)) && _fileMonitor && _fileMonitor->Current()->IsEnableLog();
 }
 
 void LibLog::UnInstallAfterLogHookFunc(Int32 level, const IDelegate<void> *delegate)
@@ -427,8 +419,8 @@ void LibLog::UnInstallAfterLogHookFunc(Int32 level, const IDelegate<void> *deleg
     }
 
     // 能够调用uninstall 说明已经install过了
-    auto logCfg = _logConfigMgr->GetLogCfg(level);
-    auto specifyLog = _fileIdIdxRefLog[logCfg->_logFileId];
+    auto logCfg = _fileMonitor->Current()->GetLogFile(level);
+    auto specifyLog = _fileIdIdxRefLog[logCfg->FileId];
     specifyLog->UnInstallAfterLogHookFunc(level, delegate);
 }
 
@@ -444,36 +436,36 @@ void LibLog::UnInstallBeforeLogHookFunc(Int32 level, const IDelegate<void, LogDa
     }
 
     // 能够调用uninstall 说明已经install过了
-    auto logCfg = _logConfigMgr->GetLogCfg(level);
-    auto specifyLog = _fileIdIdxRefLog[logCfg->_logFileId];
+    auto logCfg = _fileMonitor->Current()->GetLogFile(level);
+    auto specifyLog = _fileIdIdxRefLog[logCfg->FileId];
     specifyLog->UnInstallBeforeLogHookFunc(level, delegate);
 }
     
-void LibLog::_InstallAfterLogHookFunc(const LogLevelCfg *levelCfg, IDelegate<void> *delegate)
+void LibLog::_InstallAfterLogHookFunc(const LogLevelInfoCfg *levelCfg, IDelegate<void> *delegate)
 {
     // 外部已排除是否开启日志
-    auto specifyLog = _fileIdIdxRefLog[levelCfg->_fileId];
-    specifyLog->InstallAfterHook(levelCfg->_level, delegate);
+    auto specifyLog = _fileIdIdxRefLog[levelCfg->FileId];
+    specifyLog->InstallAfterHook(levelCfg->LevelId, delegate);
 }
 
-void LibLog::_InstallBeforeLogHookFunc(const LogLevelCfg *levelCfg, IDelegate<void, LogData *> *delegate)
+void LibLog::_InstallBeforeLogHookFunc(const LogLevelInfoCfg *levelCfg, IDelegate<void, LogData *> *delegate)
 {
     // 外部已排除是否开启日志
-    auto specifyLog = _fileIdIdxRefLog[levelCfg->_fileId];
-    specifyLog->InstallBeforeHook(levelCfg->_level, delegate);
+    auto specifyLog = _fileIdIdxRefLog[levelCfg->FileId];
+    specifyLog->InstallBeforeHook(levelCfg->LevelId, delegate);
 }
 
-const LogLevelCfg *LibLog::_GetLevelCfg(Int32 level) const
+SmartPtr<LogCfg, AutoDelMethods::Release> LibLog::GetLogCfg() const
 {
-    return _logConfigMgr->GetLevelCfg(level);
+    return _fileMonitor->Current();
 }
 
-void LibLog::_WriteLog(const LogLevelCfg *levelCfg, LogData *logData)
+void LibLog::_WriteLog(const LogLevelInfoCfg *levelCfg, LogData *logData)
 {
-    auto specifyLog = _fileIdIdxRefLog[levelCfg->_fileId];
+    auto specifyLog = _fileIdIdxRefLog[levelCfg->FileId];
 
     // 开启打印堆栈信息
-    if(levelCfg->_printStackTraceBack)
+    if(levelCfg->PRINT_STACK_TRACE_BACK)
         logData->_logInfo << "\nStack Traceback:\n" << BackTraceUtil::CrystalCaptureStackBackTrace() << "\n";
 
     auto calcBytes = static_cast<Int64>(logData->CalcBytes());
@@ -481,7 +473,8 @@ void LibLog::_WriteLog(const LogLevelCfg *levelCfg, LogData *logData)
     specifyLog->WriteLog(*levelCfg, logData);
 
     // 缓存超过阈值强制着盘
-    if(UNLIKELY(curAllBytes >= _logConfigMgr->GetMaxLogCacheBytes()))
+    auto currentCfgs = _fileMonitor->Current();
+    if(UNLIKELY(curAllBytes >= currentCfgs->GetMaxLogCacheBytes()))
     {
         _curCacheBytes.store(0, std::memory_order_release);
         FlushAll();
@@ -501,7 +494,8 @@ void LibLog::_OnLogThreadFlush(LibThread *t, Variant *params)
             logNameList.AppendFormat("%s|", log->GetLogName().c_str());
     }
 
-    UInt64 intervalMs = static_cast<UInt64>(_logTimerIntervalMs);
+    auto currentConfgs = _fileMonitor->Current();
+    UInt64 intervalMs = static_cast<UInt64>(currentConfgs->GetIntervalMs().GetTotalMilliSeconds());
     // CRYSTAL_TRACE("log file name thread start id[%llu] relation id = [%d], bind log file name=[%s] intervalMs[%llu]"
     // , SystemUtil::GetCurrentThreadId(), idx, logNameList.c_str(), intervalMs);
 

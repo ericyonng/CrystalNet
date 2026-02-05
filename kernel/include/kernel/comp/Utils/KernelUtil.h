@@ -41,15 +41,52 @@ class ILogFactory;
 class LibCpuInfo;
 class CpuFeature;
 class MemoryMonitor;
+class YamlMemory;
 
 template <typename Rtn, typename... Args>
 class IDelegate;
+
+class KERNEL_EXPORT KernelFlags
+{
+public:
+    enum ENUMS : Int32
+    {
+        // 切换工作路径
+        CHANGE_WORK_DIR = 0,
+
+        // 修改文件描述符限制
+        MODIFY_FILE_DESC_LIMIT,
+
+        // 修改系统时区(禁用时, 应该不调用tzset()等方法)
+        MODIFY_SYSTEM_TIME_ZONE,
+
+        // 捕获异常信号
+        CATCH_ABNORMAL_SIGNAL,
+
+        // 设置信号处理任务
+        SET_SIGNAL_PROCESSOR,
+
+        // 设置Crash hook
+        MODIFY_CRASH_HOOK,
+
+        // 初始化网络环境
+        INIT_SOCKET_ENV,
+
+        // 初始化curl
+        INIT_CURL,
+
+        // 最大值
+        MAX,
+    };
+
+    static constexpr UInt64 DefaultFlags = ~(1LLU << KernelFlags::MAX);
+};
 
 class KERNEL_EXPORT KernelUtil
 {
 public:
     // 框架初始化与销毁
-    static Int32 Init(ILogFactory * logFactory, const Byte8 *logIniName, const Byte8 *iniPath, const LibString &logContent = LibString(), const LibString &consoleContent = LibString(), bool needSignalHandle = true, Int64 fileSoftLimit = 1024000, Int64 fileHardLimit = 1024000);
+    static Int32 Init(ILogFactory * logFactory, const Byte8 *logIniName, const Byte8 *iniPath, YamlMemory *yamlMemory, UInt64 flags = KernelFlags::DefaultFlags, bool needSignalHandle = true, Int64 fileSoftLimit = 1024000, Int64 fileHardLimit = 1024000);
     static void Start();
     static void Destroy();
     static void OnSignalClose();
@@ -65,6 +102,9 @@ private:
 extern KERNEL_EXPORT std::atomic_bool g_KernelInit;
 extern KERNEL_EXPORT std::atomic_bool s_KernelStart;
 extern KERNEL_EXPORT std::atomic_bool s_KernelDestroy;
+
+// 新的全局变量
+extern KERNEL_EXPORT std::atomic<UInt64> s_KernelFlags;
 
 KERNEL_END
 

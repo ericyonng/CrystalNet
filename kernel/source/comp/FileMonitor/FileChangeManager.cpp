@@ -28,7 +28,6 @@
 #include <pch.h>
 #include <kernel/comp/FileMonitor/FileChangeManager.h>
 #include <kernel/comp/Utils/RttiUtil.h>
-#include "kernel/comp/FileMonitor/FileChangeManagerFactory.h"
 #include <kernel/common/statics.h>
 #include <kernel/comp/thread/LibEventLoopThreadPool.h>
 

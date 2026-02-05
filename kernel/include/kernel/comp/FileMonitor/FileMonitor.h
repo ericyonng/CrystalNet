@@ -75,7 +75,12 @@ public:
     // 对于多线程访问, 应该对_currentObject/_deserialize放在thread_load级别, 这样避免了多线程竞争问题
 private:
     // 多线程访问
-    DEF_STATIC_THREAD_LOCAL_DECLEAR alignas(SYSTEM_ALIGN_SIZE) std::unordered_map<void *, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>> * s_FileMonitorInstRefCurrentObjAndDeserialize = NULL;
+    static  std::unordered_map<const FileMonitor<ObjType, FileDeserializerType> *, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>> *&GetFileMonitorInstRefCurrentObjAndDeserialize()
+    {
+        DEF_STATIC_THREAD_LOCAL_DECLEAR std::unordered_map<const FileMonitor<ObjType, FileDeserializerType> *, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>> * s_FileMonitorInstRefCurrentObjAndDeserialize = NULL;
+        return s_FileMonitorInstRefCurrentObjAndDeserialize;
+
+    }
 
     alignas(SYSTEM_ALIGN_SIZE) LibString _filePath;
 
@@ -89,17 +94,18 @@ requires FileMonitorConcept<ObjType, FileDeserializerType>
 #endif
 ALWAYS_INLINE SmartPtr<ObjType, AutoDelMethods::Release> FileMonitor<ObjType, FileDeserializerType>::Current() const
 {
-    if(UNLIKELY(s_FileMonitorInstRefCurrentObjAndDeserialize == NULL))
+    auto &dict = GetFileMonitorInstRefCurrentObjAndDeserialize();
+    if(UNLIKELY(dict == NULL))
     {
-        s_FileMonitorInstRefCurrentObjAndDeserialize = new std::unordered_map<void *, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>>();
+        dict = new std::unordered_map<const  FileMonitor<ObjType, FileDeserializerType> *, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>>();
     }
 
-    auto iter = s_FileMonitorInstRefCurrentObjAndDeserialize->find(this);
-    if(UNLIKELY(iter == s_FileMonitorInstRefCurrentObjAndDeserialize->end()))
+    auto iter = dict->find(this);
+    if(UNLIKELY(iter == dict->end()))
     {
         auto deserializeObj = FileDeserializerType::Create();
-        iter = s_FileMonitorInstRefCurrentObjAndDeserialize->insert(std::make_pair(this, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>( deserializeObj,
-            deserializeObj->template Register<ObjType>(_filePath, _fromMemory)
+        iter = dict->insert(std::make_pair(this, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>( 
+            deserializeObj->template Register<ObjType>(_filePath, _fromMemory), deserializeObj
         ))).first;
     }
 

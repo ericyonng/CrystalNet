@@ -52,10 +52,12 @@
 #include <kernel/comp/Utils/RttiUtil.h>
 #include <kernel/comp/Utils/SystemUtil.h>
 #include <kernel/comp/Log/LogMacro.h>
+#include <kernel/comp/Log/LogCfg.h>
 
 KERNEL_BEGIN
 
 class YamlMemory;
+struct LogLevelInfoCfg;
 
 class KERNEL_EXPORT ILog
 {
@@ -67,7 +69,7 @@ public:
     
     // static ILog *GetDefaultInstance();
 
-    virtual bool Init(const Byte8 *logConfigFile = "Log.yaml", const Byte8 *logCfgDir = NULL, YamlMemory *yamlMemory) = 0;
+    virtual bool Init(const Byte8 *logConfigFile = "Log.yaml", const Byte8 *logCfgDir = NULL, YamlMemory *yamlMemory = NULL) = 0;
     virtual void Start() = 0;
     virtual void Close() = 0;
     virtual void FlushAll() = 0;
@@ -134,8 +136,8 @@ public:
     virtual void UnInstallBeforeLogHookFunc(Int32 level, const IDelegate<void, LogData *> *delegate) = 0;
 
 protected:
-    virtual void _InstallAfterLogHookFunc(const LogLevelCfg *levelCfg, IDelegate<void> *delegate) = 0;
-    virtual void _InstallBeforeLogHookFunc(const LogLevelCfg *levelCfg, IDelegate<void, LogData *> *delegate) = 0;
+    virtual void _InstallAfterLogHookFunc(const LogLevelInfoCfg *levelCfg, IDelegate<void> *delegate) = 0;
+    virtual void _InstallBeforeLogHookFunc(const LogLevelInfoCfg *levelCfg, IDelegate<void, LogData *> *delegate) = 0;
     
 
 public:
@@ -143,8 +145,8 @@ public:
     virtual bool IsLogOpen() const = 0;
 
 protected:
-    virtual const LogLevelCfg *_GetLevelCfg(Int32 level) const = 0;
-    virtual void _WriteLog(const LogLevelCfg *levelCfg, LogData *logData) = 0;
+    virtual SmartPtr<LogCfg, AutoDelMethods::Release> GetLogCfg() const = 0;
+    virtual void _WriteLog(const LogLevelInfoCfg *levelCfg, LogData *logData) = 0;
 
     // 继承后可调用的写日志模版
     void _Common1(const Byte8 *tag, Int32 levelId, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, va_list va, UInt64 formatFinalSize);
@@ -162,8 +164,9 @@ protected:
     {
         if(UNLIKELY(!IsLogOpen()))
             return;
-    
-        auto levelCfg = _GetLevelCfg(levelId);
+
+        auto currentCfgs = GetLogCfg();
+        auto levelCfg = currentCfgs->GetLevelCfg(levelId);
         if(UNLIKELY(!levelCfg))
         {
             CRYSTAL_TRACE("log level[%d] cfg not found", levelId);
@@ -171,7 +174,7 @@ protected:
         }
 
         // 是否需要输出日志
-        if(UNLIKELY(!levelCfg->_enable))
+        if(UNLIKELY(!levelCfg->Enable))
             return;
 
         // 构建日志数据
@@ -180,7 +183,7 @@ protected:
         LogData *newLogData = LogData::New_LogData();
         newLogData->_logTime.UpdateTime();
         auto &logInfo = newLogData->_logInfo;
-        logInfo.AppendFormat("%s<%s>[%s][line:%d][tid:%llu][%s]: ", newLogData->_logTime.ToString().c_str(), levelCfg->_levelName.c_str(), (tag ? tag : ""), codeLine, tid, traceInfo.c_str());
+        logInfo.AppendFormat("%s<%s>[%s][line:%d][tid:%llu][%s]: ", newLogData->_logTime.ToString().c_str(), levelCfg->LevelName.c_str(), (tag ? tag : ""), codeLine, tid, traceInfo.c_str());
         logInfo.Append(std::forward<Args>(args)...);
         logInfo.AppendEnd();
 
@@ -229,9 +232,11 @@ ALWAYS_INLINE const IDelegate<void> *ILog::InstallAfterLogHookFunc(Int32 level, 
 {
     if(UNLIKELY(!IsLogOpen()))
         return NULL;
- 
-    auto levelCfg = _GetLevelCfg(level);
-    if(UNLIKELY(!levelCfg || !levelCfg->_enable))
+
+    auto currentCfgs = GetLogCfg();
+
+    auto levelCfg = currentCfgs->GetLevelCfg(level);
+    if(UNLIKELY(!levelCfg || !levelCfg->Enable))
         return NULL;
 
     if(UNLIKELY(IsStart()))
@@ -249,9 +254,10 @@ ALWAYS_INLINE const IDelegate<void> *ILog::InstallAfterLogHookFunc(Int32 level, 
 {
     if(UNLIKELY(!IsLogOpen()))
         return NULL;
- 
-    auto levelCfg = _GetLevelCfg(level);
-    if(UNLIKELY(!levelCfg || !levelCfg->_enable))
+
+    auto currentCfgs = GetLogCfg();
+    auto levelCfg = currentCfgs->GetLevelCfg(level);
+    if(UNLIKELY(!levelCfg || !levelCfg->Enable))
         return NULL;
 
     if(UNLIKELY(IsStart()))
@@ -270,9 +276,11 @@ ALWAYS_INLINE const IDelegate<void, LogData *> *ILog::InstallBeforeLogHookFunc(I
 {
     if(UNLIKELY(!IsLogOpen()))
         return NULL;
- 
-    auto levelCfg = _GetLevelCfg(level);
-    if(UNLIKELY(!levelCfg || !levelCfg->_enable))
+
+    auto currentCfgs = GetLogCfg();
+
+    auto levelCfg = currentCfgs->GetLevelCfg(level);
+    if(UNLIKELY(!levelCfg || !levelCfg->Enable))
         return NULL;
 
     if(UNLIKELY(IsStart()))
@@ -290,9 +298,10 @@ ALWAYS_INLINE const IDelegate<void, LogData *> *ILog::InstallBeforeLogHookFunc(I
 {
     if(UNLIKELY(!IsLogOpen()))
         return NULL;
- 
-    auto levelCfg = _GetLevelCfg(level);
-    if(UNLIKELY(!levelCfg || !levelCfg->_enable))
+    
+    auto currentCfgs = GetLogCfg();
+    auto levelCfg = currentCfgs->GetLevelCfg(level);
+    if(UNLIKELY(!levelCfg || !levelCfg->Enable))
         return NULL;
 
     if(UNLIKELY(IsStart()))
@@ -311,8 +320,10 @@ ALWAYS_INLINE bool ILog::IsEnable(Int32 level) const
     if(UNLIKELY(!IsLogOpen() || !IsStart()))
         return false;
 
-    auto levelCfg = _GetLevelCfg(level);
-    return levelCfg ? levelCfg->_enable : false;
+    auto currentCfgs = GetLogCfg();
+
+    auto levelCfg = currentCfgs->GetLevelCfg(level);
+    return levelCfg && levelCfg->Enable;
 }
 
 KERNEL_END

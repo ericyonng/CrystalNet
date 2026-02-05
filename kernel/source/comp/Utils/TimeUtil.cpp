@@ -52,7 +52,7 @@ std::atomic<Int32> __g_timezone{0};
 Int64 TimeUtil::_systemTimeBegin = 0;
 UInt64 TimeUtil::_cpuBegin = 0;
 
-void TimeUtil::SetTimeZone()
+void TimeUtil::SetTimeZone(bool invokeSetZone)
 {
     // 设置成服务器所在时区
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS

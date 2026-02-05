@@ -79,6 +79,8 @@ struct KERNEL_EXPORT LogCommonCfg
     TimeSlice LogTimerInterval = TimeSlice::FromSeconds(1);
     // 日志单文件最大大小,超过会创建分立文件
     Int32 MaxFileSizeMB = 256;
+    // 日志最大缓存限制,超过则即时着盘
+    Int32 MaxLogCacheMB = 16;
     // 是否产出日志
     bool IsEnableLog = true;
 
@@ -122,10 +124,11 @@ struct KERNEL_EXPORT LogCfg
     std::map<Int32, std::vector<LogFileDefine *>> ThreadRelationIdRefFileDefines;
 
     // 最大文件id
-    Int32 MaxLogFileId;
+    Int32 MaxLogFileId = 0;
     // 最大文件大小
-    Int64 MaxLogSizeBytes;
-
+    Int64 MaxLogSizeBytes = 0;
+    // 最大缓存大小
+    Int64 MaxLogCacheSizeBytes = 0;
     static LogCfg *CreateNewObj(LogCfg &&cfg)
     {
         return new LogCfg(std::move(cfg));
@@ -179,7 +182,7 @@ ALWAYS_INLINE const LogFileDefine *LogCfg::GetLogFile(Int32 logLevel) const
     
 ALWAYS_INLINE Int64 LogCfg::GetMaxLogCacheBytes() const
 {
-    return MaxLogSizeBytes;
+    return MaxLogCacheSizeBytes;
 }
     
 ALWAYS_INLINE const std::vector<LogFileDefine *> &LogCfg::GetLogFileCfgs() const
@@ -284,6 +287,7 @@ namespace YAML
             finalNode["ExtName"] = rhs.ExtName.GetRaw();
             finalNode["LogTimerInterval"] = rhs.LogTimerInterval.ToString().GetRaw();
             finalNode["MaxFileSizeMB"] = rhs.MaxFileSizeMB;
+            finalNode["MaxLogCacheMB"] = rhs.MaxLogCacheMB;
             finalNode["IsEnableLog"] = rhs.IsEnableLog ? 1 : 0;
             finalNode["LogPath"] = rhs.LogPath;
 
@@ -308,6 +312,7 @@ namespace YAML
                 rhs.LogTimerInterval = KERNEL_NS::TimeSlice(node["LogTimerInterval"].as<std::string>());
 
             rhs.MaxFileSizeMB = node["MaxFileSizeMB"].as<Int32>();
+            rhs.MaxLogCacheMB = node["MaxLogCacheMB"].as<Int32>();
             rhs.IsEnableLog = node["IsEnableLog"].as<Int32>() != 0;
 
             auto &pathNode = node["LogPath"];

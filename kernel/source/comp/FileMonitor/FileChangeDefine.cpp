@@ -63,7 +63,6 @@ FileMonitorInfo::FileMonitorInfo()
 ,_releaseObj(NULL)
 ,_loadNewObj(NULL)
 ,_sourceObj(NULL)
-,_releaseFromMemory(NULL)
 ,_fromMemory(NULL)
 {
     
@@ -78,9 +77,6 @@ FileMonitorInfo::~FileMonitorInfo()
     _sourceObj = NULL;
     CRYSTAL_RELEASE_SAFE(_releaseObj);
 
-    if (_releaseFromMemory && _fromMemory)
-        _releaseFromMemory->Invoke(_fromMemory);
-    CRYSTAL_RELEASE_SAFE(_releaseFromMemory);
     _fromMemory = NULL;
     
     CRYSTAL_RELEASE_SAFE(_checkChange);

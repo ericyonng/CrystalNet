@@ -40,8 +40,8 @@ KERNEL_BEGIN
 class KERNEL_EXPORT TimeUtil
 {
 public:
-    // 设置成服务器所在时区 TODO:需要在不同平台下验证
-    static void SetTimeZone();
+    // 设置成服务器所在时区 TODO:需要在不同平台下验证, invokeSetZone:调用设置时区函数
+    static void SetTimeZone(bool invokeSetZone = true);
     // 获取服务器时区单位(s)且有符号，如+8区需要输出 +28800s，时区是相对于格林尼治时间的偏移秒数
     static Int32 GetTimeZone();
     static bool IsLeapYear(Int32 year);

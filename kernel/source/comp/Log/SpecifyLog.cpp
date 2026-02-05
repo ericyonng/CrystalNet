@@ -55,11 +55,12 @@ SpecifyLog::~SpecifyLog()
     Close();
 }
 
-Int32 SpecifyLog::Init(const LibString &rootDirName, , FileMonitor<LogCfg, YamlDeserializer> *configMonitor, Int32 fileConfigId)
+Int32 SpecifyLog::Init(const LibString &rootDirName, FileMonitor<LogCfg, YamlDeserializer> *configMonitor, Int32 fileConfigId, Int32 threadRelationId)
 {
     if(_isInit.exchange(true, std::memory_order_acq_rel))
     {
-        CRYSTAL_TRACE("already init log file name[%s]", cfg->_logFileName.c_str());
+        auto cfgs = _fileMonitor->Current();
+        CRYSTAL_TRACE("already init log file name[%s]", cfgs->GetLogFile(fileConfigId)->FileName.c_str());
         return Status::Success;
     }
 
@@ -71,18 +72,22 @@ Int32 SpecifyLog::Init(const LibString &rootDirName, , FileMonitor<LogCfg, YamlD
 
     _fileMonitor = configMonitor;
     _fileConfigId = fileConfigId;
+    _threadRelationId = threadRelationId;
 
     // hook
-    const auto refLevelCount = _config->_levelIdxRefCfg.size();
+    auto currentCfgs = _fileMonitor->Current();
+    auto &levelIdRefCfg = currentCfgs->FileIdRefLevelInfoCfgs[fileConfigId];
+    const auto refLevelCount = levelIdRefCfg.size();
     _beforeHook.resize(refLevelCount);
     _afterHook.resize(refLevelCount);
 
     // 1.文件名 = 路径 + 文件名 + pidStr
+    auto logFileCfg = currentCfgs->FileIdRefFileDefine[fileConfigId];
     const auto pidStr = StringUtil::Num2Str(SystemUtil::GetCurProcessId());
-    LibString logName = rootDirName + _config->_logFileName + "_" + pidStr + _config->_extName;
+    LibString logName = rootDirName + logFileCfg->FileName + "_" + pidStr + logFileCfg->ExtName;
 
     // 2.创建日志文件
-    if(cfg->_needWriteFile)
+    if(logFileCfg->NeedWriteFile)
     {
         _logFile = LibLogFile::New_LibLogFile();
         // CRYSTAL_TRACE("will create log file:%s", logName.c_str());
@@ -107,7 +112,9 @@ Int32 SpecifyLog::Start()
 {
     if(_isStart.exchange(true, std::memory_order_acq_rel))
     {
-        CRYSTAL_TRACE("already start SpecifyLog log file name[%s]", _config->_logFileName.c_str());
+        auto cfgs = _fileMonitor->Current();
+
+        CRYSTAL_TRACE("already start SpecifyLog log file name[%s]", cfgs->GetLogFile(_fileConfigId)->FileName.c_str());
         return Status::Success;
     }
 
@@ -203,7 +210,7 @@ void SpecifyLog::CloseAndReopen()
     }
 }
 
-void SpecifyLog::WriteLog(const LogLevelCfg &levelCfg, LogData *logData)
+void SpecifyLog::WriteLog(const LogLevelInfoCfg &levelCfg, LogData *logData)
 {
     // 1.外部判断,按理来说不应该在日志线程即将关闭或者关闭时写日志
     if(UNLIKELY(_isClose.load(std::memory_order_acquire)))
@@ -217,7 +224,7 @@ void SpecifyLog::WriteLog(const LogLevelCfg &levelCfg, LogData *logData)
     //     return false;
         
     // 1.不可做影响log执行的其他事情
-    auto beforeHookList = _beforeHook[levelCfg._level];
+    auto beforeHookList = _beforeHook[levelCfg.LevelId];
     if(beforeHookList)
     {
         for(auto iter:*beforeHookList)
@@ -228,18 +235,18 @@ void SpecifyLog::WriteLog(const LogLevelCfg &levelCfg, LogData *logData)
     // LogData cache = *logData;
 
     // 3.打印到控制台
-    if(levelCfg._enableConsole)
+    if(levelCfg.EnableConsole)
         _OutputToConsole(levelCfg, logData->_logInfo);
 
     // 4.将日志数据放入队列
-    if(levelCfg._needWriteFile)
+    if(levelCfg.NEED_WRITE_FILE)
     {
         _logLck.Lock();
         _logData->push_back(logData);
         _logLck.Unlock();
 
         // 实时写日志
-        if(UNLIKELY(levelCfg._enableRealTime))
+        if(UNLIKELY(levelCfg.EnableRealTime))
             _wakeupFlush->Sinal();
     }
     else
@@ -248,7 +255,7 @@ void SpecifyLog::WriteLog(const LogLevelCfg &levelCfg, LogData *logData)
     }
 
     // 6.日志后hook
-    auto afterHookList = _afterHook[levelCfg._level];
+    auto afterHookList = _afterHook[levelCfg.LevelId];
     if(afterHookList)
     {
         for(auto iter:*afterHookList)
@@ -288,7 +295,8 @@ void SpecifyLog::_OnThreadWriteLog()
     }
 
    // 2.写日志
-   const Int64 maxFileSize = _config->_maxFileSize;
+    auto currentCfgs = _fileMonitor->Current();
+   const Int64 maxFileSize = currentCfgs->MaxLogSizeBytes;
    for(auto iterLog = _swapData->begin(); iterLog != _swapData->end();)
    {
         // 1.跨天重新打开
@@ -359,11 +367,11 @@ void SpecifyLog::_WakupFlush()
     _wakeupFlush->Sinal();
 }
 
-void SpecifyLog::_OutputToConsole(const LogLevelCfg &levelCfg, const LibString &logInfo)
+void SpecifyLog::_OutputToConsole(const LogLevelInfoCfg &levelCfg, const LibString &logInfo)
 {
     SystemUtil::LockConsole();
     const Int32 oldColor = SystemUtil::GetConsoleColor();
-    SystemUtil::SetConsoleColor(levelCfg._fgColor | levelCfg._bgColor);
+    SystemUtil::SetConsoleColor(levelCfg.FgColor | levelCfg.BgColor);
     SystemUtil::OutputToConsole(logInfo);
     SystemUtil::SetConsoleColor(oldColor);
     SystemUtil::UnlockConsole();
@@ -435,7 +443,7 @@ void SpecifyLog::UnInstallBeforeLogHookFunc(Int32 level, const IDelegate<void, L
 
 Int32 SpecifyLog::GetThreadRelationId() const
 {
-    return _config->_threadRelationId;
+    return _threadRelationId;
 }
 
 

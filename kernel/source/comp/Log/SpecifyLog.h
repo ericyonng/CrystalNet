@@ -62,13 +62,13 @@ public:
     ~SpecifyLog();
 
 public:
-    Int32 Init(const LibString &rootDirName, FileMonitor<LogCfg, YamlDeserializer> *configMonitor, Int32 fileConfigId);
+    Int32 Init(const LibString &rootDirName, FileMonitor<LogCfg, YamlDeserializer> *configMonitor, Int32 fileConfigId, Int32 threadRelationId);
     void BindWakeupFlush(ConditionLocker *flusher);
     Int32 Start();
     void Close();
     void CloseAndReopen();
     void Flush();
-    void WriteLog(const LogLevelCfg &levelCfg, LogData *logData);
+    void WriteLog(const LogLevelInfoCfg &levelCfg, LogData *logData);
     Int32 GetThreadRelationId() const;
     void ForceToDisk();
 
@@ -89,13 +89,14 @@ private:
     void _WakupFlush();
 
 private:
-    void _OutputToConsole(const LogLevelCfg &levelCfg, const LibString &logInfo);
+    void _OutputToConsole(const LogLevelInfoCfg &levelCfg, const LibString &logInfo);
 
 private:
     std::atomic_bool _isInit = {false};
     std::atomic_bool _isStart = {false};
     std::atomic_bool _isClose = {false};
     Int32 _fileConfigId = 0;
+    Int32 _threadRelationId = 0;
     FileMonitor<LogCfg, YamlDeserializer> *_fileMonitor = NULL;
     std::vector<std::list<IDelegate<void, LogData *> *> *> _beforeHook; // level 做下标索引
     std::vector<std::list<IDelegate<void> *> *> _afterHook;    // level 做下标索引

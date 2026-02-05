@@ -53,7 +53,7 @@ public:
     virtual ~LibLog();
 
 public:
-    virtual bool Init(const Byte8 *logConfigFile = "Log.yaml", const Byte8 *logCfgDir = NULL, YamlMemory *yamlMemory) override;
+    virtual bool Init(const Byte8 *logConfigFile = "Log.yaml", const Byte8 *logCfgDir = NULL, YamlMemory *yamlMemory = NULL) override;
     virtual void Start() override;
     virtual void Close() override;
     virtual void FlushAll() override;
@@ -66,12 +66,13 @@ public:
     virtual void UnInstallBeforeLogHookFunc(Int32 level, const IDelegate<void, LogData *> *delegate) override;
 
 protected:
-    virtual void _InstallAfterLogHookFunc(const LogLevelCfg *levelCfg, IDelegate<void> *delegate) override;
-    virtual void _InstallBeforeLogHookFunc(const LogLevelCfg *levelCfg, IDelegate<void, LogData *> *delegate) override;
+    virtual void _InstallAfterLogHookFunc(const LogLevelInfoCfg *levelCfg, IDelegate<void> *delegate) override;
+    virtual void _InstallBeforeLogHookFunc(const LogLevelInfoCfg *levelCfg, IDelegate<void, LogData *> *delegate) override;
 
 protected:
-    virtual const LogLevelCfg *_GetLevelCfg(Int32 level) const override;
-    virtual void _WriteLog(const LogLevelCfg *levelCfg, LogData *logData) override;
+    virtual SmartPtr<LogCfg, AutoDelMethods::Release> GetLogCfg() const override;
+
+    virtual void _WriteLog(const LogLevelInfoCfg *levelCfg, LogData *logData) override;
     void _OnLogThreadFlush(LibThread *t, Variant *params);
     void _OnLogFlush(std::vector<SpecifyLog *> &logs, Int32 threadRelationIdx, Int32 logCount);
 

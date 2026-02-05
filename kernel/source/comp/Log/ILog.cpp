@@ -236,8 +236,9 @@ void ILog::_Common1(const Byte8 *tag, Int32 levelId, const char *fileName, const
 {
     if(UNLIKELY(!IsLogOpen()))
         return;
- 
-    auto levelCfg = _GetLevelCfg(levelId);
+
+    auto currentCfgs = GetLogCfg();
+    auto levelCfg = currentCfgs->GetLevelCfg(levelId);
     if(UNLIKELY(!levelCfg))
     {
         CRYSTAL_TRACE("log level[%d] cfg not found", levelId);
@@ -245,7 +246,7 @@ void ILog::_Common1(const Byte8 *tag, Int32 levelId, const char *fileName, const
     }
 
     // 是否需要输出日志
-    if(UNLIKELY(!levelCfg->_enable))
+    if(UNLIKELY(!levelCfg->Enable))
         return;
 
     const KERNEL_NS::LibString &traceInfo = _BuildTraceInfo();
@@ -256,7 +257,7 @@ void ILog::_Common1(const Byte8 *tag, Int32 levelId, const char *fileName, const
     auto &logInfo = newLogData->_logInfo;
     logInfo.AppendFormat("%s<%s>[%s][%s][%s][line:%d][tid:%llu][%s]: "
                                    , newLogData->_logTime.ToString().c_str()
-                                   , levelCfg->_levelName.c_str()
+                                   , levelCfg->LevelName.c_str()
                                    , (tag ? tag : "")
                                    , fileName
                                    , funcName
@@ -275,8 +276,10 @@ void ILog::_Common2(const Byte8 *tag, Int32 levelId, const char *fmt, va_list va
 {
     if(UNLIKELY(!IsLogOpen()))
         return;
- 
-    auto levelCfg = _GetLevelCfg(levelId);
+
+    auto currentCfgs = GetLogCfg();
+
+    auto levelCfg = currentCfgs->GetLevelCfg(levelId);
     if(UNLIKELY(!levelCfg))
     {
         CRYSTAL_TRACE("log level[%d] cfg not found", levelId);
@@ -284,7 +287,7 @@ void ILog::_Common2(const Byte8 *tag, Int32 levelId, const char *fmt, va_list va
     }
 
     // 是否需要输出日志
-    if(UNLIKELY(!levelCfg->_enable))
+    if(UNLIKELY(!levelCfg->Enable))
         return;
 
     // 构建日志数据
@@ -295,7 +298,7 @@ void ILog::_Common2(const Byte8 *tag, Int32 levelId, const char *fmt, va_list va
     auto &logInfo = newLogData->_logInfo;
     logInfo.AppendFormat("%s<%s>[%s][tid:%llu][%s]: "
                         , newLogData->_logTime.ToString().c_str()
-                        , levelCfg->_levelName.c_str()
+                        , levelCfg->LevelName.c_str()
                         , (tag ? tag : "")
                         , tid
                         , traceInfo.c_str());
@@ -310,8 +313,10 @@ void ILog::_Common3(Int32 levelId, const char *fmt, va_list va, UInt64 formatFin
 {
     if(UNLIKELY(!IsLogOpen()))
         return;
- 
-    auto levelCfg = _GetLevelCfg(levelId);
+
+    auto currentCfgs = GetLogCfg();
+
+    auto levelCfg = currentCfgs->GetLevelCfg(levelId);
     if(UNLIKELY(!levelCfg))
     {
         CRYSTAL_TRACE("log level[%d] cfg not found", levelId);
@@ -319,7 +324,7 @@ void ILog::_Common3(Int32 levelId, const char *fmt, va_list va, UInt64 formatFin
     }
 
     // 是否需要输出日志
-    if(UNLIKELY(!levelCfg->_enable))
+    if(UNLIKELY(!levelCfg->Enable))
         return;
 
     // 构建日志数据
@@ -340,8 +345,10 @@ void ILog::_Common4(Int32 levelId, const char *fmt, va_list va, UInt64 formatFin
 {
     if(UNLIKELY(!IsLogOpen()))
         return;
- 
-    auto levelCfg = _GetLevelCfg(levelId);
+
+    auto currentCfgs = GetLogCfg();
+
+    auto levelCfg = currentCfgs->GetLevelCfg(levelId);
     if(UNLIKELY(!levelCfg))
     {
         CRYSTAL_TRACE("log level[%d] cfg not found", levelId);
@@ -349,7 +356,7 @@ void ILog::_Common4(Int32 levelId, const char *fmt, va_list va, UInt64 formatFin
     }
 
     // 是否需要输出日志
-    if(UNLIKELY(!levelCfg->_enable))
+    if(UNLIKELY(!levelCfg->Enable))
         return;
 
     // 构建日志数据
@@ -361,7 +368,7 @@ void ILog::_Common4(Int32 levelId, const char *fmt, va_list va, UInt64 formatFin
     auto &logInfo = newLogData->_logInfo;
     logInfo.AppendFormat("%s<%s>[tid:%llu][%s]: "
                         , newLogData->_logTime.ToString().c_str()
-                        , levelCfg->_levelName.c_str()
+                        , levelCfg->LevelName.c_str()
                         , tid
                         , traceInfo.c_str());
 
@@ -375,8 +382,10 @@ void ILog::_Common5(const Byte8 *tag, Int32 codeLine, Int32 levelId, const char 
 {
    if(UNLIKELY(!IsLogOpen()))
         return;
- 
-    auto levelCfg = _GetLevelCfg(levelId);
+    
+    auto currentCfgs = GetLogCfg();
+
+    auto levelCfg = currentCfgs->GetLevelCfg(levelId);
     if(UNLIKELY(!levelCfg))
     {
         CRYSTAL_TRACE("log level[%d] cfg not found", levelId);
@@ -384,7 +393,7 @@ void ILog::_Common5(const Byte8 *tag, Int32 codeLine, Int32 levelId, const char 
     }
 
     // 是否需要输出日志
-    if(UNLIKELY(!levelCfg->_enable))
+    if(UNLIKELY(!levelCfg->Enable))
         return;
 
     // 构建日志数据
@@ -395,7 +404,7 @@ void ILog::_Common5(const Byte8 *tag, Int32 codeLine, Int32 levelId, const char 
     auto &logInfo = newLogData->_logInfo;
     logInfo.AppendFormat("%s<%s>[%s][line:%d][tid:%llu][%s]: "
                         , newLogData->_logTime.ToString().c_str()
-                        , levelCfg->_levelName.c_str()
+                        , levelCfg->LevelName.c_str()
                         , (tag ? tag : "")
                         , codeLine
                         , tid

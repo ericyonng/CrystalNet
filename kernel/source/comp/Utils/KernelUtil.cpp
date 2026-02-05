@@ -56,6 +56,8 @@
 #include <kernel/comp/thread/LibEventLoopThreadPool.h>
 #include <kernel/comp/FileMonitor/FileChangeManager.h>
 
+#include "kernel/comp/Utils/BitUtil.h"
+
 KERNEL_NS::LibCpuInfo *g_cpu = NULL;
 // KERNEL_NS::CpuFeature *g_cpuFeature = NULL;
 KERNEL_NS::MemoryMonitor *g_MemoryMonitor = NULL;
@@ -70,8 +72,9 @@ KERNEL_BEGIN
 std::atomic_bool g_KernelInit{false};
 std::atomic_bool s_KernelStart{false};
 std::atomic_bool s_KernelDestroy{false};
+std::atomic<UInt64> s_KernelFlags {0};
 
-Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const Byte8 *iniPath, const LibString &logContent, const LibString &consoleContent, bool needSignalHandle, Int64 fileSoftLimit, Int64 fileHardLimit)
+Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const Byte8 *iniPath, YamlMemory *yamlMemory, UInt64 flags, bool needSignalHandle, Int64 fileSoftLimit, Int64 fileHardLimit)
 {
     if(g_KernelInit.exchange(true, std::memory_order_acq_rel))
     {
@@ -98,7 +101,8 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     // CRYSTAL_TRACE("kernel current root dir:%s", rootDir.c_str());
 
     // 设置工作目录
-    SystemUtil::ChgWorkDir(rootDir);
+    if (KERNEL_NS::BitUtil::IsSet(flags, KernelFlags::CHANGE_WORK_DIR))
+        SystemUtil::ChgWorkDir(rootDir);
     
     // 标准输出,标准错误输出重定向到文件 TODO:版本发布情况下在外部开启,内核初始化不需要
     // auto stdiolog = rootDir + "stdio.log";
@@ -123,23 +127,26 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
 
     Int32 err = Status::Success;
     #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-    KERNEL_NS::LibString limitErr;
-    err = KERNEL_NS::SystemUtil::GetProcessFileDescriptLimit(KERNEL_NS::LinuxRlimitId::E_RLIMIT_NOFILE, oldSoftLimit, oldHardLimit, limitErr);
-    if(err != Status::Success)
+    if (KERNEL_NS::BitUtil::IsSet(flags, KernelFlags::MODIFY_FILE_DESC_LIMIT))
     {
-        CRYSTAL_TRACE("GetProcessFileDescriptLimit fail %d, %s", err, limitErr.c_str());
-        return Status::Failed;
-    }
+        KERNEL_NS::LibString limitErr;
+        err = KERNEL_NS::SystemUtil::GetProcessFileDescriptLimit(KERNEL_NS::LinuxRlimitId::E_RLIMIT_NOFILE, oldSoftLimit, oldHardLimit, limitErr);
+        if(err != Status::Success)
+        {
+            CRYSTAL_TRACE("GetProcessFileDescriptLimit fail %d, %s", err, limitErr.c_str());
+            return Status::Failed;
+        }
 
-    err = KERNEL_NS::SystemUtil::SetProcessFileDescriptLimit(KERNEL_NS::LinuxRlimitId::E_RLIMIT_NOFILE, fileSoftLimit, fileHardLimit, limitErr);
-    if(err != Status::Success)
-    {
-        CRYSTAL_TRACE("SetProcessFileDescriptLimit fail %d, %s, oldSoftLimit:%lld, oldHardLimit:%lld, will set soft limit:%lld, will set hard limit:%lld"
-                , err, limitErr.c_str(), oldSoftLimit, oldHardLimit, fileSoftLimit, fileHardLimit);
-        return Status::Failed;
-    }
+        err = KERNEL_NS::SystemUtil::SetProcessFileDescriptLimit(KERNEL_NS::LinuxRlimitId::E_RLIMIT_NOFILE, fileSoftLimit, fileHardLimit, limitErr);
+        if(err != Status::Success)
+        {
+            CRYSTAL_TRACE("SetProcessFileDescriptLimit fail %d, %s, oldSoftLimit:%lld, oldHardLimit:%lld, will set soft limit:%lld, will set hard limit:%lld"
+                    , err, limitErr.c_str(), oldSoftLimit, oldHardLimit, fileSoftLimit, fileHardLimit);
+            return Status::Failed;
+        }
 
-    // core dump 输出到当前程序下
+        // core dump 输出到当前程序下
+    }
     #endif
 
     // ini 文件路径
@@ -154,7 +161,7 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     }
 
     // 创建路径
-    if(logContent.empty())
+    if(yamlMemory == NULL)
         KERNEL_NS::DirectoryUtil::CreateDir(iniRoot);
 
     // 初始化tls
@@ -165,7 +172,7 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     }
 
     // 初始化时区
-    KERNEL_NS::TimeUtil::SetTimeZone();
+    KERNEL_NS::TimeUtil::SetTimeZone(BitUtil::IsSet(flags, KernelFlags::MODIFY_SYSTEM_TIME_ZONE));
     // 变体类型识别初始化
     KERNEL_NS::VariantRtti::InitRttiTypeNames();
     // 初始化id
@@ -203,23 +210,32 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     }
 
     // 异常信号处理
-    if(needSignalHandle)
+    if (BitUtil::IsSet(flags, KernelFlags::CATCH_ABNORMAL_SIGNAL))
     {
-        err = SignalHandleUtil::Init();
-        if(err != Status::Success)
+        if(needSignalHandle)
         {
-            g_Log->Error(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "signal handle util fail err:%d"), err);
-            return err;
+            err = SignalHandleUtil::Init();
+            if(err != Status::Success)
+            {
+                g_Log->Error(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "signal handle util fail err:%d"), err);
+                return err;
+            }
         }
     }
 
+
     // 信号处理任务
     // #if CRYSTAL_TARGET_PLATFORM_LINUX
-    if(needSignalHandle)
+    if (BitUtil::IsSet(flags, KernelFlags::SET_SIGNAL_PROCESSOR))
     {
-        auto signalCloseHandler = DelegateFactory::Create(&KernelUtil::_OnSinalOccur);
-        SignalHandleUtil::PushAllConcernSignalTask(signalCloseHandler);
+        if(needSignalHandle)
+        {
+            auto signalCloseHandler = DelegateFactory::Create(&KernelUtil::_OnSinalOccur);
+            SignalHandleUtil::PushAllConcernSignalTask(signalCloseHandler);
+        }
     }
+
+
     // #endif
 
     // 正式启动
@@ -245,7 +261,7 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
 
     // 日志初始化与启动
     g_Log = logFactory->Create();
-    if(!g_Log->Init(logIniName, iniRoot.c_str(), logContent, consoleContent))
+    if(!g_Log->Init(logIniName, iniRoot.c_str(), yamlMemory))
     {
         CRYSTAL_TRACE("fail init log log file name[%s], ini root dir[%s]", logIniName, iniRoot.c_str());
         return false;
@@ -255,14 +271,18 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     g_LogIniRootPath = iniRoot;
 
     // 堆栈
-    KERNEL_NS::SmartPtr<KERNEL_NS::IDelegate<void>> destroyDelg = KERNEL_NS::DelegateFactory::Create(&KernelUtil::Destroy);
-    err = KERNEL_NS::BackTraceUtil::InitCrashHandleParams(g_Log, destroyDelg.AsSelf());
-    if(err != Status::Success)
+    if (BitUtil::IsSet(flags, KernelFlags::MODIFY_CRASH_HOOK))
     {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "InitCrashHandleParams fail err=[%d]."), err);
-        return err;
+        KERNEL_NS::SmartPtr<KERNEL_NS::IDelegate<void>> destroyDelg = KERNEL_NS::DelegateFactory::Create(&KernelUtil::Destroy);
+        err = KERNEL_NS::BackTraceUtil::InitCrashHandleParams(g_Log, destroyDelg.AsSelf());
+        if(err != Status::Success)
+        {
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "InitCrashHandleParams fail err=[%d]."), err);
+            return err;
+        }
+        destroyDelg.pop();
     }
-    destroyDelg.pop();
+
 
     // 内存监控
     g_MemoryMonitor = KERNEL_NS::MemoryMonitor::GetInstance();
@@ -275,28 +295,36 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     }
 
     // 初始化网络环境
-    err = SocketUtil::InitSocketEnv();
-    if(err != Status::Success)
+    if (BitUtil::IsSet(flags, KernelFlags::INIT_SOCKET_ENV))
     {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "socket env Init fail err=[%d]."), err);
-        return err;
+        err = SocketUtil::InitSocketEnv();
+        if(err != Status::Success)
+        {
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "socket env Init fail err=[%d]."), err);
+            return err;
+        }
     }
-    
-    // 初始化curl全局
-    auto curlCode = ::curl_global_init(CURL_GLOBAL_DEFAULT);
-    if(curlCode != CURLE_OK)
+
+    if (BitUtil::IsSet(flags, KERNEL_NS::KernelFlags::INIT_CURL))
     {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "curl init fail(%d):%s"), (Int32)curlCode, curl_easy_strerror(curlCode));
-        return Status::Failed;
+        // 初始化curl全局
+        auto curlCode = ::curl_global_init(CURL_GLOBAL_DEFAULT);
+        if(curlCode != CURLE_OK)
+        {
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "curl init fail(%d):%s"), (Int32)curlCode, curl_easy_strerror(curlCode));
+            return Status::Failed;
+        }
     }
 
     auto nowTimeBySystem = KERNEL_NS::TimeUtil::GetNanoTimestamp();
     auto nowFastTime = KERNEL_NS::TimeUtil::GetFastNanoTimestamp();
     const auto &slice = KERNEL_NS::TimeSlice::FromNanoSeconds(std::abs(nowFastTime - nowTimeBySystem));
+    s_KernelFlags.store(flags, std::memory_order_release);
     
     g_Log->Sys(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil
-    , "kernel inited root path:%s, old file soft limit:%lld, old file hard limit:%lld, new file soft limit:%lld, new file hard limit:%lld system time nanostamp:%lld, fast time nanostamp:%lld diff:%s, IsSurpportRdtscp:%d, TscFreq:%llu, IsInVariantTsc:%d.")
-                , rootDir.c_str(), oldSoftLimit, oldHardLimit, fileSoftLimit, fileHardLimit, nowTimeBySystem, nowFastTime, slice.ToString().c_str(), IsSurportRdtscp, KERNEL_NS::CrystalGetCpuCounterFrequancy(), IsCurrentEnvSupportInvariantRdtsc());
+    , "kernel inited root path:%s, old file soft limit:%lld, old file hard limit:%lld, new file soft limit:%lld, new file hard limit:%lld system time nanostamp:%lld, fast time nanostamp:%lld diff:%s, IsSurpportRdtscp:%d, TscFreq:%llu, IsInVariantTsc:%d kernerl flags:%llx.")
+                , rootDir.c_str(), oldSoftLimit, oldHardLimit, fileSoftLimit, fileHardLimit, nowTimeBySystem, nowFastTime, slice.ToString().c_str()
+                , IsSurportRdtscp, KERNEL_NS::CrystalGetCpuCounterFrequancy(), IsCurrentEnvSupportInvariantRdtsc(), s_KernelFlags.load(std::memory_order_acquire));
 
     return Status::Success;
 }
@@ -333,7 +361,9 @@ void KernelUtil::Destroy()
         CRYSTAL_TRACE("kernel destroy before.");
         return;
     }
- 
+
+    auto flags = s_KernelFlags.load(std::memory_order_acquire);
+    
     // CRYSTAL_TRACE("kernel will destroy.");
 
     if(LIKELY(g_Log))
@@ -345,10 +375,12 @@ void KernelUtil::Destroy()
     // CRYSTAL_TRACE("will destroy kernel log addr:[%p], log IsStart[%d], memory pool addr:[%p], Statistics addr:[%p]..."
     // , g_Log, g_Log && g_Log->IsStart(), g_MemoryPool,  g_MemoryPool ? g_MemoryMonitor->GetStatistics() : NULL);
 
-    SocketUtil::ClearSocketEnv();
+    if (BitUtil::IsSet(flags, KernelFlags::INIT_SOCKET_ENV))
+        SocketUtil::ClearSocketEnv();
 
     // 清理curl资源
-    curl_global_cleanup();
+    if (BitUtil::IsSet(flags, KernelFlags::INIT_CURL))
+        curl_global_cleanup();
 
     // if(LIKELY(g_Log))
     //     g_Log->Sys(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "comp will destroy."));
