@@ -63,7 +63,7 @@ Int32 CloseProcess::Run(int argc, char const *argv[])
                     const auto &parts = param.Split("=");
                     if(static_cast<Int32>(parts.size()) != 2)
                     {
-                        g_Log->Warn(LOGFMT_NON_OBJ_TAG(CloseProcess, "is_likely param error param:%s"), param.c_str());
+                        CLOG_WARN(CloseProcess, "is_likely param error param:%s", param.c_str());
                         ret = false;
                         break;
                     }
@@ -78,7 +78,7 @@ Int32 CloseProcess::Run(int argc, char const *argv[])
                     const auto &value = parts[1].strip();
                     if(!value.isdigit())
                     {
-                        g_Log->Warn(LOGFMT_NON_OBJ_TAG(CloseProcess, "is_likely value not number error param:%s"), param.c_str());
+                        CLOG_WARN(CloseProcess, "is_likely value not number error param:%s", param.c_str());
                         ret = false;
                         break;
                     }
@@ -93,7 +93,7 @@ Int32 CloseProcess::Run(int argc, char const *argv[])
                     const auto &parts = param.Split("=");
                     if(static_cast<Int32>(parts.size()) != 2)
                     {
-                        g_Log->Warn(LOGFMT_NON_OBJ_TAG(CloseProcess, "is_match_path param error param:%s"), param.c_str());
+                        CLOG_WARN(CloseProcess, "is_match_path param error param:%s", param.c_str());
                         ret = false;
                         break;
                     }
@@ -108,7 +108,7 @@ Int32 CloseProcess::Run(int argc, char const *argv[])
                     const auto &value = parts[1].strip();
                     if(!value.isdigit())
                     {
-                        g_Log->Warn(LOGFMT_NON_OBJ_TAG(CloseProcess, "is_match_path value not number error param:%s"), param.c_str());
+                        CLOG_WARN(CloseProcess, "is_match_path value not number error param:%s", param.c_str());
                         ret = false;
                         break;
                     }
@@ -123,7 +123,7 @@ Int32 CloseProcess::Run(int argc, char const *argv[])
                     const auto &parts = param.Split("=");
                     if(static_cast<Int32>(parts.size()) != 2)
                     {
-                        g_Log->Warn(LOGFMT_NON_OBJ_TAG(CloseProcess, "is_waiting_close param error param:%s"), param.c_str());
+                        CLOG_WARN(CloseProcess, "is_waiting_close param error param:%s", param.c_str());
                         ret = false;
                         break;
                     }
@@ -138,7 +138,7 @@ Int32 CloseProcess::Run(int argc, char const *argv[])
                     const auto &value = parts[1].strip();
                     if(!value.isdigit())
                     {
-                        g_Log->Warn(LOGFMT_NON_OBJ_TAG(CloseProcess, "is_waiting_close value not number error param:%s"), param.c_str());
+                        CLOG_WARN(CloseProcess, "is_waiting_close value not number error param:%s", param.c_str());
                         ret = false;
                         break;
                     }
@@ -164,7 +164,7 @@ Int32 CloseProcess::Run(int argc, char const *argv[])
      killProcessName.findreplace("//", "/");
     #endif
 
-    g_Log->Custom("killProcessName:%s, isLikely:%d, isMachPath:%d, isWaitingClose:%d", killProcessName.c_str(), isLikely, isMatchPath, isWaitingClose);
+    CLOG_CUSTOM("killProcessName:%s, isLikely:%d, isMachPath:%d, isWaitingClose:%d", killProcessName.c_str(), isLikely, isMatchPath, isWaitingClose);
     
     std::vector<UInt64> processIds;
     std::vector<KERNEL_NS::LibString> processNames;
@@ -179,7 +179,7 @@ Int32 CloseProcess::Run(int argc, char const *argv[])
             auto fp = KERNEL_NS::FileUtil::OpenFile(killFile.c_str(), true, "rb");
             if(!fp)
             {
-                g_Log->Warn(LOGFMT_NON_OBJ_TAG(CloseProcess, "create kill file fail. file:%s"), killFile.c_str());
+                CLOG_WARN(CloseProcess, "create kill file fail. file:%s", killFile.c_str());
             }
             else
             {
@@ -192,24 +192,24 @@ Int32 CloseProcess::Run(int argc, char const *argv[])
                 while (true)
                 {
                     if(KERNEL_NS::SystemUtil::IsProcessExist(iter.first))
-                        g_Log->Custom("waiting process quit process:%s, process id:%llu", iter.second.c_str(), iter.first);
+                        CLOG_CUSTOM("waiting process quit process:%s, process id:%llu", iter.second.c_str(), iter.first);
                     else
                         break;
 
                     KERNEL_NS::SystemUtil::ThreadSleep(1000);
                 }
 
-                g_Log->Custom("process is killed process:%s, process id:%llu.", iter.second.c_str(), iter.first);
+                CLOG_CUSTOM("process is killed process:%s, process id:%llu.", iter.second.c_str(), iter.first);
             }
             else
             {
-                g_Log->Custom("just notify process close, process name:%s, process id:%llu.", iter.second.c_str(), iter.first);
+                CLOG_CUSTOM("just notify process close, process name:%s, process id:%llu.", iter.second.c_str(), iter.first);
             }
         }
     }
     else
     {
-        g_Log->Warn(LOGFMT_NON_OBJ_TAG(CloseProcess, "cant find process:%s"), killProcessName.c_str());
+        CLOG_WARN(CloseProcess, "cant find process:%s", killProcessName.c_str());
     }
 
     return Status::Success;

@@ -140,6 +140,32 @@
 
   
 
+# Log 使用
+
+提供CLOG_XXX 日志宏方便日志输出
+
+```
+
+class TestLogClass
+{
+public:
+    void Run()
+    {
+        // 可以在非类实例中使用
+        CLOG_DEBUG(TestLog, "hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
+        CLOG_INFO(TestLog, "hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
+        CLOG_WARN(TestLog, "hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
+        CLOG_ERROR(TestLog, "hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
+
+        // 在类实例中使用(需要有this)
+        CLOG_DEBUG_THIS("hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
+        CLOG_INFO_THIS("hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
+        CLOG_WARN_THIS("hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
+        CLOG_ERROR_THIS("hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
+    }
+};
+```
+
 
 
 # 热更原理

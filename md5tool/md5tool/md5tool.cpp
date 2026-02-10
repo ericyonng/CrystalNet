@@ -94,6 +94,8 @@ static Int32 Run(int argc, char const *argv[])
     return Status::Success;
 }
 
+KERNEL_NS::YamlMemory *g_YamlMemory = NULL;
+
 int main(int argc, char const *argv[])
 {
     // 1.初始化内核
@@ -102,7 +104,8 @@ int main(int argc, char const *argv[])
     KERNEL_NS::LibString logIniPath;
     logIniPath = programPath + "/ini/";
     KERNEL_NS::SystemUtil::GetProgramPath(true, programPath);
-    Int32 err = KERNEL_NS::KernelUtil::Init(&logFactory, "LogCfg.ini", logIniPath.c_str(), s_logIniContent, s_consoleIniContent);
+    g_YamlMemory = KERNEL_NS::YamlMemory::From(s_LogYamlContent);
+    Int32 err = KERNEL_NS::KernelUtil::Init(&logFactory, "LogCfg.ini", logIniPath.c_str(), g_YamlMemory);
     if(err != Status::Success)
     {
         CRYSTAL_TRACE("kernel init fail err:%d", err);

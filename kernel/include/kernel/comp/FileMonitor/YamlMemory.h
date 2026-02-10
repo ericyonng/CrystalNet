@@ -67,6 +67,9 @@ public:
     // 更新yaml内存(来自内存数据,或者网络更新到内存)
     void SetNewData(YamlMemoryData *data);
 
+    // 创建
+    static  YamlMemory *From(const LibString &content);
+
     // 有变化的话_source部位null, 且_source不等_data
 private:
     // 每次更新yaml都需要

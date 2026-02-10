@@ -32,7 +32,8 @@
 #include "kernel/comp/Encrypt/LibDigest.h"
 
 KERNEL_BEGIN
-    void YamlMemoryData::Release()
+    
+void YamlMemoryData::Release()
 {
     YamlMemoryData::Delete_YamlMemoryData(this);
 }
@@ -104,6 +105,16 @@ void YamlMemory::SetNewData(YamlMemoryData *data)
 
     if (oldData)
         oldData->Release();
+}
+
+YamlMemory *YamlMemory::From(const LibString &content)
+{
+    auto memory = YamlMemory::New_YamlMemory();
+    auto data = YamlMemoryData::New_YamlMemoryData();
+    data->_data = content;
+    data->_version = KERNEL_NS::LibDigest::MakeSha256(data->_data);
+    memory->_source.exchange(data, std::memory_order_acq_rel);
+    return memory;
 }
 
 

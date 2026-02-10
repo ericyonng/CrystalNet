@@ -140,46 +140,41 @@ Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL
     // 必须指定语言版本
     if(_ownTypeRefLangTypes.empty())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("have no lang types"));
+        CLOG_WARN(XlsxExporterMgr, "have no lang types");
         return Status::ParamError;
     }
 
     // 参数都不可缺省
     if(_sourceDir.empty() || _targetDir.empty() || _dataDir.empty() || _metaDir.empty())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("param error: sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.")
-                    , _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
+        CLOG_WARN(XlsxExporterMgr, "param error: sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.", _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
         return Status::ParamError;
     }
 
     // 扫描meta文件
     if(!_ScanMeta())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("_ScanMeta fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.")
-                    , _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
+        CLOG_WARN(XlsxExporterMgr, "_ScanMeta fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.", _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
         return Status::Failed;
     }
 
     // 扫描xlsx文件
     if(!_ScanXlsx())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("_ScanXlsx fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.")
-                    , _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
+        CLOG_WARN(XlsxExporterMgr, "_ScanXlsx fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.", _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
         return Status::Failed;
     }
 
     // 分析配置
     if(!_AnalyzeExportConfigs())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("_AnalyzeExportConfigs fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error."), 
-                    _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
+        CLOG_WARN(XlsxExporterMgr, "_AnalyzeExportConfigs fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.", _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
         return Status::Failed;
     }
 
     if(!_DoExportConfigs())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("_DoExportConfigs fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error."), 
-                    _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
+        CLOG_WARN(XlsxExporterMgr, "_DoExportConfigs fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.", _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
         return Status::Failed;
     }
 
@@ -188,8 +183,7 @@ Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL
     {
         if(!_ExportMetaFile(xlsxPath))
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("_ExportMetaFile fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s xlsxPath:%s."), 
-                        _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str(), xlsxPath.c_str());
+            CLOG_WARN_THIS("_ExportMetaFile fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s xlsxPath:%s.", _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str(), xlsxPath.c_str());
             return Status::Failed;
         }
     }
@@ -200,7 +194,7 @@ Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL
         auto iterLang = _ownTypeRefLangTypes.find(iterOwnType.first);
         if(iterLang == _ownTypeRefLangTypes.end())
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("skip ownType:%s export."), iterOwnType.first.c_str());
+            CLOG_WARN_THIS("skip ownType:%s export.", iterOwnType.first.c_str());
             continue;
         }
 
@@ -216,7 +210,7 @@ Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL
         }
     }
 
-    g_Log->Custom("export xlsx success.");
+    CLOG_CUSTOM("export xlsx success.");
     return Status::Success;
 }
    
