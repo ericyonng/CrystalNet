@@ -72,4 +72,104 @@
 #undef LOGFMT_NON_OBJ_TAG_NO_FMT
 #define LOGFMT_NON_OBJ_TAG_NO_FMT(classType) LOGFMT_DETAIL_NO_FMT(LOG_NON_OBJ_TAG(classType))
 
+// LOG便利宏
+
+// Debug
+#undef CLOG_DEBUG
+#define CLOG_DEBUG(classType, fmt, ...)   \
+if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))  \
+    g_Log->Debug(LOGFMT_NON_OBJ_TAG(classType, fmt), ##__VA_ARGS__)
+
+// Info
+#undef CLOG_INFO
+#define CLOG_INFO(classType, fmt, ...)   \
+if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))  \
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(classType, fmt), ##__VA_ARGS__)
+
+
+#undef CLOG_WARN
+#define CLOG_WARN(classType, fmt, ...)   \
+if(g_Log->IsEnable(KERNEL_NS::LogLevel::Warn))  \
+    g_Log->Warn(LOGFMT_NON_OBJ_TAG(classType, fmt), ##__VA_ARGS__)
+
+
+#undef CLOG_ERROR
+#define CLOG_ERROR(classType, fmt, ...)   \
+if(g_Log->IsEnable(KERNEL_NS::LogLevel::Error))  \
+    g_Log->Error(LOGFMT_NON_OBJ_TAG(classType, fmt), ##__VA_ARGS__)
+
+#undef CLOG_CRASH
+#define CLOG_CRASH(fmt, ...)   \
+if(g_Log->IsEnable(KERNEL_NS::LogLevel::Crash))  \
+    g_Log->Crash(fmt, ##__VA_ARGS__)
+
+#undef CLOG_NET
+#define CLOG_NET(classType, fmt, ...)   \
+if(g_Log->IsEnable(KERNEL_NS::LogLevel::Net))  \
+    g_Log->Net(LOG_NON_OBJ_TAG(classType), fmt, ##__VA_ARGS__)
+
+#undef CLOG_NET_DEBUG
+#define CLOG_NET_DEBUG(classType, fmt, ...)   \
+if(g_Log->IsEnable(KERNEL_NS::LogLevel::NetDebug))  \
+    g_Log->NetDebug(LOGFMT_NON_OBJ_TAG(classType, fmt), ##__VA_ARGS__)
+
+#undef CLOG_NET_INFO
+#define CLOG_NET_INFO(classType, fmt, ...)   \
+if(g_Log->IsEnable(KERNEL_NS::LogLevel::NetInfo))  \
+    g_Log->NetInfo(LOGFMT_NON_OBJ_TAG(classType, fmt), ##__VA_ARGS__)
+
+#undef CLOG_NET_WARN
+#define CLOG_NET_WARN(classType, fmt, ...)   \
+if(g_Log->IsEnable(KERNEL_NS::LogLevel::NetWarn))  \
+    g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(classType, fmt), ##__VA_ARGS__)
+
+#undef CLOG_NET_ERROR
+#define CLOG_NET_ERROR(classType, fmt, ...)   \
+if(g_Log->IsEnable(KERNEL_NS::LogLevel::NetError))  \
+    g_Log->NetError(LOGFMT_NON_OBJ_TAG(classType, fmt), ##__VA_ARGS__)
+
+#undef CLOG_NET_TRACE
+#define CLOG_NET_TRACE(classType, fmt, ...)   \
+if(g_Log->IsEnable(KERNEL_NS::LogLevel::NetTrace))  \
+    g_Log->NetTrace(LOGFMT_NON_OBJ_TAG(classType, fmt), ##__VA_ARGS__)
+
+#undef CLOG_CUSTOM
+#define CLOG_CUSTOM(fmt, ...)   \
+if(g_Log->IsEnable(KERNEL_NS::LogLevel::Custom))  \
+    g_Log->Custom(fmt, ##__VA_ARGS__)
+
+#undef CLOG_SYS
+#define CLOG_SYS(classType, fmt, ...)   \
+if(g_Log->IsEnable(KERNEL_NS::LogLevel::Sys))  \
+    g_Log->Sys(LOGFMT_NON_OBJ_TAG(classType, fmt), ##__VA_ARGS__)
+
+
+#undef CLOG_MEM_MONITOR
+#define CLOG_MEM_MONITOR(fmt, ...)   \
+if(g_Log->IsEnable(KERNEL_NS::LogLevel::MemMonitor))  \
+    g_Log->MemMonitor(fmt, ##__VA_ARGS__)
+
+#undef CLOG_TRACE
+#define CLOG_TRACE(classType, fmt, ...)   \
+if(g_Log->IsEnable(KERNEL_NS::LogLevel::Trace))  \
+    g_Log->Trace(LOGFMT_NON_OBJ_TAG(classType, fmt), ##__VA_ARGS__)
+
+
+#undef CLOG_MONITOR
+#define CLOG_MONITOR(fmt, ...)   \
+if(g_Log->IsEnable(KERNEL_NS::LogLevel::Monitor))  \
+    g_Log->Monitor(fmt, ##__VA_ARGS__)
+
+
+#undef CLOG_FAIL_SQL
+#define CLOG_FAIL_SQL(classType, fmt, ...)   \
+if(g_Log->IsEnable(KERNEL_NS::LogLevel::FailSql))  \
+    g_Log->FailSql(LOGFMT_NON_OBJ_TAG(classType, fmt), ##__VA_ARGS__)
+
+
+#undef CLOG_DUMP_SQL
+#define CLOG_DUMP_SQL(classType, fmt, ...)   \
+if(g_Log->IsEnable(KERNEL_NS::LogLevel::DumpSql))  \
+    g_Log->DumpSql(LOGFMT_NON_OBJ_TAG(classType, fmt), ##__VA_ARGS__)
+
 #endif

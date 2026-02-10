@@ -71,7 +71,7 @@ int main(int argc, char const *argv[])
     }
 
     KERNEL_NS::KernelUtil::Start();
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "kernel started paramNum:%d. \nsucParamsInfo:\n%s, errParamsInfo:\n%s."), paramNum, sucParamsInfo.c_str(), errParamsInfo.c_str());
+    CLOG_INFO(KERNEL_NS::KernelUtil, "kernel started paramNum:%d. \nsucParamsInfo:\n%s, errParamsInfo:\n%s.", paramNum, sucParamsInfo.c_str(), errParamsInfo.c_str());
 
     CenterServer::Run(argc, argv);
 

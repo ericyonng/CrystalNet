@@ -48,7 +48,8 @@ bool Client::Run(int argc, char const *argv[])
     if (err != Status::Success)
     {
         Entry::Application.exchange(NULL, std::memory_order_release);
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(Client, "app fail err:%d"), err);
+
+        CLOG_ERROR(Client, "app fail err:%d", err);
         return false;
     }
 
