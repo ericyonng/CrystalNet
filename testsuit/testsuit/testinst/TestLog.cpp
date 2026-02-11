@@ -98,16 +98,16 @@ public:
     void Run()
     {
         // 可以在非类实例中使用
-        CLOG_DEBUG(TestLog, "hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
-        CLOG_INFO(TestLog, "hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
-        CLOG_WARN(TestLog, "hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
-        CLOG_ERROR(TestLog, "hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
+        CLOG_DEBUG_GLOBAL(TestLog, "hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
+        CLOG_INFO_GLOBAL(TestLog, "hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
+        CLOG_WARN_GLOBAL(TestLog, "hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
+        CLOG_ERROR_GLOBAL(TestLog, "hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
 
         // 在类实例中使用(需要有this)
-        CLOG_DEBUG_THIS("hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
-        CLOG_INFO_THIS("hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
-        CLOG_WARN_THIS("hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
-        CLOG_ERROR_THIS("hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
+        CLOG_DEBUG("hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
+        CLOG_INFO("hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
+        CLOG_WARN("hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
+        CLOG_ERROR("hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
     }
 };
 
@@ -130,8 +130,8 @@ void TestLog::Run()
     myLog->Custom("hello world %s"
     , KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
 
-    CLOG_INFO(TestLog, "hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
-    CLOG_WARN(TestLog, "hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
+    CLOG_INFO_GLOBAL(TestLog, "hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
+    CLOG_WARN_GLOBAL(TestLog, "hello world %s", KERNEL_NS::SystemUtil::GetCurProgramName().c_str());
 
     getchar();
     

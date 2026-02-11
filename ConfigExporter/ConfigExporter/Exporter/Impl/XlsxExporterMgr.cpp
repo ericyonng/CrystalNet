@@ -140,41 +140,41 @@ Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL
     // 必须指定语言版本
     if(_ownTypeRefLangTypes.empty())
     {
-        CLOG_WARN(XlsxExporterMgr, "have no lang types");
+        CLOG_WARN_GLOBAL(XlsxExporterMgr, "have no lang types");
         return Status::ParamError;
     }
 
     // 参数都不可缺省
     if(_sourceDir.empty() || _targetDir.empty() || _dataDir.empty() || _metaDir.empty())
     {
-        CLOG_WARN(XlsxExporterMgr, "param error: sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.", _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
+        CLOG_WARN_GLOBAL(XlsxExporterMgr, "param error: sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.", _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
         return Status::ParamError;
     }
 
     // 扫描meta文件
     if(!_ScanMeta())
     {
-        CLOG_WARN(XlsxExporterMgr, "_ScanMeta fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.", _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
+        CLOG_WARN_GLOBAL(XlsxExporterMgr, "_ScanMeta fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.", _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
         return Status::Failed;
     }
 
     // 扫描xlsx文件
     if(!_ScanXlsx())
     {
-        CLOG_WARN(XlsxExporterMgr, "_ScanXlsx fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.", _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
+        CLOG_WARN_GLOBAL(XlsxExporterMgr, "_ScanXlsx fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.", _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
         return Status::Failed;
     }
 
     // 分析配置
     if(!_AnalyzeExportConfigs())
     {
-        CLOG_WARN(XlsxExporterMgr, "_AnalyzeExportConfigs fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.", _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
+        CLOG_WARN_GLOBAL(XlsxExporterMgr, "_AnalyzeExportConfigs fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.", _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
         return Status::Failed;
     }
 
     if(!_DoExportConfigs())
     {
-        CLOG_WARN(XlsxExporterMgr, "_DoExportConfigs fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.", _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
+        CLOG_WARN_GLOBAL(XlsxExporterMgr, "_DoExportConfigs fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.", _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
         return Status::Failed;
     }
 
@@ -183,7 +183,7 @@ Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL
     {
         if(!_ExportMetaFile(xlsxPath))
         {
-            CLOG_WARN_THIS("_ExportMetaFile fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s xlsxPath:%s.", _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str(), xlsxPath.c_str());
+            CLOG_WARN("_ExportMetaFile fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s xlsxPath:%s.", _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str(), xlsxPath.c_str());
             return Status::Failed;
         }
     }
@@ -194,7 +194,7 @@ Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL
         auto iterLang = _ownTypeRefLangTypes.find(iterOwnType.first);
         if(iterLang == _ownTypeRefLangTypes.end())
         {
-            CLOG_WARN_THIS("skip ownType:%s export.", iterOwnType.first.c_str());
+            CLOG_WARN("skip ownType:%s export.", iterOwnType.first.c_str());
             continue;
         }
 
@@ -218,7 +218,7 @@ Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL
 // 注意:xlsx所在路径相对于xlsx的base路径的相对路径与meta文件相对于meta base 路径的相对路径是一致的
 bool XlsxExporterMgr::_ScanMeta()
 {
-    g_Log->Custom("start scan meta files...");
+    CLOG_CUSTOM("start scan meta files...");
 
     bool isSuc = true;
     KERNEL_NS::DirectoryUtil::TraverseDirRecursively(_metaDir, [this, &isSuc](const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentDirContinue){
@@ -245,7 +245,7 @@ bool XlsxExporterMgr::_ScanMeta()
             auto ptr = KERNEL_NS::FileUtil::OpenFile(fullFilePath.c_str());
             if(!ptr)
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("open meta file fail:%s"), fullFilePath.c_str());
+                CLOG_WARN("open meta file fail:%s", fullFilePath.c_str());
                 isContinue = false;
                 isParentDirContinue = false;
                 isSuc = false;
@@ -267,7 +267,7 @@ bool XlsxExporterMgr::_ScanMeta()
             KERNEL_NS::FileUtil::ReadUtf8File(*fp, lines);
             if(lines.empty())
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("meta file have no any content:%s"), fullFilePath.c_str());
+                CLOG_WARN("meta file have no any content:%s", fullFilePath.c_str());
                 isContinue = false;
                 isParentDirContinue = false;
                 isSuc = false;
@@ -287,7 +287,7 @@ bool XlsxExporterMgr::_ScanMeta()
                 {
                     if(v.empty())
                     {
-                        g_Log->Warn(LOGFMT_OBJ_TAG("bad meta file content:%s, file:%s"), content.c_str(), fullFilePath.c_str());
+                        CLOG_WARN("bad meta file content:%s, file:%s", content.c_str(), fullFilePath.c_str());
                         break;
                     }
 
@@ -297,7 +297,7 @@ bool XlsxExporterMgr::_ScanMeta()
                 {
                     if(v.empty())
                     {
-                        g_Log->Warn(LOGFMT_OBJ_TAG("bad meta file content:%s, file:%s"), content.c_str(), fullFilePath.c_str());
+                        CLOG_WARN("bad meta file content:%s, file:%s",  content.c_str(), fullFilePath.c_str());
                         break;
                     }
 
@@ -317,8 +317,7 @@ bool XlsxExporterMgr::_ScanMeta()
         // 1.没有对应的xlsx文件或者对应的文件不存在则删除meta
         if(metaInfo->_xlsxFileName.empty())
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("have no xlsx file, will remove meta file, metaFilePath:%s.")
-                    , metaFilePath.c_str()); 
+            CLOG_WARN("have no xlsx file, will remove meta file, metaFilePath:%s.", metaFilePath.c_str());
 
             KERNEL_NS::FileUtil::DelFileCStyle(metaFilePath.c_str());
             XlsxConfigMetaInfo::Delete_XlsxConfigMetaInfo(metaInfo);
@@ -338,8 +337,7 @@ bool XlsxExporterMgr::_ScanMeta()
             const auto xlsxFullPath = srcDir + relationPath + metaInfo->_xlsxFileName;
             if(!KERNEL_NS::FileUtil::IsFileExist(xlsxFullPath.c_str()))
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("xlsx file not found:%s, will remove meta file, metaFilePath:%s.")
-                    , xlsxFullPath.c_str(), metaFilePath.c_str());   
+                CLOG_WARN("xlsx file not found:%s, will remove meta file, metaFilePath:%s.", xlsxFullPath.c_str(), metaFilePath.c_str());
 
                 XlsxConfigMetaInfo::Delete_XlsxConfigMetaInfo(metaInfo);
                 KERNEL_NS::FileUtil::DelFileCStyle(metaFilePath.c_str());
@@ -365,13 +363,13 @@ bool XlsxExporterMgr::_ScanMeta()
         return false;
     }
 
-    g_Log->Custom("scan meta files success...");
+    CLOG_CUSTOM("scan meta files success...");
     return true;
 }
 
 bool XlsxExporterMgr::_ScanXlsx()
 {
-    g_Log->Custom("start scan xlsx files source dir:%s...", _sourceDir.c_str());
+    CLOG_CUSTOM("start scan xlsx files source dir:%s...", _sourceDir.c_str());
 
     bool isSuc = true;
     KERNEL_NS::DirectoryUtil::TraverseDirRecursively(_sourceDir, [this, &isSuc](const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentDirContinue){
@@ -406,7 +404,7 @@ bool XlsxExporterMgr::_ScanXlsx()
 
             if(!xlsxBook->Parse(fullFilePath))
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("parse xlsx fail:%s"), fullFilePath.c_str());
+                CLOG_WARN("parse xlsx fail:%s", fullFilePath.c_str());
                 isParentDirContinue = true;
                 isContinue = true;
                 // isSuc = false;
@@ -416,7 +414,7 @@ bool XlsxExporterMgr::_ScanXlsx()
             auto &allSheet = xlsxBook->GetAllSheets();
             if(allSheet.empty())
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("have no any sheet:xlsx path:%s "), fullFilePath.c_str());
+                CLOG_WARN("have no any sheet:xlsx path:%s ", fullFilePath.c_str());
                 break;
             }
                 
@@ -428,7 +426,7 @@ bool XlsxExporterMgr::_ScanXlsx()
                 const auto &configTypeName = _GetConfigTypeName(sheetName);
                 if(!KERNEL_NS::StringUtil::CheckGeneralName(configTypeName))
                 {
-                    g_Log->Error(LOGFMT_OBJ_TAG("bad sheet config type: xlsx file path:%s, sheet name:%s, config type name:%s"), fullFilePath.c_str(), sheetName.c_str(), configTypeName.c_str());
+                    CLOG_ERROR("bad sheet config type: xlsx file path:%s, sheet name:%s, config type name:%s", fullFilePath.c_str(), sheetName.c_str(), configTypeName.c_str());
                     isContinue = false;
                     isParentDirContinue = false;
                     checkSuc = false;
@@ -439,7 +437,7 @@ bool XlsxExporterMgr::_ScanXlsx()
                 // 首字母必须是英文且需要大写
                 if(configTypeName[0] < 'A' || configTypeName[0] > 'Z')
                 {
-                    g_Log->Error(LOGFMT_OBJ_TAG("bad first word:%c, must be upper. bad sheet config type: xlsx file path:%s, sheet name:%s, config type name:%s"), configTypeName[0], fullFilePath.c_str(), sheetName.c_str(), configTypeName.c_str());
+                    CLOG_ERROR("bad first word:%c, must be upper. bad sheet config type: xlsx file path:%s, sheet name:%s, config type name:%s", configTypeName[0], fullFilePath.c_str(), sheetName.c_str(), configTypeName.c_str());
                     isContinue = false;
                     isParentDirContinue = false;
                     checkSuc = false;
@@ -483,13 +481,13 @@ bool XlsxExporterMgr::_ScanXlsx()
 
     if(!isSuc)
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("scan xlsx fail source path:%s."), _sourceDir.c_str());
+        CLOG_WARN("scan xlsx fail source path:%s.", _sourceDir.c_str());
         return false;
     }
 
-    g_Log->Custom("scan xlsx files success, xlsx file number:%llu, dirty file number:%llu, config type number:%llu, dirty config type number:%llu."
-                , static_cast<UInt64>(_xlsxFileRefWorkbook.size()), static_cast<UInt64>(_dirtyXlsxFiles.size())
-                , static_cast<UInt64>(_configTypeRefSheets.size()),  static_cast<UInt64>(_needExportConfigType.size()));
+    CLOG_CUSTOM("scan xlsx files success, xlsx file number:%llu, dirty file number:%llu, config type number:%llu, dirty config type number:%llu."
+    ,  static_cast<UInt64>(_xlsxFileRefWorkbook.size()), static_cast<UInt64>(_dirtyXlsxFiles.size())
+    , static_cast<UInt64>(_configTypeRefSheets.size()),  static_cast<UInt64>(_needExportConfigType.size()));
 
     return true;
 }
@@ -507,7 +505,7 @@ bool XlsxExporterMgr::_IsNeedExport(const KERNEL_NS::LibString &metaFile, const 
     KERNEL_NS::LibString md5;
     if(!_CalcMd5(xlsxFile, md5))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("calc md5 fail file:%s"), xlsxFile.c_str());
+        CLOG_WARN("calc md5 fail file:%s",  xlsxFile.c_str());
         return false;
     }
 
@@ -520,14 +518,14 @@ bool XlsxExporterMgr::_CalcMd5(const KERNEL_NS::LibString &file, KERNEL_NS::LibS
     // 2.生成xlsxfile的md5
     if(!KERNEL_NS::FileUtil::IsFileExist(file.c_str()))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("file not exists file:%s"), file.c_str());
+        CLOG_WARN("file not exists file:%s", file.c_str());
         return false;
     }
 
     KERNEL_NS::LibString content;
     if(!KERNEL_NS::LibDigest::MakeFileMd5(file, content))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("MakeFileMd5 fail file:%s"), file.c_str());
+        CLOG_WARN("MakeFileMd5 fail file:%s", file.c_str());
         return false;
     }
 
@@ -565,7 +563,7 @@ bool XlsxExporterMgr::_IsOwnTypeNeedExport(const KERNEL_NS::LibString &ownType) 
 
 bool XlsxExporterMgr::_AnalyzeExportConfigs()
 {
-    g_Log->Custom("start analyze export configs...");
+    CLOG_CUSTOM("start analyze export configs...");
 
     // 收集ownType的config table
     std::unordered_map<KERNEL_NS::LibString, std::set<XlsxConfigTableInfo *>> ownTypeRefConfigs;
@@ -580,16 +578,16 @@ bool XlsxExporterMgr::_AnalyzeExportConfigs()
         delete ptr;
     });
 
-    g_Log->Custom("prepare xlsx config structure and datas...");
+    CLOG_CUSTOM("prepare xlsx config structure and datas...");
 
     if(!_PrepareConfigStructAndDatas(ownTypeRefConfigs, configTables.AsSelf()))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("_PrepareConfigStructAndDatas fail."));
+        CLOG_WARN("_PrepareConfigStructAndDatas fail.");
         return false;
     }
 
     // 将configTables 按照ownType分类导出配置结构与数据
-    g_Log->Custom("sort config tables with own type, then merge structure and datas...");
+    CLOG_CUSTOM("sort config tables with own type, then merge structure and datas...");
     for(auto &iterConfigTables : ownTypeRefConfigs)
     {
         const auto ownType = iterConfigTables.first;
@@ -667,8 +665,7 @@ bool XlsxExporterMgr::_AnalyzeExportConfigs()
                 KERNEL_NS::LibString errInfo;
                 if(!newConfigTable->CheckHeaderSame(configTable, errInfo))
                 {
-                    g_Log->Error(LOGFMT_OBJ_TAG("config table:%s header not the same errInfo:%s")
-                                , newConfigTable->_tableClassName.c_str(), errInfo.c_str());
+                    CLOG_ERROR("config table:%s header not the same errInfo:%s", newConfigTable->_tableClassName.c_str(), errInfo.c_str());
                     return false;
                 }
 
@@ -728,8 +725,7 @@ bool XlsxExporterMgr::_AnalyzeExportConfigs()
             auto configTable = iterConfigTable->second;
             if(configTable->_fieldNames.empty())
             {
-                g_Log->Custom("xlsx path:%s config type:%s have no any field of own type:%s, will not be exported."
-                            , configTable->_xlsxPath.c_str(), iterConfigTable->first.c_str(), iterConfigTypeRefConfigTable->first.c_str());
+                CLOG_CUSTOM("xlsx path:%s config type:%s have no any field of own type:%s, will not be exported.", configTable->_xlsxPath.c_str(), iterConfigTable->first.c_str(), iterConfigTypeRefConfigTable->first.c_str());
 
                 XlsxConfigTableInfo::Delete_XlsxConfigTableInfo(configTable);
                 iterConfigTable = configTypeRefConfigTable.erase(iterConfigTable);
@@ -750,7 +746,7 @@ bool XlsxExporterMgr::_AnalyzeExportConfigs()
         }
     }
 
-    g_Log->Custom("analyze export configs success.");
+    CLOG_CUSTOM("analyze export configs success.");
 
     return true;
 }
@@ -766,9 +762,10 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
         {
             if(sheet->GetTotalLine() < ConfigTableDefine::HEADER_ROW_NUMBER)
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("have no enough line, total line:%llu, need line:%llu, and will skip exporting config:%s, xlsx path:%s")
-                        ,sheet->GetTotalLine(), ConfigTableDefine::HEADER_ROW_NUMBER
-                        , sheet->GetSheetName().c_str(), sheet->GetWorkbook()->GetWorkbookPath().c_str());
+                CLOG_WARN("have no enough line, total line:%llu, need line:%llu, and will skip exporting config:%s, xlsx path:%s"
+                , sheet->GetTotalLine(), ConfigTableDefine::HEADER_ROW_NUMBER
+                , sheet->GetSheetName().c_str(), sheet->GetWorkbook()->GetWorkbookPath().c_str());
+
                 continue;
             }
 
@@ -817,16 +814,16 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
                     auto iterField = fieldsColumnCells.find(fieldName);
                     if(iterField == fieldsColumnCells.end())
                     {
-                        g_Log->Error(LOGFMT_OBJ_TAG("have no field name sheet name:%s, xlsx path:%s")
-                        , sheet->GetSheetName().c_str(), workbook->GetWorkbookPath().c_str());
+                        CLOG_ERROR("have no field name sheet name:%s, xlsx path:%s", sheet->GetSheetName().c_str(), workbook->GetWorkbookPath().c_str());
                         return false;
                     }
 
                     if(configTableInfo->_fieldNames.find(iterField->second->_content) != configTableInfo->_fieldNames.end())
                     {
-                        g_Log->Error(LOGFMT_OBJ_TAG("field name:%s duplicate column:%llu, row:%llu sheet name:%s, xlsx path:%s")
+                        CLOG_ERROR("field name:%s duplicate column:%llu, row:%llu sheet name:%s, xlsx path:%s"
                         , iterField->second->_content.c_str(), iterField->second->_column, iterField->second->_row, sheet->GetSheetName().c_str()
                         , workbook->GetWorkbookPath().c_str());
+
                         return false;
                     }
 
@@ -880,16 +877,15 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
                             auto iterRowCell = fieldsColumnCells.find(rowId);
                             if(iterRowCell == fieldsColumnCells.end())
                             {// 不可缺省
-                                g_Log->Warn(LOGFMT_OBJ_TAG("FIELD_NAME have no row cell rowId:%llu, column:%llu, sheet name:%s, xlsx path:%s")
-                                                , rowId, idx, sheet->GetSheetName().c_str(), workbook->GetWorkbookPath().c_str());
+                                CLOG_WARN("FIELD_NAME have no row cell rowId:%llu, column:%llu, sheet name:%s, xlsx path:%s"
+                                , rowId, idx, sheet->GetSheetName().c_str(), workbook->GetWorkbookPath().c_str());
                                 return false;
                             }
 
                             auto cell = iterRowCell->second;
                             if(cell->_content.empty())
                             {
-                                g_Log->Error(LOGFMT_OBJ_TAG("lack of field name sheet name:%s, xlsx path:%s")
-                                            , sheet->GetSheetName().c_str(), workbook->GetWorkbookPath().c_str());
+                                CLOG_ERROR("lack of field name sheet name:%s, xlsx path:%s", sheet->GetSheetName().c_str(), workbook->GetWorkbookPath().c_str());
                                 return false;
                             }
 
@@ -898,8 +894,7 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
 
                             if(!KERNEL_NS::StringUtil::CheckGeneralName(newConfigFieldInfo->_fieldName))
                             {
-                                g_Log->Error(LOGFMT_OBJ_TAG("illigal field name:%s sheet name:%s, xlsx path:%s")
-                                            ,newConfigFieldInfo->_fieldName.c_str(), sheet->GetSheetName().c_str(), workbook->GetWorkbookPath().c_str());
+                                CLOG_ERROR("illigal field name:%s sheet name:%s, xlsx path:%s", newConfigFieldInfo->_fieldName.c_str(), sheet->GetSheetName().c_str(), workbook->GetWorkbookPath().c_str());
                                 return false;
                             }
 
@@ -910,16 +905,14 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
                             auto iterRowCell = fieldsColumnCells.find(rowId);
                             if(iterRowCell == fieldsColumnCells.end())
                             {// 不可缺省
-                                g_Log->Warn(LOGFMT_OBJ_TAG("DATA_TYPE have no row cell rowId:%llu, column:%llu, sheet name:%s, xlsx path:%s")
-                                                , rowId, idx, sheet->GetSheetName().c_str(), workbook->GetWorkbookPath().c_str());
+                                CLOG_WARN("DATA_TYPE have no row cell rowId:%llu, column:%llu, sheet name:%s, xlsx path:%s", rowId, idx, sheet->GetSheetName().c_str(), workbook->GetWorkbookPath().c_str());
                                 return false;
                             }
 
                             auto cell = iterRowCell->second;
                             if(cell->_content.empty())
                             {
-                                g_Log->Error(LOGFMT_OBJ_TAG("lack of data type sheet name:%s, xlsx path:%s")
-                                            , sheet->GetSheetName().c_str(), workbook->GetWorkbookPath().c_str());
+                                CLOG_ERROR("lack of data type sheet name:%s, xlsx path:%s", sheet->GetSheetName().c_str(), workbook->GetWorkbookPath().c_str());
                                 return false;
                             }
                             newConfigFieldInfo->_dataType = cell->_content;
@@ -1001,8 +994,8 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
                                 cell = iterRowCell->second;
                             }
 
-                            g_Log->Warn(LOGFMT_OBJ_TAG("unknown config header line row id:%llu, columnId:%llu content:%s sheetName:%s, xlsx path:%s")
-                                        , rowId, idx, (cell ? cell->_content.c_str() : ""), sheet->GetSheetName().c_str(), sheet->GetWorkbook()->GetWorkbookPath().c_str());
+                            CLOG_WARN("unknown config header line row id:%llu, columnId:%llu content:%s sheetName:%s, xlsx path:%s"
+                            , rowId, idx, (cell ? cell->_content.c_str() : ""), sheet->GetSheetName().c_str(), sheet->GetWorkbook()->GetWorkbookPath().c_str());
                             return false;
                         }
                         break;
@@ -1027,8 +1020,8 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
                     const auto jsonArray = nlohmann::json::parse(fieldInfo->_defaultValue.c_str(), NULL, false);
                     if(!jsonArray.is_array())
                     {
-                        g_Log->Warn(LOGFMT_OBJ_TAG("bad default value, default value must be json array, please check field name:%s columnId:%llu default value:%s sheetName:%s, xlsx path:%s")
-                                        , fieldInfo->_fieldName.c_str(), fieldInfo->_columnId, fieldInfo->_defaultValue.c_str(),  sheet->GetSheetName().c_str(), sheet->GetWorkbook()->GetWorkbookPath().c_str());
+                        CLOG_WARN("bad default value, default value must be json array, please check field name:%s columnId:%llu default value:%s sheetName:%s, xlsx path:%s"
+                        , fieldInfo->_fieldName.c_str(), fieldInfo->_columnId, fieldInfo->_defaultValue.c_str(),  sheet->GetSheetName().c_str(), sheet->GetWorkbook()->GetWorkbookPath().c_str());
                         return false;
                     }
 
@@ -1046,8 +1039,9 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
                     const auto jsonObject = nlohmann::json::parse(fieldInfo->_defaultValue.c_str(), NULL, false);
                     if(!jsonObject.is_object())
                     {
-                        g_Log->Warn(LOGFMT_OBJ_TAG("bad default value, default value must be json object, please check field name:%s columnId:%llu default value:%s sheetName:%s, xlsx path:%s")
-                                        , fieldInfo->_fieldName.c_str(), fieldInfo->_columnId, fieldInfo->_defaultValue.c_str(),  sheet->GetSheetName().c_str(), sheet->GetWorkbook()->GetWorkbookPath().c_str());
+                        CLOG_WARN("bad default value, default value must be json object, please check field name:%s columnId:%llu default value:%s sheetName:%s, xlsx path:%s"
+                        , fieldInfo->_fieldName.c_str(), fieldInfo->_columnId, fieldInfo->_defaultValue.c_str(),  sheet->GetSheetName().c_str(), sheet->GetWorkbook()->GetWorkbookPath().c_str());
+
                         return false;
                     }
 
@@ -1074,8 +1068,9 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
 
                     if((fieldInfo->_defaultValue != "true") && (fieldInfo->_defaultValue != "false"))
                     {
-                        g_Log->Warn(LOGFMT_OBJ_TAG("bad default value, default value must be true or false, please check field name:%s columnId:%llu default value:%s sheetName:%s, xlsx path:%s")
-                                        , fieldInfo->_fieldName.c_str(), fieldInfo->_columnId, fieldInfo->_defaultValue.c_str(),  sheet->GetSheetName().c_str(), sheet->GetWorkbook()->GetWorkbookPath().c_str());
+                        CLOG_WARN("bad default value, default value must be true or false, please check field name:%s columnId:%llu default value:%s sheetName:%s, xlsx path:%s"
+                        , fieldInfo->_fieldName.c_str(), fieldInfo->_columnId, fieldInfo->_defaultValue.c_str(),  sheet->GetSheetName().c_str(), sheet->GetWorkbook()->GetWorkbookPath().c_str());
+                        
                         return false;
                     }
 
@@ -1147,15 +1142,14 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
                         KERNEL_NS::LibString errInfo;
                         if(!SERVICE_COMMON_NS::DataTypeHelper::CheckData(fieldInfo->_dataType, fieldInfo->_defaultValue, errInfo))
                         {
-                            g_Log->Error(LOGFMT_OBJ_TAG("check data fail columnId:%llu, field name:%s config:%s:data type:%s, defaultValue:%s, errInfo:%s, sheet name:%s, path:%s, index(maybe not row id in sometimes):%llu, row data:\n")
-                                        , fieldInfo->_columnId, fieldInfo->_fieldName.c_str(), fieldInfo->_owner->_tableClassName.c_str()
-                                        ,  fieldInfo->_dataType.c_str(), fieldInfo->_defaultValue.c_str(), errInfo.c_str()
-                                        , fieldInfo->_owner->_wholeSheetName.c_str(), fieldInfo->_owner->_xlsxPath.c_str(), idx);
+                            CLOG_ERROR("check data fail columnId:%llu, field name:%s config:%s:data type:%s, defaultValue:%s, errInfo:%s, sheet name:%s, path:%s, index(maybe not row id in sometimes):%llu, row data:\n"
+                            , fieldInfo->_columnId, fieldInfo->_fieldName.c_str(), fieldInfo->_owner->_tableClassName.c_str(), fieldInfo->_dataType.c_str(), fieldInfo->_defaultValue.c_str(), errInfo.c_str()
+                            , fieldInfo->_owner->_wholeSheetName.c_str(), fieldInfo->_owner->_xlsxPath.c_str(), idx);
 
                             // TODO:转义? 需要让日志支持直接打出不需要转义
                             // sheet->ToRowString(idx).escape()
                             const auto &lineData = sheet->ToRowString(idx);
-                            g_Log->Error2(LOGFMT_OBJ_TAG_NO_FMT(), lineData);
+                            CLOG_ERROR_ARGS(lineData);
 
                             return false;
                         }
@@ -1170,10 +1164,10 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
                             KERNEL_NS::LibString errInfo;
                             if(!SERVICE_COMMON_NS::DataTypeHelper::CheckData(fieldInfo->_dataType, fieldInfo->_defaultValue, errInfo))
                             {
-                                g_Log->Error(LOGFMT_OBJ_TAG("check data fail columnId:%llu, field name:%s config:%s:data type:%s, defaultValue:%s, errInfo:%s, sheet name:%s, path:%s")
-                                            , fieldInfo->_columnId, fieldInfo->_fieldName.c_str(), fieldInfo->_owner->_tableClassName.c_str()
-                                            ,  fieldInfo->_dataType.c_str(), fieldInfo->_defaultValue.c_str(), errInfo.c_str()
-                                            , fieldInfo->_owner->_wholeSheetName.c_str(), fieldInfo->_owner->_xlsxPath.c_str());
+                                CLOG_ERROR("check data fail columnId:%llu, field name:%s config:%s:data type:%s, defaultValue:%s, errInfo:%s, sheet name:%s, path:%s"
+                                ,fieldInfo->_columnId, fieldInfo->_fieldName.c_str(), fieldInfo->_owner->_tableClassName.c_str()
+                                , fieldInfo->_dataType.c_str(), fieldInfo->_defaultValue.c_str(), errInfo.c_str()
+                                ,  fieldInfo->_owner->_wholeSheetName.c_str(), fieldInfo->_owner->_xlsxPath.c_str());
 
                                 return false;
                             }
@@ -1187,12 +1181,12 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
                             KERNEL_NS::LibString errInfo;
                             if(!SERVICE_COMMON_NS::DataTypeHelper::CheckData(fieldInfo->_dataType, iterCell->second->_content, errInfo))
                             {
-                                g_Log->Error(LOGFMT_OBJ_TAG("check data fail columnId:%llu, field name:%s config:%s:data type:%s, content:%s, errInfo:%s, sheet name:%s, path:%s, index:%llu, line data:")
-                                            , fieldInfo->_columnId, fieldInfo->_fieldName.c_str(), fieldInfo->_owner->_tableClassName.c_str()
-                                            ,  fieldInfo->_dataType.c_str(), iterCell->second->_content.c_str(), errInfo.c_str()
-                                            , fieldInfo->_owner->_wholeSheetName.c_str(), fieldInfo->_owner->_xlsxPath.c_str(), idx);
+                                CLOG_ERROR("check data fail columnId:%llu, field name:%s config:%s:data type:%s, content:%s, errInfo:%s, sheet name:%s, path:%s, index:%llu, line data:"
+                                , fieldInfo->_columnId, fieldInfo->_fieldName.c_str(), fieldInfo->_owner->_tableClassName.c_str()
+                                ,  fieldInfo->_dataType.c_str(), iterCell->second->_content.c_str(), errInfo.c_str()
+                                , fieldInfo->_owner->_wholeSheetName.c_str(), fieldInfo->_owner->_xlsxPath.c_str(), idx );
 
-                                g_Log->Error2(LOGFMT_OBJ_TAG_NO_FMT(), sheet->ToRowString(idx));
+                                CLOG_ERROR_ARGS(sheet->ToRowString(idx));
 
                                 return false;
                             }
@@ -1234,7 +1228,7 @@ bool XlsxExporterMgr::_DoExportConfigs() const
         auto iterLang = _ownTypeRefLangTypes.find(iterOwnType.first);
         if(iterLang == _ownTypeRefLangTypes.end())
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("skip ownType:%s export."), iterOwnType.first.c_str());
+            CLOG_WARN("skip ownType:%s export.", iterOwnType.first.c_str());
             continue;
         }
 
@@ -1246,7 +1240,7 @@ bool XlsxExporterMgr::_DoExportConfigs() const
             {// 导出c++代码和数据
                 if(!_ExportCpp(lowwerLang, configTypeRefConfigTable))
                 {
-                    g_Log->Error(LOGFMT_OBJ_TAG("export cpp code fail."));
+                    CLOG_ERROR("export cpp code fail.");
                     return false;
                 }
             }
@@ -1254,19 +1248,19 @@ bool XlsxExporterMgr::_DoExportConfigs() const
             {// 导出csharp代码和数据
                 if(!_ExportCSharpCode(configTypeRefConfigTable))
                 {
-                    g_Log->Error(LOGFMT_OBJ_TAG("export csharp code fail."));
+                    CLOG_ERROR("export csharp code fail.");
                     return false;
                 }
 
                 if(!_ExportCSharpDatas(configTypeRefConfigTable))
                 {
-                    g_Log->Error(LOGFMT_OBJ_TAG("export csharp data fail."));
+                    CLOG_ERROR("export csharp data fail.");
                     return false;
                 }
             }
             else
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("unknown language type export:%s"), lang.c_str());
+                CLOG_WARN("unknown language type export:%s", lang.c_str());
             }
         }
     }
@@ -1284,12 +1278,13 @@ bool XlsxExporterMgr::_ExportCpp(const KERNEL_NS::LibString &langName, const std
         const auto pathParts = path.Split("\n");
         for(auto &part : pathParts)
             shortPath.AppendFormat("%s,", KERNEL_NS::DirectoryUtil::GetFileNameInPath(part.c_str()).c_str());
-        g_Log->Custom("[GeneratorConfig]:[%sConfig] - %s", iter.second->_tableClassName.c_str(), shortPath.c_str());
+
+        CLOG_CUSTOM("[GeneratorConfig]:[%sConfig] - %s", iter.second->_tableClassName.c_str(), shortPath.c_str());
 
         KERNEL_NS::LibString headerContent;
         if(!_ExportCppCodeHeader(iter.second, headerContent))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("export cpp header fail config class name:%s."), iter.second->_tableClassName.c_str());
+            CLOG_ERROR("export cpp header fail config class name:%s.", iter.second->_tableClassName.c_str());
             return false;
         }
 
@@ -1298,7 +1293,7 @@ bool XlsxExporterMgr::_ExportCpp(const KERNEL_NS::LibString &langName, const std
         auto configTableInfo = iter.second;
         if(!_ExportCppCodeImpl(configTableInfo, implementContent))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("export cpp implement fail config class name:%s."), iter.second->_tableClassName.c_str());
+            CLOG_ERROR("export cpp implement fail config class name:%s.", iter.second->_tableClassName.c_str());
             return false;
         }
 
@@ -1306,7 +1301,7 @@ bool XlsxExporterMgr::_ExportCpp(const KERNEL_NS::LibString &langName, const std
         KERNEL_NS::LibString configDataContent;
         if(!_ExportCppDatas(configTableInfo, configDataContent))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("export cpp data fail config class name:%s."), iter.second->_tableClassName.c_str());
+            CLOG_ERROR("export cpp data fail config class name:%s.", iter.second->_tableClassName.c_str());
             return false;
         }
 
@@ -1319,7 +1314,7 @@ bool XlsxExporterMgr::_ExportCpp(const KERNEL_NS::LibString &langName, const std
             const auto dir =  KERNEL_NS::DirectoryUtil::GetFileDirInPath(headerFileName);
             if(dir.empty())
             {
-                g_Log->Error(LOGFMT_OBJ_TAG("bad file name:%s"), headerFileName.c_str());
+                CLOG_ERROR("bad file name:%s", headerFileName.c_str());
                 return false;
             }
             if(!KERNEL_NS::DirectoryUtil::CreateDir(dir))
@@ -1335,7 +1330,7 @@ bool XlsxExporterMgr::_ExportCpp(const KERNEL_NS::LibString &langName, const std
             const auto dir =  KERNEL_NS::DirectoryUtil::GetFileDirInPath(cppFileName);
             if(dir.empty())
             {
-                g_Log->Error(LOGFMT_OBJ_TAG("bad file name:%s"), cppFileName.c_str());
+                CLOG_ERROR("bad file name:%s", cppFileName.c_str());
                 return false;
             }
             if(!KERNEL_NS::DirectoryUtil::CreateDir(dir))
@@ -1351,7 +1346,7 @@ bool XlsxExporterMgr::_ExportCpp(const KERNEL_NS::LibString &langName, const std
             const auto dir =  KERNEL_NS::DirectoryUtil::GetFileDirInPath(dataFileName);
             if(dir.empty())
             {
-                g_Log->Error(LOGFMT_OBJ_TAG("bad file name:%s"), dataFileName.c_str());
+                CLOG_ERROR("bad file name:%s", dataFileName.c_str());
                 return false;
             }
             if(!KERNEL_NS::DirectoryUtil::CreateDir(dir))
@@ -1365,8 +1360,7 @@ bool XlsxExporterMgr::_ExportCpp(const KERNEL_NS::LibString &langName, const std
             KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp =  KERNEL_NS::FileUtil::OpenFile(headerFileName.c_str(), true);
             if(!fp)
             {
-                g_Log->Error(LOGFMT_OBJ_TAG("open header file fail when export cpp config class name:%s fileName:%s.")
-                            , iter.second->_tableClassName.c_str(), headerFileName.c_str());
+                CLOG_ERROR("open header file fail when export cpp config class name:%s fileName:%s.", iter.second->_tableClassName.c_str(), headerFileName.c_str());
                 return false;
             }
 
@@ -1378,8 +1372,8 @@ bool XlsxExporterMgr::_ExportCpp(const KERNEL_NS::LibString &langName, const std
             auto bytesChange = KERNEL_NS::FileUtil::WriteFile(*fp, headerContent);
             if(bytesChange != static_cast<Int64>(headerContent.size()))
             {
-                g_Log->Error(LOGFMT_OBJ_TAG("write header file bytesChange:%lld, headerContent size:%llu,  when export cpp config class name:%s fileName:%s.")
-                            , bytesChange, static_cast<Int64>(headerContent.size()), iter.second->_tableClassName.c_str(), headerFileName.c_str());
+                CLOG_ERROR("write header file bytesChange:%lld, headerContent size:%llu,  when export cpp config class name:%s fileName:%s."
+                , bytesChange, static_cast<Int64>(headerContent.size()), iter.second->_tableClassName.c_str(), headerFileName.c_str());
                 return false;
             }
         }
@@ -1388,8 +1382,7 @@ bool XlsxExporterMgr::_ExportCpp(const KERNEL_NS::LibString &langName, const std
             KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp =  KERNEL_NS::FileUtil::OpenFile(cppFileName.c_str(), true);
             if(!fp)
             {
-                g_Log->Error(LOGFMT_OBJ_TAG("open implement file fail when export cpp config class name:%s fileName:%s.")
-                            , iter.second->_tableClassName.c_str(), cppFileName.c_str());
+                CLOG_ERROR("open implement file fail when export cpp config class name:%s fileName:%s.", iter.second->_tableClassName.c_str(), cppFileName.c_str());
                 return false;
             }
 
@@ -1401,8 +1394,8 @@ bool XlsxExporterMgr::_ExportCpp(const KERNEL_NS::LibString &langName, const std
             auto bytesChange = KERNEL_NS::FileUtil::WriteFile(*fp, implementContent);
             if(bytesChange != static_cast<Int64>(implementContent.size()))
             {
-                g_Log->Error(LOGFMT_OBJ_TAG("write implement file bytesChange:%lld, implementContent size:%llu,  when export cpp config class name:%s fileName:%s.")
-                            , bytesChange, static_cast<Int64>(implementContent.size()), iter.second->_tableClassName.c_str(), cppFileName.c_str());
+                CLOG_ERROR("write implement file bytesChange:%lld, implementContent size:%llu,  when export cpp config class name:%s fileName:%s."
+                , bytesChange, static_cast<Int64>(implementContent.size()), iter.second->_tableClassName.c_str(), cppFileName.c_str());
                 return false;
             }
         }
@@ -1411,8 +1404,7 @@ bool XlsxExporterMgr::_ExportCpp(const KERNEL_NS::LibString &langName, const std
             KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp =  KERNEL_NS::FileUtil::OpenFile(dataFileName.c_str(), true);
             if(!fp)
             {
-                g_Log->Error(LOGFMT_OBJ_TAG("open data file fail when export cpp config class name:%s fileName:%s.")
-                            , iter.second->_tableClassName.c_str(), dataFileName.c_str());
+                CLOG_ERROR("open data file fail when export cpp config class name:%s fileName:%s.", iter.second->_tableClassName.c_str(), dataFileName.c_str());
                 return false;
             }
 
@@ -1424,8 +1416,7 @@ bool XlsxExporterMgr::_ExportCpp(const KERNEL_NS::LibString &langName, const std
             auto bytesChange = KERNEL_NS::FileUtil::WriteFile(*fp, configDataContent);
             if(bytesChange != static_cast<Int64>(configDataContent.size()))
             {
-                g_Log->Error(LOGFMT_OBJ_TAG("write data file bytesChange:%lld, configDataContent size:%llu,  when export cpp config class name:%s fileName:%s.")
-                            , bytesChange, static_cast<Int64>(configDataContent.size()), iter.second->_tableClassName.c_str(), dataFileName.c_str());
+                CLOG_ERROR("write data file bytesChange:%lld, configDataContent size:%llu,  when export cpp config class name:%s fileName:%s.", bytesChange, static_cast<Int64>(configDataContent.size()), iter.second->_tableClassName.c_str(), dataFileName.c_str());
                 return false;
             }
         }
@@ -1522,18 +1513,19 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
                 auto iter = columRefData.find(fieldInfo->_columnId);
                 if(iter == columRefData.end())
                 {
-                    g_Log->Warn(LOGFMT_OBJ_TAG("cant find field data, column id:%llu config:%s, sheet name:%s file name:%s, field name:%s, field data type:%s")
-                            , fieldInfo->_columnId, configInfo->_tableClassName.c_str(), configInfo->_wholeSheetName.c_str(), configInfo->_xlsxPath.c_str()
-                            , fieldInfo->_fieldName.c_str(), fieldInfo->_dataType.c_str());
+                    CLOG_WARN("cant find field data, column id:%llu config:%s, sheet name:%s file name:%s, field name:%s, field data type:%s"
+                    , fieldInfo->_columnId, configInfo->_tableClassName.c_str(), configInfo->_wholeSheetName.c_str(), configInfo->_xlsxPath.c_str()
+                    ,  fieldInfo->_fieldName.c_str(), fieldInfo->_dataType.c_str());
                     return false;
                 }
 
                 // 去重
                 if(checkRepeat.find(iter->second.strip()) != checkRepeat.end())
                 {
-                    g_Log->Warn(LOGFMT_OBJ_TAG("enum name repeat please check:%s, column id:%llu config:%s, sheet name:%s file name:%s, field name:%s, field data type:%s")
-                            , iter->second.c_str(), fieldInfo->_columnId, configInfo->_tableClassName.c_str(), configInfo->_wholeSheetName.c_str(), configInfo->_xlsxPath.c_str()
-                            , fieldInfo->_fieldName.c_str(), fieldInfo->_dataType.c_str());
+                    CLOG_WARN("enum name repeat please check:%s, column id:%llu config:%s, sheet name:%s file name:%s, field name:%s, field data type:%s"
+                    , iter->second.c_str(), fieldInfo->_columnId, configInfo->_tableClassName.c_str(), configInfo->_wholeSheetName.c_str(), configInfo->_xlsxPath.c_str()
+                    , fieldInfo->_fieldName.c_str(), fieldInfo->_dataType.c_str());
+                    
                     return false;
                 }
 
@@ -1591,9 +1583,9 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
             KERNEL_NS::LibString errInfo;
             if(!SERVICE_COMMON_NS::DataTypeHelper::Parse(fieldInfo->_dataType, dataType, errInfo))
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("parse data type fail config:%s, sheet name:%s file name:%s, field name:%s, field data type:%s errInfo:%s")
-                        ,  configInfo->_tableClassName.c_str(), configInfo->_wholeSheetName.c_str(), configInfo->_xlsxPath.c_str()
-                        , fieldInfo->_fieldName.c_str(), fieldInfo->_dataType.c_str(), errInfo.c_str());
+                CLOG_WARN("parse data type fail config:%s, sheet name:%s file name:%s, field name:%s, field data type:%s errInfo:%s"
+                , configInfo->_tableClassName.c_str(), configInfo->_wholeSheetName.c_str(), configInfo->_xlsxPath.c_str()
+                , fieldInfo->_fieldName.c_str(), fieldInfo->_dataType.c_str(), errInfo.c_str());
 
                 return false;
             }
@@ -1667,9 +1659,10 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
                             // 必须是简单数据类型
                             if(!SERVICE_COMMON_NS::DataTypeHelper::IsSimpleType(fieldInfo->_dataType))
                             {
-                                g_Log->Error(LOGFMT_OBJ_TAG("unique flag field must be a simple type: config:%s, sheet name:%s file name:%s, field name:%s, field data type:%s")
-                                ,  configInfo->_tableClassName.c_str(), configInfo->_wholeSheetName.c_str(), configInfo->_xlsxPath.c_str()
+                                CLOG_ERROR("unique flag field must be a simple type: config:%s, sheet name:%s file name:%s, field name:%s, field data type:%s"
+                                , configInfo->_tableClassName.c_str(), configInfo->_wholeSheetName.c_str(), configInfo->_xlsxPath.c_str()
                                 , fieldInfo->_fieldName.c_str(), fieldInfo->_dataType.c_str());
+
                                 return false;
                             }
 
@@ -1685,9 +1678,10 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
                             // 必须是简单数据类型
                             if(!SERVICE_COMMON_NS::DataTypeHelper::IsSimpleType(fieldInfo->_dataType))
                             {
-                                g_Log->Error(LOGFMT_OBJ_TAG("index flag field must be a simple type: config:%s, sheet name:%s file name:%s, field name:%s, field data type:%s")
-                                ,  configInfo->_tableClassName.c_str(), configInfo->_wholeSheetName.c_str(), configInfo->_xlsxPath.c_str()
+                                CLOG_ERROR("index flag field must be a simple type: config:%s, sheet name:%s file name:%s, field name:%s, field data type:%s"
+                                , configInfo->_tableClassName.c_str(), configInfo->_wholeSheetName.c_str(), configInfo->_xlsxPath.c_str()
                                 , fieldInfo->_fieldName.c_str(), fieldInfo->_dataType.c_str());
+
                                 return false;
                             }
 
@@ -1952,14 +1946,14 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("        auto pos = lineData.GetRaw().find(\"column_\", startPos);\n");
             fileContent.AppendFormat("        if(pos == std::string::npos)\n");
             fileContent.AppendFormat("        {\n");
-            fileContent.AppendFormat("            g_Log->Error(LOGFMT_OBJ_TAG(\"parse field:%s, data format error: have no column_ prefix, lineData:%%s, startPos:%%d, countFieldNum:%%d\"), lineData.c_str(), startPos, countFieldNum);\n", fieldInfo->_fieldName.c_str());
+            fileContent.AppendFormat("            CLOG_ERROR(\"parse field:%s, data format error: have no column_ prefix, lineData:%%s, startPos:%%d, countFieldNum:%%d\", lineData.c_str(), startPos, countFieldNum);\n", fieldInfo->_fieldName.c_str());
             fileContent.AppendFormat("            return false;\n");
             fileContent.AppendFormat("        }\n");
             fileContent.AppendFormat("\n");
             fileContent.AppendFormat("       auto headerTailPos = lineData.GetRaw().find(\":\", pos);\n");
             fileContent.AppendFormat("       if(headerTailPos == std::string::npos)\n");
             fileContent.AppendFormat("       {\n");
-            fileContent.AppendFormat("            g_Log->Error(LOGFMT_OBJ_TAG(\"parse field:%s, bad line data not find : symbol after column_ line data:%%s, startPos:%%d, countFieldNum:%%d\"), lineData.c_str(), startPos, countFieldNum);\n", fieldInfo->_fieldName.c_str());
+            fileContent.AppendFormat("            CLOG_ERROR(\"parse field:%s, bad line data not find : symbol after column_ line data:%%s, startPos:%%d, countFieldNum:%%d\", lineData.c_str(), startPos, countFieldNum);\n", fieldInfo->_fieldName.c_str());
             fileContent.AppendFormat("            return false;\n");
             fileContent.AppendFormat("       }\n");
             fileContent.AppendFormat("\n");
@@ -1968,7 +1962,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("       const auto headParts = headerInfo.Split('_');\n");
             fileContent.AppendFormat("       if(headParts.empty())\n");
             fileContent.AppendFormat("       {\n");
-            fileContent.AppendFormat("            g_Log->Error(LOGFMT_OBJ_TAG(\"parse field:%s, bad line data not find sep symbol:_ in header info line data:%%s, pos:%%d, headerTailPos:%%d, startPos:%%d, countFieldNum:%%d,\"),\n", fieldInfo->_fieldName.c_str());
+            fileContent.AppendFormat("            CLOG_ERROR(\"parse field:%s, bad line data not find sep symbol:_ in header info line data:%%s, pos:%%d, headerTailPos:%%d, startPos:%%d, countFieldNum:%%d,\",\n", fieldInfo->_fieldName.c_str());
             fileContent.AppendFormat("            lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);\n");
             fileContent.AppendFormat("            return false;\n");
             fileContent.AppendFormat("       }\n");
@@ -1979,13 +1973,13 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("       const auto &columnIdString = headParts[1];\n");
             fileContent.AppendFormat("       if(columnIdString.length() == 0)\n");
             fileContent.AppendFormat("       {\n");
-            fileContent.AppendFormat("           g_Log->Error(LOGFMT_OBJ_TAG(\"parse field:%s have no column id, bad line data header len info line data:%%s, pos:%%d, headerTailPos:%%d, startPos:%%d, countFieldNum:%%d,\"), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);\n", fieldInfo->_fieldName.c_str());
+            fileContent.AppendFormat("           CLOG_ERROR(\"parse field:%s have no column id, bad line data header len info line data:%%s, pos:%%d, headerTailPos:%%d, startPos:%%d, countFieldNum:%%d,\", lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);\n", fieldInfo->_fieldName.c_str());
             fileContent.AppendFormat("           return false;\n");
             fileContent.AppendFormat("       }\n");
             fileContent.AppendFormat("       const UInt64 columnId = KERNEL_NS::StringUtil::StringToUInt64(columnIdString.c_str());\n");
             fileContent.AppendFormat("       if(columnId != %llu)\n", fieldInfo->_columnId);
             fileContent.AppendFormat("       {\n");
-            fileContent.AppendFormat("           g_Log->Error(LOGFMT_OBJ_TAG(\"parse field:%s, fail: bad comumn id, columnId:%%llu, real column id:%llu, please check if config data is old version, line data header len info line data:%%s, pos:%%d, headerTailPos:%%d, startPos:%%d, countFieldNum:%%d\"), columnId, lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);\n", fieldInfo->_fieldName.c_str(), fieldInfo->_columnId);
+            fileContent.AppendFormat("           CLOG_ERROR(\"parse field:%s, fail: bad comumn id, columnId:%%llu, real column id:%llu, please check if config data is old version, line data header len info line data:%%s, pos:%%d, headerTailPos:%%d, startPos:%%d, countFieldNum:%%d\"), columnId, lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);\n", fieldInfo->_fieldName.c_str(), fieldInfo->_columnId);
             fileContent.AppendFormat("           return false;\n");
             fileContent.AppendFormat("       }\n");
             fileContent.AppendFormat("\n");
@@ -1993,7 +1987,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("       const auto &lenInfo = headParts[2];\n");
             fileContent.AppendFormat("       if(lenInfo.length() == 0)\n");
             fileContent.AppendFormat("       {\n");
-            fileContent.AppendFormat("           g_Log->Error(LOGFMT_OBJ_TAG(\"parse field:%s fail: bad line data header len info line data:%%s, pos:%%d, headerTailPos:%%d, startPos:%%d, countFieldNum:%%d\"), lineData.c_str(), \n", fieldInfo->_fieldName.c_str());
+            fileContent.AppendFormat("           CLOG_ERROR(\"parse field:%s fail: bad line data header len info line data:%%s, pos:%%d, headerTailPos:%%d, startPos:%%d, countFieldNum:%%d\", lineData.c_str(), \n", fieldInfo->_fieldName.c_str());
             fileContent.AppendFormat("           static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);\n");
             fileContent.AppendFormat("           return false;\n");
             fileContent.AppendFormat("       }\n");
@@ -2007,7 +2001,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("      KERNEL_NS::LibString errInfo;\n");
             fileContent.AppendFormat("      if(!SERVICE_COMMON_NS::DataTypeHelper::Assign(%s, dataPart, errInfo))\n", memberName.c_str());
             fileContent.AppendFormat("      {\n");
-            fileContent.AppendFormat("          g_Log->Error(LOGFMT_OBJ_TAG(\"%%s, assign fail field name:%s, data part:%%s, errInfo:%%s  line data:%%s, pos:%%d, headerTailPos:%%d, dataEndPos:%%d\"), KERNEL_NS::RttiUtil::GetByObj(this).c_str(), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));\n", memberName.c_str());
+            fileContent.AppendFormat("          CLOG_ERROR(\"%%s, assign fail field name:%s, data part:%%s, errInfo:%%s  line data:%%s, pos:%%d, headerTailPos:%%d, dataEndPos:%%d\"), KERNEL_NS::RttiUtil::GetByObj(this).c_str(), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));\n", memberName.c_str());
             fileContent.AppendFormat("          return false;\n");
             fileContent.AppendFormat("      }\n");
             fileContent.AppendFormat("\n");
@@ -2023,7 +2017,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
         // 结束
         fileContent.AppendFormat("    if(countFieldNum != fieldNum)\n");
         fileContent.AppendFormat("    {\n");
-        fileContent.AppendFormat("        g_Log->Error(LOGFMT_OBJ_TAG(\"field num not enough countFieldNum:%%d, need fieldNum:%%d lineData:%%s\"), countFieldNum, fieldNum, lineData.c_str());\n");
+        fileContent.AppendFormat("        CLOG_ERROR(\"field num not enough countFieldNum:%%d, need fieldNum:%%d lineData:%%s\", countFieldNum, fieldNum, lineData.c_str());\n");
         fileContent.AppendFormat("        return false;\n");
         fileContent.AppendFormat("    }\n");
         fileContent.AppendFormat("\n");
@@ -2058,7 +2052,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
         fileContent.AppendFormat("\n");
         fileContent.AppendFormat("    if(countFieldNum != fieldNum)\n");
         fileContent.AppendFormat("    {\n");
-        fileContent.AppendFormat("        g_Log->Error(LOGFMT_OBJ_TAG(\"field num not enough countFieldNum:%%d, need fieldNum:%%d\"), countFieldNum, fieldNum);\n");
+        fileContent.AppendFormat("        CLOG_ERROR(\"field num not enough countFieldNum:%%d, need fieldNum:%%d\", countFieldNum, fieldNum);\n");
         fileContent.AppendFormat("    }\n");
 
         fileContent.AppendFormat("}\n");
@@ -2116,7 +2110,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("    KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp = KERNEL_NS::FileUtil::OpenFile(wholePath.c_str(), false, \"rb\");\n");
             fileContent.AppendFormat("    if(!fp)\n");
             fileContent.AppendFormat("    {\n");
-            fileContent.AppendFormat("        g_Log->Error(LOGFMT_OBJ_TAG(\"data file not found wholePath:%%s\"), wholePath.c_str());\n");
+            fileContent.AppendFormat("        CLOG_ERROR(\"data file not found wholePath:%%s\", wholePath.c_str());\n");
             fileContent.AppendFormat("        return Status::Failed;\n");
             fileContent.AppendFormat("    }\n");
             fileContent.AppendFormat("\n");
@@ -2129,7 +2123,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("    MD5_CTX ctx;\n");
             fileContent.AppendFormat("    if(!KERNEL_NS::LibDigest::MakeMd5Init(&ctx))\n");
             fileContent.AppendFormat("    {\n");
-            fileContent.AppendFormat("        g_Log->Error(LOGFMT_OBJ_TAG(\"make md5 init fail wholePath:%%s\"), wholePath.c_str());\n");
+            fileContent.AppendFormat("        CLOG_ERROR(\"make md5 init fail wholePath:%%s\", wholePath.c_str());\n");
             fileContent.AppendFormat("        return Status::Failed;\n");
             fileContent.AppendFormat("    }\n");
             fileContent.AppendFormat("\n");
@@ -2147,7 +2141,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
                 KERNEL_NS::LibString errInfo;
                 if(!SERVICE_COMMON_NS::DataTypeHelper::Parse(fieldInfo->_dataType, dataType, errInfo))
                 {
-                    g_Log->Warn(LOGFMT_OBJ_TAG("parse data type fail config:%s, sheet name:%s file name:%s, field name:%s, field data type:%s errInfo:%s")
+                    CLOG_WARN("parse data type fail config:%s, sheet name:%s file name:%s, field name:%s, field data type:%s errInfo:%s"
                             ,  configInfo->_tableClassName.c_str(), configInfo->_wholeSheetName.c_str(), configInfo->_xlsxPath.c_str()
                             , fieldInfo->_fieldName.c_str(), fieldInfo->_dataType.c_str(), errInfo.c_str());
 
@@ -2198,14 +2192,14 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("            Int64 retBytes = KERNEL_NS::FileUtil::ReadUtf8OneLine(*fp, lineData);\n");
             fileContent.AppendFormat("            if(retBytes == 0)\n");
             fileContent.AppendFormat("            {\n");
-            fileContent.AppendFormat("                g_Log->Error(LOGFMT_OBJ_TAG(\"ReadUtf8OneLine fail wholePath:%%s, line:%%d, lineData:%%s\"), wholePath.c_str(), line, lineData.c_str());\n");
+            fileContent.AppendFormat("                CLOG_ERROR(\"ReadUtf8OneLine fail wholePath:%%s, line:%%d, lineData:%%s\"), wholePath.c_str(), line, lineData.c_str());\n");
             fileContent.AppendFormat("                KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);\n");
             fileContent.AppendFormat("                return Status::Failed;\n");
             fileContent.AppendFormat("            }\n");
             fileContent.AppendFormat("            ++line;\n");
             fileContent.AppendFormat("            if(!KERNEL_NS::LibDigest::MakeMd5Continue(&ctx, lineData.data(), static_cast<UInt64>(lineData.size())))\n");
             fileContent.AppendFormat("            {\n");
-            fileContent.AppendFormat("                g_Log->Error(LOGFMT_OBJ_TAG(\"MakeMd5Continue fail wholePath:%%s, line:%%d, lineData:%%s\"), wholePath.c_str(), line, lineData.c_str());\n");
+            fileContent.AppendFormat("                CLOG_ERROR(\"MakeMd5Continue fail wholePath:%%s, line:%%d, lineData:%%s\", wholePath.c_str(), line, lineData.c_str());\n");
             fileContent.AppendFormat("                KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);\n");
             fileContent.AppendFormat("                return Status::Failed;\n");
             fileContent.AppendFormat("            }\n");
@@ -2215,7 +2209,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("            {\n");
             fileContent.AppendFormat("                if(lineData != %s)\n", fieldNamesWrap.c_str());
             fileContent.AppendFormat("                {\n");
-            fileContent.AppendFormat("                    g_Log->Error(LOGFMT_OBJ_TAG(\"current data not match this config data wholePath:%%s, current data columns:%%s, this config columns:%s\"), wholePath.c_str(), lineData.c_str());\n", fieldNames.c_str());
+            fileContent.AppendFormat("                    CLOG_ERROR(\"current data not match this config data wholePath:%%s, current data columns:%%s, this config columns:%s\", wholePath.c_str(), lineData.c_str());\n", fieldNames.c_str());
             fileContent.AppendFormat("                    return Status::Failed;\n");
             fileContent.AppendFormat("                }\n");
             fileContent.AppendFormat("            }\n");
@@ -2240,8 +2234,8 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("        Int64 readBytes = _ReadConfigData(*fp, lineData, totalLine, line + 1);\n");
             fileContent.AppendFormat("        if(readBytes < 0)\n");
             fileContent.AppendFormat("        {\n");
-            fileContent.AppendFormat("            g_Log->Error(LOGFMT_OBJ_TAG(\"Read a line config data fail wholePath:%%s, line:%%d, \"), wholePath.c_str(), line);\n");
-            fileContent.AppendFormat("            g_Log->Error2(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString(\"lineData:\"), lineData);\n");
+            fileContent.AppendFormat("            CLOG_ERROR(\"Read a line config data fail wholePath:%%s, line:%%d, \", wholePath.c_str(), line);\n");
+            fileContent.AppendFormat("            CLOG_ERROR_ARGS(KERNEL_NS::LibString(\"lineData:\"), lineData);\n");
             fileContent.AppendFormat("            KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);\n");
             fileContent.AppendFormat("            return Status::Failed;\n");
             fileContent.AppendFormat("        }\n");
@@ -2253,7 +2247,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("\n");
             fileContent.AppendFormat("        if(!KERNEL_NS::LibDigest::MakeMd5Continue(&ctx, lineData.data(), static_cast<UInt64>(lineData.size())))\n");
             fileContent.AppendFormat("        {\n");
-            fileContent.AppendFormat("            g_Log->Error(LOGFMT_OBJ_TAG(\"MakeMd5Continue fail wholePath:%%s, line:%%d, lineData:%%s\"), wholePath.c_str(), line, lineData.c_str());\n");
+            fileContent.AppendFormat("            CLOG_ERROR(\"MakeMd5Continue fail wholePath:%%s, line:%%d, lineData:%%s\", wholePath.c_str(), line, lineData.c_str());\n");
             fileContent.AppendFormat("            KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);\n");
             fileContent.AppendFormat("            return Status::Failed;\n");
             fileContent.AppendFormat("        }\n");
@@ -2266,7 +2260,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("\n");
             fileContent.AppendFormat("        if(!config->Parse(lineData))\n");
             fileContent.AppendFormat("        {\n");
-            fileContent.AppendFormat("            g_Log->Warn(LOGFMT_OBJ_TAG(\"parse %s fail data path:%%s line:%%d, lineData:%%s\"), wholePath.c_str(), line, lineData.c_str());\n", className.c_str());
+            fileContent.AppendFormat("            CLOG_WARN(\"parse %s fail data path:%%s line:%%d, lineData:%%s\", wholePath.c_str(), line, lineData.c_str());\n", className.c_str());
             fileContent.AppendFormat("            return Status::Failed;\n");
             fileContent.AppendFormat("        }\n");
             fileContent.AppendFormat("\n");
@@ -2292,7 +2286,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
                             fileContent.AppendFormat("        // check unique\n");
                             fileContent.AppendFormat("        if(%s.find(config->%s) != %s.end())\n", uniqueCheckFieldName.c_str(), memberName.c_str(), uniqueCheckFieldName.c_str());
                             fileContent.AppendFormat("        {\n");
-                            fileContent.AppendFormat("            g_Log->Warn(LOGFMT_OBJ_TAG(\"duplicate %s:%%s data path:%%s line:%%d, lineData:%%s\"), (KERNEL_NS::LibString() << config->%s).c_str(), wholePath.c_str(), line, lineData.c_str());\n", fieldInfo->_fieldName.c_str(), memberName.c_str());
+                            fileContent.AppendFormat("            CLOG_WARN(\"duplicate %s:%%s data path:%%s line:%%d, lineData:%%s\", (KERNEL_NS::LibString() << config->%s).c_str(), wholePath.c_str(), line, lineData.c_str());\n", fieldInfo->_fieldName.c_str(), memberName.c_str());
                             fileContent.AppendFormat("            return Status::Failed;\n");
                             fileContent.AppendFormat("        }\n");
                             fileContent.AppendFormat("\n");
@@ -2310,7 +2304,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("    KERNEL_NS::LibString dataMd5;\n");
             fileContent.AppendFormat("    if(!KERNEL_NS::LibDigest::MakeMd5Final(&ctx, dataMd5))\n");
             fileContent.AppendFormat("    {\n");
-            fileContent.AppendFormat("        g_Log->Error(LOGFMT_OBJ_TAG(\"MakeMd5Final fail wholePath:%%s\"), wholePath.c_str());\n");
+            fileContent.AppendFormat("        CLOG_ERROR(\"MakeMd5Final fail wholePath:%%s\", wholePath.c_str());\n");
             fileContent.AppendFormat("        KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);\n");
             fileContent.AppendFormat("        return Status::Failed;\n");
             fileContent.AppendFormat("    }\n");
@@ -2509,8 +2503,8 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
         fileContent.AppendFormat("            const auto &headerParts = headerCache.Split(\'_\');\n");
         fileContent.AppendFormat("            if(headerParts.size() < 3)\n");
         fileContent.AppendFormat("            {\n");
-        fileContent.AppendFormat("                g_Log->Warn(LOGFMT_OBJ_TAG(\"column field header format error\"));\n");
-        fileContent.AppendFormat("                g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString(\"headerCache:\"), headerCache, KERNEL_NS::LibString(\", content:\"), content);\n");
+        fileContent.AppendFormat("                CLOG_WARN(LOGFMT_OBJ_TAG(\"column field header format error\"));\n");
+        fileContent.AppendFormat("                CLOG_WARN_ARGS(KERNEL_NS::LibString(\"headerCache:\"), headerCache, KERNEL_NS::LibString(\", content:\"), content);\n");
         fileContent.AppendFormat("                return -1;\n");
         fileContent.AppendFormat("            }\n");
         fileContent.AppendFormat("\n");
@@ -2520,8 +2514,8 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
         fileContent.AppendFormat("            bytesOnce = static_cast<Int64>(KERNEL_NS::FileUtil::ReadFile(fp, content, fieldDataLen));\n");
         fileContent.AppendFormat("            if(bytesOnce != fieldDataLen)\n");
         fileContent.AppendFormat("            {\n");
-        fileContent.AppendFormat("                g_Log->Warn(LOGFMT_OBJ_TAG(\"column data error:\"));\n");
-        fileContent.AppendFormat("                g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString(\"headerCache:\"), headerCache, KERNEL_NS::LibString(\", content:\"), content, KERNEL_NS::LibString(\", fieldDataLen:\"), fieldDataLen, KERNEL_NS::LibString(\", real len:\"), bytesOnce, KERNEL_NS::LibString(\", not enough.\"));\n");
+        fileContent.AppendFormat("                CLOG_WARN(\"column data error:\");\n");
+        fileContent.AppendFormat("                CLOG_WARN_ARGS(KERNEL_NS::LibString(\"headerCache:\"), headerCache, KERNEL_NS::LibString(\", content:\"), content, KERNEL_NS::LibString(\", fieldDataLen:\"), fieldDataLen, KERNEL_NS::LibString(\", real len:\"), bytesOnce, KERNEL_NS::LibString(\", not enough.\"));\n");
         fileContent.AppendFormat("                return -1;\n");
         fileContent.AppendFormat("            }\n");
         fileContent.AppendFormat("\n");
@@ -2534,8 +2528,8 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
         fileContent.AppendFormat("            if(((count != fieldNum) && needFieldIds.empty()) ||\n");
         fileContent.AppendFormat("                ((count == fieldNum) && !needFieldIds.empty()))\n");
         fileContent.AppendFormat("            {\n");
-        fileContent.AppendFormat("                g_Log->Warn(LOGFMT_OBJ_TAG(\"column data error: field maybe changed count:%%d, need fieldNum:%%d column fieldIds not empty left:%%d\"), count, fieldNum, static_cast<Int32>(needFieldIds.size()));\n");
-        fileContent.AppendFormat("                g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString(\"configData:\"), configData);\n");
+        fileContent.AppendFormat("                CLOG_WARN(\"column data error: field maybe changed count:%%d, need fieldNum:%%d column fieldIds not empty left:%%d\", count, fieldNum, static_cast<Int32>(needFieldIds.size()));\n");
+        fileContent.AppendFormat("                CLOG_WARN_ARGS(KERNEL_NS::LibString(\"configData:\"), configData);\n");
         fileContent.AppendFormat("                return -1;\n");
         fileContent.AppendFormat("            }\n");
         fileContent.AppendFormat("\n");
@@ -2556,8 +2550,8 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
 
         fileContent.AppendFormat("        }\n");
         fileContent.AppendFormat("    }\n");
-        fileContent.AppendFormat("    g_Log->Warn(LOGFMT_OBJ_TAG(\"column data error: field maybe changed count:%%d, need fieldNum:%%d column fieldIds not empty left:%%d\"), count, fieldNum, static_cast<Int32>(needFieldIds.size()));\n");
-        fileContent.AppendFormat("    g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString(\"configData:\"), configData);\n");
+        fileContent.AppendFormat("    CLOG_WARN(\"column data error: field maybe changed count:%%d, need fieldNum:%%d column fieldIds not empty left:%%d\", count, fieldNum, static_cast<Int32>(needFieldIds.size()));\n");
+        fileContent.AppendFormat("    CLOG_WARN_ARGS(KERNEL_NS::LibString(\"configData:\"), configData);\n");
         fileContent.AppendFormat("\n");
         fileContent.AppendFormat("    return -1;\n");
 
@@ -2605,7 +2599,7 @@ bool XlsxExporterMgr::_ExportCppDatas(const XlsxConfigTableInfo *configInfo, KER
             auto iter = columnRefContent.find(fieldInfo->_columnId);
             if(iter == columnRefContent.end())
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("cant find field data, column id:%llu config:%s, sheet name:%s file name:%s, field name:%s, field data type:%s")
+                CLOG_WARN("cant find field data, column id:%llu config:%s, sheet name:%s file name:%s, field name:%s, field data type:%s"
                         , fieldInfo->_columnId, configInfo->_tableClassName.c_str(), configInfo->_wholeSheetName.c_str(), configInfo->_xlsxPath.c_str()
                         , fieldInfo->_fieldName.c_str(), fieldInfo->_dataType.c_str());
                 continue;
@@ -2634,7 +2628,8 @@ bool XlsxExporterMgr::_ExportCppDatas(const XlsxConfigTableInfo *configInfo, KER
             auto fieldInfo = configInfo->_fieldInfos[columnId];
             if(!fieldInfo)
             {
-                g_Log->Error(LOGFMT_OBJ_TAG("line:%d, columnId:%llu, have no fieldinfo content:%s, _tableClassName:%s"), idx, columnId, content.c_str(), configInfo->_tableClassName.c_str());
+                CLOG_ERROR("line:%d, columnId:%llu, have no fieldinfo content:%s, _tableClassName:%s"
+                , idx, columnId, content.c_str(), configInfo->_tableClassName.c_str());
                 return false;
             }
 
@@ -2688,7 +2683,7 @@ bool XlsxExporterMgr::_ExportCppDatas(const XlsxConfigTableInfo *configInfo, KER
                 }
                 else
                 {
-                    g_Log->Error(LOGFMT_OBJ_TAG("unknown data type:%s line:%d, columnId:%llu, content:%s _tableClassName:%s")
+                    CLOG_ERROR("unknown data type:%s line:%d, columnId:%llu, content:%s _tableClassName:%s"
                             , fieldInfo->_dataType.c_str(), idx, columnId, content.c_str(), configInfo->_tableClassName.c_str());
 
                     return false;
@@ -2728,7 +2723,7 @@ bool XlsxExporterMgr::_ExportMetaFile(const KERNEL_NS::LibString &xlsxPath) cons
         const auto dir =  KERNEL_NS::DirectoryUtil::GetFileDirInPath(metaFile);
         if(dir.empty())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("bad file name:%s"), metaFile.c_str());
+            CLOG_ERROR("bad file name:%s", metaFile.c_str());
             return false;
         }
         if(!KERNEL_NS::DirectoryUtil::CreateDir(dir))
@@ -2742,7 +2737,7 @@ bool XlsxExporterMgr::_ExportMetaFile(const KERNEL_NS::LibString &xlsxPath) cons
     KERNEL_NS::LibString md5;
     if(!_CalcMd5(xlsxPath, md5))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("calc xlsx md5 fail xlsx path:%s, metaFile:%s"), xlsxPath.c_str(), metaFile.c_str());
+        CLOG_WARN("calc xlsx md5 fail xlsx path:%s, metaFile:%s", xlsxPath.c_str(), metaFile.c_str());
         return false;
     }
 
@@ -2755,7 +2750,7 @@ bool XlsxExporterMgr::_ExportMetaFile(const KERNEL_NS::LibString &xlsxPath) cons
         KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp =  KERNEL_NS::FileUtil::OpenFile(metaFile.c_str(), true);
         if(!fp)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("open data file fail when export cpp config xlsxPath:%s, metaFile:%s content:%s.")
+            CLOG_ERROR("open data file fail when export cpp config xlsxPath:%s, metaFile:%s content:%s."
                         , xlsxPath.c_str(), metaFile.c_str(), metaFileRefContent.c_str());
             return false;
         }
@@ -2768,7 +2763,7 @@ bool XlsxExporterMgr::_ExportMetaFile(const KERNEL_NS::LibString &xlsxPath) cons
         auto bytesChange = KERNEL_NS::FileUtil::WriteFile(*fp, metaFileRefContent);
         if(bytesChange != static_cast<Int64>(metaFileRefContent.size()))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("write meta file bytesChange:%lld, content size:%llu,  xlsxPath:%s, metaFile:%s content:%s.")
+            CLOG_ERROR("write meta file bytesChange:%lld, content size:%llu,  xlsxPath:%s, metaFile:%s content:%s."
                         , bytesChange, static_cast<Int64>(metaFileRefContent.size()), xlsxPath.c_str(), metaFile.c_str(), metaFileRefContent.c_str());
             return false;
         }
@@ -2784,7 +2779,7 @@ void XlsxExporterMgr::_ExportCppAllConfigHeaderFile(const KERNEL_NS::LibString &
 
     // 导出allconfigs.h
     const auto rootPath = _targetDir + "/" + lang + "/";
-     g_Log->Custom("start export AllConfigs.h file to dir:%s...", rootPath.c_str());
+    CLOG_CUSTOM("start export AllConfigs.h file to dir:%s...", rootPath.c_str());
 
     auto owner = GetOwner()->CastTo<ConfigExporterApp>();
 
@@ -2841,7 +2836,7 @@ void XlsxExporterMgr::_ExportCppAllConfigHeaderFile(const KERNEL_NS::LibString &
         KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp =  KERNEL_NS::FileUtil::OpenFile(allConfigs.c_str(), true);
         if(!fp)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("open data file fail when export cpp config allConfigs:%s.")
+            CLOG_ERROR("open data file fail when export cpp config allConfigs:%s."
                         , allConfigs.c_str());
             return;
         }
@@ -2854,7 +2849,7 @@ void XlsxExporterMgr::_ExportCppAllConfigHeaderFile(const KERNEL_NS::LibString &
         auto bytesChange = KERNEL_NS::FileUtil::WriteFile(*fp, content);
         if(bytesChange != static_cast<Int64>(content.size()))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("write allconfigs file:[%s] bytesChange:%lld, content size:%llu")
+            CLOG_ERROR("write allconfigs file:[%s] bytesChange:%lld, content size:%llu"
                         , allConfigs.c_str(), bytesChange, static_cast<Int64>(content.size()));
             return;
         }
@@ -2868,7 +2863,7 @@ void XlsxExporterMgr::_ExportCppRegisterConfigs(const KERNEL_NS::LibString &lang
 
     // 导出allconfigs.h
     const auto rootPath = _targetDir + "/" + lang + "/";
-     g_Log->Custom("start export %s file to dir:%s...", _registerAllConfigs.c_str(), rootPath.c_str());
+    CLOG_CUSTOM("start export %s file to dir:%s...", _registerAllConfigs.c_str(), rootPath.c_str());
 
     auto owner = GetOwner()->CastTo<ConfigExporterApp>();
 
@@ -2911,8 +2906,7 @@ void XlsxExporterMgr::_ExportCppRegisterConfigs(const KERNEL_NS::LibString &lang
         KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp =  KERNEL_NS::FileUtil::OpenFile(file.c_str(), true);
         if(!fp)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("open data file fail when export cpp config allConfigs:%s.")
-                        , file.c_str());
+            CLOG_ERROR("open data file fail when export cpp config allConfigs:%s.", file.c_str());
             return;
         }
 
@@ -2924,7 +2918,7 @@ void XlsxExporterMgr::_ExportCppRegisterConfigs(const KERNEL_NS::LibString &lang
         auto bytesChange = KERNEL_NS::FileUtil::WriteFile(*fp, content);
         if(bytesChange != static_cast<Int64>(content.size()))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("write allconfigs file:[%s] bytesChange:%lld, content size:%llu")
+            CLOG_ERROR("write allconfigs file:[%s] bytesChange:%lld, content size:%llu"
                         , file.c_str(), bytesChange, static_cast<Int64>(content.size()));
             return;
         }

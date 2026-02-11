@@ -43,7 +43,7 @@ extern "C"
     {
         Entry::Run();
 
-        CLOG_INFO(Entry, "Entry inited.");
+        CLOG_INFO_GLOBAL(Entry, "Entry inited.");
 
         return 0;
     }
@@ -57,7 +57,7 @@ extern "C"
         accountInfo.Pwd.AppendData(pwd, pwdLen);
         TestAccount::AccountInfo = accountInfo;
         
-        CLOG_INFO(Entry, "ClientSet accountInfo set: ip:%s, port:%d, account:%s, pwd:%s", accountInfo.ip.c_str(), accountInfo.port, accountInfo.Account.c_str(), accountInfo.Pwd.c_str());
+        CLOG_INFO_GLOBAL(Entry, "ClientSet accountInfo set: ip:%s, port:%d, account:%s, pwd:%s", accountInfo.ip.c_str(), accountInfo.port, accountInfo.Account.c_str(), accountInfo.Pwd.c_str());
     }
 
 
@@ -65,7 +65,7 @@ extern "C"
     {
         if (UNLIKELY(!Entry::EntryThread))
         {
-            CLOG_ERROR(Entry, "Entry Thread not init...");
+            CLOG_ERROR_GLOBAL(Entry, "Entry Thread not init...");
             return;
         }
         Entry::EntryThread->Start();
@@ -73,7 +73,7 @@ extern "C"
         // 等待app启动
         while (Entry::Application.load(std::memory_order_acquire) == NULL)
         {
-            CLOG_INFO(Entry, "waiting for app started...");
+            CLOG_INFO_GLOBAL(Entry, "waiting for app started...");
             KERNEL_NS::SystemUtil::ThreadSleep(KERNEL_NS::TimeSlice::FromSeconds(1).GetTotalMilliSeconds());
         }
 
@@ -83,19 +83,19 @@ extern "C"
         auto serviceProxy = app->GetComp<SERVICE_COMMON_NS::ServiceProxy>();
         while (!serviceProxy->IsServiceReady("Client"))
         {
-            CLOG_INFO(Entry, "waiting for service started...");
+            CLOG_INFO_GLOBAL(Entry, "waiting for service started...");
             KERNEL_NS::SystemUtil::ThreadSleep(KERNEL_NS::TimeSlice::FromSeconds(1).GetTotalMilliSeconds());
         }
 
         auto services = serviceProxy->GetServices("Client");
         Entry::Service.exchange(services[0]);
 
-        CLOG_INFO(Entry, "service started:%s...", Entry::Service.load(std::memory_order_acquire)->ToString().c_str());
+        CLOG_INFO_GLOBAL(Entry, "service started:%s...", Entry::Service.load(std::memory_order_acquire)->ToString().c_str());
     }
 
     void ClientClose()
     {
-        CLOG_INFO(Entry, "Entry will close...");
+        CLOG_INFO_GLOBAL(Entry, "Entry will close...");
 
         Entry::Service.exchange(NULL);
         KERNEL_NS::SystemUtil::ThreadSleep(KERNEL_NS::TimeSlice::FromSeconds(1).GetTotalMilliSeconds());
@@ -109,7 +109,7 @@ extern "C"
             Entry::EntryThread->Close();
         }
 
-        CLOG_INFO(Entry, "Entry closed");
+        CLOG_INFO_GLOBAL(Entry, "Entry closed");
 
         // KERNEL_NS::KernelUtil::Destroy();
     }
@@ -129,7 +129,7 @@ extern "C"
         auto service = Entry::Service.load(std::memory_order_acquire);
         if (!service)
         {
-            CLOG_WARN(Entry, "SendLog have no service uid:%lld, bufferSize:%d", uid, bufferSize);
+            CLOG_WARN_GLOBAL(Entry, "SendLog have no service uid:%lld, bufferSize:%d", uid, bufferSize);
             return;
         }
 
@@ -141,7 +141,7 @@ extern "C"
         auto deleg = KERNEL_CREATE_CLOSURE_DELEGATE(lamb, void);
         service->GetPoller()->Push(deleg);
 
-        CLOG_DEBUG(Entry, "SendLog uid:%lld, bufferSize:%d", uid, bufferSize);
+        CLOG_DEBUG_GLOBAL(Entry, "SendLog uid:%lld, bufferSize:%d", uid, bufferSize);
     }
 
 }

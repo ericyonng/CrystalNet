@@ -82,7 +82,7 @@ void ExporterMgr::_ExportConfigs()
         auto iter = kv.find(key);
         if(iter != kv.end())
         {
-            CLOG_WARN(ExporterMgr, "repeated kv:%s=>%s, old kv:%s=>%s", key.c_str(), value.c_str(), iter->first.c_str(), iter->second.c_str());
+            CLOG_WARN_GLOBAL(ExporterMgr, "repeated kv:%s=>%s, old kv:%s=>%s", key.c_str(), value.c_str(), iter->first.c_str(), iter->second.c_str());
             return false;
         }
 
@@ -98,7 +98,7 @@ void ExporterMgr::_ExportConfigs()
         auto iterConfig = kv.find("--config");
         if(iterConfig == kv.end())
         {
-            CLOG_WARN(ExporterMgr, "have no config set please select a config to export.");
+            CLOG_WARN_GLOBAL(ExporterMgr, "have no config set please select a config to export.");
             err = Status::ParamError;
             break;
         }
@@ -109,14 +109,14 @@ void ExporterMgr::_ExportConfigs()
             err = xlsxExporter->ExportConfigs(kv);
             if(err != Status::Success)
             {
-                CLOG_WARN(ExporterMgr, "xlsx export config fail err:%d", err);
+                CLOG_WARN_GLOBAL(ExporterMgr, "xlsx export config fail err:%d", err);
                 break;
             }
         }
         else
         {
             err = Status::ParamError;
-            CLOG_WARN(ExporterMgr, "cant surport current config:%s export!!!", iterConfig->second.c_str());
+            CLOG_WARN_GLOBAL(ExporterMgr, "cant surport current config:%s export!!!", iterConfig->second.c_str());
             break;
         }
 

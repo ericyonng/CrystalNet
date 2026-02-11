@@ -49,7 +49,7 @@ bool Client::Run(int argc, char const *argv[])
     {
         Entry::Application.exchange(NULL, std::memory_order_release);
 
-        CLOG_ERROR(Client, "app fail err:%d", err);
+        CLOG_ERROR_GLOBAL(Client, "app fail err:%d", err);
         return false;
     }
 

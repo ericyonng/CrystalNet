@@ -79,7 +79,7 @@ bool Entry::Run()
 
     KERNEL_NS::KernelUtil::Start();
 
-    CLOG_INFO(KERNEL_NS::KernelUtil, "kernel started paramNum:%d. \nsucParamsInfo:\n%s, errParamsInfo:\n%s.", paramNum, sucParamsInfo.c_str(), errParamsInfo.c_str());
+    CLOG_INFO_GLOBAL(KERNEL_NS::KernelUtil, "kernel started paramNum:%d. \nsucParamsInfo:\n%s, errParamsInfo:\n%s.", paramNum, sucParamsInfo.c_str(), errParamsInfo.c_str());
 
     Entry::EntryThread = new KERNEL_NS::LibThread();
     Entry::EntryThread->AddTask2([](KERNEL_NS::LibThread *thread, KERNEL_NS::Variant *var)

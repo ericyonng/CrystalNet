@@ -278,7 +278,7 @@ ALWAYS_INLINE Int32 LibSocket::Create(Int32 af, Int32 type, Int32 protocol)
     Int32 err = _Create(af, type, protocol);
     if(err != Status::Success)
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("create sock fail err:%d"), err);
+        CLOG_WARN("create sock fail err:%d", err);
         return err;
     }
 
@@ -299,7 +299,7 @@ ALWAYS_INLINE Int32 LibSocket::TakeOver(SOCKET sock, Int32 af, Int32 type, Int32
     Int32 err = _TakeOver(sock, af, type, protocol, isLinker, isNonBlock);
     if(err != Status::Success)
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("_takerover fail err:%d"), err);
+        CLOG_WARN("_takerover fail err:%d", err);
         return err;
     }
 
@@ -396,7 +396,7 @@ ALWAYS_INLINE void LibSocket::_OnSetOption(Int32 level, Int32 optname, const voi
     const Int32 flagPos = LibSocketOptionFlag::ToOptionFlag(level, optname);
     if(UNLIKELY(flagPos == LibSocketOptionFlag::Unknown))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("optname is unknown level:%d, optname:%d socket info::%s"), level, optname, ToString().c_str());
+        CLOG_WARN("optname is unknown level:%d, optname:%d socket info::%s", level, optname, ToString().c_str());
         return;
     }
 

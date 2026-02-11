@@ -63,7 +63,7 @@ Int32 CloseProcess::Run(int argc, char const *argv[])
                     const auto &parts = param.Split("=");
                     if(static_cast<Int32>(parts.size()) != 2)
                     {
-                        CLOG_WARN(CloseProcess, "is_likely param error param:%s", param.c_str());
+                        CLOG_WARN_GLOBAL(CloseProcess, "is_likely param error param:%s", param.c_str());
                         ret = false;
                         break;
                     }
@@ -78,7 +78,7 @@ Int32 CloseProcess::Run(int argc, char const *argv[])
                     const auto &value = parts[1].strip();
                     if(!value.isdigit())
                     {
-                        CLOG_WARN(CloseProcess, "is_likely value not number error param:%s", param.c_str());
+                        CLOG_WARN_GLOBAL(CloseProcess, "is_likely value not number error param:%s", param.c_str());
                         ret = false;
                         break;
                     }
@@ -93,7 +93,7 @@ Int32 CloseProcess::Run(int argc, char const *argv[])
                     const auto &parts = param.Split("=");
                     if(static_cast<Int32>(parts.size()) != 2)
                     {
-                        CLOG_WARN(CloseProcess, "is_match_path param error param:%s", param.c_str());
+                        CLOG_WARN_GLOBAL(CloseProcess, "is_match_path param error param:%s", param.c_str());
                         ret = false;
                         break;
                     }
@@ -108,7 +108,7 @@ Int32 CloseProcess::Run(int argc, char const *argv[])
                     const auto &value = parts[1].strip();
                     if(!value.isdigit())
                     {
-                        CLOG_WARN(CloseProcess, "is_match_path value not number error param:%s", param.c_str());
+                        CLOG_WARN_GLOBAL(CloseProcess, "is_match_path value not number error param:%s", param.c_str());
                         ret = false;
                         break;
                     }
@@ -123,7 +123,7 @@ Int32 CloseProcess::Run(int argc, char const *argv[])
                     const auto &parts = param.Split("=");
                     if(static_cast<Int32>(parts.size()) != 2)
                     {
-                        CLOG_WARN(CloseProcess, "is_waiting_close param error param:%s", param.c_str());
+                        CLOG_WARN_GLOBAL(CloseProcess, "is_waiting_close param error param:%s", param.c_str());
                         ret = false;
                         break;
                     }
@@ -138,7 +138,7 @@ Int32 CloseProcess::Run(int argc, char const *argv[])
                     const auto &value = parts[1].strip();
                     if(!value.isdigit())
                     {
-                        CLOG_WARN(CloseProcess, "is_waiting_close value not number error param:%s", param.c_str());
+                        CLOG_WARN_GLOBAL(CloseProcess, "is_waiting_close value not number error param:%s", param.c_str());
                         ret = false;
                         break;
                     }
@@ -179,7 +179,7 @@ Int32 CloseProcess::Run(int argc, char const *argv[])
             auto fp = KERNEL_NS::FileUtil::OpenFile(killFile.c_str(), true, "rb");
             if(!fp)
             {
-                CLOG_WARN(CloseProcess, "create kill file fail. file:%s", killFile.c_str());
+                CLOG_WARN_GLOBAL(CloseProcess, "create kill file fail. file:%s", killFile.c_str());
             }
             else
             {
@@ -209,7 +209,7 @@ Int32 CloseProcess::Run(int argc, char const *argv[])
     }
     else
     {
-        CLOG_WARN(CloseProcess, "cant find process:%s", killProcessName.c_str());
+        CLOG_WARN_GLOBAL(CloseProcess, "cant find process:%s", killProcessName.c_str());
     }
 
     return Status::Success;

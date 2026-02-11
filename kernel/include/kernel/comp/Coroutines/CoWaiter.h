@@ -93,7 +93,7 @@ struct KERNEL_EXPORT CoWaiter: private NonCopyable
                         callerHandle->GetParam()->_errCode = Status::CoTaskTimeout;
                         KERNEL_NS::LibString content;
                         callerHandle->GetBacktrace(content);
-                        g_Log->Warn(LOGFMT_NON_OBJ_TAG(CoWaiter, "co time out, backtrace:%s"), content.c_str());
+                        CLOG_WARN_GLOBAL(CoWaiter, "co time out, backtrace:%s", content.c_str());
                         callerHandle->Run(KERNEL_NS::KernelHandle::UNSCHEDULED);
                     }
                     while (false);

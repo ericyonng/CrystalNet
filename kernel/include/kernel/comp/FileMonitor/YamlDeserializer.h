@@ -96,13 +96,18 @@ public:
             catch (std::exception &e)
             {
                 if (g_Log)
-                    g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "yaml deserialize fail, path:%s, exception:%s")
+                {
+                    CLOG_ERROR_GLOBAL(YamlDeserializer, "yaml deserialize fail, path:%s, exception:%s")
                     , path.c_str(), e.what());
+                }
+
             }
             catch (...)
             {
                 if (g_Log)
-                    g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "yaml deserialize fail, path:%s"), path.c_str());
+                {
+                    CLOG_ERROR_GLOBAL(YamlDeserializer, "yaml deserialize fail, path:%s", path.c_str());
+                }
             }
 
             return yamlOption;

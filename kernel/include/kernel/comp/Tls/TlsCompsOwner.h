@@ -23,7 +23,7 @@
  * 
  * Date: 2024-08-17 11:55:14
  * Author: Eric Yonng
- * Description: 
+ * Description: 注意TlsCompsOwner相关的组件,g_Log需要判空, 因为g_Log可能在TlCompsOwner初始化之后初始化, 详情见线程池的初始化, 线程池的初始化在g_Log之前,线程初始化的时候会初始化TlsCompsOwner
 */
 
 #ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TLS_TLS_COMPS_OWNER_H__

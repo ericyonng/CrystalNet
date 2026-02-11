@@ -64,8 +64,10 @@ Int32 TlsMemoryCleanerComp::ManualStart()
 {
     if(!_isManualStart)
     {
-        if(g_Log && g_Log->IsEnable(LogLevel::Info))
-            g_Log->Info(LOGFMT_OBJ_TAG("tls memory cleaner not in manual mode please check."));
+        if(g_Log)
+        {
+            CLOG_INFO("tls memory cleaner not in manual mode please check.");
+        }
 
         return Status::Failed;
     }
@@ -77,8 +79,10 @@ void TlsMemoryCleanerComp::ManualClose()
 {
     if(!_isManualStart)
     {
-        if(g_Log && g_Log->IsEnable(LogLevel::Info))
-            g_Log->Info(LOGFMT_OBJ_TAG("tls memory cleaner not in manual mode please check."));
+        if(g_Log)
+        {
+            CLOG_INFO("tls memory cleaner not in manual mode please check.");
+        }
 
         return;
     }
@@ -89,7 +93,9 @@ void TlsMemoryCleanerComp::ManualClose()
     _Clear();
 
     if(g_Log)
-        g_Log->Info(LOGFMT_OBJ_TAG("tls memory cleaner comp will ManualClose success thread id:%llu."), SystemUtil::GetCurrentThreadId());
+    {
+        CLOG_INFO("tls memory cleaner comp will ManualClose success thread id:%llu.", SystemUtil::GetCurrentThreadId());
+    }
 }
 
 void TlsMemoryCleanerComp::OnTimerMgrChange(TimerMgr *timerMgr)
@@ -116,8 +122,10 @@ Int32 TlsMemoryCleanerComp::_OnInit()
 {
     if(_isManualStart)
     {
-        if(g_Log && g_Log->IsEnable(LogLevel::Warn))
-            g_Log->Warn(LOGFMT_OBJ_TAG("tls memory cleaner switch manual mode start."));
+        if(g_Log)
+        {
+            CLOG_WARN("tls memory cleaner switch manual mode start."));
+        }
 
         return Status::Success;
     }
@@ -129,8 +137,10 @@ Int32 TlsMemoryCleanerComp::_OnStart()
 {
     if(_isManualStart)
     {
-        if(g_Log && g_Log->IsEnable(LogLevel::Warn))
-            g_Log->Warn(LOGFMT_OBJ_TAG("tls memory cleaner switch manual mode start."));
+        if(g_Log)
+        {
+            CLOG_WARN("tls memory cleaner switch manual mode start.");
+        }
 
         return Status::Success;
     }
@@ -142,8 +152,10 @@ void TlsMemoryCleanerComp::_OnWillClose()
 {
     if(_isManualStart)
     {
-        if(g_Log && g_Log->IsEnable(LogLevel::Warn))
-            g_Log->Warn(LOGFMT_OBJ_TAG("tls memory cleaner switch manual mode and will do manual close please check."));
+        if(g_Log)
+        {
+            CLOG_WARN("tls memory cleaner switch manual mode and will do manual close please check.");
+        }
 
         return;
     }
@@ -153,7 +165,9 @@ void TlsMemoryCleanerComp::_OnWillClose()
 
     _Clear();
     if(g_Log)
-        g_Log->Info(LOGFMT_OBJ_TAG("tls memory cleaner comp will close success thread id:%llu."), SystemUtil::GetCurrentThreadId());
+    {
+        CLOG_INFO("tls memory cleaner comp will close success thread id:%llu.", SystemUtil::GetCurrentThreadId());
+    }
 }
 
 void TlsMemoryCleanerComp::_Clear()

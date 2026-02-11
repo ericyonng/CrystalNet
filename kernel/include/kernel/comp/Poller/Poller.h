@@ -384,8 +384,10 @@ public:
             if(pa->_errCode != Status::Success)
             {
                 if (g_Log)
-                    g_Log->Warn(LOGFMT_OBJ_TAG("waiting err:%d, stub:%llu, lambda:%s")
+                {
+                    CLOG_WARN("waiting err:%d, stub:%llu, lambda:%s"
                     , pa->_errCode, stub, KERNEL_NS::RttiUtil::GetByObj(&lamb).c_str());
+                }
                 
                 UnSubscribeStubEvent(stub);
             }
@@ -511,8 +513,10 @@ public:
             if(pa->_errCode != Status::Success)
             {
                 if (g_Log)
-                    g_Log->Warn(LOGFMT_OBJ_TAG("waiting err:%d, stub:%llu, req:%p")
+                {
+                    CLOG_WARN("waiting err:%d, stub:%llu, req:%p"
                     , pa->_errCode, stub, req);
+                }
                 
                 UnSubscribeStubEvent(stub);
             }
@@ -878,9 +882,11 @@ ALWAYS_INLINE void Poller::SubscribeObjectEvent(UInt64 objectTypeId, IDelegate<v
     auto iter = _objTypeIdRefCallback.find(objectTypeId);
     if (iter != _objTypeIdRefCallback.end())
     {
-        if (g_Log && g_Log->IsEnable(LogLevel::Warn))
-            g_Log->Warn(LOGFMT_OBJ_TAG("repeat object event, object type id:%llu, older cb:%s, older cb owner:%s, new cb:%s, new cb owner:%s")
+        if (g_Log)
+        {
+            CLOG_WARN("repeat object event, object type id:%llu, older cb:%s, older cb owner:%s, new cb:%s, new cb owner:%s"
                 , objectTypeId, iter->second->GetCallbackRtti().c_str(), iter->second->GetOwnerRtti().c_str(), cb->GetCallbackRtti().c_str(), cb->GetOwnerRtti().c_str());
+        }
 
         iter->second->Release();
         _objTypeIdRefCallback.erase(iter);
@@ -909,9 +915,11 @@ ALWAYS_INLINE void Poller::UnSubscribeObjectEvent(UInt64 objectTypeId)
     if (iter == _objTypeIdRefCallback.end())
         return;
 
-    if (g_Log && g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
-        g_Log->Debug(LOGFMT_OBJ_TAG("UnSubscribeObjectEvent objectTypeId:%llu => callback:(%s) owner:%s.")
+    if (g_Log)
+    {
+        CLOG_DEBUG("UnSubscribeObjectEvent objectTypeId:%llu => callback:(%s) owner:%s."
             , objectTypeId, iter->second->GetCallbackRtti().c_str(), iter->second->GetOwnerRtti().c_str());
+    }
 
     iter->second->Release();
     _objTypeIdRefCallback.erase(iter);
@@ -946,9 +954,11 @@ ALWAYS_INLINE void Poller::SubscribeStubEvent(UInt64 stub, LambType &&cb)
     auto iter = _stubRefCb.find(stub);
     if (iter != _stubRefCb.end())
     {
-        if (g_Log && g_Log->IsEnable(LogLevel::Warn))
-            g_Log->Warn(LOGFMT_OBJ_TAG("repeated stub:%llu => callback, and will release older cb:%s, older cb owner:%s.")
+        if (g_Log)
+        {
+            CLOG_WARN("repeated stub:%llu => callback, and will release older cb:%s, older cb owner:%s."
             , stub, iter->second->GetCallbackRtti().c_str(), iter->second->GetOwnerRtti().c_str());
+        }
             
         iter->second->Release();
         _stubRefCb.erase(iter);
@@ -964,8 +974,10 @@ ALWAYS_INLINE void Poller::UnSubscribeStubEvent(UInt64 stub)
     if (iter == _stubRefCb.end())
         return;
 
-    if (g_Log && g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
-        g_Log->Debug(LOGFMT_OBJ_TAG("unsubscribe stub:%llu => callback:(%s) owner:%s."), stub, iter->second->GetCallbackRtti().c_str(), iter->second->GetOwnerRtti().c_str());
+    if (g_Log)
+    {
+        CLOG_DEBUG("unsubscribe stub:%llu => callback:(%s) owner:%s.", stub, iter->second->GetCallbackRtti().c_str(), iter->second->GetOwnerRtti().c_str());
+    }
 
     iter->second->Release();
     _stubRefCb.erase(iter);

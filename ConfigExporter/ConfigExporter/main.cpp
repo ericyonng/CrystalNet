@@ -71,7 +71,7 @@ int main(int argc, char const *argv[])
 
     KERNEL_NS::KernelUtil::Start();
 
-    CLOG_INFO(KERNEL_NS::KernelUtil, "kernel started.");
+    CLOG_INFO_GLOBAL(KERNEL_NS::KernelUtil, "kernel started.");
 
     err = ConfigExporter::Run(argc, argv);
 

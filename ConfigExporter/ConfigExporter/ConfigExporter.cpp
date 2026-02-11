@@ -47,14 +47,14 @@ Int32 ConfigExporter::Run(int argc, char const *argv[])
     auto err = app->Init();
     if(err != Status::Success)
     {
-        CLOG_ERROR(ConfigExporter, "init fail err:%d", err);
+        CLOG_ERROR_GLOBAL(ConfigExporter, "init fail err:%d", err);
         return err;
     }
 
     err = app->Start();
     if(err != Status::Success)
     {
-        CLOG_ERROR(ConfigExporter, "start fail err:%d", err);
+        CLOG_ERROR_GLOBAL(ConfigExporter, "start fail err:%d", err);
         return err;
     }
 
