@@ -39,7 +39,7 @@ static bool PartitionFile(const KERNEL_NS::LibString &filePath, Int64 partitionS
     // 生成序号连续的文件
     if(!KERNEL_NS::FileUtil::IsFileExist(filePath.c_str()))
     {
-        g_Log->Warn(LOGFMT_NON_OBJ_TAG(FileTool, "file:%s not found."), filePath.c_str());
+        CLOG_WARN_GLOBAL(FileTool, "file:%s not found.", filePath.c_str());
         return false;
     }
 
@@ -57,7 +57,7 @@ static bool PartitionFile(const KERNEL_NS::LibString &filePath, Int64 partitionS
     KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp = KERNEL_NS::FileUtil::OpenFile(filePath.c_str());
     if(!fp)
     {
-        g_Log->Warn(LOGFMT_NON_OBJ_TAG(FileTool, "open file fail %s"), filePath.c_str());
+        CLOG_WARN_GLOBAL(FileTool, "open file fail %s", filePath.c_str());
         return false;
     }
 
@@ -67,8 +67,7 @@ static bool PartitionFile(const KERNEL_NS::LibString &filePath, Int64 partitionS
     });
 
 
-    g_Log->Custom("[PARTITION FILE]:%s start..."
-            , KERNEL_NS::DirectoryUtil::GetFileNameInPath(filePath).c_str());
+    CLOG_CUSTOM("[PARTITION FILE]:%s start...", KERNEL_NS::DirectoryUtil::GetFileNameInPath(filePath).c_str());
 
     FILE *dest = NULL;
     const Int64 rBytes = 1024 * 1024;
@@ -81,18 +80,18 @@ static bool PartitionFile(const KERNEL_NS::LibString &filePath, Int64 partitionS
         auto ret = KERNEL_NS::FileUtil::ReadFile(*fp, outData, std::min<Int64>(rBytes, leftBytes));
         if(ret == 0)
         {
-            g_Log->Warn(LOGFMT_NON_OBJ_TAG(FileTool, "read file fail %s"), filePath.c_str());
+            CLOG_WARN_GLOBAL(FileTool, "read file fail %s", filePath.c_str());
             return false;
         }
         
         if(!dest)
         {
             auto destFilePath = filePath + KERNEL_NS::LibString().AppendFormat(".part%d", partNo);
-            g_Log->Custom("[... ...] %s", KERNEL_NS::DirectoryUtil::GetFileNameInPath(destFilePath).c_str());
+            CLOG_CUSTOM("[... ...] %s", KERNEL_NS::DirectoryUtil::GetFileNameInPath(destFilePath).c_str());
             dest = KERNEL_NS::FileUtil::OpenFile(destFilePath.c_str(), true);
             if(!dest)
             {
-                g_Log->Warn(LOGFMT_NON_OBJ_TAG(FileTool, "open fail fail destFilePath:%s"), destFilePath.c_str());
+                CLOG_WARN_GLOBAL(FileTool, "open fail fail destFilePath:%s", destFilePath.c_str());
                 return false;
             }
         }
@@ -164,7 +163,7 @@ static bool MergeFile(const KERNEL_NS::LibString &target)
     
     if(!hasPartFile)
     {
-        g_Log->Warn(LOGFMT_NON_OBJ_TAG(FileTool, "have no part file, target:%s"), target.c_str());
+        CLOG_WARN_GLOBAL(FileTool, "have no part file, target:%s", target.c_str());
         return false;
     }
 
@@ -181,12 +180,11 @@ static bool MergeFile(const KERNEL_NS::LibString &target)
 
     if(partNoStart < 0)
     {
-        g_Log->Warn(LOGFMT_NON_OBJ_TAG(FileTool, "have no part file to merge, target:%s"), target.c_str());
+        CLOG_WARN_GLOBAL(FileTool, "have no part file to merge, target:%s", target.c_str());
         return false;
     }
 
-    g_Log->Custom("[MERGE FILE] >> %s start..."
-            , KERNEL_NS::DirectoryUtil::GetFileNameInPath(target).c_str());
+    CLOG_CUSTOM("[MERGE FILE] >> %s start...", KERNEL_NS::DirectoryUtil::GetFileNameInPath(target).c_str());
 
     // 开始合并
     FILE *dest = NULL;
@@ -207,7 +205,7 @@ static bool MergeFile(const KERNEL_NS::LibString &target)
             dest = KERNEL_NS::FileUtil::OpenFile(target.c_str(), true);
         }
 
-        g_Log->Custom("\t[%s] >> [%s]", KERNEL_NS::DirectoryUtil::GetFileNameInPath(partFile).c_str(), KERNEL_NS::DirectoryUtil::GetFileNameInPath(target).c_str());
+        CLOG_CUSTOM("\t[%s] >> [%s]", KERNEL_NS::DirectoryUtil::GetFileNameInPath(partFile).c_str(), KERNEL_NS::DirectoryUtil::GetFileNameInPath(target).c_str());
 
         auto src = KERNEL_NS::FileUtil::OpenFile(partFile.c_str());
         KERNEL_NS::FileUtil::CopyFile(*src, *dest);
@@ -263,12 +261,12 @@ void FileTool::Run(int argc, char const *argv[])
 
     if(rootPath.empty())
     {
-        g_Log->Warn(LOGFMT_NON_OBJ_TAG(FileTool, "have no root path"));
+        CLOG_WARN_GLOBAL(FileTool, "have no root path");
         return;
     }
     if(func.empty())
     {
-        g_Log->Warn(LOGFMT_NON_OBJ_TAG(FileTool, "have no func"));
+        CLOG_WARN_GLOBAL(FileTool, "have no func");
         return;
     }
 
@@ -278,7 +276,7 @@ void FileTool::Run(int argc, char const *argv[])
             KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp = KERNEL_NS::FileUtil::OpenFile(partitionTargetsPath.c_str());
             if(!fp)
             {
-                g_Log->Warn(LOGFMT_NON_OBJ_TAG(FileTool, "open file fail :%s"), partitionTargetsPath.c_str());
+                CLOG_WARN_GLOBAL(FileTool, "open file fail :%s", partitionTargetsPath.c_str());
                 return;
             }
 
@@ -307,7 +305,7 @@ void FileTool::Run(int argc, char const *argv[])
             KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp = KERNEL_NS::FileUtil::OpenFile(partitionTargetsPath.c_str());
             if(!fp)
             {
-                g_Log->Warn(LOGFMT_NON_OBJ_TAG(FileTool, "open file fail :%s"), partitionTargetsPath.c_str());
+                CLOG_WARN_GLOBAL(FileTool, "open file fail :%s", partitionTargetsPath.c_str());
                 return;
             }
 

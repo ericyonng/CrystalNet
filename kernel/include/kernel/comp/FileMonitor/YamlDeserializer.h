@@ -97,8 +97,7 @@ public:
             {
                 if (g_Log)
                 {
-                    CLOG_ERROR_GLOBAL(YamlDeserializer, "yaml deserialize fail, path:%s, exception:%s")
-                    , path.c_str(), e.what());
+                    CLOG_ERROR_GLOBAL(YamlDeserializer, "yaml deserialize fail, path:%s, exception:%s", path.c_str(), e.what());
                 }
 
             }

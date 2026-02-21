@@ -78,8 +78,7 @@ void IApplication::WaitFinish(Int32 &err)
     if(!_poller->PrepareLoop())
     {
         err = _runErr.load(std::memory_order_acquire);
-        g_Log->Error(LOGFMT_OBJ_TAG("application %s prepare loop fail run err:%d.")
-                    , _appName.c_str(), _runErr.load(std::memory_order_acquire));
+        CLOG_ERROR("application %s prepare loop fail run err:%d.", _appName.c_str(), _runErr.load(std::memory_order_acquire));
         return;
     }
 
@@ -146,7 +145,9 @@ Int32 IApplication::_OnHostInit()
     _appName = SystemUtil::GetCurProgramNameWithoutExt();
     Int32 errCode = SystemUtil::GetProgramPath(true, _path);
     if(errCode != Status::Success)
-        g_Log->Warn(LOGFMT_OBJ_TAG("get program path fail errCode:%d"), errCode);
+    {
+        CLOG_WARN("get program path fail errCode:%d", errCode);
+    }
 
     _processId = SystemUtil::GetCurProcessId();
     _cpuCoreAmount = g_cpu->GetCpuCoreCnt();
@@ -167,7 +168,7 @@ Int32 IApplication::_OnHostInit()
         ReleaseDC(hwnd, NULL);
     #endif
 
-    g_Log->Info(LOGFMT_OBJ_TAG("app %s init suc."), _appName.c_str());
+    CLOG_INFO("app %s init suc.", _appName.c_str());
 
     return Status::Success;
 }
@@ -190,21 +191,21 @@ Int32 IApplication::_OnPriorityLevelCompsCreated()
 // 所有组件创建完成
 Int32 IApplication::_OnCompsCreated()
 {
-    g_Log->Info(LOGFMT_OBJ_TAG("app %s comps created."), _appName.c_str());
+    CLOG_INFO("app %s comps created.", _appName.c_str());
     return Status::Success;
 }
 
 // 在组件启动之前
 Int32 IApplication::_OnHostWillStart()
 {
-    g_Log->Info(LOGFMT_OBJ_TAG("app %s host will start."), _appName.c_str());
+    CLOG_INFO("app %s host will start.",  _appName.c_str());
     return Status::Success;
 }
 
 // 组件启动之后
 Int32 IApplication::_OnHostStart()
 {
-    g_Log->Info(LOGFMT_OBJ_TAG("app:%s started."), _appName.c_str());
+    CLOG_INFO("app:%s started.", _appName.c_str());
 
     return Status::Success;
 }
@@ -212,18 +213,18 @@ Int32 IApplication::_OnHostStart()
 // 在组件willclose之后
 void IApplication::_OnHostWillClose()
 {
-    g_Log->Info(LOGFMT_OBJ_TAG("app %s host will close."), _appName.c_str());
+    CLOG_INFO("app %s host will close.", _appName.c_str());
 }
 
 // 在组件Close之后
 void IApplication::_OnHostClose()
 {
-    g_Log->Info(LOGFMT_OBJ_TAG("app %s host closed."), _appName.c_str());
+    CLOG_INFO("app %s host closed.", _appName.c_str());
 }
 
 void IApplication::_OnHostUpdate()
 {
-    g_Log->Info(LOGFMT_OBJ_TAG("app %s on update."), _appName.c_str());
+    CLOG_INFO("app %s on update.", _appName.c_str());
 }
 
 KERNEL_END

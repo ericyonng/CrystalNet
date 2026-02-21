@@ -124,7 +124,7 @@ Int32 TlsMemoryCleanerComp::_OnInit()
     {
         if(g_Log)
         {
-            CLOG_WARN("tls memory cleaner switch manual mode start."));
+            CLOG_WARN("tls memory cleaner switch manual mode start.");
         }
 
         return Status::Success;
@@ -188,8 +188,10 @@ Int32 TlsMemoryCleanerComp::_DoStart()
 {
     if(UNLIKELY(!_timerMgr))
     {
-        if(g_Log && g_Log->IsEnable(LogLevel::Warn))
-            g_Log->Warn(LOGFMT_OBJ_TAG("need timer mgr please check."));
+        if(g_Log)
+        {
+            CLOG_WARN("need timer mgr please check.");
+        }
 
         return Status::Failed;
     }
@@ -201,7 +203,9 @@ Int32 TlsMemoryCleanerComp::_DoStart()
     _tlsDefaultObj = TlsUtil::GetDefTls();
 
     if (g_Log)
-        g_Log->Info(LOGFMT_OBJ_TAG("tls memory cleaner comp start success thread id:%llu."), SystemUtil::GetCurrentThreadId());
+    {
+        CLOG_INFO("tls memory cleaner comp start success thread id:%llu.", SystemUtil::GetCurrentThreadId());
+    }
 
     return Status::Success;
 }

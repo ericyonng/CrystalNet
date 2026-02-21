@@ -46,48 +46,48 @@ CompObject::~CompObject()
     _Clear();
 }
 
-void IObject::ChangeObjTypeId(UInt64 objTypeId)
-{
-    // 不轻易改变对象的类型id,需要打堆栈出来追溯
-    auto oldId = _objTypeId;
-    _objTypeId = objTypeId;
-    if(g_Log)
-        g_Log->Info(LOGFMT_OBJ_TAG("change obj type, old id:%llu, new id:%llu, backtrace:%s")
-    , oldId, _objTypeId, KERNEL_NS::BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
-}
-
 Int32 CompObject::_OnCreated()
 {
     if (g_Log)
-        g_Log->Debug(LOGFMT_OBJ_TAG("created suc comp info obj name:%s."), GetObjName().c_str());
+    {
+        CLOG_DEBUG("created suc comp info obj name:%s.", GetObjName().c_str());
+    }
     return Status::Success;
 }
 
 Int32 CompObject::_OnInit()
 {
     if (g_Log)
-        g_Log->Debug(LOGFMT_OBJ_TAG("init suc comp obj name:%s."), GetObjName().c_str());
+    {
+        CLOG_DEBUG("init suc comp obj name:%s.", GetObjName().c_str());
+    }
     return Status::Success;
 }
 
 Int32 CompObject::_OnStart()
 {
     if (g_Log)
-        g_Log->Debug(LOGFMT_OBJ_TAG("_OnStart suc comp obj name:%s."), GetObjName().c_str());
+    {
+        CLOG_DEBUG("_OnStart suc comp obj name:%s.", GetObjName().c_str());
+    }
     return Status::Success;
 }
 
 void CompObject::_OnWillClose()
 {
     if (g_Log)
-        g_Log->Debug(LOGFMT_OBJ_TAG("_OnWillClose suc comp obj name:%s."), GetObjName().c_str());
+    {
+        CLOG_DEBUG("_OnWillClose suc comp obj name:%s.", GetObjName().c_str());
+    }
 }
 
 void CompObject::_OnClose()
 {
     _Clear();
     if (g_Log)
-        g_Log->Debug(LOGFMT_OBJ_TAG("_OnClose suc comp obj name:%s."), GetObjName().c_str());
+    {
+        CLOG_DEBUG("_OnClose suc comp obj name:%s.", GetObjName().c_str());
+    }
 }
 
 LibString CompObject::ToString() const
@@ -106,13 +106,17 @@ void CompObject::Clear()
     IObject::Clear();
 
     if (g_Log)
-        g_Log->Debug(LOGFMT_OBJ_TAG("Clear comp obj name:%s."), GetObjName().c_str());
+    {
+        CLOG_DEBUG("Clear comp obj name:%s.", GetObjName().c_str());
+    }
 }
 
 void CompObject::_Clear()
 {
     if (g_Log)
-        g_Log->Debug(LOGFMT_OBJ_TAG("_Clear comp obj name:%s."), GetObjName().c_str());
+    {
+        CLOG_DEBUG("_Clear comp obj name:%s.", GetObjName().c_str());
+    }
 }
 
 KERNEL_END

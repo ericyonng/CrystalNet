@@ -59,7 +59,9 @@ IObject::IObject(UInt64 objTypeId)
     if(UNLIKELY(_objTypeId == 0))
     {
         if (g_Log)
-            g_Log->Error(LOGFMT_OBJ_TAG("bad obj type id:"));
+        {
+            CLOG_ERROR("_objTypeId is zero");
+        }
     }
 }
 
@@ -75,17 +77,23 @@ Int32 IObject::OnCreated()
 
     _objName = RttiUtil::GetByObj(this);
     if(UNLIKELY(g_Log && (GetType() == 0)))
-        g_Log->Debug(LOGFMT_OBJ_TAG("have no type this comp comp obj name:%s"), GetObjName().c_str());
+    {
+        CLOG_DEBUG("have no type this comp comp obj name:%s", GetObjName().c_str());
+    }
 
     // 检查有没有接口类落网之鱼
     if(UNLIKELY(g_Log && (_interfaceTypeId == 0)))
-        g_Log->Warn(LOGFMT_OBJ_TAG("_interfaceTypeId is zero please check _objName:%s."), _objName.c_str());
+    {
+        CLOG_WARN("_interfaceTypeId is zero please check _objName:%s.", _objName.c_str());
+    }
 
     auto st = _OnCreated();
     if(UNLIKELY(st != Status::Success))
     {
         if (g_Log)
-            g_Log->Error(LOGFMT_OBJ_TAG("created fail st:%d"), st);
+        {
+            CLOG_ERROR("created fail st:%d", st);
+        }
         return st;
     }
 
@@ -106,7 +114,9 @@ Int32 IObject::OnCreated()
     if(!tlsTypeSystem->CheckAddTypeInfo(this))
     {
         if (g_Log)
-            g_Log->Error(LOGFMT_OBJ_TAG("CheckAddTypeInfo fail."));
+        {
+            CLOG_ERROR("CheckAddTypeInfo fail.");
+        }
 
         SetErrCode(this, Status::CheckAddTypeInfo);
         return Status::Failed;
@@ -120,7 +130,9 @@ Int32 IObject::Init()
     if(UNLIKELY(_isInited.load(std::memory_order_acquire)))
     {
         if (g_Log)
-            g_Log->Error(LOGFMT_OBJ_TAG("repeat init"));
+        {
+            CLOG_ERROR("repeat init");
+        }
         return Status::Repeat;
     }
 
@@ -128,7 +140,9 @@ Int32 IObject::Init()
     if(st != Status::Success)
     {
         if (g_Log)
-            g_Log->Error(LOGFMT_OBJ_TAG("on created fail st:%d, obj name: %s"), st, GetObjName().c_str());
+        {
+            CLOG_ERROR("on created fail st:%d, obj name: %s", st, GetObjName().c_str());
+        }
         return st;
     }
 
@@ -136,7 +150,9 @@ Int32 IObject::Init()
     if(st != Status::Success)
     {
         if (g_Log)
-            g_Log->Error(LOGFMT_OBJ_TAG("init fail st:%d"), st);
+        {
+            CLOG_ERROR("init fail st:%d", st);
+        }
         return st;
     }
 
@@ -145,7 +161,9 @@ Int32 IObject::Init()
     _isReady.store(false, std::memory_order_release);
 
     if(g_Log)
-        g_Log->Debug(LOGFMT_OBJ_TAG("init obj success."));
+    {
+        CLOG_DEBUG("init obj success.");
+    }
     return Status::Success;
 }
 
@@ -154,7 +172,9 @@ Int32 IObject::Start()
     if(UNLIKELY(_isStarted.load(std::memory_order_acquire)))
     {
         if (g_Log)
-            g_Log->Error(LOGFMT_OBJ_TAG("repeat start"));
+        {
+            CLOG_ERROR("repeat start");
+        }
         return Status::Repeat;
     }
 
@@ -162,7 +182,9 @@ Int32 IObject::Start()
     if(UNLIKELY(st != Status::Success))
     {
         if (g_Log)
-            g_Log->Error(LOGFMT_OBJ_TAG("start fail st:%d"), st);
+        {
+            CLOG_ERROR("start fail st:%d", st);
+        }
         return st;
     }
 
@@ -180,7 +202,9 @@ void IObject::WillClose()
     if(!_isStarted.load(std::memory_order_acquire))
     {
         if (g_Log)
-            g_Log->Warn(LOGFMT_OBJ_TAG("obj not started."));
+        {
+            CLOG_WARN("obj not started.");
+        }
         return;
     }
 
@@ -189,7 +213,9 @@ void IObject::WillClose()
     DefaultMaskReady(false);
 
     if (g_Log)
-        g_Log->Debug(LOGFMT_OBJ_TAG("will close object."));
+    {
+        CLOG_DEBUG("will close object.");
+    }
 }
 
 void IObject::Close()
@@ -200,7 +226,9 @@ void IObject::Close()
     if(!_isStarted.load(std::memory_order_acquire))
     {
         if (g_Log)
-            g_Log->Warn(LOGFMT_OBJ_TAG("obj not started."));
+        {
+            CLOG_WARN("obj not started.");
+        }
         return;
     }
 
@@ -211,7 +239,9 @@ void IObject::Close()
     _isCreated.store(false, std::memory_order_release);
 
     if (g_Log)
-        g_Log->Debug(LOGFMT_OBJ_TAG("close object."));
+    {
+        CLOG_DEBUG("close object.");
+    }
 }
 
 void IObject::SetErrCode(const IObject *obj, Int32 errCode)
@@ -229,8 +259,9 @@ void IObject::SetErrCode(const IObject *obj, Int32 errCode)
         if(countLoop > 1000)
         {
             if (g_Log)
-                g_Log->Warn(LOGFMT_OBJ_TAG("set err code perhaps in dead loop countLoop:%d, oldCode:%d, errCode:%d")
-                        , countLoop, oldCode, errCode);
+            {
+                CLOG_WARN("set err code perhaps in dead loop countLoop:%d, oldCode:%d, errCode:%d", countLoop, oldCode, errCode);
+            }
         }
     }
 
@@ -243,8 +274,20 @@ void IObject::SetErrCode(const IObject *obj, Int32 errCode)
     if(LIKELY(errCode != Status::Success))
     {
         if (g_Log)
-            g_Log->Error(LOGFMT_OBJ_TAG("err happen errCode:%d, owner:%s, obj:%s")
-                    , errCode, ToString().c_str(), obj?obj->ToString().c_str():"null obj");
+        {
+            CLOG_ERROR("err happen errCode:%d, owner:%s, obj:%s", errCode, ToString().c_str(), obj?obj->ToString().c_str():"null obj");
+        }
+    }
+}
+
+void IObject::ChangeObjTypeId(UInt64 objTypeId)
+{
+    // 不轻易改变对象的类型id,需要打堆栈出来追溯
+    auto oldId = _objTypeId;
+    _objTypeId = objTypeId;
+    if(g_Log)
+    {
+        CLOG_INFO("change obj type, old id:%llu, new id:%llu, backtrace:%s", oldId, _objTypeId, KERNEL_NS::BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
     }
 }
 
@@ -322,7 +365,9 @@ bool IObject::IsFocus(Int32 focusEnum) const
 void IObject::_Clear()
 {
     if (g_Log)
-        g_Log->Debug(LOGFMT_OBJ_TAG("_Clear IObject"));
+    {
+        CLOG_DEBUG("_Clear IObject");
+    }
 }
 
 // void IObject::OnCheck()
