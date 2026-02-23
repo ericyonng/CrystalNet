@@ -118,8 +118,8 @@ ALWAYS_INLINE void TlsUtil::DestroyUtilTlsHandle()
 
 ALWAYS_INLINE TlsDefaultObj *TlsUtil::GetDefTls()
 {
-    auto tlsStack = GetTlsStack();
-    return tlsStack->GetDef();
+    DEF_STATIC_THREAD_LOCAL_DECLEAR TlsStack<TlsStackSize::SIZE_1MB> *s_TlsStack = GetTlsStack();
+    return s_TlsStack->GetDef();
 }
 
 ALWAYS_INLINE TlsCompsOwner *TlsUtil::GetTlsCompsOwner()

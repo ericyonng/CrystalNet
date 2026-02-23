@@ -37,7 +37,7 @@
 KERNEL_BEGIN
 
 KernelHandle::KernelHandle() noexcept
-:_handleId(_GetMaxHandleId().fetch_add(1, std::memory_order_release) + 1)
+:_handleId(_GetMaxHandleId().fetch_add(1, std::memory_order_acq_rel) + 1)
 {
     KERNEL_NS::TlsUtil::GetTlsCoDict()->AddCo(_handleId, this);
 }

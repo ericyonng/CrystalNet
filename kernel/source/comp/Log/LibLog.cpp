@@ -475,7 +475,7 @@ void LibLog::_WriteLog(const LogLevelInfoCfg *levelCfg, LogData *logData)
         logData->_logInfo << "\nStack Traceback:\n" << BackTraceUtil::CrystalCaptureStackBackTrace() << "\n";
 
     auto calcBytes = static_cast<Int64>(logData->CalcBytes());
-    Int64 curAllBytes = _curCacheBytes.fetch_add(calcBytes, std::memory_order_release) + calcBytes;
+    Int64 curAllBytes = _curCacheBytes.fetch_add(calcBytes, std::memory_order_acq_rel) + calcBytes;
     specifyLog->WriteLog(*levelCfg, logData);
 
     // 缓存超过阈值强制着盘

@@ -110,6 +110,7 @@
 #include <testsuit/testinst/TestEventLoopThread.h>
 #include <testsuit/testinst/TestLockFree.h>
 #include <testsuit/testinst/TestYaml.h>
+#include <testsuit/testinst/TestCoLocker.h>
 
 // void *operator new(size_t bytes)
 // {
@@ -309,7 +310,8 @@ void TestInst::Run(int argc, char const *argv[])
     // TestSort::Run();
     // TestEventLoopThread::Run();
     // TestLockFree::Run();
-    TestYaml::Run();
+    // TestYaml::Run();
+    TestCoLocker::Run();
     
     // write a large file
     // do

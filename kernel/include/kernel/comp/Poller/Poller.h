@@ -256,6 +256,9 @@ public:
 
     void OnMonitor(PollerCompStatistics &statistics);
 
+    // 线程不安全, 不可跨线程使用
+    UInt64 NewStub();
+
     // 调用者当前线程投递req给this
     // req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
     // req/res 必须实现Release, ToString接口
@@ -541,6 +544,19 @@ public:
     Channel *GetChannel(UInt64 channelId);
     const Channel *GetChannel(UInt64 channelId) const;
 
+    // 订阅Stub事件
+    template<typename LambType>
+#ifdef CRYSTAL_NET_CPP20
+    requires requires(LambType lam, StubPollerEvent * ev)
+    {
+        lam(ev);
+    }
+#endif
+    void SubscribeStubEvent(UInt64 stub, LambType &&cb);
+
+    // 取消订阅回调
+    void UnSubscribeStubEvent(UInt64 stub);
+    
 protected:
     
     virtual Int32 _OnInit() override;
@@ -569,18 +585,7 @@ private:
     // 事件请求处理
     void _OnObjectEventRequest(StubPollerEvent *ev);
 
-    // 订阅Stub事件
-    template<typename LambType>
-#ifdef CRYSTAL_NET_CPP20
-    requires requires(LambType lam, StubPollerEvent * ev)
-    {
-        lam(ev);
-    }
-#endif
-    void SubscribeStubEvent(UInt64 stub, LambType &&cb);
 
-    // 取消订阅回调
-    void UnSubscribeStubEvent(UInt64 stub);
 
     void _Push(PollerEvent *ev);
     void _PushLocal(PollerEvent *ev);
@@ -649,6 +654,12 @@ ALWAYS_INLINE bool Poller::IsWaiting() const
 {
     return _isWaiting.load(std::memory_order_acquire);
 }
+
+ALWAYS_INLINE UInt64 Poller::NewStub()
+{
+    return ++_maxStub;
+}
+
 
 ALWAYS_INLINE UInt64 Poller::GetWorkerThreadId(std::memory_order order) const
 {

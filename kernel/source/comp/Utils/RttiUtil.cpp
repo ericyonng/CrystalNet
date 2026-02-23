@@ -141,7 +141,7 @@ const Byte8 *RttiUtil::GetCxxDemangle(const char *name)
 UInt64 RttiUtil::_GenTypeId()
 {
     static std::atomic<UInt64> s_inc = {0};
-    return s_inc.fetch_add(1, std::memory_order_release) + 1;
+    return s_inc.fetch_add(1, std::memory_order_acq_rel) + 1;
 }
 
 // UInt64 RttiUtil::GetTypIdBy(const LibString &objName)

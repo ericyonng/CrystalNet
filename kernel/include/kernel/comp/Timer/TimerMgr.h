@@ -86,6 +86,8 @@ public:
     template<typename LambdaType>
     void TakeOverLifeTime(KERNEL_NS::LibTimer *timer, LambdaType &&cb);
 
+    void UpdateExpireInfo();
+
 private:
     void _BeforeDrive();
     void _AfterDrive();

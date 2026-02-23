@@ -45,7 +45,8 @@ public:
         MutexLock = 1,          // 互斥锁
         ConditionLock = 2,      // 条件变量互斥锁
         DummyLock = 3,          // 假锁 TL版本适用
-        Unknown = 4,            // 未知
+        CoLocker = 4,           // 协程式同步
+        Unknown = 5,            // 未知
     };
 };
 

@@ -111,7 +111,7 @@ bool IdGenerator::_DefaultOccupancyNumberSegmentMethod(UInt64 &segment, UInt64 &
         machineId = origin % MAX_MACHINE_ID + 1;
     
     // id段
-    segment = s_maxNumberSegment.fetch_add(1, std::memory_order_release) + 1;
+    segment = s_maxNumberSegment.fetch_add(1, std::memory_order_acq_rel) + 1;
 
     return true;
 }

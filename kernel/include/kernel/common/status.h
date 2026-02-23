@@ -78,6 +78,10 @@ namespace Status
         CoTaskException = 34,                                   // 协程抛异常
         LoadShareLibraryFail = 35,                              // 加载动态库失败
         CoTaskFinishDestroyChild = 36,                          // 父协程结束销毁子协程
+        CoTaskParamRepeated = 37,                               // 重复的TaskParam
+        CoLockerMultiWaiter = 38,                               // 多个等待者
+        CoLockerOverMaxWaiterLimit = 39,                        // 等待者过多
+        CoLockerDestroy = 40,                                   // locker销毁
 
         // SOCKET[500, 599]
         Socket_CreateFailure = 500,                             // 套接字创建失败

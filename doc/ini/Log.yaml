@@ -80,7 +80,7 @@ LogCfg:
       # 文件id
       FileId: 0
       # 是否输出到控制台
-      EnableConsole: 0
+      EnableConsole: 1
       # 前景色
       FgColor: White
       # 背景色
@@ -101,7 +101,7 @@ LogCfg:
       # 文件id
       FileId: 0
       # 是否输出到控制台
-      EnableConsole: 0
+      EnableConsole: 1
       # 前景色
       FgColor: White
       # 背景色

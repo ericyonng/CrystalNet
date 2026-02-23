@@ -101,7 +101,7 @@ public:
             while (!poller->IsQuit())
             {
                 auto req = TestGenReq::New_TestGenReq();
-                req->_version = g_Version.fetch_add(1, std::memory_order_release) + 1;
+                req->_version = g_Version.fetch_add(1, std::memory_order_acq_rel) + 1;
                 g_GenNum.fetch_add(1, std::memory_order_release);
                 // g_ReqList->Push(req);
                 
@@ -273,7 +273,7 @@ public:
                 //co_await KERNEL_NS::Waiting();
                 
                 auto req = TestGenReq::New_TestGenReq();
-                req->_version = g_Version.fetch_add(1, std::memory_order_release) + 1;
+                req->_version = g_Version.fetch_add(1, std::memory_order_acq_rel) + 1;
                 g_GenNum.fetch_add(1, std::memory_order_release);
                 channel->Send(poller, req);
                 

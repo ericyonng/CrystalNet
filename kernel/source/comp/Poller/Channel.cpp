@@ -41,7 +41,7 @@ Channel::Channel(UInt64 channelId, Poller *target, SPSCQueue<PollerEvent *> *que
 UInt64 Channel::GenChannelId()
 {
     static std::atomic<UInt64> s_channelId = {0};
-    return s_channelId.fetch_add(1, std::memory_order_release) + 1;
+    return s_channelId.fetch_add(1, std::memory_order_acq_rel) + 1;
 }
 
 void Channel::Send(PollerEvent *ev)

@@ -128,7 +128,7 @@ void PollerMgr::SetConfig(const PollerConfig &cfg)
 
 UInt64 PollerMgr::NewSessionId()
 {
-    return _maxSessionId.fetch_add(1, std::memory_order_release) + 1;
+    return _maxSessionId.fetch_add(1, std::memory_order_acq_rel) + 1;
 }
 
 void PollerMgr::AddSessionPending(UInt64 num)

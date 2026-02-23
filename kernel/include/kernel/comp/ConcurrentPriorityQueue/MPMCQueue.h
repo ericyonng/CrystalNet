@@ -270,7 +270,7 @@ requires std::movable<Elem> && requires
 template <typename... Args>
 ALWAYS_INLINE void MPMCQueue<Elem, CapacitySize>::Emplace(Args &&...args) noexcept
 {
-  auto const head = _head.fetch_add(1);
+  auto const head = _head.fetch_add(1, std::memory_order_acq_rel);
   auto &slot = _slots[_Mod(head)];
 
     // 如果读过数据, 那么turn == _Turn(head) * 2, 没读过则一直忙等, 对于其他写线程, 也会等待其他写线程推动slot._turn递增或者读线程推动_turn递增, 通过_turn来保证多生产者, 多消费者线程安全, 如果不想忙等待, 可以使用TryEmplace接口
@@ -428,7 +428,7 @@ requires std::movable<Elem> && requires
 #endif
 ALWAYS_INLINE void MPMCQueue<Elem, CapacitySize>::Pop(Elem &v) noexcept
 {
-  auto const tail = _tail.fetch_add(1);
+  auto const tail = _tail.fetch_add(1, std::memory_order_acq_rel);
   auto &slot = _slots[_Mod(tail)];
 
     // 如果生产过慢, 则会忙等待

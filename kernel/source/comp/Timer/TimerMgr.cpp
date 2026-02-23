@@ -39,6 +39,28 @@
 
 KERNEL_BEGIN
 
+void TimerMgr::UpdateExpireInfo()
+{
+    // 重算过期标记
+    if(!_expireQueue.empty())
+    {
+        auto timeData =  *_expireQueue.begin();
+        auto curNano = TimeUtil::GetFastNanoTimestamp();
+        _hasExpired = curNano >= timeData->_expiredTime;
+        _curTime = curNano;
+        
+        _firstTimeoutTicks = 0;
+        if(!_hasExpired)
+            _firstTimeoutTicks =  timeData->_expiredTime - curNano;
+    }
+    else
+    {
+        _hasExpired = false;
+        _firstTimeoutTicks = -1;
+    }
+}
+
+
 ALWAYS_INLINE void TimerMgr::_AfterDrive()
 {
     if(--_driving > 0)
@@ -113,6 +135,8 @@ void TimerMgr::Launch(IDelegate<void> *wakeupThreadCb)
     if(_wakeupCb)
         CRYSTAL_DELETE_SAFE(_wakeupCb);
     _wakeupCb = wakeupThreadCb;
+
+    UpdateExpireInfo();
 }
 
 Int64 TimerMgr::Drive()

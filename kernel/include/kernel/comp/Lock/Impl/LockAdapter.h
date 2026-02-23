@@ -36,6 +36,7 @@
 #include <kernel/comp/Lock/Impl/Locker.h>
 #include <kernel/comp/Lock/Impl/ConditionLocker.h>
 #include <kernel/common/status.h>
+#include <kernel/comp/Lock/Impl/CoLocker.h>
 
 KERNEL_BEGIN
 
@@ -124,20 +125,46 @@ class KERNEL_EXPORT LockAdapter<LockType::DummyLock>
 public:
     ALWAYS_INLINE void Lock()  { }
     ALWAYS_INLINE void Unlock()  { }
-    ALWAYS_INLINE bool TryLock()  { return true;}
+    ALWAYS_INLINE constexpr bool TryLock()  { return true;}
 
-    ALWAYS_INLINE Int32 Wait() { return Status::DummyHandle;}
-    ALWAYS_INLINE Int32 TimeWait(UInt64 second, UInt64 microSec) { return Status::DummyHandle;}
-    ALWAYS_INLINE Int32 TimeWait(UInt64 milliSecond) { return Status::DummyHandle; }
+    ALWAYS_INLINE constexpr Int32 Wait() { return Status::DummyHandle;}
+    ALWAYS_INLINE constexpr Int32 TimeWait(UInt64 second, UInt64 microSec) { return Status::DummyHandle;}
+    ALWAYS_INLINE constexpr Int32 TimeWait(UInt64 milliSecond) { return Status::DummyHandle; }
 
-    ALWAYS_INLINE bool Sinal() { return true;}
-    ALWAYS_INLINE bool HasWaiter() { return false;}
+    ALWAYS_INLINE constexpr bool Sinal() { return true;}
+    ALWAYS_INLINE constexpr bool HasWaiter() { return false;}
     ALWAYS_INLINE void Broadcast() { }
     ALWAYS_INLINE void ResetSinal() { }
     ALWAYS_INLINE void ResetSinalFlag()  { }
-    ALWAYS_INLINE bool IsSinal() const { return false;}
+    ALWAYS_INLINE constexpr bool IsSinal() const { return false;}
     
 private:
+};
+
+
+// 适配 CoLocker
+template<>
+class KERNEL_EXPORT LockAdapter<LockType::CoLocker>
+{
+public:
+    ALWAYS_INLINE void Lock() { _raw.Lock();}
+    ALWAYS_INLINE void Unlock()  { _raw.Unlock();}
+    ALWAYS_INLINE bool TryLock() { return _raw.TryLock();}
+
+    ALWAYS_INLINE CoTask<Int32> Wait() { co_return co_await _raw.Wait();}
+    ALWAYS_INLINE CoTask<Int32> TimeWait(UInt64 second, UInt64 microSec) { co_return co_await _raw.TimeWait(second, microSec);}
+    ALWAYS_INLINE CoTask<Int32> TimeWait(UInt64 milliSecond) { co_return co_await _raw.TimeWait(milliSecond); }
+    ALWAYS_INLINE CoTask<Int32> TimeWait(TimeSlice slice) { co_return co_await _raw.TimeWait(slice); }
+
+    ALWAYS_INLINE bool Sinal() { return _raw.Sinal();}
+    ALWAYS_INLINE bool HasWaiter() { return _raw.HasWaiter();}
+    ALWAYS_INLINE void Broadcast() { _raw.Broadcast();}
+    ALWAYS_INLINE void ResetSinal() {  _raw.ResetSinal(); }
+    ALWAYS_INLINE void ResetSinalFlag() { _raw.ResetSinalFlag(); }
+    ALWAYS_INLINE bool IsSinal() const { return _raw.IsSinal();}
+
+private:
+    CoLocker _raw;
 };
 
 KERNEL_END

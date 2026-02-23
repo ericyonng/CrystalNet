@@ -456,6 +456,7 @@ bool Poller::PrepareLoop()
         }
     }
 
+    _timerMgr->UpdateExpireInfo();
     if (g_Log && g_Log->IsEnable(LogLevel::Debug))
         g_Log->Debug(LOGFMT_OBJ_TAG("poller prepare loop poller info:%s"), ToString().c_str());
 
@@ -488,10 +489,24 @@ void Poller::QuicklyLoop()
             if(UNLIKELY(_isQuitLoop.load(std::memory_order_acquire)))
                 break;
 
+
             if(!_timerMgr->HasExpired())
             {
+                // 第一个超时的时间间隔
+                auto firstExpiredNano = _timerMgr->GetFirstExpiredNano();
+
                 _eventGuard.Lock();
-                _eventGuard.TimeWait(maxSleepMilliseconds);
+                _isWaiting.store(true, std::memory_order_release);
+                if(firstExpiredNano > 0)
+                {
+                    firstExpiredNano /= KERNEL_NS::TimeDefs::NANO_SECOND_PER_MILLI_SECOND;
+                    _eventGuard.TimeWait(static_cast<UInt64>(firstExpiredNano)  > maxSleepMilliseconds ? static_cast<UInt64>(firstExpiredNano) : maxSleepMilliseconds);
+                }
+                else
+                {
+                    _eventGuard.Wait();
+                }
+                _isWaiting.store(false, std::memory_order_release);
                 _eventGuard.Unlock();
             }
         }
