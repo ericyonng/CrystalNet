@@ -39,7 +39,7 @@ EventManager::~EventManager()
     _eventIdRefListenerOwners.clear();
     if(!_listeners.empty())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("have some listener not remove listen count:%d"), static_cast<Int32>(_listeners.size()));
+        CLOG_WARN("have some listener not remove listen count:%d", static_cast<Int32>(_listeners.size()));
     }
     
     for(_DelayedOps::iterator it = _delayedOps.begin();
@@ -79,7 +79,7 @@ ListenerStub EventManager::AddListener(int id, IDelegate<void, LibEvent *> *list
     if(UNLIKELY(owner && IsListening(id, owner)))
     {// 重复监听就告警下
         const LibString &ownerRtti = listener->GetOwnerRtti();
-        g_Log->Warn(LOGFMT_OBJ_TAG("repeat add listen for owner, ev id:%d, obj:%p, %s stack back trace:\n%s"), id, owner, ownerRtti.c_str(), BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
+        CLOG_WARN("repeat add listen for owner, ev id:%d, obj:%p, %s stack back trace:\n%s", id, owner, ownerRtti.c_str(), BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
     }
 
     ListenerStub stub = INVALID_LISTENER_STUB;
@@ -183,7 +183,7 @@ Int32 EventManager::FireEvent(LibEvent *event)
     }
     else if(_delayAddOpRefCount.find(0) != _delayAddOpRefCount.end())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("attention: fire event[%d] with delay listen all events please check if it is a terrible design, it cant fire event when listen is not finish!"), evId);
+        CLOG_WARN("attention: fire event[%d] with delay listen all events please check if it is a terrible design, it cant fire event when listen is not finish!", evId);
     }
 
     res = FireEvResult::Fail;
@@ -211,7 +211,7 @@ Int32 EventManager::FireEvent(LibEvent *event)
         _delayedOps.push_back(op);
         --_firing;
 
-        g_Log->Warn(LOGFMT_OBJ_TAG("attention: fire event[%d] with delay listen please check if it is a terrible design, it cant fire event when listen is not finish!"), evId);
+        CLOG_WARN("attention: fire event[%d] with delay listen please check if it is a terrible design, it cant fire event when listen is not finish!", evId);
         return FireEvResult::Asyn;
     }
 
@@ -347,11 +347,11 @@ int EventManager::ProcessEventOperation(EventManager::_Op &op)
         auto delayEv = op._fireInfo._ev;
         if (LIKELY(delayEv))
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("attention: there is a event[%d] in delay firing"), delayEv->GetId());
+            CLOG_WARN("attention: there is a event[%d] in delay firing", delayEv->GetId());
             FireEvent(delayEv);
         }
         else
-            g_Log->Error(LOGFMT_OBJ_TAG("delay fire lose event info"));
+            CLOG_ERROR("delay fire lose event info");
     }
 
     return Status::Success;

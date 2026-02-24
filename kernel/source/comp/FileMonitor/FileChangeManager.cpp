@@ -84,7 +84,7 @@ void FileChangeManager::_InitWorker()
 
            }
 
-           g_Log->Info(LOGFMT_OBJ_TAG("file change manage working"));
+           CLOG_INFO("file change manage working");
 
             // 阻塞等待
             while (!poller->IsQuit() && !_isQuit.load(std::memory_order_acquire))
@@ -104,13 +104,13 @@ void FileChangeManager::_InitWorker()
                     if(!newObj)
                     {
                         if (g_Log)
-                            g_Log->Error(LOGFMT_OBJ_TAG("file: %s, load file fail"), monitorInfo->_path.c_str());
+                            CLOG_ERROR("file: %s, load file fail", monitorInfo->_path.c_str());
 
                         continue;
                     }
 
                     if (g_Log)
-                        g_Log->Info(LOGFMT_OBJ_TAG("file: %s, changed, and load new one"), monitorInfo->_path.c_str());
+                        CLOG_INFO("file: %s, changed, and load new one", monitorInfo->_path.c_str());
 
                     {
                         if(monitorInfo->_sourceObj)
@@ -130,7 +130,7 @@ void FileChangeManager::_InitWorker()
                         if(!newData)
                         {
                             if (g_Log)
-                                g_Log->Warn(LOGFMT_OBJ_TAG("file:%s deserialize from file fail dataName:%s, ")
+                                CLOG_WARN("file:%s deserialize from file fail dataName:%s, "
                                 , monitorInfo->_path.c_str(), handle->_dataName.c_str());
                             continue;
                         }
@@ -141,7 +141,7 @@ void FileChangeManager::_InitWorker()
                             handle->_release->Invoke(oldData);
 
                             if (g_Log)
-                                g_Log->Info(LOGFMT_OBJ_TAG("new data:%s updated"), handle->_dataName.c_str());
+                                CLOG_INFO("new data:%s updated", handle->_dataName.c_str());
                         }
                     }
                 }

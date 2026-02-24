@@ -106,12 +106,12 @@ void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, vo
                 catch (std::exception &e)
                 {
                     if (g_Log)
-                        g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "path:%s, load yaml fail, exception:%s, fromMemoryData:%p"), path.c_str(), e.what(), fromMemoryData);
+                        CLOG_ERROR_GLOBAL(YamlDeserializer, "path:%s, load yaml fail, exception:%s, fromMemoryData:%p", path.c_str(), e.what(), fromMemoryData);
                 }
                 catch (...)
                 {                    
                     if (g_Log)
-                        g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "path:%s, load yaml fail, fromMemoryData:%p"), path.c_str(), fromMemoryData);
+                        CLOG_ERROR_GLOBAL(YamlDeserializer, "path:%s, load yaml fail, fromMemoryData:%p", path.c_str(), fromMemoryData);
                 }
 
                 return config;
@@ -124,9 +124,9 @@ void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, vo
                 memoryData = fromMemory->CheckAndChange();
                 if (!memoryData)
                 {
-                    if (g_Log && g_Log->IsEnable(LogLevel::Error))
+                    if (g_Log)
                     {
-                        g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "use yaml memory data, but have no yaml memory data, from memory:%p, dataName:%s, path:%s")
+                        CLOG_ERROR_GLOBAL(YamlDeserializer, "use yaml memory data, but have no yaml memory data, from memory:%p, dataName:%s, path:%s"
                             , fromMemory, dataName.c_str(), path.c_str());
                     }
                 }
@@ -263,13 +263,13 @@ void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, vo
                 catch (std::exception &e)
                 {
                     if (g_Log)
-                        g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "path:%s, deserialize yaml fail, exception:%s, deserializeObj:%s")
+                        CLOG_ERROR_GLOBAL(YamlDeserializer, "path:%s, deserialize yaml fail, exception:%s, deserializeObj:%s"
                         , path.c_str(), e.what(), KERNEL_NS::RttiUtil::GetByObj(iterHandle->second->_deserialize).c_str());
                 }
                 catch (...)
                 {
                     if (g_Log)
-                        g_Log->Error(LOGFMT_NON_OBJ_TAG(YamlDeserializer, "path:%s, deserialize yaml fail, deserializeObj:%s")
+                        CLOG_ERROR_GLOBAL(YamlDeserializer, "path:%s, deserialize yaml fail, deserializeObj:%s"
                         , path.c_str(), KERNEL_NS::RttiUtil::GetByObj(iterHandle->second->_deserialize).c_str());
                 }
             }

@@ -99,7 +99,8 @@ void CoHandle::DumpBacktrace(Int32 depth, KERNEL_NS::LibString &content) const
 
 void CoHandle::DumpBacktraceFinish(const KERNEL_NS::LibString &content) const
 {
-    g_Log->Error(LOGFMT_OBJ_TAG("CoTask Backtrace:\n%s"), content.c_str());
+    if(g_Log)
+        CLOG_ERROR("CoTask Backtrace:\n%s", content.c_str());
 }
 
 KERNEL_END
