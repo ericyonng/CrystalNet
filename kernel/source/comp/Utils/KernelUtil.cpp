@@ -260,12 +260,13 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
 //     g_cpuFeature->Init();
 
     // 日志初始化与启动
-    g_Log = logFactory->Create();
-    if(!g_Log->Init(logIniName, iniRoot.c_str(), yamlMemory))
+    auto log = logFactory->Create();
+    if(!log->Init(logIniName, iniRoot.c_str(), yamlMemory))
     {
         CRYSTAL_TRACE("fail init log log file name[%s], ini root dir[%s]", logIniName, iniRoot.c_str());
         return false;
     }
+    g_Log = log;
 
     g_LogIniName = logIniName;
     g_LogIniRootPath = iniRoot;

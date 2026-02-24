@@ -45,17 +45,23 @@
 #include <kernel/comp/Lock/Impl/ConditionLocker.h>
 #include <kernel/comp/Poller/Poller.h>
 
+#include "kernel/comp/Coroutines/Runner.h"
+#include "kernel/comp/Cpu/LibCpuInfo.h"
 #include "kernel/comp/FileMonitor/YamlMemory.h"
+#include "kernel/comp/Lock/Impl/CoLocker.h"
+#include "kernel/comp/thread/LibEventLoopThreadPool.h"
+#include "kernel/comp/Utils/KernelUtil.h"
+#include <kernel/comp/ObjLife.h>
 
 
 KERNEL_BEGIN
-
-LibLog::LibLog()
+    LibLog::LibLog()
     :_isInit{false}
     ,_isStart{false}
     ,_isFinish{false}
     ,_fileMonitor(FileMonitor<LogCfg, YamlDeserializer>::New_FileMonitor())
     ,_curCacheBytes{0}
+,_workingNum{0}
     ,_isForceLogDiskAll{false}
 {
     
@@ -167,35 +173,39 @@ bool LibLog::Init(const Byte8 *logConfigFile, const Byte8 *logCfgDir, YamlMemory
             }
 
             // 日志着盘线程绑定关系
-            if(static_cast<Int32>(_flushThreads.size()) <= newSpecifyLog->GetThreadRelationId())
-                _flushThreads.resize(newSpecifyLog->GetThreadRelationId() + 1);
-            if(static_cast<Int32>(_threadRelationLogs.size()) <= newSpecifyLog->GetThreadRelationId())
-                _threadRelationLogs.resize(newSpecifyLog->GetThreadRelationId() + 1);
-            if(static_cast<Int32>(_flushLocks.size()) <= newSpecifyLog->GetThreadRelationId())
-                _flushLocks.resize(newSpecifyLog->GetThreadRelationId() + 1);
-            auto flushThread = _flushThreads[newSpecifyLog->GetThreadRelationId()];
-            if(UNLIKELY(!flushThread))
+            const auto workingNum = g_LibEventLoopThreadPool->GetWorkerNum();
+            auto &threads= g_LibEventLoopThreadPool->GetThreads();
+            if(workingNum <= newSpecifyLog->GetThreadRelationId())
             {
-                flushThread = CRYSTAL_NEW(LibThread);
-                _flushThreads[newSpecifyLog->GetThreadRelationId()] = flushThread;
-                _flushLocks[newSpecifyLog->GetThreadRelationId()] = new ConditionLocker;
+                g_LibEventLoopThreadPool->MakeThreadEnough(newSpecifyLog->GetThreadRelationId() + 1);
             }
-            auto threadBindLogs = _threadRelationLogs[newSpecifyLog->GetThreadRelationId()];
+            auto realRelationId = newSpecifyLog->GetThreadRelationId() % threads.size();
+            if(_threadRelationLogs.size() <= realRelationId)
+                _threadRelationLogs.resize(realRelationId + 1);
+            if(_flushLocks.size() <= realRelationId)
+                _flushLocks.resize(realRelationId + 1);
+            auto flushThread = threads[realRelationId];
+            if (UNLIKELY(_flushLocks[realRelationId] == NULL))
+            {
+                auto coreNum = g_cpu->GetCpuCoreCnt();
+                _flushLocks[realRelationId] = new CoLocker(coreNum > 16 ? coreNum : 16);
+            }
+            auto threadBindLogs = _threadRelationLogs[realRelationId];
             if(UNLIKELY(!threadBindLogs))
             {
                 threadBindLogs = new std::vector<SpecifyLog *>;
-                _threadRelationLogs[newSpecifyLog->GetThreadRelationId()] = threadBindLogs;
+                _threadRelationLogs[realRelationId] = threadBindLogs;
             }
             threadBindLogs->push_back(newSpecifyLog);
 
-            newSpecifyLog->BindWakeupFlush(_flushLocks[newSpecifyLog->GetThreadRelationId()]);
+            newSpecifyLog->BindWakeupFlush(_flushLocks[realRelationId]);
             _fileIdIdxRefLog[cfg.FileId] = newSpecifyLog;
         }
     }
 
     _rootDirName = logPath;
 
-    _isForceDiskFlag.resize(_flushThreads.size());
+    _isForceDiskFlag.resize(_flushLocks.size());
     for(Int32 idx = 0; idx < static_cast<Int32>(_isForceDiskFlag.size()); ++idx)
     {
         _isForceDiskFlag[idx] = new std::atomic_bool;
@@ -238,18 +248,39 @@ void LibLog::Start()
         }
     }
 
-    const Int32 threadCount = static_cast<Int32>(_flushThreads.size());
+    auto &threads = g_LibEventLoopThreadPool->GetThreads();
+    const Int32 threadCount = static_cast<Int32>(_flushLocks.size());
     for(Int32 idx = 0; idx < threadCount; ++idx)
     {
-        auto t = _flushThreads[idx];
-        if(t)
+        auto lck = _flushLocks[idx];
+        auto t = threads[idx];
+
+        // 按lck的为准, 不一定所有线程池的线程都是日志线程
+        if (lck)
         {
-            auto params = Variant::New_Variant();
-            params->BecomeDict();
-            (*params)[1] = idx;
-            t->SetThreadName(LibString().AppendFormat("Log-%d", idx));
-            t->AddTask2(this, &LibLog::_OnLogThreadFlush, params);
-            t->Start();
+            t->Send([idx, this]() mutable
+            {
+                KERNEL_NS::PostCaller([idx, this]() mutable ->CoTask<>
+                {
+                    ObjLife<std::atomic<Int32>> workingLife(_workingNum);
+                    
+                    CRYSTAL_TRACE("_OnLogThreadFlush LogThread in ThreadPool %llu", KERNEL_NS::SystemUtil::GetCurrentThreadId());
+
+                    KERNEL_NS::SmartPtr<Variant, KERNEL_NS::AutoDelMethods::CustomDelete> params = Variant::NewThreadLocal_Variant();
+                    params.SetClosureDelegate([](void *p)
+                    {
+                        Variant::DeleteThreadLocal_Variant(KERNEL_NS::KernelCastTo<Variant>(p));
+                    });
+                    
+                    params->BecomeDict();
+                    (*params)[1] = idx;
+
+                    // 调用Log着盘
+                    co_await _OnLogThreadFlush(params.AsSelf());
+
+                    CRYSTAL_TRACE("_OnLogThreadFlush log coroutine quit idx:%d", idx);
+                });
+            });
         }
     }
 
@@ -266,26 +297,40 @@ void LibLog::Close()
 
     // CRYSTAL_TRACE("Close log start");
 
-    // 关闭线程
-    const Int32 threadCount = static_cast<Int32>(_flushThreads.size());
+    // 退出协程
+    const Int32 threadCount = static_cast<Int32>(_flushLocks.size());
     for(Int32 idx = 0; idx < threadCount; ++idx)
     {
-        auto t = _flushThreads[idx];
-        if(LIKELY(t))
+        auto lck = _flushLocks[idx];
+        if(LIKELY(lck))
         {
-            t->HalfClose();
-            _flushLocks[idx]->Sinal();
+            lck->Quit();
         }
     }
 
-    // CRYSTAL_TRACE("Close log thread half close");
+    CRYSTAL_TRACE("wait all log coroutine quit...");
 
     for(Int32 idx = 0; idx < threadCount; ++idx)
     {
-        auto t = _flushThreads[idx];
-        if(LIKELY(t))
-            t->FinishClose();
+        auto lck = _flushLocks[idx];
+        if(LIKELY(lck))
+        {
+            while (lck->HasWaiter())
+            {
+                lck->Broadcast();
+                CRYSTAL_TRACE("wait log coroutine quit idx:%d ...", idx);
+            }
+        }
     }
+
+    // 等所有线程退出
+    while (_workingNum.load(std::memory_order_acquire) != 0)
+    {
+        CRYSTAL_TRACE("wait all log coroutine quit working num:%d", _workingNum.load(std::memory_order_acquire));
+        KERNEL_NS::SystemUtil::ThreadSleep(1000);
+    }
+
+    CRYSTAL_TRACE("all log coroutine quit success...");
 
     // CRYSTAL_TRACE("Close log thread finish close");
 
@@ -311,7 +356,6 @@ void LibLog::Close()
 
     // CRYSTAL_TRACE("Close log close log files");
 
-    ContainerUtil::DelContainer(_flushThreads);
     ContainerUtil::DelContainer(_flushLocks);
     ContainerUtil::DelContainer(_threadRelationLogs);
 
@@ -348,18 +392,19 @@ void LibLog::ForceLogToDiskAll()
     FlushAll();
 
     const UInt64 currentThreadId = SystemUtil::GetCurrentThreadId();
+    auto &threads = g_LibEventLoopThreadPool->GetThreads();
     while(true)
     {
         SystemUtil::ThreadSleep(0);
-        const Int32 threadCount = static_cast<Int32>(_flushThreads.size());
+        const Int32 threadCount = static_cast<Int32>(_flushLocks.size());
         Int32 allToDiskThreadCount = 0;
         Int32 totalThreadCount = 0;
         for(Int32 idx = 0; idx < threadCount; ++idx)
         {
-            if(_flushThreads[idx])
+            if(_flushLocks[idx])
             {
                 ++totalThreadCount;
-                if(currentThreadId == _flushThreads[idx]->GetTheadId())
+                if(currentThreadId == threads[idx]->GetPollerNoAsync()->GetWorkerThreadId())
                 {// 本线程就是日志线程直接着盘
                     auto logs = _threadRelationLogs[idx];
                     const Int32 logCount = static_cast<Int32>(logs->size());
@@ -487,7 +532,7 @@ void LibLog::_WriteLog(const LogLevelInfoCfg *levelCfg, LogData *logData)
     }
 }
 
-void LibLog::_OnLogThreadFlush(LibThread *t, Variant *params)
+CoTask<> LibLog::_OnLogThreadFlush(Variant *params)
 {
     const Int32 idx = (*params)[1].AsInt32();
     auto logs = _threadRelationLogs[idx];
@@ -510,12 +555,10 @@ void LibLog::_OnLogThreadFlush(LibThread *t, Variant *params)
 
     // 定时管理
     auto poller = KERNEL_NS::TlsUtil::GetPoller();
-    auto timerMgr = poller->GetTimerMgr();
-    poller->PrepareLoop();
 
     while (true)
     {
-        if(UNLIKELY(t->IsDestroy()))
+        if(UNLIKELY(poller->IsQuit() || lck->IsQuit()))
         {
             _OnLogFlush(*logs, idx, logCount);
             break;
@@ -524,9 +567,9 @@ void LibLog::_OnLogThreadFlush(LibThread *t, Variant *params)
         // 写日志
         _OnLogFlush(*logs, idx, logCount);
 
-        lck->Lock();
-        lck->TimeWait(intervalMs);
-        lck->Unlock();
+        // 
+        if (intervalMs != 0)
+            co_await lck->TimeWait(intervalMs);
 
         // 每隔10次重新算一次时间间隔
         if(dynamicHoldCount <= 0)
@@ -543,11 +586,8 @@ void LibLog::_OnLogThreadFlush(LibThread *t, Variant *params)
             --dynamicHoldCount;
         }
 
-        timerMgr->Drive();
         // CRYSTAL_TRACE("log file name thread wake up file thread relation id:[%d]", idx);
     }
-
-    poller->OnLoopEnd();
 
     // CRYSTAL_TRACE("log thread close relation id = [%d], thread id=[%llu] file list name:%s", idx, SystemUtil::GetCurrentThreadId(), logNameList.c_str());
 }
@@ -579,27 +619,38 @@ void LibLog::StopAllLogThreadAndFallingDisk()
 {
     CRYSTAL_TRACE("StopAllLogThreadAndFallingDisk start");
     // 关闭线程
-    const Int32 threadCount = static_cast<Int32>(_flushThreads.size());
+    const Int32 threadCount = static_cast<Int32>(_flushLocks.size());
     for(Int32 idx = 0; idx < threadCount; ++idx)
     {
-        auto t = _flushThreads[idx];
-        if(LIKELY(t))
+        auto lck = _flushLocks[idx];
+        if(LIKELY(lck))
         {
-            t->HalfClose();
-            _flushLocks[idx]->Sinal();
+            lck->Quit();
         }
     }
 
-    CRYSTAL_TRACE("StopAllLogThreadAndFallingDisk half close log thread");
+    CRYSTAL_TRACE("StopAllLogThreadAndFallingDisk quit coroutine...");
 
     for(Int32 idx = 0; idx < threadCount; ++idx)
     {
-        auto t = _flushThreads[idx];
-        if(LIKELY(t))
-            t->FinishClose();
+        auto lck = _flushLocks[idx];
+        if(LIKELY(lck))
+        {
+            while (lck->HasWaiter())
+            {
+                lck->Broadcast();
+                CRYSTAL_TRACE("StopAllLogThreadAndFallingDisk wait log coroutine quit idx:%d...", idx);
+            }
+        }
     }
 
-    CRYSTAL_TRACE("StopAllLogThreadAndFallingDisk finish close log thread");
+    while (_workingNum.load(std::memory_order_acquire) != 0)
+    {
+        CRYSTAL_TRACE("StopAllLogThreadAndFallingDisk wait all log coroutine quit working num:%d", _workingNum.load(std::memory_order_acquire));
+        KERNEL_NS::SystemUtil::ThreadSleep(1000);
+    }
+    
+    CRYSTAL_TRACE("StopAllLogThreadAndFallingDisk finish close log coroutine");
 
 
     // 关闭文件并重新开启

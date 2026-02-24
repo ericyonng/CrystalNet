@@ -31,9 +31,10 @@
 #include <kernel/comp/thread/LibEventLoopThread.h>
 #include <kernel/comp/Log/log.h>
 
-KERNEL_BEGIN
+#include <algorithm>
 
-LibEventLoopThreadPool::LibEventLoopThreadPool()
+KERNEL_BEGIN
+    LibEventLoopThreadPool::LibEventLoopThreadPool()
     :_minNum(0)
 ,_maxNum(2 * LibCpuInfo::GetInstance()->GetCpuCoreCnt())    // 默认是CPU核数的2倍
 ,_workingNum{0}
@@ -228,6 +229,51 @@ Poller *LibEventLoopThreadPool::_SelectPoller(bool priorityToUsingNewThread)
 
     return thread->GetPollerNoAsync();
 }
+
+void LibEventLoopThreadPool::MakeThreadEnough(Int32 threadNum)
+{
+    threadNum = threadNum >= _maxNum ? _maxNum : threadNum;
+
+    do
+    {
+        auto curWorkingNum = _workingNum.load(std::memory_order_acquire);
+        if (threadNum <= curWorkingNum)
+            return;
+
+        // 先修改线程数量
+        while (!_workingNum.compare_exchange_weak(curWorkingNum, threadNum, std::memory_order_acq_rel))
+        {
+        
+        }
+
+        auto diffNum = threadNum - curWorkingNum;
+        for (Int32 idx = 0; idx < diffNum; ++idx)
+        {
+            auto newThread = new LibEventLoopThread(_poolName);
+            newThread->Start();
+            // 等待直到线程Poller设置完成
+            Int32 count = 0;
+            while (!newThread->GetPollerNoAsync())
+            {
+                // 让出cpu
+                if(++count < 1000)
+                    continue;
+
+                // 超过1000次让出cpu并打印日志
+                KERNEL_NS::SystemUtil::YieldScheduler();
+                count = 0;
+                if(g_Log)
+                    CLOG_DEBUG("have no poller too long, newThread:%p in thread pool", newThread);
+            }
+            
+            _threads[curWorkingNum + idx] = newThread;
+        }
+
+        break;
+    }
+    while (true);
+}
+
 
 
 KERNEL_END

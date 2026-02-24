@@ -75,7 +75,7 @@ struct KERNEL_EXPORT LogCommonCfg
     std::vector<LogFileDefine> LogFileDefineList;
     // 日志后缀名
     LibString ExtName = ".log";
-    // 日志着盘时间间隔,定时着盘 格式:00:00:01.xxx, xxx部分是纳秒
+    // 日志数量10000以下日志着盘时间间隔,定时着盘 格式:00:00:01.xxx, xxx部分是纳秒
     TimeSlice LogTimerInterval = TimeSlice::FromSeconds(1);
     // 日志单文件最大大小,超过会创建分立文件
     Int32 MaxFileSizeMB = 256;

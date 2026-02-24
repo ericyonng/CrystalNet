@@ -41,6 +41,7 @@
 #include <kernel/comp/Log/LogLevel.h>
 #include <kernel/comp/Log/LogData.h>
 #include <kernel/comp/Delegate/IDelegate.h>
+#include <kernel/comp/Lock/Impl/CoLocker.h>
 
 KERNEL_BEGIN
 

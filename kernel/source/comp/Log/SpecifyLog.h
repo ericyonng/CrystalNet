@@ -49,6 +49,7 @@ class ConditionLocker;
 struct LogConfig;
 struct LogLevelCfg;
 struct LogData;
+class CoLocker;
 
 template <typename Rtn, typename... Args>
 class IDelegate;
@@ -63,7 +64,7 @@ public:
 
 public:
     Int32 Init(const LibString &rootDirName, FileMonitor<LogCfg, YamlDeserializer> *configMonitor, Int32 fileConfigId, Int32 threadRelationId);
-    void BindWakeupFlush(ConditionLocker *flusher);
+    void BindWakeupFlush(CoLocker *flusher);
     Int32 Start();
     void Close();
     void CloseAndReopen();
@@ -104,13 +105,13 @@ private:
     
     // 锁
     SpinLock _logLck;
-    ConditionLocker *_wakeupFlush = NULL;
+    CoLocker *_wakeupFlush = NULL;
 
     std::list<LogData *> *_logData = new std::list<LogData *>;
     std::list<LogData *> *_swapData = new std::list<LogData *>;
 };
 
-ALWAYS_INLINE void SpecifyLog::BindWakeupFlush(ConditionLocker *flusher)
+ALWAYS_INLINE void SpecifyLog::BindWakeupFlush(CoLocker *flusher)
 {
     _wakeupFlush = flusher;
 }

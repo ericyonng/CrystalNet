@@ -116,6 +116,9 @@ public:
 
     Poller *SelectPoller(bool priorityToUsingNewThread = false);
 
+    void MakeThreadEnough(Int32 threadNum);
+    std::vector<LibEventLoopThread *> &GetThreads();
+    
 private:
     Poller *_SelectPoller(bool priorityToUsingNewThread = false);
     
@@ -164,6 +167,12 @@ ALWAYS_INLINE Poller *LibEventLoopThreadPool::SelectPoller(bool priorityToUsingN
 {
     return _SelectPoller(priorityToUsingNewThread);
 }
+
+ALWAYS_INLINE std::vector<LibEventLoopThread *> &LibEventLoopThreadPool::GetThreads()
+{
+    return _threads;
+}
+
 
 
 KERNEL_END                                      

@@ -57,8 +57,7 @@ void ThreadTool::OnInit(LibThread *thread, LibThreadPool *pool, UInt64 threadId,
     sprintf(reason, "%s thread id = [%llu]", tlsMemPoolReason, defTls->_threadId);
     TlsUtil::CreateMemoryPool(reason);
 
-    if(LIKELY(g_Log))
-        g_Log->Sys(LOGFMT_NON_OBJ_TAG(ThreadTool, "thread init suc thread id:[%llu], tlsMemPoolReason:%s."), threadId, tlsMemPoolReason ? tlsMemPoolReason : "None");
+    CRYSTAL_TRACE("thread init suc thread id:[%llu], tlsMemPoolReason:%s.", threadId, tlsMemPoolReason ? tlsMemPoolReason : "None");
 }
 
 Int32 ThreadTool::OnStart()
@@ -69,7 +68,7 @@ Int32 ThreadTool::OnStart()
     auto st = defTls->_tlsComps->Init();
     if(st != Status::Success)
     {
-        if (g_Log )
+        if (g_Log)
             g_Log->Error(LOGFMT_NON_OBJ_TAG(ThreadTool, "thread tls comps init fail st:%d, threadId:[%llu]"), st, threadId);
         return st;
     }
@@ -82,8 +81,7 @@ Int32 ThreadTool::OnStart()
         return st;
     }
 
-    if (g_Log)
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(ThreadTool, "thread start success threadId:[%llu]"), threadId);
+    CRYSTAL_TRACE("thread start success threadId:[%llu]", threadId);
     return Status::Success;
 }
 

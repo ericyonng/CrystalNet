@@ -37,6 +37,7 @@
 #include <kernel/comp/FileMonitor/FileMonitor.h>
 #include <kernel/comp/FileMonitor/YamlDeserializer.h>
 #include <kernel/comp/Log/LogCfg.h>
+#include <kernel/comp/Coroutines/CoTask.h>
 
 KERNEL_BEGIN
 
@@ -45,6 +46,7 @@ class LogIniCfgMgr;
 class Variant;
 class LibThread;
 class ConditionLocker;
+class CoLocker;
 
 class KERNEL_EXPORT LibLog : public ILog
 {
@@ -74,7 +76,7 @@ protected:
 
 protected:
     virtual void _WriteLog(const LogLevelInfoCfg *levelCfg, LogData *logData) override;
-    void _OnLogThreadFlush(LibThread *t, Variant *params);
+    CoTask<> _OnLogThreadFlush(Variant *params);
     void _OnLogFlush(std::vector<SpecifyLog *> &logs, Int32 threadRelationIdx, Int32 logCount);
 
     void StopAllLogThreadAndFallingDisk();
@@ -96,10 +98,11 @@ private:
     std::vector<SpecifyLog *> _fileIdIdxRefLog;     
 
     // 线程锁,线程,flush时间间隔
-    std::vector<LibThread *> _flushThreads;                         // 下标与线程相关性id绑定
-    std::vector<ConditionLocker *> _flushLocks;                     // 锁
+    std::vector<CoLocker *> _flushLocks;                            // 锁(下标是线程关联性id对线程池数量取模)
     std::vector<std::vector<SpecifyLog *> *> _threadRelationLogs;   // 下标与线程相关id绑定,目的在于一个线程执行多个日志的着盘
 
+    std::atomic<Int32> _workingNum;                                 // 工作的线程数量
+    
     std::atomic_bool _isForceLogDiskAll;
     std::vector<std::atomic_bool *> _isForceDiskFlag;
 };
