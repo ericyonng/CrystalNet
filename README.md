@@ -130,6 +130,8 @@
 
 - 集成Lua-5.4.7 静态库
 
+- 支持lua/C++互操作, 测试用例见:TestLua.cpp
+
 - linux下支持so级别的热更(原理是在运行时使用dlopen重新加载so, 见PlugingMgr模块, 并采用数据和逻辑分离，逻辑写在so中, 数据定义在可执行程序中, so例子见TestServicePlugin模块)，见热更原理介绍
 
 - 消息支持无锁队列(SPSC与MPMC), 跨线程消息投递高效
@@ -233,7 +235,9 @@ public:
 * 如果需要在so中使用库, 则需要在编译so的时候打开PROG_USE_SO的宏定义， 因为对象池或者内存池需要追踪这些对象以便定位内存泄漏问题
 * linux so热更时需要显示的销毁全局变量, 避免内存泄漏
 
-# 使用Lua
+# Lua/C++互操作
+
+内核核心类型: KernelLua
 
 只需要include以下头文件即可
 
@@ -242,6 +246,8 @@ public:
 ```
 
 lua脚本的相对路径是相对于C++可执行程序的位置
+
+支持嵌lua/c++互操作 测试用例见:TestLua.cpp
 
 # 简单使用
 
