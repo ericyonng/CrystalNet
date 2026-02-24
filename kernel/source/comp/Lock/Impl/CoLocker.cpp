@@ -30,6 +30,7 @@
 
 #include <kernel/comp/Poller/Poller.h>
 #include <kernel/comp/ObjLife.h>
+#include <kernel/comp/Log/log.h>
 
 
 KERNEL_BEGIN
@@ -164,6 +165,8 @@ CoTask<Int32> CoLocker::Wait()
 
         // 等待信号
         co_await KERNEL_NS::Waiting().GetParam(coLockerInfo->_taskParam);
+
+        coLockerInfo->Version.fetch_add(1, std::memory_order_release);
     }
     while (false);
     
@@ -311,6 +314,8 @@ CoTask<Int32> CoLocker::TimeWait(UInt64 second, UInt64 microSec)
 
         // 等待信号
         co_await KERNEL_NS::Waiting(KERNEL_NS::TimeSlice::FromSeconds(static_cast<Int64>(second)) + TimeSlice::FromMicroSeconds(static_cast<Int64>(microSec))).GetParam(coLockerInfo->_taskParam);
+
+        coLockerInfo->Version.fetch_add(1, std::memory_order_release);
     }
     while (false);
     
@@ -455,12 +460,15 @@ CoTask<Int32> CoLocker::TimeWait(UInt64 milliSecond)
         
         if(coLockerInfo->IsSignal.exchange(false, std::memory_order_acq_rel))
             break;
-
+        
         // 等待信号
         co_await KERNEL_NS::Waiting(TimeSlice::FromMilliSeconds(static_cast<Int64>(milliSecond))).GetParam(coLockerInfo->_taskParam);
+
+        // 更新版本号
+        coLockerInfo->Version.fetch_add(1, std::memory_order_release);
     }
     while (false);
-    
+
     coLockerInfo->IsSignal.exchange(false, std::memory_order_release);
     _isSignal.exchange(false, std::memory_order_release);
 
@@ -603,8 +611,14 @@ CoTask<Int32> CoLocker::TimeWait(TimeSlice slice)
         if(coLockerInfo->IsSignal.exchange(false, std::memory_order_acq_rel))
             break;
 
+        // CLOG_DEBUG("[Wait Slice] will waiting %p version:%llu", coLockerInfo, coLockerInfo->Version.load(std::memory_order_relaxed));
+
         // 等待信号
         co_await KERNEL_NS::Waiting(slice).GetParam(coLockerInfo->_taskParam);
+
+        coLockerInfo->Version.fetch_add(1, std::memory_order_release);
+
+        // CLOG_DEBUG("[Wait Slice] wake up %p version:%llu", coLockerInfo, coLockerInfo->Version.load(std::memory_order_relaxed));
     }
     while (false);
     
@@ -700,15 +714,30 @@ bool CoLocker::Sinal()
 
     // TODO:测试taskParam的生命周期
     coLockerInfo->IsSignal.store(true, std::memory_order_release);
+    auto version = coLockerInfo->Version.load(std::memory_order_acquire);
+
+    // CLOG_DEBUG("[Signal] lockerInfo:%p, version:%llu", coLockerInfo, version);
 
     if(poller == _ownerPoller)
     {
-        // 同一线程
-        poller->Push([taskParam = coLockerInfo->_taskParam]()
+        // 同一线程        
+        poller->Push([taskParam = coLockerInfo->_taskParam, version, coLockerInfo]()
         {
             if(taskParam && taskParam->_params)
             {
                 auto &pa = taskParam->_params;
+                // CLOG_DEBUG_GLOBAL(CoLocker, "coLockerInfo:%p TRACE:%p-%s, handle:%p-%llu timeout:%p-%s version:%llu, curVersion:%llu"
+                //     , coLockerInfo, pa->_trace, pa->_trace? (pa->_trace->ToString().c_str()) : ""
+                //     , pa->_handle, pa->_handle ? pa->_handle->GetHandleId() : 0
+                //     , pa->_timeout, pa->_timeout? pa->_timeout->ToString().c_str(): "", version, coLockerInfo->Version.load(std::memory_order_relaxed));
+
+                // _params不为空, 那么coLockerInfo必然还没销毁, 且必然不存在其他线程销毁coLockerInfo可能性,版本号不同, 那么必然在signal之后一段时间被唤醒过, 不需要再唤醒
+                if (coLockerInfo && coLockerInfo->Version.load(std::memory_order_relaxed) != version)
+                    return;
+
+                if (pa->_timeout)
+                    pa->_timeout->Cancel();
+                
                 if(pa->_handle)
                     pa->_handle->ForceAwake();
             }
@@ -717,13 +746,26 @@ bool CoLocker::Sinal()
     // 与_ownerPoller不同线程需要控制objLifeControl
     else
     {
-        poller->Push([coLockerInfo, objLifeControl]()
+
+        poller->Push([version, coLockerInfo, objLifeControl]()
         {
             if(coLockerInfo->_taskParam && coLockerInfo->_taskParam->_params)
             {
                 auto &pa = coLockerInfo->_taskParam->_params;
-                if(pa->_handle)
-                    pa->_handle->ForceAwake();
+                // CLOG_DEBUG_GLOBAL(CoLocker, "coLockerInfo:%p, TRACE:%p-%s, handle:%p-%llu timeout:%p-%s version:%llu, curVersion:%llu"
+                //     , coLockerInfo, pa->_trace, pa->_trace? (pa->_trace->ToString().c_str()) : ""
+                //     , pa->_handle, pa->_handle ? pa->_handle->GetHandleId() : 0
+                //     , pa->_timeout, pa->_timeout? pa->_timeout->ToString().c_str(): "", version, coLockerInfo->Version.load(std::memory_order_relaxed));
+
+                // 版本号不同,说明在signal后, waiter已经醒过, 不需要再唤醒了,避免多次唤醒
+                if (version == coLockerInfo->Version.load(std::memory_order_relaxed))
+                {
+                    if (pa->_timeout)
+                        pa->_timeout->Cancel();
+                
+                    if(pa->_handle)
+                        pa->_handle->ForceAwake();
+                }
             }
         });
     }
@@ -759,15 +801,23 @@ void CoLocker::Broadcast()
 
         // TODO:测试taskParam的生命周期
         coLockerInfo->IsSignal.store(true, std::memory_order_release);
+        auto version = coLockerInfo->Version.load(std::memory_order_acquire);
 
         if(poller == _ownerPoller)
         {
             // 同一线程
-            poller->Push([taskParam = coLockerInfo->_taskParam]()
+            poller->Push([taskParam = coLockerInfo->_taskParam, version, coLockerInfo]()
             {
                 if(taskParam && taskParam->_params)
                 {
                     auto &pa = taskParam->_params;
+                    // _params不为空, 那么coLockerInfo必然还没销毁, 且必然不存在其他线程销毁coLockerInfo可能性,版本号不同, 那么必然在signal之后一段时间被唤醒过, 不需要再唤醒
+                    if (coLockerInfo && coLockerInfo->Version.load(std::memory_order_relaxed) != version)
+                        return;
+
+                    if (pa->_timeout)
+                        pa->_timeout->Cancel();
+        
                     if(pa->_handle)
                         pa->_handle->ForceAwake();
                 }
@@ -776,13 +826,25 @@ void CoLocker::Broadcast()
         // 与_ownerPoller不同线程需要控制objLifeControl
         else
         {
-            poller->Push([coLockerInfo, objLifeControl]()
+            poller->Push([version, coLockerInfo, objLifeControl]()
             {
                 if(coLockerInfo->_taskParam && coLockerInfo->_taskParam->_params)
                 {
                     auto &pa = coLockerInfo->_taskParam->_params;
-                    if(pa->_handle)
-                        pa->_handle->ForceAwake();
+                    // CLOG_DEBUG_GLOBAL(CoLocker, "coLockerInfo:%p, TRACE:%p-%s, handle:%p-%llu timeout:%p-%s version:%llu, curVersion:%llu"
+                    //     , coLockerInfo, pa->_trace, pa->_trace? (pa->_trace->ToString().c_str()) : ""
+                    //     , pa->_handle, pa->_handle ? pa->_handle->GetHandleId() : 0
+                    //     , pa->_timeout, pa->_timeout? pa->_timeout->ToString().c_str(): "", version, coLockerInfo->Version.load(std::memory_order_relaxed));
+
+                    // 版本号不同,说明在signal后, waiter已经醒过, 不需要再唤醒了,避免多次唤醒
+                    if (version == coLockerInfo->Version.load(std::memory_order_relaxed))
+                    {
+                        if (pa->_timeout)
+                            pa->_timeout->Cancel();
+                
+                        if(pa->_handle)
+                            pa->_handle->ForceAwake();
+                    }
                 }
             });
         }

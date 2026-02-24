@@ -59,8 +59,9 @@ namespace TestCoLockerNs
     class EventLoopStartup : public KERNEL_NS::IThreadStartUp
     {
     public:
-        EventLoopStartup(KERNEL_NS::CoLocker *locker)
+        EventLoopStartup(KERNEL_NS::CoLocker *locker, Int32 id)
             :_locker(locker)
+        ,_id(id)
         {
             
         }
@@ -73,9 +74,9 @@ namespace TestCoLockerNs
                 // 在poller退出的时候必须唤醒locker,避免locker无法被释放
                 auto poller = KERNEL_NS::TlsUtil::GetPoller();
                 Int64 idCount = 0;
-                while ((!poller->IsQuit()) && (co_await _locker->TimeWait(KERNEL_NS::TimeSlice::FromSeconds(2)) == Status::Success))
+                while ((!poller->IsQuit()) && (co_await _locker->Wait() == Status::Success))
                 {
-                    CLOG_INFO("TestCoLocker wake up idCount:%lld.", ++idCount);
+                    CLOG_INFO("TestCoLocker-[%d]: wake up idCount:%lld.", _id, ++idCount);
                     s_comsumeQps.fetch_add(1, std::memory_order_release);
                 }
 
@@ -88,6 +89,7 @@ namespace TestCoLockerNs
         }
 
         KERNEL_NS::CoLocker *_locker;
+        const Int32 _id;
     };
 
     class EventLoopStartupSignal : public KERNEL_NS::IThreadStartUp
@@ -118,7 +120,7 @@ namespace TestCoLockerNs
             timer->SetTimeOutHandler([this](KERNEL_NS::LibTimer *t)
             {
                 CLOG_INFO("testcolocker hello signal.");
-                _locker->Sinal();
+                _locker->Broadcast();
             });
             timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t)
             {
@@ -141,9 +143,18 @@ void TestCoLocker::Run()
     KERNEL_NS::CoLocker locker;
     auto thread3 = new KERNEL_NS::LibEventLoopThread("EventLoopStartupCounter counter", new EventLoopStartupCounter());
     thread3->Start();
-    
-    auto thread = new KERNEL_NS::LibEventLoopThread("testcolocker waiter", new EventLoopStartup(&locker));
-    thread->Start();
+
+    // waiter
+    std::vector<KERNEL_NS::LibEventLoopThread *> waiters;
+    {
+        auto thread = new KERNEL_NS::LibEventLoopThread("testcolocker waiter", new EventLoopStartup(&locker, 1));
+        waiters.push_back(thread);
+        thread->Start();
+
+        thread = new KERNEL_NS::LibEventLoopThread("testcolocker waiter", new EventLoopStartup(&locker, 2));
+        waiters.push_back(thread);
+        thread->Start();
+    }
 
     auto thread2 = new KERNEL_NS::LibEventLoopThread("testcolocker signaler", new EventLoopStartupSignal(&locker));
     thread2->Start();
@@ -163,11 +174,15 @@ void TestCoLocker::Run()
         CLOG_INFO_GLOBAL(TestCoLocker, "has waiter...");
     }
 
-    thread->HalfClose();
+    for (auto waiter : waiters)
+        waiter->HalfClose();
+
     thread2->HalfClose();
     thread3->HalfClose();
 
-    thread->FinishClose();
+    for (auto waiter : waiters)
+        waiter->FinishClose();
+    
     thread2->FinishClose();
     thread3->FinishClose();
 }

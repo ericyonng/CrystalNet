@@ -49,6 +49,7 @@ struct KERNEL_EXPORT CoLockerInfo
 
     CoLockerInfo()
         :IsSignal{false}
+    ,Version{0}
     ,_poller(NULL)
     {
         
@@ -64,6 +65,7 @@ struct KERNEL_EXPORT CoLockerInfo
     }
 
     alignas(SYSTEM_ALIGN_SIZE) std::atomic_bool IsSignal;
+    alignas(SYSTEM_ALIGN_SIZE) std::atomic<UInt64> Version;
 
     // 由waiterpoller控制
     KERNEL_NS::SmartPtr<KERNEL_NS::TaskParamRefWrapper, KERNEL_NS::AutoDelMethods::Release> _taskParam;
