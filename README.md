@@ -138,6 +138,8 @@
 
 - 支持**FileMonitor**，加载的配置可以实时热更, 热更做到**无感, 无负担**，测试用例见TestYaml.cpp
 
+- 支持CoLocker, 跨线程协程同步, 测试用例见TestColocker.cpp
+
   
 
 # Log 使用
