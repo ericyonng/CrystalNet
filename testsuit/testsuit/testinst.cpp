@@ -312,8 +312,8 @@ void TestInst::Run(int argc, char const *argv[])
     // TestEventLoopThread::Run();
     // TestLockFree::Run();
     // TestYaml::Run();
-    // TestCoLocker::Run();
-    TestLibConfig::Run();
+    TestCoLocker::Run();
+    // TestLibConfig::Run();
     
     // write a large file
     // do

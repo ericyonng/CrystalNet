@@ -102,6 +102,18 @@ namespace TestCoLockerNs
         }
         virtual void Run()
         {
+            auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+            timer->SetTimeOutHandler([this](KERNEL_NS::LibTimer *t)
+            {
+                CLOG_INFO("testcolocker hello signal.");
+                _locker->Sinal();
+            });
+            timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t)
+            {
+                KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+            });
+            timer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(1));
+
             // KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<>
             // {
             //     auto poller = KERNEL_NS::TlsUtil::GetPoller();
@@ -114,19 +126,6 @@ namespace TestCoLockerNs
             //     CLOG_INFO_GLOBAL(EventLoopStartupSignal, "signal quit");
             //     co_return;
             // });
-
-            auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
-            
-            timer->SetTimeOutHandler([this](KERNEL_NS::LibTimer *t)
-            {
-                CLOG_INFO("testcolocker hello signal.");
-                _locker->Broadcast();
-            });
-            timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t)
-            {
-                KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
-            });
-            timer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(1));
         }
         virtual void Release()
         {
@@ -151,9 +150,9 @@ void TestCoLocker::Run()
         waiters.push_back(thread);
         thread->Start();
 
-        thread = new KERNEL_NS::LibEventLoopThread("testcolocker waiter", new EventLoopStartup(&locker, 2));
-        waiters.push_back(thread);
-        thread->Start();
+        // thread = new KERNEL_NS::LibEventLoopThread("testcolocker waiter", new EventLoopStartup(&locker, 2));
+        // waiters.push_back(thread);
+        // thread->Start();
     }
 
     auto thread2 = new KERNEL_NS::LibEventLoopThread("testcolocker signaler", new EventLoopStartupSignal(&locker));
