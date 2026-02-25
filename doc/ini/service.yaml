@@ -1,0 +1,23 @@
+# Author: EricYonng(120453674@qq.com)
+# Date:2026.02.25
+# Desc:配置
+
+# 核心配置不热重载(为了性能)
+KernelConfig:
+  # 网络配置(不进行热重载),如果连接器与数据传输器不共用Poller那么网络线程数是两者相加, 如果共用那么网络线程数取两者最大数量
+  NetConfig:
+    # 是否启用网络
+    Enable: true
+    # 连接器配置
+    Linker:
+      # 定义连接器id, 如果id与数据传输器id一样说明连接器和数据传输器共用一个Poller
+      Id: 1
+      # 连接器数量
+      Num: 1
+
+    # 数据传输器配置
+    DataTransfer:
+      # id
+      Id: 1
+      # 数量
+      Num: 1
