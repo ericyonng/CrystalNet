@@ -13,11 +13,52 @@ KernelConfig:
       # 定义连接器id, 如果id与数据传输器id一样说明连接器和数据传输器共用一个Poller
       Id: 1
       # 连接器数量
-      Num: 1
+      Count: 1
 
     # 数据传输器配置
     DataTransfer:
       # id
       Id: 1
       # 数量
-      Num: 1
+      Count: 1
+
+    # 黑白名单模式:黑名单:拒绝, 白名单通过, 其他的也放行
+    BlackWhiteListMode: 
+      BlackList: true
+      WhiteList: true
+
+    # 最大会话数量 0表示无限制
+    MaxSessionQuantity: 100000
+
+    # 收发包参数
+    # 收包单包大小限制, 0表示不限制, 如果传参不指定, 则默认使用配置, 如果手动指定参数, 则使用参数的
+    SessionRecvPacketContentLimit: 16777216
+    # 发包单包大小限制 0表示不限制,如果传参不指定, 则默认使用配置, 如果手动指定参数, 则使用参数的
+    SessionSendPacketContentLimit: 0
+    # 单帧最大接收数据量 0表示不限制
+    MaxRecvBytesPerFrame: 0
+    # 单帧最大发送数据量 0表示不限制
+    MaxSendBytesPerFrame: 0
+    # 单帧最大处理连接数 0表示不限制
+    MaxAcceptCountPerFrame: 1024
+
+
+  # 垃圾回收参数
+  # 所有分配器内存使用上限控制 4GB
+  AllMemoryAlloctorTotalUpper: 4294967296
+
+  # GC 时间间隔
+  GCIntervalMs: 100
+
+  # 设置中央内存收集器工作时间间隔
+  CenterCollectorIntervalMs: 100
+  # 设置中央收集器跨线程block合并数量达到限制唤醒收集器工作的数量 128 * 1024
+  WakeupCenterCollectorMinBlockNum: 131072
+  # 设置MergeMemoryBufferInfo队列达到数量时唤醒中央收集器 128 * 1024
+  WakeupCenterCollectorMinMergeBufferInfoNum: 131072
+  # 定时合并tls内存块间隔时间 1分钟
+  MergeTlsMemoryBlockIntervalMs: 5000
+
+  # 事件循环Poller配置
+  # 预设的poller扫描时间间隔
+  MaxPollerScanMilliseconds: 1

@@ -209,10 +209,6 @@ public:
     // 设置poller事件循环休眠时最大等待时长
     void SetMaxSleepMilliseconds(UInt64 maxMilliseconds);
 
-    // 设置处理超时时长
-    void SetMaxPieceTime(const TimeSlice &piece);
-    const LibCpuSlice &GetMaxPieceTime() const;
-
     // n次循环检查一次超时
     void SetLoopDetectTimeout(Int32 loopCount);
     Int32 GetLoopDetectTimeout() const;
@@ -592,7 +588,6 @@ private:
 
     friend class Channel;
 private:
-  LibCpuSlice _maxPieceTime;                                 // 每个事务时间片
   std::atomic<UInt64> _workThreadId;                        // 事件处理线程id
   std::atomic_bool _isEnable;                               // 销毁的时候是disable
   std::atomic_bool _isQuitLoop;                               // 是否关闭

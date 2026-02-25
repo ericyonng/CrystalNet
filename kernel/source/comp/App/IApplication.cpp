@@ -180,7 +180,6 @@ Int32 IApplication::_OnPriorityLevelCompsCreated()
 
     // poller 设置
     KERNEL_NS::TimeSlice span(0, 0, _maxPieceTimeInMicroseconds);
-    _poller->SetMaxPieceTime(span);
     _poller->SetMaxSleepMilliseconds(_maxSleepMilliseconds);
     // _poller->SetPepareEventWorkerHandler(this, &IApplication::_OnPollerPrepare);
     // _poller->SetEventWorkerCloseHandler(this, &IApplication::_OnPollerWillDestroy);

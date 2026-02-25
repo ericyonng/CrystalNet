@@ -33,11 +33,13 @@
 
 KERNEL_BEGIN
 
-CoTask<> Waiting(KERNEL_NS::TimeSlice slice)
+CoTask<> Waiting(KERNEL_NS::TimeSlice slice, bool printStackIfTimeout)
 {
  CoWaiter waiter;
  if(slice)
-  waiter.SetTimeout(slice);
+     waiter.SetTimeout(slice);
+
+ waiter.SetPrintStackIfTimeout(printStackIfTimeout);
  co_await waiter;
 }
 

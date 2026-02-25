@@ -165,10 +165,13 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
         KERNEL_NS::DirectoryUtil::CreateDir(iniRoot);
 
     // 初始化tls
-    if(KERNEL_NS::TlsUtil::GetUtileTlsHandle() == INVALID_TLS_HANDLE)
+    if(KERNEL_NS::BitUtil::IsSet(flags, KernelFlags::INIT_TLS))
     {
-        CRYSTAL_TRACE("GetUtileTlsHandle fail.");
-        return false;
+        if(KERNEL_NS::TlsUtil::GetUtileTlsHandle() == INVALID_TLS_HANDLE)
+        {
+            CRYSTAL_TRACE("GetUtileTlsHandle fail.");
+            return false;
+        }
     }
 
     // 初始化时区
@@ -434,8 +437,10 @@ void KernelUtil::Destroy()
     if(g_MemoryPool)
         g_MemoryPool->Destroy();
     g_MemoryPool = NULL;
+
     // tls销毁
-    KERNEL_NS::TlsUtil::DestroyUtilTlsHandle();
+    if(KERNEL_NS::BitUtil::IsSet(flags, KernelFlags::INIT_TLS))
+        KERNEL_NS::TlsUtil::DestroyUtilTlsHandle();
 
     // CRYSTAL_TRACE("kernel close center memory collector.");
 

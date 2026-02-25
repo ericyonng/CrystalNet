@@ -75,6 +75,9 @@ public:
         // 初始化curl
         INIT_CURL,
 
+        // 初始化tls
+        INIT_TLS,
+        
         // 最大值
         MAX,
     };

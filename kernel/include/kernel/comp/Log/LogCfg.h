@@ -106,6 +106,8 @@ struct KERNEL_EXPORT LogLevelInfoCfg
 // 日志整体配置
 struct KERNEL_EXPORT LogCfg
 {
+    POOL_CREATE_OBJ_DEFAULT(LogCfg);
+
     LogCommonCfg LogCommon;
     std::vector<LogLevelInfoCfg> LogLevelList;
 
@@ -129,14 +131,17 @@ struct KERNEL_EXPORT LogCfg
     Int64 MaxLogSizeBytes = 0;
     // 最大缓存大小
     Int64 MaxLogCacheSizeBytes = 0;
+
+    // 创建自己
     static LogCfg *CreateNewObj(LogCfg &&cfg)
     {
-        return new LogCfg(std::move(cfg));
+        return LogCfg::New_LogCfg(std::move(cfg));
     }
-    
+
+    // 释放自己
     void Release()
     {
-        delete this;
+        LogCfg::Delete_LogCfg(this);
     }
 
     // 常用接口
@@ -240,7 +245,7 @@ namespace YAML
 
             rhs.FileId = node["FileId"].as<Int32>();
             auto &fileNameNode = node["FileName"];
-            if(!fileNameNode.IsNull())
+            if(fileNameNode.IsDefined())
                 rhs.FileName = fileNameNode.as<std::string>();
             rhs.ThreadRelationshipId = node["ThreadRelationshipId"].as<Int32>();
             
@@ -269,7 +274,7 @@ namespace YAML
 
             rhs.IsUseProgramNameAsFirstLevelPath = node["IsUseProgramNameAsFirstLevelPath"].as<Int32>() != 0;
 
-            if(!node["PartPath"].IsNull())
+            if(node["PartPath"].IsDefined())
                 rhs.PartPath = node["PartPath"].as<std::string>();
             
             return true;
@@ -305,10 +310,10 @@ namespace YAML
             if(listNode.IsSequence())
                 rhs.LogFileDefineList = listNode.as<std::vector<KERNEL_NS::LogFileDefine>>();
 
-            if(!node["ExtName"].IsNull())
+            if(node["ExtName"].IsDefined())
                 rhs.ExtName = node["ExtName"].as<std::string>();
 
-            if(!node["LogTimerInterval"].IsNull())
+            if(node["LogTimerInterval"].IsDefined())
                 rhs.LogTimerInterval = KERNEL_NS::TimeSlice(node["LogTimerInterval"].as<std::string>());
 
             rhs.MaxFileSizeMB = node["MaxFileSizeMB"].as<Int32>();
@@ -359,12 +364,12 @@ namespace YAML
 
             auto &fgColorStrNode = node["FgColor"];
             rhs.FgColor = KERNEL_NS::ConsoleColorHelper::GetFrontColor("White");
-            if(!fgColorStrNode.IsNull())
+            if(fgColorStrNode.IsDefined())
                 rhs.FgColor = KERNEL_NS::ConsoleColorHelper::GetFrontColor(fgColorStrNode.as<std::string>());
 
             rhs.BgColor = 0;
             auto &backNode = node["BgColor"];
-            if(!backNode.IsNull())
+            if(backNode.IsDefined())
                 rhs.BgColor = KERNEL_NS::ConsoleColorHelper::GetBackColor(backNode.as<std::string>());
 
             rhs.LevelId = node["LevelId"].as<Int32>();

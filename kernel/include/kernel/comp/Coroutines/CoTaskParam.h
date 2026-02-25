@@ -83,6 +83,9 @@ struct KERNEL_EXPORT CoTaskParam
 
     // 是否需要抛到Poller执行
     bool _enableSuspend = false;
+
+    // 超时是否打印堆栈
+    bool _printStackIfTimeout = true;
 };
 
 struct KERNEL_EXPORT CoCurrentTaskParam

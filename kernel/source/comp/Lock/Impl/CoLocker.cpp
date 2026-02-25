@@ -164,7 +164,7 @@ CoTask<Int32> CoLocker::Wait()
             break;
 
         // 等待信号
-        co_await KERNEL_NS::Waiting().GetParam(coLockerInfo->_taskParam);
+        co_await KERNEL_NS::Waiting().GetParam(coLockerInfo->_taskParam).SetPrintStackIfTimeout(false);
 
         coLockerInfo->Version.fetch_add(1, std::memory_order_release);
     }
@@ -178,7 +178,7 @@ CoTask<Int32> CoLocker::Wait()
         auto &pa = coLockerInfo->_taskParam->_params; 
         if(pa->_errCode != Status::Success)
         {
-            if (g_Log)
+            if (g_Log && (pa->_errCode != Status::CoTaskTimeout))
             {
                 CLOG_WARN("waiting err:%d", pa->_errCode);
             }
@@ -313,7 +313,7 @@ CoTask<Int32> CoLocker::TimeWait(UInt64 second, UInt64 microSec)
             break;
 
         // 等待信号
-        co_await KERNEL_NS::Waiting(KERNEL_NS::TimeSlice::FromSeconds(static_cast<Int64>(second)) + TimeSlice::FromMicroSeconds(static_cast<Int64>(microSec))).GetParam(coLockerInfo->_taskParam);
+        co_await KERNEL_NS::Waiting(KERNEL_NS::TimeSlice::FromSeconds(static_cast<Int64>(second)) + TimeSlice::FromMicroSeconds(static_cast<Int64>(microSec))).GetParam(coLockerInfo->_taskParam).SetPrintStackIfTimeout(false);
 
         coLockerInfo->Version.fetch_add(1, std::memory_order_release);
     }
@@ -327,7 +327,7 @@ CoTask<Int32> CoLocker::TimeWait(UInt64 second, UInt64 microSec)
         auto &pa = coLockerInfo->_taskParam->_params; 
         if(pa->_errCode != Status::Success)
         {
-            if (g_Log)
+            if (g_Log && (pa->_errCode != Status::CoTaskTimeout))
             {
                 CLOG_WARN("waiting err:%d", pa->_errCode);
             }
@@ -462,7 +462,7 @@ CoTask<Int32> CoLocker::TimeWait(UInt64 milliSecond)
             break;
         
         // 等待信号
-        co_await KERNEL_NS::Waiting(TimeSlice::FromMilliSeconds(static_cast<Int64>(milliSecond))).GetParam(coLockerInfo->_taskParam);
+        co_await KERNEL_NS::Waiting(TimeSlice::FromMilliSeconds(static_cast<Int64>(milliSecond))).GetParam(coLockerInfo->_taskParam).SetPrintStackIfTimeout(false);
 
         // 更新版本号
         coLockerInfo->Version.fetch_add(1, std::memory_order_release);
@@ -477,7 +477,7 @@ CoTask<Int32> CoLocker::TimeWait(UInt64 milliSecond)
         auto &pa = coLockerInfo->_taskParam->_params; 
         if(pa->_errCode != Status::Success)
         {
-            if (g_Log)
+            if (g_Log && (pa->_errCode != Status::CoTaskTimeout))
             {
                 CLOG_WARN("waiting err:%d", pa->_errCode);
             }
@@ -614,7 +614,7 @@ CoTask<Int32> CoLocker::TimeWait(TimeSlice slice)
         // CLOG_DEBUG("[Wait Slice] will waiting %p version:%llu", coLockerInfo, coLockerInfo->Version.load(std::memory_order_relaxed));
 
         // 等待信号
-        co_await KERNEL_NS::Waiting(slice).GetParam(coLockerInfo->_taskParam);
+        co_await KERNEL_NS::Waiting(slice).GetParam(coLockerInfo->_taskParam).SetPrintStackIfTimeout(false);
 
         coLockerInfo->Version.fetch_add(1, std::memory_order_release);
 
@@ -630,7 +630,7 @@ CoTask<Int32> CoLocker::TimeWait(TimeSlice slice)
         auto &pa = coLockerInfo->_taskParam->_params; 
         if(pa->_errCode != Status::Success)
         {
-            if (g_Log)
+            if (g_Log && (pa->_errCode != Status::CoTaskTimeout))
             {
                 CLOG_WARN("waiting err:%d", pa->_errCode);
             }

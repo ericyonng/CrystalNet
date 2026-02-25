@@ -1830,7 +1830,6 @@ bool IocpTcpPoller::_OnThreadStart()
     auto poller = TlsUtil::GetPoller();
     
     TimeSlice span(0, 0, _cfg->_maxPieceTimeInMicroseconds);
-    poller->SetMaxPieceTime(span);
     poller->SetMaxSleepMilliseconds(_cfg->_maxSleepMilliseconds);
     poller->SetPepareEventWorkerHandler(this, &IocpTcpPoller::_OnPollerPrepare);
     poller->SetEventWorkerCloseHandler(this, &IocpTcpPoller::_OnPollerWillDestroy);

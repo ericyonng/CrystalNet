@@ -90,10 +90,16 @@ struct KERNEL_EXPORT CoWaiter: private NonCopyable
                         CoTaskParam::SetCurrentCoParam(callerHandle->GetParam());
 
                         // 超时
+                        auto printStack = callerHandle->GetParam()->_printStackIfTimeout;
                         callerHandle->GetParam()->_errCode = Status::CoTaskTimeout;
-                        KERNEL_NS::LibString content;
-                        callerHandle->GetBacktrace(content);
-                        CLOG_WARN_GLOBAL(CoWaiter, "co time out, backtrace:%s", content.c_str());
+
+                        if(printStack)
+                        {
+                            KERNEL_NS::LibString content;
+                            callerHandle->GetBacktrace(content);
+                            CLOG_WARN_GLOBAL(CoWaiter, "co time out, backtrace:%s", content.c_str());
+                        }
+              
                         callerHandle->Run(KERNEL_NS::KernelHandle::UNSCHEDULED);
                     }
                     while (false);
@@ -112,7 +118,15 @@ struct KERNEL_EXPORT CoWaiter: private NonCopyable
 
         _param->_endTime = KERNEL_NS::LibTime::Now() + slice;
     }
-    
+
+    void SetPrintStackIfTimeout(bool printStack)
+    {
+        if(!_param)
+            _param = KERNEL_NS::CoTaskParam::NewThreadLocal_CoTaskParam();
+
+        _param->_printStackIfTimeout = printStack;
+    }
+
     SmartPtr<CoTaskParam, AutoDelMethods::Release> _param; 
 };
 
@@ -122,7 +136,7 @@ struct KERNEL_EXPORT CoWaiter: private NonCopyable
 // }
 
 // 超时唤醒需要外部手动销毁Waiting产生的协程, 通过GetParam可以获取协程handle
-CoTask<> Waiting(KERNEL_NS::TimeSlice slice = KERNEL_NS::TimeSlice::ZeroSlice());
+CoTask<> Waiting(KERNEL_NS::TimeSlice slice = KERNEL_NS::TimeSlice::ZeroSlice(), bool printStackIfTimeout = false);
 CoTask<> CoCompleted();
 
 // 空协程

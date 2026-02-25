@@ -54,6 +54,7 @@
 #include <kernel/comp/ConcurrentPriorityQueue/MPMCQueue.h>
 #include <kernel/comp/ConcurrentPriorityQueue/SPSCQueue.h>
 #include <kernel/comp/ObjLife.h>
+#include <kernel/comp/Config/Config.h>
 
 // 简单组件
 #include <kernel/comp/Delegate/LibDelegate.h>

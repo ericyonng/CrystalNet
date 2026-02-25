@@ -188,9 +188,11 @@ public:
                     if(!selfHandle->IsDone())
                     {
                         CoTaskParam::SetCurrentCoParam(selfHandle->GetParam());
-                        
+
+                        auto printStack = selfHandle->GetParam()->_printStackIfTimeout;
                         selfHandle->GetParam()->_errCode = Status::CoTaskTimeout;
-                        selfHandle->DumpBacktrace();
+                        if(printStack)
+                            selfHandle->DumpBacktrace();
                         selfHandle->ForceAwake();
                     }
                 });
@@ -747,6 +749,17 @@ public:
 
         return *this;
     }
+
+    CoTask<R>& SetPrintStackIfTimeout(bool printStack)
+    {
+        if(UNLIKELY(!_params))
+            _params = CoTaskParam::NewThreadLocal_CoTaskParam();
+
+        _params->_printStackIfTimeout = printStack;
+
+        return *this;
+    }
+
 
 private:
     void Destroy() 

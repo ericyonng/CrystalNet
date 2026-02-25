@@ -102,7 +102,6 @@ KERNEL_BEGIN
 
 Poller::Poller()
 :CompObject(KERNEL_NS::RttiUtil::GetTypeId<Poller>())
-,_maxPieceTime(LibCpuSlice::FromMilliseconds(8))  // 经验值8ms
 ,_workThreadId{0}
 ,_isEnable{true}
 ,_isQuitLoop{false}
@@ -390,8 +389,7 @@ LibString Poller::ToString() const
     LibString info;
     info.AppendFormat("%s", CompObject::ToString().c_str());
 
-    info.AppendFormat("_maxPieceTimeInMicroseconds:%llu, ", _maxPieceTime.GetTotalCount())
-        .AppendFormat("_workThreadId:%llu, ", _workThreadId.load(std::memory_order_acquire))
+    info.AppendFormat("_workThreadId:%llu, ", _workThreadId.load(std::memory_order_acquire))
         .AppendFormat("_isEnable:%d, ", _isEnable.load(std::memory_order_acquire))
         .AppendFormat("_isClosed:%d, ", _isQuitLoop.load(std::memory_order_acquire))
         .AppendFormat("timer loaded:%llu, ", _timerMgr ? _timerMgr->GetTimerLoaded() : 0)
@@ -429,16 +427,6 @@ void Poller::Subscribe(Int32 eventType, KERNEL_NS::IDelegate<void, KERNEL_NS::Po
     }
 
     _pollerEventHandler.insert(std::make_pair(eventType, deleg));
-}
-
-void Poller::SetMaxPieceTime(const TimeSlice &piece)
-{
-    _maxPieceTime.SetMicroseconds(static_cast<UInt64>(piece.GetTotalMicroSeconds()));
-}
-
-const LibCpuSlice &Poller::GetMaxPieceTime() const
-{
-    return _maxPieceTime;
 }
 
 bool Poller::PrepareLoop()
@@ -799,15 +787,15 @@ void Poller::SafeEventLoop()
             }
             
             // 当前帧性能信息记录
-            #ifdef ENABLE_POLLER_PERFORMANCE
-                const auto &elapseTime = nowCounter.Update() - performaceStart;
-                if(UNLIKELY(elapseTime >= _maxPieceTime))
-                {
-                    if(g_Log && g_Log->IsEnable(LogLevel::Info))
-                        g_Log->Info(LOGFMT_OBJ_TAG("[poller performance] poller id:%llu thread id:%llu, use time over max piece time, use time:%llu(ms), max piece time:%llu(ms), consume event count:%llu, time out handled count:%lld, dirty handled count:%lld")
-                    , pollerId, curThreadId, elapseTime.GetTotalMilliseconds(), _maxPieceTime.GetTotalMilliseconds(), curConsumeEventsCount, handled, dirtyHandled);
-                }
-            #endif
+            // #ifdef ENABLE_POLLER_PERFORMANCE
+            //     const auto &elapseTime = nowCounter.Update() - performaceStart;
+            //     if(UNLIKELY(elapseTime >= _maxPieceTime))
+            //     {
+            //         if(g_Log && g_Log->IsEnable(LogLevel::Info))
+            //             g_Log->Info(LOGFMT_OBJ_TAG("[poller performance] poller id:%llu thread id:%llu, use time over max piece time, use time:%llu(ms), max piece time:%llu(ms), consume event count:%llu, time out handled count:%lld, dirty handled count:%lld")
+            //         , pollerId, curThreadId, elapseTime.GetTotalMilliseconds(), _maxPieceTime.GetTotalMilliseconds(), curConsumeEventsCount, handled, dirtyHandled);
+            //     }
+            // #endif
         }
 
         // #ifndef _DEBUG
