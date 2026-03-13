@@ -146,8 +146,7 @@ protected:
 
     KERNEL_NS::LibString _yamlPath;
     KERNEL_NS::LibString _yamlContent;
-    KERNEL_NS::YamlMemory *_yamlMemory;
-    FileMonitor<KernelConfig, YamlDeserializer> *_kernelConfig;
+    KernelConfig _kernelConfig;
 };
 
 ALWAYS_INLINE const LibString &IApplication::GetAppName() const

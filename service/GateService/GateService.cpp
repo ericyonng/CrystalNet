@@ -233,11 +233,6 @@ Int32 GateService::_OnServiceInit()
 
 Int32 GateService::_OnServicePriorityLevelCompsCreated()
 {
-    // poller mgr 的配置
-    auto pollerMgr = GetComp<KERNEL_NS::IPollerMgr>();
-    pollerMgr->SetConfig(_serviceConfig->_pollerConfig);
-    pollerMgr->SetServiceProxy(GetApp()->GetComp<SERVICE_COMMON_NS::ServiceProxy>());
-    
     return Status::Success;
 }
 

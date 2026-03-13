@@ -56,8 +56,6 @@ IApplication::IApplication(UInt64 objTypeId)
     ,_maxPieceTimeInMicroseconds(TimeDefs::MICRO_SECOND_PER_SECOND) // 默认1秒扫描间隔
     ,_maxSleepMilliseconds(TimeDefs::MILLI_SECOND_PER_SECOND)   // 默认1秒
     ,_memoryLogSigno(KERNEL_NS::SignoList::MEMORY_LOG_SIGNO)
-    ,_yamlMemory(NULL)
-    ,_kernelConfig(FileMonitor<KernelConfig, YamlDeserializer>::New_FileMonitor())
 {
     if(g_Application == NULL)
         g_Application = this;
@@ -146,12 +144,6 @@ void IApplication::_Clear()
 {
     // TODO:
     _poller = NULL;
-    if (_kernelConfig)
-    {
-        FileMonitor<KernelConfig, YamlDeserializer>::Delete_FileMonitor(_kernelConfig);
-        _kernelConfig = NULL;
-    }
-    CRYSTAL_RELEASE_SAFE(_yamlMemory);
 }
 
 void IApplication::OnRegisterComps()
@@ -189,13 +181,27 @@ Int32 IApplication::_OnHostInit()
         ReleaseDC(hwnd, NULL);
     #endif
 
-    if (!_yamlContent.empty())
+    try
     {
-        _yamlMemory = KERNEL_NS::YamlMemory::From(_yamlContent);
+        if(_yamlContent.empty())
+        {
+            auto config = YAML::LoadFile(_yamlPath.c_str());
+            _kernelConfig = config["KernelConfig"].as<KERNEL_NS::KernelConfig>();
+        }
+        else
+        {
+            auto config = YAML::Load(_yamlContent.GetRaw());
+            _kernelConfig = config["KernelConfig"].as<KERNEL_NS::KernelConfig>();
+        }
     }
-    if (!_kernelConfig->Init(_yamlPath, _yamlMemory))
+    catch (std::exception &e)
     {
-        CLOG_ERROR("kernel config init fail");
+        CLOG_ERROR("kernel config load fail:%s", e.what());
+        return Status::ConfigError;
+    }
+    catch (...)
+    {
+        CLOG_ERROR("kernel config init exception fail");
         return Status::ConfigError;
     }
 
@@ -216,8 +222,7 @@ Int32 IApplication::_OnPriorityLevelCompsCreated()
     // _poller->SetEventWorkerCloseHandler(this, &IApplication::_OnPollerWillDestroy);
 
     auto pollerMgr = GetComp<IPollerMgr>();
-    auto kernelConfig = _kernelConfig->Current();
-    pollerMgr->SetConfig(kernelConfig->NetConfig);
+    pollerMgr->SetConfig(_kernelConfig.NetConfig);
 
     return Status::Success;
 }

@@ -270,7 +270,7 @@ Int32 IService::_OnPriorityLevelCompsCreated()
     _poller->SetPepareEventWorkerHandler(this, &IService::_OnPollerPrepare);
     _poller->SetEventWorkerCloseHandler(this, &IService::_OnPollerWillDestroy);
 
-    _pollerMgr = GetComp<KERNEL_NS::IPollerMgr>();
+    _pollerMgr = GetApp()->GetComp<KERNEL_NS::IPollerMgr>();
     auto st = _OnServicePriorityLevelCompsCreated();
     if(st != Status::Success)
     {

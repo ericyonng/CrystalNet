@@ -22,7 +22,7 @@
 // 
 // Date: 2026-01-09 00:01:46
 // Author: Eric Yonng
-// Description:
+// Description:FileMonitor可能不好管理生命周期, TODO:FileMonitor创建后可能删不掉
 
 #ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_MONITOR_FILE_MONITOR_H__
 #define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_MONITOR_FILE_MONITOR_H__
@@ -83,7 +83,7 @@ private:
 
     alignas(SYSTEM_ALIGN_SIZE) LibString _filePath;
 
-    // 共享的一块内存配置, FileMonitor不能操作, 由FileChangeManager检查是否内容变化
+    // 共享的一块内存配置, FileMonitor不能操作, 由FileChangeManager检查是否内容变化,fromMemory由外部管生命周期, 这里不管生命周期, 但是不好处理fromMemory, 战略性泄露fromMemory
     alignas(SYSTEM_ALIGN_SIZE) void *_fromMemory;
 };
 
