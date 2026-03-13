@@ -119,6 +119,7 @@ Poller::Poller()
 ,_maxStub(0)
 ,_commonEvents(MPMCQueue<PollerEvent *, 16*16*2*1024>::NewThreadLocal_MPMCQueue())
 ,_localEvents(LibList<PollerEvent *, KERNEL_NS::_Build::TL>::NewThreadLocal_LibList())
+,_eventLoopMode(0)
 {
     // auto defObj = TlsUtil::GetDefTls();
     // if(UNLIKELY(defObj->_poller))

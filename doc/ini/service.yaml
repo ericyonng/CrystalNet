@@ -26,6 +26,7 @@ KernelConfig:
     BlackWhiteListMode: 
       BlackList: true
       WhiteList: true
+      AllowUnknown: true
 
     # 最大会话数量 0表示无限制
     MaxSessionQuantity: 100000

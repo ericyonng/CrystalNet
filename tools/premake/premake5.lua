@@ -401,6 +401,7 @@ project "testsuit"
             "../../service/TestService/config/code/**.cpp",
             "../../OptionComponent/OptionComp/**.h",
             "../../OptionComponent/OptionComp/**.cpp",
+            "../../doc/ini/**.yaml",
             -- "../../OptionComponent/OptionComp/BehaviorTree/**.h",
             -- "../../OptionComponent/OptionComp/BehaviorTree/**.cpp",
             -- "../../OptionComponent/OptionComp/CodeAnalyze/**.h",

@@ -235,6 +235,7 @@ public:
     }
 #endif
 
+    void SetEventLoopMode(bool useQuicklyMode);
     // 事件循环接口
     bool PrepareLoop();
     // Debug下是QuicklyLoop, 不使用try/catch让问题充分暴露, release下是SafeEventLoop, 保证稳定性
@@ -633,6 +634,9 @@ private:
 
     // 本地消息
     LibList<PollerEvent *, KERNEL_NS::_Build::TL> *_localEvents;
+
+    // 0:默认, 1:快速模式, 2:安全模式
+    Int32 _eventLoopMode;
 };
 
 ALWAYS_INLINE bool Poller::IsEnable() const
@@ -783,14 +787,42 @@ ALWAYS_INLINE const TimerMgr *Poller::GetTimerMgr() const
 // Debug情况下不使用try{}catch(){}让问题充分暴露
 ALWAYS_INLINE void Poller::EventLoop()
 {
-  QuicklyLoop();
+    switch (_eventLoopMode)
+    {
+        case 1:
+        {
+            QuicklyLoop();
+        }break;
+        case 2:
+        {
+            SafeEventLoop();
+        }break;
+        default:
+        {
+            QuicklyLoop();
+        }break;
+    }
 }
 
 #else
 
 ALWAYS_INLINE void Poller::EventLoop()
 {
-  SafeEventLoop();
+    switch (_eventLoopMode)
+    {
+    case 1:
+        {
+            QuicklyLoop();
+        }break;
+    case 2:
+        {
+            SafeEventLoop();
+        }break;
+    default:
+        {
+            SafeEventLoop();
+        }break;
+    }
 }
 
 #endif
@@ -1130,6 +1162,12 @@ ALWAYS_INLINE void Poller::_PushLocal(PollerEvent *ev)
     _eventAmountLeft.fetch_add(1, std::memory_order_release);
     _genEventAmount.fetch_add(1, std::memory_order_release);
 }
+
+ALWAYS_INLINE void Poller::SetEventLoopMode(bool useQuicklyMode)
+{
+    _eventLoopMode = useQuicklyMode ? 1:2;
+}
+
 KERNEL_END
 
 #endif

@@ -49,6 +49,7 @@ struct BuildSessionInfo;
 class LibPacket;
 struct LibListenInfo;
 struct IpControlInfo;
+struct NetConfig;
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
 class IocpTcpPoller;
@@ -80,8 +81,8 @@ public:
     void Clear() override;
     LibString ToString() const override;
 
-    void SetConfig(const TcpPollerConfig *cfg);
-    const TcpPollerConfig *GetConfig() const;
+    void SetConfig(const NetConfig *cfg);
+    const NetConfig *GetConfig() const;
 
     void SetServiceProxy(IServiceProxy *serviceProxy);
     IServiceProxy *GetServiceProxy();
@@ -118,8 +119,7 @@ protected:
     void _OnClose() override;
 
 private:
-    TcpPoller *_CreatePoller(const TcpPollerInstConfig *cfg);
-    TcpPollerMgr::PollerClusterType *_GetPollerCluster(Int32 pollerFeature);
+    void _CreatePoller(Int32 count, std::vector<TcpPoller *> &pollers);
     TcpPollerMgr::TcpPoller *_SelectLowerLoaderPoller(TcpPollerMgr::PollerClusterType *cluster, const std::set<TcpPollerMgr::TcpPoller *> &excludes);
 
     bool IsAllReady() const;
@@ -128,24 +128,22 @@ private:
 private:
     void _Clear();
 
-    const TcpPollerConfig *_config;
+    const NetConfig *_config;
 
     UInt64 _maxPollerId;
-    std::unordered_map<Int32, PollerClusterType *> _pollerFeatureRefPollerCluster;
+    PollerClusterType _linker;
+    PollerClusterType _dataTransfer;
     std::unordered_map<UInt64, TcpPoller *> _idRefPoller;
 
     IServiceProxy *_serviceProxy;
-
-    Int32 _trasferFeatureId;
-    Int32 _linkerFeatureId;
 };
 
-ALWAYS_INLINE void TcpPollerMgr::SetConfig(const TcpPollerConfig *cfg)
+ALWAYS_INLINE void TcpPollerMgr::SetConfig(const NetConfig *cfg)
 {
     _config = cfg;
 }
 
-ALWAYS_INLINE const TcpPollerConfig *TcpPollerMgr::GetConfig() const
+ALWAYS_INLINE const NetConfig *TcpPollerMgr::GetConfig() const
 {
     return _config;
 }

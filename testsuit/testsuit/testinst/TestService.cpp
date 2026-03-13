@@ -146,6 +146,6 @@ void TestService::Run(int argc, char const *argv[])
         ptr = NULL;
     });
 
-    SERVICE_COMMON_NS::ApplicationHelper::Start(app.AsSelf(), SERVICE_NS::ServiceFactory::New_ServiceFactory(), argc, argv, "./ini/service.ini");
+    SERVICE_COMMON_NS::ApplicationHelper::Start(app.AsSelf(), SERVICE_NS::ServiceFactory::New_ServiceFactory(), argc, argv, "./ini/service.yaml");
 #endif
 }

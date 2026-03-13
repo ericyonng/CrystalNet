@@ -46,7 +46,6 @@ KERNEL_BEGIN
 
 PollerMgr::PollerMgr()
 :IPollerMgr(KERNEL_NS::RttiUtil::GetTypeId<PollerMgr>())
-,_config(NULL)
 ,_maxSessionId{0}
 ,_serviceProxy(NULL)
 ,_sessionQuantity{0}
@@ -94,6 +93,10 @@ void PollerMgr::Release()
 
 void PollerMgr::OnRegisterComps()
 {
+    // 网络模块是否关闭
+    if (!_config.Enable)
+        return;
+    
     // ip控制
     // RegisterComp<IpRuleMgrFactory>();
     // 支持tcp
@@ -106,7 +109,9 @@ LibString PollerMgr::ToString() const
     LibString info;
     info.AppendFormat("poller mgr comp object info:%s", CompHostObject::ToString().c_str());
     
-    info.AppendFormat("poller configs:%s\n", _config->ToString().c_str());
+    info.AppendFormat("net configs: Enable:%d, Linker:[Id:%d, Count:%d], DataTransfer:[Id:%d, Count:%d], BlackWhiteListMode:[BlackList:%d, WhiteList:%d], MaxSessionQuantity:%d, SessionRecvPacketContentLimit:%d SessionSendPacketContentLimit:%d, MaxRecvBytesPerFrame:%d, MaxSendBytesPerFrame:%d, MaxAcceptCountPerFrame:%d\n"
+        , _config.Enable, _config.Linker.Id, _config.Linker.Count, _config.DataTransfer.Id, _config.DataTransfer.Count, _config.BlackWhiteListMode.BlackList, _config.BlackWhiteListMode.WhiteList, _config.MaxSessionQuantity, _config.SessionRecvPacketContentLimit
+        , _config.SessionSendPacketContentLimit, _config.MaxRecvBytesPerFrame, _config.MaxSendBytesPerFrame, _config.MaxAcceptCountPerFrame);
 
     auto &allComps = GetAllComps();
     for(auto comp : allComps)
@@ -115,15 +120,14 @@ LibString PollerMgr::ToString() const
     return info;
 }
 
-const PollerConfig *PollerMgr::GetConfig() const
+const NetConfig *PollerMgr::GetConfig() const
 {
-    return _config;
+    return &_config;
 }
 
-void PollerMgr::SetConfig(const PollerConfig &cfg)
+void PollerMgr::SetConfig(const NetConfig &cfg)
 {
-    _config = PollerConfig::New_PollerConfig();
-    _config->Copy(cfg);
+    _config = cfg;
 }
 
 UInt64 PollerMgr::NewSessionId()
@@ -139,13 +143,13 @@ void PollerMgr::AddSessionPending(UInt64 num)
 bool PollerMgr::CheckAddSessionPending(UInt64 num, UInt64 &totalSessionNum) 
 {
     _sessionQuantityPending.fetch_add(num, std::memory_order_release);
-    if(UNLIKELY(_config->_maxSessionQuantity == 0))
+    if(UNLIKELY(_config.MaxSessionQuantity == 0))
     {
         totalSessionNum = _sessionQuantityPending.load(std::memory_order_acquire) + _sessionQuantity.load(std::memory_order_acquire);
         return true;
     }
 
-    if(UNLIKELY(_sessionQuantityPending.load(std::memory_order_acquire) + _sessionQuantity.load(std::memory_order_acquire) > _config->_maxSessionQuantity))
+    if(UNLIKELY(_sessionQuantityPending.load(std::memory_order_acquire) + _sessionQuantity.load(std::memory_order_acquire) > _config.MaxSessionQuantity))
     {
         _sessionQuantityPending.fetch_sub(num, std::memory_order_release);
         totalSessionNum = _sessionQuantityPending.load(std::memory_order_acquire) + _sessionQuantity.load(std::memory_order_acquire);
@@ -173,7 +177,7 @@ void PollerMgr::ReduceSessionQuantity(UInt64 num)
 
 UInt64 PollerMgr::GetSessionQuantityLimit() const
 {
-    return _config->_maxSessionQuantity;
+    return _config.MaxSessionQuantity;
 }
 
 void PollerMgr::SetServiceProxy(IServiceProxy *serviceProxy)
@@ -399,7 +403,7 @@ Int32 PollerMgr::_OnCompsCreated()
 
     // tcp poller mgr 设置    
     auto tcpPollerMgr = GetComp<TcpPollerMgr>();
-    tcpPollerMgr->SetConfig(&_config->_tcpPollerConfig);
+    tcpPollerMgr->SetConfig(&_config);
     tcpPollerMgr->SetServiceProxy(_serviceProxy);
 
     g_Log->NetInfo(LOGFMT_OBJ_TAG("_OnCompsCreated suc."));
@@ -449,11 +453,6 @@ void PollerMgr::_OnHostClose()
 
 void PollerMgr::_Clear()
 {
-    if(LIKELY(_config))
-    {
-        PollerConfig::Delete_PollerConfig(_config);
-        _config = NULL;
-    }
 }
 
 

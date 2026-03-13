@@ -53,11 +53,11 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
     // 设置配置
     if(memoryIniConfig.empty())
     {
-        app->SetIniFile(configPath);
+        app->SetYamlPath(configPath);
     }
     else
     {
-        app->SetMemoryIniContent(memoryIniConfig);
+        app->SetYamlMemoryContent(memoryIniConfig);
     }
 
     // 设置传入的参数

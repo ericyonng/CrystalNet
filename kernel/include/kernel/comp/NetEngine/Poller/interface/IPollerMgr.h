@@ -37,6 +37,7 @@ KERNEL_BEGIN
 
 struct PollerConfig;
 class IServiceProxy;
+struct NetConfig;
 
 struct PollerMgrStatisticsInfo;
 
@@ -48,8 +49,8 @@ public:
     IPollerMgr(UInt64 objTypeId):CompHostObject(objTypeId){}
     virtual ~IPollerMgr(){}
 
-    virtual const PollerConfig *GetConfig() const = 0;
-    virtual void SetConfig(const PollerConfig &cfg) = 0;
+    virtual const NetConfig *GetConfig() const = 0;
+    virtual void SetConfig(const NetConfig &cfg) = 0;
 
     virtual UInt64 NewSessionId() = 0;
 

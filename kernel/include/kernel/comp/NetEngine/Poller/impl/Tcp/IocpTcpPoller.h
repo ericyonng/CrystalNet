@@ -54,7 +54,6 @@ class IocpTcpSession;
 class TcpPollerMgr;
 struct TcpPollerInstConfig;
 class LibIocp;
-class LibThread;
 struct LibConnectInfo;
 struct LibConnectPendingInfo;
 struct BuildSessionInfo;
@@ -66,6 +65,8 @@ struct IpControlInfo;
 class Variant;
 struct IoEvent;
 struct AddrIpConfig;
+struct NetConfig;
+class LibEventLoopThread;
 
 template<typename KeyType, typename MaskValue>
 class LibDirtyHelper;
@@ -75,7 +76,7 @@ class IocpTcpPoller : public CompHostObject
     POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, IocpTcpPoller);
 
 public:
-    IocpTcpPoller(TcpPollerMgr *pollerMgr, UInt64 pollerId, const TcpPollerInstConfig * cfg);
+    IocpTcpPoller(TcpPollerMgr *pollerMgr, UInt64 pollerId, const NetConfig * cfg);
     ~IocpTcpPoller();
     void Release() override;
     // 有多线程所以这个时候不能直接ready
@@ -160,13 +161,8 @@ private:
     void _OnDirtySessionRead(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *&session, Variant *params);
     void _OnDirtySessionClose(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *&session, Variant *params);
 
-    void _OnMonitorThread(LibThread *t);
-
     bool _OnThreadStart();
 
-    // 事件循环线程
-    void _OnPollEventLoop(LibThread *t);
-    
 private:
     void _DestroyConnect(LibConnectPendingInfo *&connectPendingInfo, bool destroyConnectInfo);
     Int32 _CheckConnect(LibConnectPendingInfo *&connectPendingInfo, bool &giveup);
@@ -174,13 +170,16 @@ private:
     bool _TryGetNewTargetIp(const KERNEL_NS::AddrIpConfig &targetIp, std::set<KERNEL_NS::LibString> &filter, KERNEL_NS::LibString &currentIp);
 
 private:
+    friend class MonitorStartup;
+    friend class IocpPollerEventLoopStartup;
+    
     const UInt64 _pollerId;
     TcpPollerMgr *_tcpPollerMgr;
     IPollerMgr *_pollerMgr;
     IServiceProxy *_serviceProxy;
     std::atomic<Poller *> _poller;
 
-    const TcpPollerInstConfig *_cfg;
+    const NetConfig *_cfg;
     std::map<UInt64, IocpTcpSession *> _sessionIdRefSession;
     std::map<KERNEL_NS::LibString, std::set<IocpTcpSession *>> _ipRefSessions;
 
@@ -192,8 +191,8 @@ private:
     UInt64 _wakeupSessionId;        // 事件唤醒sessionId
     IDelegate<void> *_quitIocpWorker;   // iocp worker线程退出
 
-    LibThread *_monitor;                    // 监听线程
-    LibThread *_eventLoopThread;            // 事件循环线程
+    LibEventLoopThread *_monitor;                    // 监听线程
+    LibEventLoopThread *_eventLoopThread;            // 事件循环线程
 };
 
 ALWAYS_INLINE UInt64 IocpTcpPoller::GetPollerId() const

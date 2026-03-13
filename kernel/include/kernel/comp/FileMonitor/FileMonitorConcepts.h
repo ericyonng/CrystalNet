@@ -43,7 +43,7 @@ class YamlMemory;
 // @param(ObjType): 反序列化最终的结果, 需要有:CreateNewObj/Release 接口
 // @param(FileDeserializerType): 反序列化器, 将文件反序列化成ObjType, 需要有Create/Release/SwapNewData/Register接口, 
 template<typename ObjType, typename FileDeserializerType>
-concept FileMonitorConcept = requires(ObjType obj, FileDeserializerType *d, KERNEL_NS::LibString path, YamlMemory *fromMemory)
+concept FileMonitorConcept = requires(ObjType obj, FileDeserializerType *d, KERNEL_NS::LibString path, void *fromMemory)
 {
     ObjType::CreateNewObj(std::move(obj));
     obj.Release();

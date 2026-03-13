@@ -56,7 +56,6 @@ class EpollTcpSession;
 class TcpPollerMgr;
 struct TcpPollerInstConfig;
 class LibEpoll;
-class LibThread;
 struct LibConnectInfo;
 struct LibConnectPendingInfo;
 struct BuildSessionInfo;
@@ -66,6 +65,8 @@ class IPollerMgr;
 class IServiceProxy;
 struct IpControlInfo;
 struct AddrIpConfig;
+struct NetConfig;
+class LibEventLoopThread;
 
 template<typename KeyType, typename MaskValue>
 class LibDirtyHelper;
@@ -75,7 +76,7 @@ class EpollTcpPoller : public CompHostObject
     POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, EpollTcpPoller);
 
 public:
-    EpollTcpPoller(TcpPollerMgr *pollerMgr, UInt64 pollerId, const TcpPollerInstConfig *cfg);
+    EpollTcpPoller(TcpPollerMgr *pollerMgr, UInt64 pollerId, const NetConfig *cfg);
     virtual ~EpollTcpPoller();
     void Release() override;
     // 有多线程所以这个时候不能直接ready
@@ -163,12 +164,6 @@ private:
     void _OnDirtySessionRead(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *&session, Variant *params);
     void _OnDirtySessionClose(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *&session, Variant *params);
 
-    // epoll 监控线程
-    void _OnMonitorThread(LibThread *t);
-
-    // 事件循环线程
-    void _OnPollEventLoop(LibThread *t);
-
     bool _OnThreadStart();
 
 private:
@@ -178,13 +173,16 @@ private:
     bool _TryGetNewTargetIp(const KERNEL_NS::AddrIpConfig &targetIp, std::set<KERNEL_NS::LibString> &filter, KERNEL_NS::LibString &currentIp);
 
 private:
+    friend class MonitorStartup;
+    friend class PollerEventLoopStartup;
+    
     const UInt64 _pollerId;
     TcpPollerMgr *_tcpPollerMgr;
     IPollerMgr *_pollerMgr;
     IServiceProxy *_serviceProxy;
     std::atomic<Poller *> _poller;
 
-    const TcpPollerInstConfig *_cfg;
+    const NetConfig *_cfg;
     std::map<UInt64, EpollTcpSession *> _sessionIdRefSession;
     std::map<LibString, std::set<EpollTcpSession *>> _ipRefSessions;
 
@@ -196,8 +194,8 @@ private:
     UInt64 _wakeupSessionId;        // 事件唤醒sessionId
     Int32 _wakeupEventFd;           // 事件唤醒
 
-    LibThread *_monitor;                    // 监听线程
-    LibThread *_eventLoopThread;            // 事件循环线程
+    LibEventLoopThread *_monitor;                    // 监听线程
+    LibEventLoopThread *_eventLoopThread;            // 事件循环线程
 
 };
 

@@ -68,8 +68,8 @@ void IService::Clear()
 
 void IService::OnRegisterComps()
 {
-    // 网络模块
-    RegisterComp<KERNEL_NS::PollerMgrFactory>();
+    // 网络模块(网络模块不必没个service一个, 浪费)
+    // RegisterComp<KERNEL_NS::PollerMgrFactory>();
     // 基础组件 使用当前线程的poller
     // RegisterComp<KERNEL_NS::PollerFactory>();
     // ip规则

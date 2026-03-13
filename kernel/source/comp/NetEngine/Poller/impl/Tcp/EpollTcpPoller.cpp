@@ -29,7 +29,12 @@
 #include <pch.h>
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/EpollTcpPoller.h>
 
+
 #if CRYSTAL_TARGET_PLATFORM_LINUX
+
+#include "kernel/comp/Coroutines/CoDelay.h"
+#include "kernel/comp/Coroutines/Runner.h"
+#include "kernel/comp/thread/IThreadStartUp.h"
 
 #include <kernel/comp/Variant/Variant.h>
 #include <kernel/comp/SmartPtr.h>
@@ -46,7 +51,6 @@
 #include <kernel/comp/NetEngine/LibEpoll.h>
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/TcpPollerMgr.h>
 #include <kernel/comp/NetEngine/Poller/interface/IPollerMgr.h>
-#include <kernel/comp/thread/LibThread.h>
 #include <kernel/comp/NetEngine/Defs/LibConnectInfo.h>
 #include <kernel/comp/NetEngine/LibPacket.h>
 #include <kernel/comp/Utils/ContainerUtil.h>
@@ -70,11 +74,116 @@
 #include <kernel/comp/NetEngine/Defs/AddrIpConfig.h>
 #include <kernel/comp/Utils/IPUtil.h>
 #include <kernel/comp/Utils/StringUtil.h>
+#include <kernel/comp/Config/KernelConfig.h>
+#include <kernel/comp/thread/LibEventLoopThread.h>
 
 KERNEL_BEGIN
 
+class PollerEventLoopStartup : public IThreadStartUp
+{
+    
+public:
+    PollerEventLoopStartup(EpollTcpPoller *poller)
+        :_poller(poller)
+    {
+        
+    }
+    
+    void Run() override
+    {
+        auto poller = TlsUtil::GetPoller();
+        poller->SetEventLoopMode(true);
 
-EpollTcpPoller::EpollTcpPoller(TcpPollerMgr *pollerMgr, UInt64 pollerId, const TcpPollerInstConfig *cfg)
+        KERNEL_NS::PostCaller([this]()->CoTask<>
+        {
+            if (_poller->_OnThreadStart())
+            {
+                CLOG_ERROR("_OnThreadStart fail.");
+                co_return;
+            }
+
+            CLOG_NET_INFO("epoll tcp poller event loop start loop.");
+        });
+
+        // MaskReady(true);
+    }
+
+    virtual void Release() override
+    {
+        delete this;
+    }
+
+private:
+    EpollTcpPoller *_poller;
+};
+
+class MonitorStartup : public IThreadStartUp
+{
+    
+public:
+    MonitorStartup(EpollTcpPoller *poller)
+        :_poller(poller)
+    {
+        
+    }
+    
+    void Run() override
+    {
+        KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<>
+        {
+            // 等待poller线程ready
+             while(!_poller->IsReady())
+             {
+                 co_await CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
+                 CLOG_NET_WARN("monitor waiting for epoll tcp poller ready...");
+             
+                 if(_poller->GetErrCode() != Status::Success)
+                 {
+                     CLOG_ERROR("error happen errCode:%d", _poller->GetErrCode());
+                     co_return;
+                 }
+             }
+
+            CLOG_NET_INFO("epoll tcp poller epoll monitor start threadid = [%llu], SystemUtil::GetCurrentThreadId());
+
+            auto poller = KERNEL_NS::TlsUtil::GetPoller();
+
+            auto epoll = _poller->_epoll;
+            auto handleThreadPoller = _poller->_poller.load(std::memory_order_acquire);
+            while(!poller->IsQuit())
+            {
+                 // epoll wait
+                 Int32 ret = epoll->Wait();
+                 if(ret <= 0)
+                 {
+                     CLOG_NET_TRACE("epoll wait ret = [%d], poller id:%llu", ret, _poller->_pollerId);
+                     continue;
+                 }
+
+                 // 监听事件
+                 auto ev = MonitorPollerEvent::New_MonitorPollerEvent();
+                 ev->_count = ret;
+                 ev->_epEvents._bytes = g_MemoryPool->Alloc<Byte8>(sizeof(epoll_event) * ret);
+                 ::memcpy(ev->_epEvents._bytes, epoll->GetEvs(), sizeof(epoll_event) * ret);
+
+                 handleThreadPoller->Push(ev);
+            }
+
+            CLOG_NET_INFO("epoll tcp poller epoll monitor monitor thread finish thread id = %llu", SystemUtil::GetCurrentThreadId());
+            co_return;
+        });    
+    }
+    
+    virtual void Release() override
+    {
+        delete this;
+    }
+    
+private:
+    EpollTcpPoller *_poller;
+};
+
+EpollTcpPoller::EpollTcpPoller(TcpPollerMgr *pollerMgr, UInt64 pollerId, const NetConfig *cfg)
 :CompHostObject(KERNEL_NS::RttiUtil::GetTypeId<EpollTcpPoller>())
 ,_pollerId(pollerId)
 ,_tcpPollerMgr(pollerMgr)
@@ -342,10 +451,10 @@ Int32 EpollTcpPoller::_OnCompsCreated()
 {
     // ip rule mgr 设置
     auto ipRuleMgr = GetComp<IpRuleMgr>();
-    auto config = _pollerMgr->GetConfig();
-    if(!ipRuleMgr->SetBlackWhiteListFlag(config->_blackWhiteListFlag))
+    auto flags = _cfg->BlackWhiteListMode.ToFlags();
+    if(!ipRuleMgr->SetBlackWhiteListFlag(flags))
     {
-        g_Log->NetError(LOGFMT_OBJ_TAG("SetBlackWhiteListFlag fail black white list flag:%u"), config->_blackWhiteListFlag);
+        g_Log->NetError(LOGFMT_OBJ_TAG("SetBlackWhiteListFlag fail black white list flag:%u"), flags);
         if(GetOwner())
             GetOwner()->SetErrCode(this, Status::Failed);
         return Status::Failed;
@@ -361,20 +470,16 @@ Int32 EpollTcpPoller::_OnHostInit()
     _pollerMgr = _tcpPollerMgr->GetOwner()->CastTo<IPollerMgr>();
     _serviceProxy = _tcpPollerMgr->GetServiceProxy();
 
-    _monitor = CRYSTAL_NEW(LibThread);
-    _monitor->AddTask(this, &EpollTcpPoller::_OnMonitorThread);
-    _monitor->SetThreadName(LibString().AppendFormat("Poller%llumonitor", _pollerId));
+    _monitor = new LibEventLoopThread(LibString().AppendFormat("Poller%llumonitor", _pollerId), new MonitorStartup(this));
 
-    _eventLoopThread = CRYSTAL_NEW(LibThread);
-    _eventLoopThread->AddTask(this, &EpollTcpPoller::_OnPollEventLoop);
-    _eventLoopThread->SetThreadName(LibString().AppendFormat("Poller%lluLoop", _pollerId));
+    _eventLoopThread = new LibEventLoopThread(LibString().AppendFormat("Poller%lluLoop", _pollerId), new PollerEventLoopStartup(this));
     _eventLoopThread->Start();
     while (_poller.load(std::memory_order_acquire) == NULL)
     {
-        g_Log->Info(LOGFMT_OBJ_TAG("wait for poller ready... %s"), ToString().c_str());
+        CLOG_NET_INFO("wait for poller ready... %s", ToString().c_str());
     }
-    
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller inited."));
+
+    CLOG_NET_INFO("epoll tcp poller inited.");
     return Status::Success;
 }
 
@@ -411,10 +516,13 @@ void EpollTcpPoller::_OnHostBeforeCompsWillClose()
         }
     }
 
-    if(_poller.load(std::memory_order_acquire))
-        _poller.load(std::memory_order_acquire)->QuitLoop();
+    auto poller = _poller.load(std::memory_order_acquire);
+    if(poller)
+        poller->QuitLoop();
     if(_eventLoopThread)
         _eventLoopThread->Close();
+
+    MaskReady(false);
 }
 
 void EpollTcpPoller::_OnHostWillClose()
@@ -1389,9 +1497,9 @@ void EpollTcpPoller::_OnDirtySessionClose(LibDirtyHelper<void *, UInt32> *dirtyH
 
      if(_CanClose(epollSession))
      {
-        if(g_Log->IsEnable(LogLevel::NetDebug))
-            g_Log->NetDebug(LOGFMT_OBJ_TAG("session close dirty do close session session info:%s, closeReason:%d, %s, stub:%llu")
-                        , epollSession->ToString().c_str(), closeReason, CloseSessionInfo::GetCloseReason(closeReason), stub);
+         CLOG_NET_DEBUG("session close dirty do close session session info:%s, closeReason:%d, %s, stub:%llu"
+             , epollSession->ToString().c_str(), closeReason, CloseSessionInfo::GetCloseReason(closeReason), stub);
+
          dirtyHelper->Clear(session, PollerDirty::CLOSE);
          _CloseSession(epollSession, closeReason, stub);
          return;
@@ -1442,89 +1550,11 @@ void EpollTcpPoller::_DestroyConnect(LibConnectPendingInfo *&connectPendingInfo,
     connectPendingInfo = NULL;
 }
 
-void EpollTcpPoller::_OnMonitorThread(LibThread *t)
-{
-    // 等待poller线程ready
-    while(!IsReady())
-    {
-        SystemUtil::ThreadSleep(1000);
-        g_Log->Warn(LOGFMT_OBJ_TAG("waiting for epoll tcp poller ready..."));
-
-        if(GetErrCode() != Status::Success)
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("error happen errCode:%d"), GetErrCode());
-            return;
-        }
-    }
-
-    if(g_Log->IsEnable(LogLevel::NetInfo))
-        g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller epoll monitor start threadid = [%llu]"), SystemUtil::GetCurrentThreadId());
-
-    auto poller = KERNEL_NS::TlsUtil::GetPoller();
-    poller->PrepareLoop();
-
-    while(!t->IsDestroy())
-    {
-        // epoll wait
-        Int32 ret = _epoll->Wait();
-        if(ret <= 0)
-        {
-            if(g_Log->IsEnable(LogLevel::NetTrace))
-                g_Log->NetTrace(LOGFMT_OBJ_TAG("epoll wait ret = [%d], poller id:%llu"), ret, _pollerId);
-            continue;
-        }
-
-        // 监听事件
-        auto ev = MonitorPollerEvent::New_MonitorPollerEvent();
-        ev->_count = ret;
-        ev->_epEvents._bytes = g_MemoryPool->Alloc<Byte8>(sizeof(epoll_event) * ret);
-        ::memcpy(ev->_epEvents._bytes, _epoll->GetEvs(), sizeof(epoll_event) * ret);
-
-        _poller.load(std::memory_order_acquire)->Push(ev);
-    }
-
-    poller->OnLoopEnd();
-
-    if(g_Log->IsEnable(LogLevel::NetInfo))
-        g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller epoll monitor monitor thread finish thread id = %llu"), SystemUtil::GetCurrentThreadId());
-}
-
-void EpollTcpPoller::_OnPollEventLoop(LibThread *t)
-{
-    if(! _OnThreadStart())
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("_OnThreadStart fail."));
-        return;
-    }
-
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller event loop prepare loop..."));
-
-    auto poller = TlsUtil::GetPoller();
-
-    if(!poller->PrepareLoop())
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("poller prepare loop fail please check"));
-        return;
-    }
-
-    // MaskReady(true);
-
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller event loop start loop."));
-    // 保证网络层的高效使用quickly
-    poller->QuicklyLoop();
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller event loop on loop end."));
-    poller->OnLoopEnd();
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller event loop finish."));
-    MaskReady(false);
-}
-
 bool EpollTcpPoller::_OnThreadStart()
 {
     // 用 EpollTcpPoller 的poller 替换当前线程的poller组件
     auto poller = TlsUtil::GetPoller();
-    TimeSlice span(0, 0, _cfg->_maxPieceTimeInMicroseconds);
-    poller->SetMaxPieceTime(span);
-    poller->SetMaxSleepMilliseconds(_cfg->_maxSleepMilliseconds);
+    poller->SetMaxSleepMilliseconds(10);
     poller->SetPepareEventWorkerHandler(this, &EpollTcpPoller::_OnPollerPrepare);
     poller->SetEventWorkerCloseHandler(this, &EpollTcpPoller::_OnPollerWillDestroy);
     
@@ -1552,7 +1582,7 @@ bool EpollTcpPoller::_OnThreadStart()
 
     _poller.store(poller, std::memory_order_release);
 
-    g_Log->Info(LOGFMT_OBJ_TAG("thread started thread id:%llu."), SystemUtil::GetCurrentThreadId());
+    CLOG_INFO("thread started thread id:%llu.", SystemUtil::GetCurrentThreadId());
 
     return true;
 }
@@ -1801,10 +1831,10 @@ EpollTcpSession *EpollTcpPoller::_CreateSession(BuildSessionInfo *sessionInfo)
     auto &sessionOption = sessionInfo->_sessionOption;
     auto newSession = EpollTcpSession::NewThreadLocal_EpollTcpSession(sessionInfo->_sessionId, sessionInfo->_isLinker, sessionInfo->_isFromConnect);
     newSession->SetSocket(sock);
-    newSession->SetAcceptHandleCountLimit(_cfg->_handleAcceptPerFrameLimit);
-    newSession->SetRecvHandleBytesLimit(_cfg->_handleRecvBytesPerFrameLimit);
-    newSession->SetSendHandleBytesLimit(_cfg->_handleSendBytesPerFrameLimit);
-    newSession->SetBufferCapacity(_cfg->_bufferCapacity);
+    newSession->SetAcceptHandleCountLimit(_cfg->MaxAcceptCountPerFrame);
+    newSession->SetRecvHandleBytesLimit(_cfg->MaxRecvBytesPerFrame);
+    newSession->SetSendHandleBytesLimit(_cfg->MaxSendBytesPerFrame);
+    newSession->SetBufferCapacity(_cfg->SessionBufferCapacity);
     newSession->SetDirtyHelper(_poller.load(std::memory_order_acquire)->GetDirtyHelper());
     newSession->SetServiceProxy(_serviceProxy);
     newSession->SetPollerMgr(_pollerMgr);
@@ -1967,10 +1997,10 @@ EpollTcpSession *EpollTcpPoller::_CreateSession(LibListenInfo *listenInfo)
     const auto newSessionId = _pollerMgr->NewSessionId();
     auto newSession = EpollTcpSession::NewThreadLocal_EpollTcpSession(newSessionId, true, false);
     newSession->SetSocket(sock);
-    newSession->SetAcceptHandleCountLimit(_cfg->_handleAcceptPerFrameLimit);
-    newSession->SetRecvHandleBytesLimit(_cfg->_handleRecvBytesPerFrameLimit);
-    newSession->SetSendHandleBytesLimit(_cfg->_handleSendBytesPerFrameLimit);
-    newSession->SetBufferCapacity(_cfg->_bufferCapacity);
+    newSession->SetAcceptHandleCountLimit(_cfg->MaxAcceptCountPerFrame);
+    newSession->SetRecvHandleBytesLimit(_cfg->MaxRecvBytesPerFrame);
+    newSession->SetSendHandleBytesLimit(_cfg->MaxSendBytesPerFrame);
+    newSession->SetBufferCapacity(_cfg->SessionBufferCapacity);
     newSession->SetDirtyHelper(_poller.load(std::memory_order_acquire)->GetDirtyHelper());
     newSession->SetServiceProxy(_serviceProxy);
     newSession->SetPollerMgr(_pollerMgr);

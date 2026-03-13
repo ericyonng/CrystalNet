@@ -33,6 +33,7 @@
 
 #include <kernel/comp/NetEngine/Poller/interface/IPollerMgr.h>
 #include <atomic>
+#include <kernel/comp/Config/KernelConfig.h>
 
 KERNEL_BEGIN
 
@@ -51,8 +52,8 @@ public:
     LibString ToString() const override;
 
 public:
-    virtual const PollerConfig *GetConfig() const override;
-    virtual void SetConfig(const PollerConfig &cfg) override;
+    virtual const NetConfig *GetConfig() const override;
+    virtual void SetConfig(const NetConfig &cfg) override;
     virtual UInt64 NewSessionId() override;
 
     virtual void AddSessionPending(UInt64 num) override;
@@ -103,7 +104,7 @@ protected:
 private:
     void _Clear();
 
-    PollerConfig *_config;
+    NetConfig _config;
     std::atomic<UInt64> _maxSessionId;
     IServiceProxy *_serviceProxy;
 

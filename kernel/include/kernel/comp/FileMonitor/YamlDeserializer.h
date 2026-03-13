@@ -68,7 +68,7 @@ public:
         YAML::convert<T>::decode(node, t);
     }
 #endif
-    T *Register(const LibString &path, YamlMemory *fromMemory)
+    T *Register(const LibString &path, void *fromMemory)
     {
         _path = path;
         
@@ -113,7 +113,7 @@ public:
         };
         auto deserializeDelg = KERNEL_CREATE_CLOSURE_DELEGATE(deserializeLamb, void *, YAML::Node *);
         
-        return KERNEL_NS::KernelCastTo<T>(_Register(dataName, releaseDeleg, deserializeDelg, fromMemory));
+        return KERNEL_NS::KernelCastTo<T>(_Register(dataName, releaseDeleg, deserializeDelg, reinterpret_cast<YamlMemory *>(fromMemory)));
     }
 
     template<typename T>

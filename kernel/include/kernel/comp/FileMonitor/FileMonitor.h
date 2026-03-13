@@ -41,8 +41,6 @@
 
 KERNEL_BEGIN
 
-class YamlMemory;
-
 // @param(ObjType): 反序列化最终的结果, 需要有:CreateNewObj/Release 接口
 // @param(FileDeserializer): 反序列化器, 将文件反序列化成ObjType, 需要有SwapNewData/Register接口, 
 // @param(FileDeserializerFactoryType): 反序列化器工厂, 需要有Create/Release接口, 
@@ -68,7 +66,7 @@ public:
     // 获取当前配置,注意如果是多线程环境Current则不安全 TODO:
     SmartPtr<ObjType, AutoDelMethods::Release> Current() const;
     // 初始化
-    bool Init(const KERNEL_NS::LibString &path, YamlMemory *fromMemory);
+    bool Init(const KERNEL_NS::LibString &path, void *fromMemory);
 
     const LibString &GetPath() const;
 
@@ -86,7 +84,7 @@ private:
     alignas(SYSTEM_ALIGN_SIZE) LibString _filePath;
 
     // 共享的一块内存配置, FileMonitor不能操作, 由FileChangeManager检查是否内容变化
-    alignas(SYSTEM_ALIGN_SIZE) YamlMemory *_fromMemory;
+    alignas(SYSTEM_ALIGN_SIZE) void *_fromMemory;
 };
 
 template<typename ObjType, typename FileDeserializerType>
@@ -121,7 +119,7 @@ template<typename ObjType, typename FileDeserializerType>
 #ifdef CRYSTAL_NET_CPP20
 requires FileMonitorConcept<ObjType, FileDeserializerType>
 #endif
-ALWAYS_INLINE bool FileMonitor<ObjType, FileDeserializerType>::Init(const KERNEL_NS::LibString &path, YamlMemory *fromMemory)
+ALWAYS_INLINE bool FileMonitor<ObjType, FileDeserializerType>::Init(const KERNEL_NS::LibString &path, void *fromMemory)
 {
     _filePath = path;
     _fromMemory = fromMemory;

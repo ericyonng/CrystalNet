@@ -231,6 +231,11 @@ Int32 Application::_OnCompsCreated()
     auto memoryCleaner = tlsComps->GetComp<KERNEL_NS::TlsMemoryCleanerComp>();
     memoryCleaner->SetIntervalMs(_kernelConfig._mergeTlsMemoryBlockIntervalMs);
 
+    // 设置serviceProxy
+    auto pollerMgr = GetComp<KERNEL_NS::IPollerMgr>();
+    auto serviceProxy = GetComp<SERVICE_COMMON_NS::ServiceProxy>();
+    pollerMgr->SetServiceProxy(serviceProxy);
+    
     return Status::Success;
 }
 

@@ -34,6 +34,7 @@
 #include <kernel/common/BaseType.h>
 #include <kernel/kernel_export.h>
 #include <yaml-cpp/yaml.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 
 KERNEL_BEGIN
 
@@ -51,6 +52,10 @@ struct KERNEL_EXPORT BlackWhiteListMode
     bool BlackList = true;
     // 是否启用白名单
     bool WhiteList = true;
+    // 未知是否放行
+    bool AllowUnknown = true;
+
+    UInt32 ToFlags() const;
 };
 
 struct KERNEL_EXPORT NetConfig
@@ -81,6 +86,8 @@ struct KERNEL_EXPORT NetConfig
     Int32 MaxSendBytesPerFrame = 0;
     // 单帧最大处理连接数 0表示不限制
     Int32 MaxAcceptCountPerFrame = 1024;
+    // session缓冲大小
+    Int32 SessionBufferCapacity = 8192;
 };
 
 // 内核配置
@@ -167,6 +174,7 @@ namespace YAML
             Node node;
             node["BlackList"] = rhs.BlackList;
             node["WhiteList"] = rhs.WhiteList;
+            node["AllowUnknown"] = rhs.AllowUnknown;
             return node;
         }
 
@@ -187,7 +195,11 @@ namespace YAML
                 if(value.IsDefined())
                     rhs.WhiteList = value.as<bool>();
             }
-
+            {
+                auto &&value = node["AllowUnknown"];
+                if(value.IsDefined())
+                    rhs.AllowUnknown = value.as<bool>();
+            }
             return true;
         }
     };
@@ -209,6 +221,7 @@ namespace YAML
             node["MaxRecvBytesPerFrame"] = rhs.MaxRecvBytesPerFrame;
             node["MaxSendBytesPerFrame"] = rhs.MaxSendBytesPerFrame;
             node["MaxAcceptCountPerFrame"] = rhs.MaxAcceptCountPerFrame;
+            node["SessionBufferCapacity"] = rhs.SessionBufferCapacity;
             return node;
         }
 
@@ -268,6 +281,11 @@ namespace YAML
                 auto &&value = node["MaxAcceptCountPerFrame"];
                 if(value.IsDefined())
                     rhs.MaxAcceptCountPerFrame = value.as<Int32>();
+            }
+            {
+                auto &&value = node["SessionBufferCapacity"];
+                if (value.IsDefined())
+                    rhs.SessionBufferCapacity = value.as<Int32>();
             }
 
             return true;

@@ -49,6 +49,10 @@
 #include <kernel/comp/Lock/Impl/LockWrap.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/LibTime.h>
+#include <kernel/comp/FileMonitor/FileMonitor.h>
+#include <kernel/comp/Config/KernelConfig.h>
+#include <kernel/comp/FileMonitor/YamlDeserializer.h>
+#include <kernel/comp/FileMonitor/YamlMemory.h>
 
 KERNEL_BEGIN
 
@@ -65,6 +69,9 @@ public:
     virtual void DefaultMaskReady(bool isReady) override {}
 
 public:
+    void SetYamlPath(const KERNEL_NS::LibString &path);
+    void SetYamlMemoryContent(const KERNEL_NS::LibString &content);
+    
     virtual void WaitFinish(Int32 &err);
     virtual void SinalFinish(Int32 err = Status::Success) = 0;
 
@@ -94,7 +101,7 @@ public:
 
 protected:
     virtual void OnRegisterComps() override;  
-    // 在组件初始化前
+    // 在组件初始化以及创建前
     virtual Int32 _OnHostInit() override;
     // 优先级组件创建完成
     virtual Int32 _OnPriorityLevelCompsCreated() override;
@@ -136,6 +143,11 @@ protected:
 
     // 内存日志信号
     Int32 _memoryLogSigno;
+
+    KERNEL_NS::LibString _yamlPath;
+    KERNEL_NS::LibString _yamlContent;
+    KERNEL_NS::YamlMemory *_yamlMemory;
+    FileMonitor<KernelConfig, YamlDeserializer> *_kernelConfig;
 };
 
 ALWAYS_INLINE const LibString &IApplication::GetAppName() const

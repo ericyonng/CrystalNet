@@ -40,6 +40,7 @@
 #include <kernel/comp/Poller/PollerInc.h>
 #include <kernel/comp/Cpu/LibCpuInfo.h>
 #include <kernel/comp/Utils/SignalHandleUtil.h>
+#include <kernel/comp/NetEngine/Poller/PollerInc.h>
 
 KERNEL_NS::IApplication *g_Application = NULL;
 
@@ -55,6 +56,8 @@ IApplication::IApplication(UInt64 objTypeId)
     ,_maxPieceTimeInMicroseconds(TimeDefs::MICRO_SECOND_PER_SECOND) // 默认1秒扫描间隔
     ,_maxSleepMilliseconds(TimeDefs::MILLI_SECOND_PER_SECOND)   // 默认1秒
     ,_memoryLogSigno(KERNEL_NS::SignoList::MEMORY_LOG_SIGNO)
+    ,_yamlMemory(NULL)
+    ,_kernelConfig(FileMonitor<KernelConfig, YamlDeserializer>::New_FileMonitor())
 {
     if(g_Application == NULL)
         g_Application = this;
@@ -68,6 +71,16 @@ IApplication::~IApplication()
 
     if(g_Application)
         g_Application = NULL;
+}
+
+void IApplication::SetYamlPath(const KERNEL_NS::LibString &path)
+{
+    _yamlPath = path;
+}
+
+void IApplication::SetYamlMemoryContent(const KERNEL_NS::LibString &content)
+{
+    _yamlContent = content;
 }
 
 void IApplication::WaitFinish(Int32 &err)
@@ -133,10 +146,18 @@ void IApplication::_Clear()
 {
     // TODO:
     _poller = NULL;
+    if (_kernelConfig)
+    {
+        FileMonitor<KernelConfig, YamlDeserializer>::Delete_FileMonitor(_kernelConfig);
+        _kernelConfig = NULL;
+    }
+    CRYSTAL_RELEASE_SAFE(_yamlMemory);
 }
 
 void IApplication::OnRegisterComps()
 {
+    // 网络模块
+    RegisterComp<PollerMgrFactory>();
 }
 
 Int32 IApplication::_OnHostInit()
@@ -168,6 +189,16 @@ Int32 IApplication::_OnHostInit()
         ReleaseDC(hwnd, NULL);
     #endif
 
+    if (!_yamlContent.empty())
+    {
+        _yamlMemory = KERNEL_NS::YamlMemory::From(_yamlContent);
+    }
+    if (!_kernelConfig->Init(_yamlPath, _yamlMemory))
+    {
+        CLOG_ERROR("kernel config init fail");
+        return Status::ConfigError;
+    }
+
     CLOG_INFO("app %s init suc.", _appName.c_str());
 
     return Status::Success;
@@ -183,6 +214,10 @@ Int32 IApplication::_OnPriorityLevelCompsCreated()
     _poller->SetMaxSleepMilliseconds(_maxSleepMilliseconds);
     // _poller->SetPepareEventWorkerHandler(this, &IApplication::_OnPollerPrepare);
     // _poller->SetEventWorkerCloseHandler(this, &IApplication::_OnPollerWillDestroy);
+
+    auto pollerMgr = GetComp<IPollerMgr>();
+    auto kernelConfig = _kernelConfig->Current();
+    pollerMgr->SetConfig(kernelConfig->NetConfig);
 
     return Status::Success;
 }

@@ -31,6 +31,10 @@
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
 
+#include "kernel/comp/Config/KernelConfig.h"
+#include "kernel/comp/Coroutines/CoDelay.h"
+#include "kernel/comp/Coroutines/Runner.h"
+
 #include <kernel/comp/LibDirtyHelper.h>
 #include <kernel/comp/NetEngine/Defs/IoEvent.h>
 
@@ -43,7 +47,6 @@
 #include <kernel/comp/NetEngine/Poller/Defs/PollerDirty.h>
 #include <kernel/comp/NetEngine/LibIocp.h>
 #include <kernel/comp/NetEngine/Poller/interface/IPollerMgr.h>
-#include <kernel/comp/thread/LibThread.h>
 #include <kernel/comp/NetEngine/LibPacket.h>
 #include <kernel/comp/Utils/ContainerUtil.h>
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/IocpTcpSession.h>
@@ -70,10 +73,117 @@
 
 #include <kernel/comp/TlsMemoryCleanerComp.h>
 #include <kernel/comp/Utils/TlsUtil.h>
+#include <kernel/comp/Config/KernelConfig.h>
+#include <kernel/comp/thread/LibEventLoopThread.h>
+#include <kernel/comp/thread/IThreadStartUp.h>
 
 KERNEL_BEGIN
 
-IocpTcpPoller::IocpTcpPoller(TcpPollerMgr *pollerMgr, UInt64 pollerId, const TcpPollerInstConfig* cfg)
+
+class IocpPollerEventLoopStartup : public IThreadStartUp
+{
+    
+public:
+    IocpPollerEventLoopStartup(IocpTcpPoller *poller)
+        :_poller(poller)
+    {
+        
+    }
+    
+    void Run() override
+    {
+        auto poller = TlsUtil::GetPoller();
+        poller->SetEventLoopMode(true);
+
+        KERNEL_NS::PostCaller([this]()->CoTask<>
+        {
+            if(!_poller->_OnThreadStart())
+            {
+                CLOG_ERROR("_OnThreadStart fail.");
+                co_return;
+            }
+
+            CLOG_NET_INFO("iocp tcp poller event loop start.");
+        });
+
+        // MaskReady(true);
+    }
+
+    virtual void Release() override
+    {
+        delete this;
+    }
+
+private:
+    IocpTcpPoller *_poller;
+};
+
+class MonitorStartup : public IThreadStartUp
+{
+public:
+    MonitorStartup(IocpTcpPoller *poller)
+        :_poller(poller)
+    {
+        
+    }
+    
+    void Run() override
+    {
+        KERNEL_NS::PostCaller([this]() -> CoTask<>
+        {
+            // 等待poller线程ready
+            while(!_poller->IsReady())
+            {
+                co_await CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
+
+                SystemUtil::ThreadSleep(100);
+                g_Log->NetWarn(LOGFMT_OBJ_TAG("waiting for iocp tcp poller ready..."));
+
+                if(_poller->GetErrCode() != Status::Success)
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("error happen:%d"), _poller->GetErrCode());
+                    co_return;
+                }
+            }
+
+            CLOG_NET_INFO("iocp tcp poller epoll monitor start threadid = [%llu]", SystemUtil::GetCurrentThreadId());
+            auto poller = KERNEL_NS::TlsUtil::GetPoller();
+            
+            IoEvent io;
+            Int32 errCode = Status::Success;
+            auto iocp = _poller->_iocp;
+            auto eventLoopPoller = _poller->_poller.load(std::memory_order_acquire);
+            while(!poller->IsQuit())
+            {
+                // epoll wait
+                Int32 ret = iocp->WaitForCompletion(io, errCode);
+                if(ret == Status::Ignore)
+                {
+                    continue;
+                }
+
+                // 监听事件
+                auto ev = MonitorPollerEvent::New_MonitorPollerEvent();
+                ev->_io = io;
+                ev->_errCode = errCode;
+                eventLoopPoller->Push(ev);
+            }
+
+            CLOG_NET_INFO("iocp tcp poller epoll monitor monitor thread finish thread id = %llu", SystemUtil::GetCurrentThreadId());
+        });
+    }
+
+    void Release() override
+    {
+        delete this;
+    }
+    
+private:
+    IocpTcpPoller *_poller;
+};
+
+
+IocpTcpPoller::IocpTcpPoller(TcpPollerMgr *pollerMgr, UInt64 pollerId, const NetConfig* cfg)
 :CompHostObject(KERNEL_NS::RttiUtil::GetTypeId<IocpTcpPoller>())
 ,_pollerId(pollerId)
 ,_tcpPollerMgr(pollerMgr)
@@ -329,10 +439,10 @@ IocpTcpSession *IocpTcpPoller::_CreateSession(BuildSessionInfo *sessionInfo)
     auto &sessionOption = sessionInfo->_sessionOption;
     auto newSession = IocpTcpSession::NewThreadLocal_IocpTcpSession(sessionInfo->_sessionId, sessionInfo->_isLinker, sessionInfo->_isFromConnect);
     newSession->SetSocket(sock);
-    newSession->SetAcceptHandleCountLimit(_cfg->_handleAcceptPerFrameLimit);
-    newSession->SetRecvHandleBytesLimit(_cfg->_handleRecvBytesPerFrameLimit);
-    newSession->SetSendHandleBytesLimit(_cfg->_handleSendBytesPerFrameLimit);
-    newSession->SetBufferCapacity(_cfg->_bufferCapacity);
+    newSession->SetAcceptHandleCountLimit(_cfg->MaxAcceptCountPerFrame);
+    newSession->SetRecvHandleBytesLimit(_cfg->MaxRecvBytesPerFrame);
+    newSession->SetSendHandleBytesLimit(_cfg->MaxSendBytesPerFrame);
+    newSession->SetBufferCapacity(_cfg->SessionBufferCapacity);
     newSession->SetDirtyHelper(_poller.load(std::memory_order_acquire)->GetDirtyHelper());
     newSession->SetServiceProxy(_serviceProxy);
     newSession->SetPollerMgr(_pollerMgr);
@@ -518,10 +628,10 @@ IocpTcpSession *IocpTcpPoller::_CreateSession(LibListenInfo *listenInfo)
     const auto newSessionId = _pollerMgr->NewSessionId();
     auto newSession = IocpTcpSession::NewThreadLocal_IocpTcpSession(newSessionId, true, false);
     newSession->SetSocket(sock);
-    newSession->SetAcceptHandleCountLimit(_cfg->_handleAcceptPerFrameLimit);
-    newSession->SetRecvHandleBytesLimit(_cfg->_handleRecvBytesPerFrameLimit);
-    newSession->SetSendHandleBytesLimit(_cfg->_handleSendBytesPerFrameLimit);
-    newSession->SetBufferCapacity(_cfg->_bufferCapacity);
+    newSession->SetAcceptHandleCountLimit(_cfg->MaxAcceptCountPerFrame);
+    newSession->SetRecvHandleBytesLimit(_cfg->MaxRecvBytesPerFrame);
+    newSession->SetSendHandleBytesLimit(_cfg->MaxSendBytesPerFrame);
+    newSession->SetBufferCapacity(_cfg->SessionBufferCapacity);
     newSession->SetDirtyHelper(_poller.load(std::memory_order_acquire)->GetDirtyHelper());
     newSession->SetServiceProxy(_serviceProxy);
     newSession->SetPollerMgr(_pollerMgr);
@@ -769,22 +879,16 @@ Int32 IocpTcpPoller::_OnHostInit()
     _pollerMgr = _tcpPollerMgr->GetOwner()->CastTo<IPollerMgr>();
     _serviceProxy = _tcpPollerMgr->GetServiceProxy();
 
-    _monitor = CRYSTAL_NEW(LibThread);
-    _monitor->AddTask(this, &IocpTcpPoller::_OnMonitorThread);
-    _monitor->SetThreadName(LibString().AppendFormat("Poller%llumonitor", _pollerId));
-
-    _eventLoopThread = CRYSTAL_NEW(LibThread);
-    _eventLoopThread->AddTask(this, &IocpTcpPoller::_OnPollEventLoop);
-    _eventLoopThread->SetThreadName(LibString().AppendFormat("Poller%lluLoop", _pollerId));
-
+    _monitor = new LibEventLoopThread(LibString().AppendFormat("Poller%llumonitor", _pollerId), new MonitorStartup(this));
+    
+    _eventLoopThread = new LibEventLoopThread(LibString().AppendFormat("Poller%lluLoop", _pollerId), new IocpPollerEventLoopStartup(this));
     _eventLoopThread->Start();
     while (_poller.load(std::memory_order_acquire) == NULL)
     {
         g_Log->Info(LOGFMT_OBJ_TAG("wait for poller ready... %s"), ToString().c_str());
     }
 
-    if(g_Log->IsEnable(LogLevel::NetInfo))
-        g_Log->NetInfo(LOGFMT_OBJ_TAG("iocp tcp poller inited."));
+    CLOG_NET_INFO("iocp tcp poller inited.");
 
     return Status::Success;
 }
@@ -799,10 +903,10 @@ Int32 IocpTcpPoller::_OnCompsCreated()
 {
     // ip rule mgr 设置
     auto ipRuleMgr = GetComp<IpRuleMgr>();
-    auto config = _pollerMgr->GetConfig();
-    if (!ipRuleMgr->SetBlackWhiteListFlag(config->_blackWhiteListFlag))
+    auto flags = _cfg->BlackWhiteListMode.ToFlags();
+    if (!ipRuleMgr->SetBlackWhiteListFlag(flags))
     {
-        g_Log->NetError(LOGFMT_OBJ_TAG("SetBlackWhiteListFlag fail black white list flag:%u"), config->_blackWhiteListFlag);
+        g_Log->NetError(LOGFMT_OBJ_TAG("SetBlackWhiteListFlag fail black white list flag:%u"), flags);
         if (GetOwner())
             GetOwner()->SetErrCode(this, Status::Failed);
         return Status::Failed;
@@ -845,6 +949,8 @@ void IocpTcpPoller::_OnHostBeforeCompsWillClose()
         _poller.load(std::memory_order_acquire)->QuitLoop();
     if(_eventLoopThread)
         _eventLoopThread->Close();
+
+    MaskReady(false);
 }
 
 void IocpTcpPoller::_OnHostWillClose()
@@ -1782,55 +1888,12 @@ void IocpTcpPoller::_OnDirtySessionClose(LibDirtyHelper<void *, UInt32> *dirtyHe
     }
 }
 
-void IocpTcpPoller::_OnMonitorThread(LibThread *t)
-{
- // 等待poller线程ready
-    while(!IsReady())
-    {
-        SystemUtil::ThreadSleep(100);
-        g_Log->NetWarn(LOGFMT_OBJ_TAG("waiting for iocp tcp poller ready..."));
-
-        if(GetErrCode() != Status::Success)
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("error happen:%d"), GetErrCode());
-            return;
-        }
-    }
-
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("iocp tcp poller epoll monitor start threadid = [%llu]"), SystemUtil::GetCurrentThreadId());
-
-    auto poller = KERNEL_NS::TlsUtil::GetPoller();
-    poller->PrepareLoop();
-
-    IoEvent io;
-    Int32 errCode = Status::Success;
-    while(!t->IsDestroy())
-    {
-        // epoll wait
-        Int32 ret = _iocp->WaitForCompletion(io, errCode);
-        if(ret == Status::Ignore)
-        {
-            continue;
-        }
-
-        // 监听事件
-        auto ev = MonitorPollerEvent::New_MonitorPollerEvent();
-        ev->_io = io;
-        ev->_errCode = errCode;
-        _poller.load(std::memory_order_acquire)->Push(ev);
-    }
-
-    poller->OnLoopEnd();
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("iocp tcp poller epoll monitor monitor thread finish thread id = %llu"), SystemUtil::GetCurrentThreadId());
-}
-
 bool IocpTcpPoller::_OnThreadStart()
 {
     // 用 EpollTcpPoller 的poller 替换当前线程的poller组件
     auto poller = TlsUtil::GetPoller();
     
-    TimeSlice span(0, 0, _cfg->_maxPieceTimeInMicroseconds);
-    poller->SetMaxSleepMilliseconds(_cfg->_maxSleepMilliseconds);
+    poller->SetMaxSleepMilliseconds(10);
     poller->SetPepareEventWorkerHandler(this, &IocpTcpPoller::_OnPollerPrepare);
     poller->SetEventWorkerCloseHandler(this, &IocpTcpPoller::_OnPollerWillDestroy);
 
@@ -1857,37 +1920,9 @@ bool IocpTcpPoller::_OnThreadStart()
     dirtyHelper->SetHandler(PollerDirty::ACCEPT, deleg);
 
     _poller.store(poller, std::memory_order_release);
-    g_Log->Info(LOGFMT_OBJ_TAG("thread started thread id:%llu."), SystemUtil::GetCurrentThreadId());
+    CLOG_INFO("thread started thread id:%llu.", SystemUtil::GetCurrentThreadId());
 
     return true;
-}
-
-void IocpTcpPoller::_OnPollEventLoop(LibThread *t)
-{
-    if(! _OnThreadStart())
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("_OnThreadStart fail."));
-        return;
-    }
-
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("iocp tcp poller event loop start."));
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller event loop prepare loop..."));
-    auto poller = TlsUtil::GetPoller();
-
-    if(!poller->PrepareLoop())
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("prepare poller loop fail please check."));
-        return;
-    }
-
-    // MaskReady(true);
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller event loop start loop."));
-    // 保证网络层高效
-    poller->QuicklyLoop();
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller event loop on loop end..."));
-    poller->OnLoopEnd();
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller event loop finish."));
-    MaskReady(false);
 }
 
 void IocpTcpPoller::_DestroyConnect(LibConnectPendingInfo *&connectPendingInfo, bool destroyConnectInfo)
