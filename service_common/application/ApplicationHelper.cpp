@@ -54,7 +54,11 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
     if(memoryIniConfig.empty())
     {
         app->SetYamlPath(configPath);
-        app->SetIniFile("./ini/service.ini");
+
+        // TODO:临时, 等完全改造成yaml后废除.ini
+        auto copyPath = configPath;
+        copyPath.findreplace(".yaml", ".ini");
+        app->SetIniFile(copyPath);
     }
     else
     {

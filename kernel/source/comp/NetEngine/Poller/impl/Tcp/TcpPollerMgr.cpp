@@ -111,6 +111,8 @@ Int32 TcpPollerMgr::_OnInit()
             // 数据传输器
             if (static_cast<Int32>(_dataTransfer.size()) < _config->DataTransfer.Count)
             {
+                _dataTransfer.push_back(poller);
+                
                 pollerMgr->AddDataTransferPollerCount(1);
             }
         }

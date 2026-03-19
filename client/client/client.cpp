@@ -41,5 +41,5 @@ void Client::Run(int argc, char const *argv[])
         ptr = NULL;
     });
 
-    SERVICE_COMMON_NS::ApplicationHelper::Start(app, SERVICE_NS::ServiceFactory::New_ServiceFactory(), argc, argv, "./ini/client.ini");
+    SERVICE_COMMON_NS::ApplicationHelper::Start(app, SERVICE_NS::ServiceFactory::New_ServiceFactory(), argc, argv, "./ini/client.yaml");
 }
