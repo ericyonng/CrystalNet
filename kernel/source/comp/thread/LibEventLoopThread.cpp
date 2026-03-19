@@ -82,7 +82,16 @@ void LibEventLoopThread::Close()
 
 bool LibEventLoopThread::HalfClose()
 {
-  return _thread->HalfClose();
+    auto ret = _thread->HalfClose();
+
+    if(ret)
+    {
+        auto poller = GetPollerNoAsync();
+        if(poller)
+            poller->QuitLoop();
+    }
+
+  return ret;
 }
 
 void LibEventLoopThread::FinishClose()

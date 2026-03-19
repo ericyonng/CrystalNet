@@ -101,6 +101,8 @@ public:
     void PostCloseSession(UInt64 fromServiceId, UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite);
     void PostIpControl(const std::list<IpControlInfo *> &controlList);
     void PostQuitServiceSessionsEvent(UInt64 serviceId);
+    const Poller *GetPoller() const;
+    Poller *GetPoller();
 
 private:
     IocpTcpSession *_GetSession(UInt64 sessionId);
@@ -203,6 +205,16 @@ ALWAYS_INLINE UInt64 IocpTcpPoller::GetPollerId() const
 ALWAYS_INLINE UInt64 IocpTcpPoller::GetSessionAmount() const
 {
     return _sessionCount.load(std::memory_order_acquire);
+}
+
+ALWAYS_INLINE const Poller *IocpTcpPoller::GetPoller() const
+{
+    return _poller.load(std::memory_order_acquire);
+}
+
+ALWAYS_INLINE Poller *IocpTcpPoller::GetPoller()
+{
+    return _poller.load(std::memory_order_acquire);
 }
 
 KERNEL_END

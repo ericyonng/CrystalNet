@@ -59,9 +59,6 @@
 // poller feature
 KERNEL_BEGIN
 
-extern KERNEL_EXPORT LibString g_LinkerPollerName;
-extern KERNEL_EXPORT LibString g_TransferPollerName;
-
 KERNEL_END
 
 #endif

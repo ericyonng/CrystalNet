@@ -106,7 +106,7 @@ void IGlobalSys::Send(UInt64 sessionId, const std::list<KERNEL_NS::LibPacket *> 
     auto service = IGlobalSys::GetCurrentService();
     auto tcpPollerMgr = service->GetTcpPollerMgr();
     KERNEL_NS::LibList<KERNEL_NS::LibPacket *> *packetList = NULL;
-    auto stackLimit = GetApp()->GetKernelConfig()._sessionRecvPacketStackLimit;
+    auto stackLimit = GetApp()->GetKernelConfig().NetConfig.SessionRecvPacketStackLimit;
     for(auto packet : packets)
     {
         if(UNLIKELY(packetList == NULL))

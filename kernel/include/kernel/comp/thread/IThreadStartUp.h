@@ -53,6 +53,42 @@ public:
  virtual void Release() = 0;
 };
 
+// 默认线程启动执行的任务
+class KERNEL_EXPORT DefaultThreadStartUp : public IThreadStartUp
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(IThreadStartUp, DefaultThreadStartUp);
+    
+public:
+    template<typename LambdaType>
+    DefaultThreadStartUp(LambdaType &&lamb)
+        :_deleg(KERNEL_CREATE_CLOSURE_DELEGATE(lamb, void))
+    {
+        
+    }
+    ~DefaultThreadStartUp() override
+    {
+        CRYSTAL_RELEASE_SAFE(_deleg);
+    }
+
+    template<typename LambdaType>
+    static DefaultThreadStartUp *Create(LambdaType &&lamb)
+    {
+        return DefaultThreadStartUp::New_DefaultThreadStartUp(std::forward<LambdaType>(lamb));
+    }
+
+    virtual void Run() override
+    {
+        _deleg->Invoke();
+    }
+    
+    virtual void Release() override
+    {
+        DefaultThreadStartUp::Delete_DefaultThreadStartUp(this);
+    }
+    
+    IDelegate<void> *_deleg;
+};
+
 KERNEL_END
 
 #endif

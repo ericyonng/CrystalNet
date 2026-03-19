@@ -150,10 +150,16 @@ public:
          co_return co_await poller->template SendAsync<ResType, LambdaType>(std::forward<LambdaType>(lamb));
     }
     #endif
-    
+
+    const LibThread *GetThread() const;
 private:
     LibThread *_thread;
 };
+
+ALWAYS_INLINE const LibThread *LibEventLoopThread::GetThread() const
+{
+    return _thread;
+}
 
 KERNEL_END
 

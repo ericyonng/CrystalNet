@@ -668,7 +668,7 @@ void MyTestService::_OnFrameTimer(KERNEL_NS::LibTimer *timer)
 
 Int32 MyTestService::_InitProtocolStack()
 {
-    const auto limit = GetApp()->GetKernelConfig()._sessionRecvPacketContentLimit;
+    const auto limit = GetApp()->GetKernelConfig().NetConfig.SessionRecvPacketContentLimit;
     for(Int32 idx = SERVICE_COMMON_NS::CrystalProtocolStackType::BEGIN; idx < SERVICE_COMMON_NS::CrystalProtocolStackType::END; ++idx)
     {
         auto stack = SERVICE_COMMON_NS::CrystalProtocolStackFactory::Create(idx, limit);

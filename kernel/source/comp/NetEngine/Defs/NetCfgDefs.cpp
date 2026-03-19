@@ -31,8 +31,6 @@
 
 KERNEL_BEGIN
 
-LibString g_LinkerPollerName;
-LibString g_TransferPollerName;
 
 KERNEL_END
 

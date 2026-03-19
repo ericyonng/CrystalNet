@@ -183,7 +183,7 @@ void SessionMgr::_OnSessionWillCreated(KERNEL_NS::LibEvent *ev)
         sessionInfo._sessionSendBytesLimit = 0;
         break;
     case SessionType::OUTER:
-        sessionInfo._sessionSendBytesLimit = GetApp()->GetKernelConfig()._sessionSendPacketContentLimit;
+        sessionInfo._sessionSendBytesLimit = GetApp()->GetKernelConfig().NetConfig.SessionSendPacketContentLimit;
         break;
     default:
         break;
@@ -197,7 +197,7 @@ void SessionMgr::_OnSessionWillCreated(KERNEL_NS::LibEvent *ev)
         sessionInfo._sessionRecvBytesLimit = 0;
         break;
     case SessionType::OUTER:
-        sessionInfo._sessionRecvBytesLimit = GetApp()->GetKernelConfig()._sessionRecvPacketContentLimit;
+        sessionInfo._sessionRecvBytesLimit = GetApp()->GetKernelConfig().NetConfig.SessionRecvPacketContentLimit;
         break;
     default:
         break;

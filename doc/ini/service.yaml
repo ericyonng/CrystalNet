@@ -42,6 +42,12 @@ KernelConfig:
     MaxSendBytesPerFrame: 0
     # 单帧最大处理连接数 0表示不限制
     MaxAcceptCountPerFrame: 1024
+    # 包个数限速
+    SessionRecvPacketSpeedLimit: 0
+    # 会话限速单位毫秒数
+    SessionRecvPacketSpeedTimeUnitMs: 1
+    # 包堆叠上限
+    SessionRecvPacketStackLimit: 1024
 
 
   # 垃圾回收参数

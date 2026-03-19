@@ -94,6 +94,8 @@ public:
     // 扫描时间间隔 默认1秒
     void SetMaxSleepMilliseconds(UInt64 maxSleepMilliseconds);
 
+    const KernelConfig &GetKernelConfig() const;
+
 public:
     void Clear() override;
     virtual LibString ToString() const override;
@@ -199,6 +201,10 @@ ALWAYS_INLINE void IApplication::SetMaxSleepMilliseconds(UInt64 maxSleepMillisec
     _maxSleepMilliseconds = maxSleepMilliseconds;
 }
 
+ALWAYS_INLINE const KernelConfig &IApplication::GetKernelConfig() const
+{
+    return _kernelConfig;
+}
 
 KERNEL_END
 

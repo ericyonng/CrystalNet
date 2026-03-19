@@ -132,10 +132,80 @@ Int32 Application::_OnHostInit()
         return errCode;
     }
 
-    _monitor = CRYSTAL_NEW(KERNEL_NS::LibThread);
-    _monitor->SetThreadName("AppMonitor");
-    _monitor->AddTask(this, &Application::_OnMonitor);
+    // 监控线程
+    _monitor = new KERNEL_NS::LibEventLoopThread("AppMonitor", KERNEL_NS::DefaultThreadStartUp::Create([this](){
 
+            // 等待所有组件启动
+            KERNEL_NS::CompObject *notReadyComp = NULL;
+            for(;!IsAllCompsReady(notReadyComp);)
+            {
+                CLOG_INFO_GLOBAL(Application, "app monitor wait for all comps ready, current not ready comp:%s.", notReadyComp->GetObjName().c_str());
+                KERNEL_NS::SystemUtil::ThreadSleep(1000);
+
+                if(_monitor->GetThread()->IsDestroy())
+                    break;
+
+                if(GetErrCode() != Status::Success)
+                {// 某些组件初始化失败
+                    CLOG_ERROR_GLOBAL(Application,"comp start fail errCode:%d", GetErrCode());
+                    break;
+                }
+            }
+
+            // 所有都启动了, 设置ready
+            if(!_monitor->GetThread()->IsDestroy())
+                MaskReady(true);
+
+        // 下一帧执行
+        KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<> {
+            if(LIKELY(GetErrCode() == Status::Success))
+            {
+                CLOG_INFO_GLOBAL(Application, "all comps are ready system info:%s.", ToString().c_str());
+
+                // 性能监控 1秒一次
+                KERNEL_NS::SmartPtr<KERNEL_NS::LibTimer, KERNEL_NS::AutoDelMethods::CustomDelete> monitorTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+                monitorTimer.SetClosureDelegate([](void *p){
+                    auto timer = reinterpret_cast<KERNEL_NS::LibTimer *>(p);
+                    KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(timer);
+                });
+                monitorTimer->SetTimeOutHandler([this](KERNEL_NS::LibTimer *t){
+                    _OnMonitorThreadFrame();
+                });
+                monitorTimer->Schedule(1000);
+
+                // 内存监控 60秒一次
+                KERNEL_NS::SmartPtr<KERNEL_NS::LibTimer, KERNEL_NS::AutoDelMethods::CustomDelete> memoryMonitorTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+                memoryMonitorTimer.SetClosureDelegate([](void *p){
+                    auto timer = reinterpret_cast<KERNEL_NS::LibTimer *>(p);
+                    KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(timer);
+                });
+                KERNEL_NS::SmartPtr<KERNEL_NS::IDelegate<void>, KERNEL_NS::AutoDelMethods::Release> workHandler = KERNEL_NS::MemoryMonitor::GetInstance()->MakeWorkTask();
+                memoryMonitorTimer->SetTimeOutHandler([&workHandler](KERNEL_NS::LibTimer *t){
+                    workHandler->Invoke();
+                });
+                memoryMonitorTimer->Schedule(KERNEL_NS::MemoryMonitor::GetInstance()->GetMilliSecInterval());
+
+                auto poller = KERNEL_NS::TlsUtil::GetPoller();
+                while (!poller->IsQuit())
+                {
+                    co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromMilliSeconds(100));
+
+                    // 内存日志信号触发则立即答应日志
+                    if(KERNEL_NS::SignalHandleUtil::ExchangeSignoTriggerFlag(_memoryLogSigno, false))
+                        workHandler->Invoke();
+                }
+
+                workHandler->Invoke();
+            }
+            else
+            {
+                // 启动失败则退出
+                CLOG_INFO_GLOBAL(Application, "application %s will close errCode:%d", ToString().c_str(), GetErrCode());
+                SinalFinish(GetErrCode());
+            }
+        });
+    }));
+    
     _configIni = KERNEL_NS::LibIniFile::New_LibIniFile();
     if(!_memoryIni.empty())
         _configIni->SetMemoryIniContent(_memoryIni);
@@ -163,11 +233,11 @@ Int32 Application::_OnHostInit()
     }
 
     // 设置内核先关参数
-    KERNEL_NS::GarbageThread::GetInstence()->SetIntervalMs(_kernelConfig._gCIntervalMs);
-    KERNEL_NS::CenterMemoryCollector::GetInstance()->SetAllThreadMemoryAllocUpperLimit(_kernelConfig._allMemoryAlloctorTotalUpper);
-    KERNEL_NS::CenterMemoryCollector::GetInstance()->SetWorkerIntervalMs(_kernelConfig._centerCollectorIntervalMs);
-    KERNEL_NS::CenterMemoryCollector::GetInstance()->SetBlockNumForPurgeLimit(_kernelConfig._wakeupCenterCollectorMinBlockNum);
-    KERNEL_NS::CenterMemoryCollector::GetInstance()->SetRecycleForPurgeLimit(_kernelConfig._wakeupCenterCollectorMinMergeBufferInfoNum);
+    KERNEL_NS::GarbageThread::GetInstence()->SetIntervalMs(_kernelConfig.GCIntervalMs);
+    KERNEL_NS::CenterMemoryCollector::GetInstance()->SetAllThreadMemoryAllocUpperLimit(_kernelConfig.AllMemoryAlloctorTotalUpper);
+    KERNEL_NS::CenterMemoryCollector::GetInstance()->SetWorkerIntervalMs(_kernelConfig.CenterCollectorIntervalMs);
+    KERNEL_NS::CenterMemoryCollector::GetInstance()->SetBlockNumForPurgeLimit(_kernelConfig.WakeupCenterCollectorMinBlockNum);
+    KERNEL_NS::CenterMemoryCollector::GetInstance()->SetRecycleForPurgeLimit(_kernelConfig.WakeupCenterCollectorMinMergeBufferInfoNum);
 
     // 生成apply id
     _GenerateMachineApplyId();
@@ -229,7 +299,7 @@ Int32 Application::_OnCompsCreated()
     // 内存清理设置
     auto tlsComps = KERNEL_NS::TlsUtil::GetTlsCompsOwner();
     auto memoryCleaner = tlsComps->GetComp<KERNEL_NS::TlsMemoryCleanerComp>();
-    memoryCleaner->SetIntervalMs(_kernelConfig._mergeTlsMemoryBlockIntervalMs);
+    memoryCleaner->SetIntervalMs(_kernelConfig.MergeTlsMemoryBlockIntervalMs);
 
     // 设置serviceProxy
     auto pollerMgr = GetComp<KERNEL_NS::IPollerMgr>();
@@ -288,7 +358,9 @@ void Application::_OnHostClose()
     if(LIKELY(_monitor))
     {
         if(LIKELY(_monitor->HalfClose()))
+        {
             _monitor->FinishClose();
+        }
     }
 
     CompObject *notDownComp = NULL;
@@ -338,483 +410,6 @@ void Application::_Clear()
 
 Int32 Application::_ReadBaseConfigs()
 {
-    // 内核配置项
-    {// 黑白名单规则
-        UInt64 cache = 0;
-        if(!_configIni->CheckReadUInt(APPLICATION_KERNEL_CONFIG_SEG, KERNEL_OPTION_BLACK_WHITE_LIST_FLAG_KEY, cache))
-        {
-            cache = KERNEL_OPTION_BLACK_WHITE_LIST_FLAG_DEFAULT_VALUE;
-            const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
-            if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, KERNEL_OPTION_BLACK_WHITE_LIST_FLAG_KEY, value.c_str())))
-            {
-                g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                            , APPLICATION_KERNEL_CONFIG_SEG, KERNEL_OPTION_BLACK_WHITE_LIST_FLAG_KEY, value.c_str());
-                return Status::ConfigError;
-            }
-        }
-
-        _kernelConfig._blackWhiteListMode = static_cast<UInt32>(cache);
-    }
-    {// 会话数量
-        UInt64 cache = 0;
-        if(!_configIni->CheckReadUInt(APPLICATION_KERNEL_CONFIG_SEG, MAX_SESSION_QUANTITY_KEY, cache))
-        {
-            cache = MAX_SESSION_QUANTITY_DEFAULT_VALUE;
-            const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
-            if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, MAX_SESSION_QUANTITY_KEY, value.c_str())))
-            {
-                g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                            , APPLICATION_KERNEL_CONFIG_SEG, MAX_SESSION_QUANTITY_KEY, value.c_str());
-                return Status::ConfigError;
-            }
-        }
-        _kernelConfig._maxSessionQuantity = cache;
-    }
-
-    // tcp poller 相关配置
-    {
-        UInt64 linkInOutPollerAmount = 0;
-        if(!_configIni->CheckReadUInt(APPLICATION_KERNEL_CONFIG_SEG, LINK_IN_OUT_POLLER_AMOUNT_KEY, linkInOutPollerAmount))
-        {
-            linkInOutPollerAmount = LINK_IN_OUT_POLLER_AMOUNT_DEFAULT_VALUE;
-            const auto &value = KERNEL_NS::StringUtil::Num2Str(linkInOutPollerAmount);
-            if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, LINK_IN_OUT_POLLER_AMOUNT_KEY, value.c_str())))
-            {
-                g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                            , APPLICATION_KERNEL_CONFIG_SEG, LINK_IN_OUT_POLLER_AMOUNT_KEY, value.c_str());
-                return Status::ConfigError;
-            }
-        }
-//         if(linkInOutPollerAmount == 0)
-//         {
-//             linkInOutPollerAmount = LINK_IN_OUT_POLLER_AMOUNT_DEFAULT_VALUE;
-//             g_Log->Warn(LOGFMT_OBJ_TAG("linkin out poller cant be zero will fix it to default value:%llu"), linkInOutPollerAmount);
-//         }
-        _kernelConfig._linkInOutPollerAmount = static_cast<Int32>(linkInOutPollerAmount);
-
-        UInt64 dataTransferPollerAmount = 0;
-        if(!_configIni->CheckReadUInt(APPLICATION_KERNEL_CONFIG_SEG, DATA_TRANSFER_POLLER_AMOUNT_KEY, dataTransferPollerAmount))
-        {
-            dataTransferPollerAmount = DATA_TRANSFER_POLLER_AMOUNT_DEFAULT_VALUE;
-            const auto &value = KERNEL_NS::StringUtil::Num2Str(dataTransferPollerAmount);
-            if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, DATA_TRANSFER_POLLER_AMOUNT_KEY, value.c_str())))
-            {
-                g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                            , APPLICATION_KERNEL_CONFIG_SEG, DATA_TRANSFER_POLLER_AMOUNT_KEY, value.c_str());
-                return Status::ConfigError;
-            }
-        }
-//         if(dataTransferPollerAmount == 0)
-//         {
-//             dataTransferPollerAmount = DATA_TRANSFER_POLLER_AMOUNT_DEFAULT_VALUE;
-//             g_Log->Warn(LOGFMT_OBJ_TAG("data transfer poller cant be zero will fix it to default value:%llu"), dataTransferPollerAmount);
-//         }
-        _kernelConfig._dataTransferPollerAmount = static_cast<Int32>(dataTransferPollerAmount);
-
-        {// 单帧最大接收数据量
-            UInt64 cache = 0;
-            if(!_configIni->CheckReadUInt(APPLICATION_KERNEL_CONFIG_SEG, MAX_RECV_BYTES_PER_FRAME_KEY, cache))
-            {
-                cache = MAX_RECV_BYTES_PER_FRAME_DEFAULT_VALUE;
-                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, MAX_RECV_BYTES_PER_FRAME_KEY, value.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_KERNEL_CONFIG_SEG, MAX_RECV_BYTES_PER_FRAME_KEY, value.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _kernelConfig._maxRecvBytesPerFrame = cache;
-        }
-        {// 单帧最大发送数据量
-            UInt64 cache = 0;
-            if(!_configIni->CheckReadUInt(APPLICATION_KERNEL_CONFIG_SEG, MAX_SEND_BYTES_PER_FRAME_KEY, cache))
-            {
-                cache = MAX_SEND_BYTES_PER_FRAME_DEFAULT_VALUE;
-                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, MAX_SEND_BYTES_PER_FRAME_KEY, value.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_KERNEL_CONFIG_SEG, MAX_SEND_BYTES_PER_FRAME_KEY, value.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _kernelConfig._maxSendBytesPerFrame = cache;
-        }
-        {// 单帧最大处理连接数
-            UInt64 cache = 0;
-            if(!_configIni->CheckReadUInt(APPLICATION_KERNEL_CONFIG_SEG, MAX_ACCEPT_COUNT_PER_FRAME_KEY, cache))
-            {
-                cache = MAX_ACCEPT_COUNT_PER_FRAME_DEFAULT_VALUE;
-                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, MAX_ACCEPT_COUNT_PER_FRAME_KEY, value.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_KERNEL_CONFIG_SEG, MAX_ACCEPT_COUNT_PER_FRAME_KEY, value.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _kernelConfig._maxAcceptCountPerFrame = cache;
-        }
-        {// 最大帧时间片
-            UInt64 cache = 0;
-            if(!_configIni->CheckReadUInt(APPLICATION_KERNEL_CONFIG_SEG, MAX_PIECE_TIME_IN_MICRO_SEC_PER_FRAME_KEY, cache))
-            {
-                cache = MAX_PIECE_TIME_IN_MICRO_SEC_PER_FRAME_DEFAULT_VALUE;
-                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, MAX_PIECE_TIME_IN_MICRO_SEC_PER_FRAME_KEY, value.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_KERNEL_CONFIG_SEG, MAX_PIECE_TIME_IN_MICRO_SEC_PER_FRAME_KEY, value.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _kernelConfig._maxPieceTimeInMicroSecPerFrame = cache;
-        }
-        {// 最大poller扫描时间间隔
-            UInt64 cache = 0;
-            if(!_configIni->CheckReadUInt(APPLICATION_KERNEL_CONFIG_SEG, MAX_POLLER_SCAN_MILLISECONDS_KEY, cache))
-            {
-                cache = MAX_POLLER_SCAN_MILLISECONDS_DEFAULT_VALUE;
-                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, MAX_POLLER_SCAN_MILLISECONDS_KEY, value.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_KERNEL_CONFIG_SEG, MAX_POLLER_SCAN_MILLISECONDS_KEY, value.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _kernelConfig._maxPollerScanMilliseconds = cache;
-        }
-
-        {// 指定poller monitor事件的消息优先级等级
-            Int64 cache = 0;
-            if(!_configIni->CheckReadInt(APPLICATION_KERNEL_CONFIG_SEG, POLLER_MONITOR_EVENT_PRIORITY_LEVEL_KEY, cache))
-            {
-                cache = POLLER_MONITOR_EVENT_PRIORITY_LEVEL_DEFAULT_VALUE;
-                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, POLLER_MONITOR_EVENT_PRIORITY_LEVEL_KEY, value.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_KERNEL_CONFIG_SEG, POLLER_MONITOR_EVENT_PRIORITY_LEVEL_KEY, value.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _kernelConfig._pollerMonitorEventPriorityLevel = static_cast<Int32>(cache);
-        }
-
-        {// session缓冲大小设置
-            UInt64 cache = 0;
-            if(!_configIni->CheckReadUInt(APPLICATION_KERNEL_CONFIG_SEG, SESSION_BUFFER_CAPACITY_KEY, cache))
-            {
-                cache = SESSION_BUFFER_CAPACITY_DEFAULT_VALUE;
-                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, SESSION_BUFFER_CAPACITY_KEY, value.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_KERNEL_CONFIG_SEG, SESSION_BUFFER_CAPACITY_KEY, value.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _kernelConfig._sessionBufferCapicity = cache;
-        }
-
-        {// session 限速
-            UInt64 cache = 0;
-            if(!_configIni->CheckReadUInt(APPLICATION_KERNEL_CONFIG_SEG, SESSION_RECV_PACKET_SPEED_LIMIT_KEY, cache))
-            {
-                cache = SESSION_RECV_PACKET_SPEED_LIMIT_DEFAULT_VALUE;
-                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, SESSION_RECV_PACKET_SPEED_LIMIT_KEY, value.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_KERNEL_CONFIG_SEG, SESSION_RECV_PACKET_SPEED_LIMIT_KEY, value.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _kernelConfig._sessionRecvPacketSpeedLimit = cache;
-        }
-
-        {// session 限速时间单位
-            UInt64 cache = 0;
-            if(!_configIni->CheckReadUInt(APPLICATION_KERNEL_CONFIG_SEG, SESSION_RECV_PACKET_SPEED_TIME_UNIT_MS_KEY, cache))
-            {
-                cache = SESSION_RECV_PACKET_SPEED_TIME_UNIT_DEFAULT_VALUE;
-                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, SESSION_RECV_PACKET_SPEED_TIME_UNIT_MS_KEY, value.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_KERNEL_CONFIG_SEG, SESSION_RECV_PACKET_SPEED_TIME_UNIT_MS_KEY, value.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _kernelConfig._sessionRecvPacketSpeedTimeUnitMs = cache;
-        }
-
-        {// session 收包堆叠上限
-            UInt64 cache = 0;
-            if(!_configIni->CheckReadUInt(APPLICATION_KERNEL_CONFIG_SEG, SESSION_RECV_PACKET_STACK_LIMIT_KEY, cache))
-            {
-                cache = SESSION_RECV_PACKET_STACK_LIMIT_DEFAULT_VALUE;
-                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, SESSION_RECV_PACKET_STACK_LIMIT_KEY, value.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_KERNEL_CONFIG_SEG, SESSION_RECV_PACKET_STACK_LIMIT_KEY, value.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _kernelConfig._sessionRecvPacketStackLimit = cache;
-        }
-
-        {// session 收包单包限制
-            UInt64 cache = 0;
-            if(!_configIni->CheckReadUInt(APPLICATION_KERNEL_CONFIG_SEG, SESSION_RECV_PACKET_CONTENT_LIMIT_KEY, cache))
-            {
-                cache = SESSION_RECV_PACKET_CONTENT_LIMIT_DEFAULT_VALUE;
-                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, SESSION_RECV_PACKET_CONTENT_LIMIT_KEY, value.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_KERNEL_CONFIG_SEG, SESSION_RECV_PACKET_CONTENT_LIMIT_KEY, value.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _kernelConfig._sessionRecvPacketContentLimit = cache;
-        }
-
-        {// session 发包单包限制
-            UInt64 cache = 0;
-            if(!_configIni->CheckReadUInt(APPLICATION_KERNEL_CONFIG_SEG, SESSION_SEND_PACKET_CONTENT_LIMIT_KEY, cache))
-            {
-                cache = SESSION_SEND_PACKET_CONTENT_LIMIT_DEFAULT_VALUE;
-                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, SESSION_SEND_PACKET_CONTENT_LIMIT_KEY, value.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_KERNEL_CONFIG_SEG, SESSION_SEND_PACKET_CONTENT_LIMIT_KEY, value.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _kernelConfig._sessionSendPacketContentLimit = cache;
-        }
-
-        {// poller feature定义
-            KERNEL_NS::LibString cache;
-            if(!_configIni->ReadStr(APPLICATION_KERNEL_CONFIG_SEG, POLLER_FEATURE_TYPE_KEY, cache))
-            {
-                cache = POLLER_FEATURE_TYPE_DEFAULT_VALUE;
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, POLLER_FEATURE_TYPE_KEY, cache.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_KERNEL_CONFIG_SEG, POLLER_FEATURE_TYPE_KEY, cache.c_str());
-                    return Status::ConfigError;
-                }
-            }
-
-            const auto &featurePairParts = cache.Split(',');
-            if(featurePairParts.size() < 2)
-            {
-                g_Log->Error(LOGFMT_OBJ_TAG("have no poller feature please check seg:%s, key:%s, value:%s")
-                            , APPLICATION_KERNEL_CONFIG_SEG, POLLER_FEATURE_TYPE_KEY, cache.c_str());
-                return Status::ConfigError;
-            }
-
-            for(auto &part : featurePairParts)
-            {
-                const auto &items = part.Split(':');
-                if(items.size() < 2)
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("feature format error please check seg:%s, key:%s, value:%s, part:%s")
-                            , APPLICATION_KERNEL_CONFIG_SEG, POLLER_FEATURE_TYPE_KEY, cache.c_str(), part.c_str());
-                    return Status::ConfigError;
-                }
-
-                const auto &featureString = items[0];
-                const auto &featureIdString = items[1];
-                if(!featureIdString.isdigit())
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("feature id format error please check seg:%s, key:%s, value:%s, part:%s, featureIdString:%s")
-                            , APPLICATION_KERNEL_CONFIG_SEG, POLLER_FEATURE_TYPE_KEY, cache.c_str(), part.c_str(), featureIdString.c_str());
-                    return Status::ConfigError;
-                }
-
-                if(_kernelConfig._pollerFeatureStringRefId.find(featureString) != _kernelConfig._pollerFeatureStringRefId.end())
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("repeate feature please check seg:%s, key:%s, value:%s, part:%s, featureString:%s")
-                            , APPLICATION_KERNEL_CONFIG_SEG, POLLER_FEATURE_TYPE_KEY, cache.c_str(), part.c_str(), featureString.c_str());
-                    return Status::ConfigError;
-                }
-                
-                auto featureId = KERNEL_NS::StringUtil::StringToInt32(featureIdString.c_str());
-                _kernelConfig._pollerFeatureStringRefId.insert(std::make_pair(featureString, featureId));
-                
-                auto iterFeatureString = _kernelConfig._pollerFeatureIdRefString.find(featureId);
-                if(iterFeatureString == _kernelConfig._pollerFeatureIdRefString.end())
-                    iterFeatureString = _kernelConfig._pollerFeatureIdRefString.insert(std::make_pair(featureId, std::set<KERNEL_NS::LibString>())).first;
-                iterFeatureString->second.insert(featureString);
-            }
-
-            if(_kernelConfig._pollerFeatureStringRefId.empty())
-            {
-                g_Log->Error(LOGFMT_OBJ_TAG("lack of poller feature config please check seg:%s, key:%s")
-                        , APPLICATION_KERNEL_CONFIG_SEG, POLLER_FEATURE_TYPE_KEY);
-                return Status::ConfigError;
-            }
-        }
-    }
-
-    {// gc 中央收集器等配置
-        {
-            UInt64 cache = 0;
-            if(!_configIni->CheckReadUInt(APPLICATION_KERNEL_CONFIG_SEG, "AllMemoryAlloctorTotalUpper", cache))
-            {
-                cache = 4LLU * 1024LLU * 1024LLU * 1024LLU;
-                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, "AllMemoryAlloctorTotalUpper", value.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_KERNEL_CONFIG_SEG, "AllMemoryAlloctorTotalUpper", value.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _kernelConfig._allMemoryAlloctorTotalUpper = cache;
-        }
-        {
-            UInt64 cache = 0;
-            if(!_configIni->CheckReadUInt(APPLICATION_KERNEL_CONFIG_SEG, "GCIntervalMs", cache))
-            {
-                cache = 5000;
-                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, "GCIntervalMs", value.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_KERNEL_CONFIG_SEG, "GCIntervalMs", value.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _kernelConfig._gCIntervalMs = cache;
-        }
-        {
-            Int64 cache = 0;
-            if(!_configIni->CheckReadNumber(APPLICATION_KERNEL_CONFIG_SEG, "CenterCollectorIntervalMs", cache))
-            {
-                cache = 100;
-                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, "CenterCollectorIntervalMs", value.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_KERNEL_CONFIG_SEG, "CenterCollectorIntervalMs", value.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _kernelConfig._centerCollectorIntervalMs = cache;
-        }
-        {
-            UInt64 cache = 0;
-            if(!_configIni->CheckReadNumber(APPLICATION_KERNEL_CONFIG_SEG, "WakeupCenterCollectorMinBlockNum", cache))
-            {
-                cache = 100;
-                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, "WakeupCenterCollectorMinBlockNum", value.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_KERNEL_CONFIG_SEG, "WakeupCenterCollectorMinBlockNum", value.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _kernelConfig._wakeupCenterCollectorMinBlockNum = cache;
-        }
-        {
-            UInt64 cache = 0;
-            if(!_configIni->CheckReadNumber(APPLICATION_KERNEL_CONFIG_SEG, "WakeupCenterCollectorMinMergeBufferInfoNum", cache))
-            {
-                cache = 100;
-                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, "WakeupCenterCollectorMinMergeBufferInfoNum", value.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_KERNEL_CONFIG_SEG, "WakeupCenterCollectorMinMergeBufferInfoNum", value.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _kernelConfig._wakeupCenterCollectorMinMergeBufferInfoNum = cache;
-        }
-
-        {
-            Int64 cache = 0;
-            if(!_configIni->CheckReadNumber(APPLICATION_KERNEL_CONFIG_SEG, "MergeTlsMemoryBlockIntervalMs", cache))
-            {
-                cache = 60000;
-                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, "MergeTlsMemoryBlockIntervalMs", value.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_KERNEL_CONFIG_SEG, "MergeTlsMemoryBlockIntervalMs", value.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _kernelConfig._mergeTlsMemoryBlockIntervalMs = cache;
-        }
-    }
-
-    KERNEL_NS::g_LinkerPollerName = POLLER_FEATURE_LINKER;
-    KERNEL_NS::g_TransferPollerName = POLLER_FEATURE_DATA_TRANSFER;
-
-    // udp poller 相关配置
-    // auto &udpPollerConfig = _pollerConfig._udpPollerConfig;
-    // {        
-    //     {// linker相关配置
-    //         auto newPollerFeatureConfig = KERNEL_NS::UdpPollerFeatureConfig::New_UdpPollerFeatureConfig(&udpPollerConfig, KERNEL_NS::PollerFeature::LINKER);
-    //         newPollerFeatureConfig->_pollerInstConfigs.resize(_kernelConfig._linkInOutPollerAmount);
-    //         udpPollerConfig._pollerFeatureRefConfig.insert(std::make_pair(KERNEL_NS::PollerFeature::LINKER, newPollerFeatureConfig));
-
-    //         // 创建配置
-    //         auto &pollerInstConfigs = newPollerFeatureConfig->_pollerInstConfigs;
-    //         for(Int32 idx = 0; idx < _kernelConfig._linkInOutPollerAmount; ++idx)
-    //         {
-    //             auto newInstConfig = KERNEL_NS::UdpPollerInstConfig::New_UdpPollerInstConfig(newPollerFeatureConfig, static_cast<UInt32>(idx + 1));
-    //             newInstConfig->_handleRecvBytesPerFrameLimit = _kernelConfig._maxRecvBytesPerFrame;
-    //             newInstConfig->_handleSendBytesPerFrameLimit = _kernelConfig._maxSendBytesPerFrame;
-    //             newInstConfig->_handleAcceptPerFrameLimit = _kernelConfig._maxAcceptCountPerFrame;
-    //             newInstConfig->_maxPieceTimeInMicroseconds = _kernelConfig._maxPieceTimeInMicroSecPerFrame;
-    //             newInstConfig->_maxSleepMilliseconds = _kernelConfig._maxPollerScanMilliseconds;
-    //             newInstConfig->_maxPriorityLevel = _kernelConfig._maxPollerMsgPriorityLevel;
-    //             newInstConfig->_pollerInstMonitorPriorityLevel = _kernelConfig._pollerMonitorEventPriorityLevel;
-    //             newInstConfig->_bufferCapacity = _kernelConfig._sessionBufferCapicity;
-    //             newInstConfig->_sessionRecvPacketSpeedLimit = _kernelConfig._sessionRecvPacketSpeedLimit;
-    //             newInstConfig->_sessionRecvPacketSpeedTimeUnitMs = _kernelConfig._sessionRecvPacketSpeedTimeUnitMs;
-    //             newInstConfig->_sessionRecvPacketStackLimit = _kernelConfig._sessionRecvPacketStackLimit;
-    //             pollerInstConfigs[idx] = newInstConfig;
-    //         }
-    //     }
-       
-    //     {// transfer相关配置
-    //         auto newPollerFeatureConfig = KERNEL_NS::UdpPollerFeatureConfig::New_UdpPollerFeatureConfig(&udpPollerConfig, KERNEL_NS::PollerFeature::DATA_TRANSFER);
-    //         newPollerFeatureConfig->_pollerInstConfigs.resize(_kernelConfig._dataTransferPollerAmount);
-    //         udpPollerConfig._pollerFeatureRefConfig.insert(std::make_pair(KERNEL_NS::PollerFeature::DATA_TRANSFER, newPollerFeatureConfig));
-
-    //         // 创建配置
-    //         auto &pollerInstConfigs = newPollerFeatureConfig->_pollerInstConfigs;
-    //         for(Int32 idx = 0; idx < _kernelConfig._dataTransferPollerAmount; ++idx)
-    //         {
-    //             auto newInstConfig = KERNEL_NS::UdpPollerInstConfig::New_UdpPollerInstConfig(newPollerFeatureConfig,  static_cast<UInt32>(idx + 1));
-    //             newInstConfig->_handleRecvBytesPerFrameLimit = _kernelConfig._maxRecvBytesPerFrame;
-    //             newInstConfig->_handleSendBytesPerFrameLimit = _kernelConfig._maxSendBytesPerFrame;
-    //             newInstConfig->_handleAcceptPerFrameLimit = _kernelConfig._maxAcceptCountPerFrame;
-    //             newInstConfig->_maxPieceTimeInMicroseconds = _kernelConfig._maxPieceTimeInMicroSecPerFrame;
-    //             newInstConfig->_maxSleepMilliseconds = _kernelConfig._maxPollerScanMilliseconds;
-    //             newInstConfig->_maxPriorityLevel = _kernelConfig._maxPollerMsgPriorityLevel;
-    //             newInstConfig->_pollerInstMonitorPriorityLevel = _kernelConfig._pollerMonitorEventPriorityLevel;
-    //             newInstConfig->_bufferCapacity = _kernelConfig._sessionBufferCapicity;
-    //             newInstConfig->_sessionRecvPacketSpeedLimit = _kernelConfig._sessionRecvPacketSpeedLimit;
-    //             newInstConfig->_sessionRecvPacketSpeedTimeUnitMs = _kernelConfig._sessionRecvPacketSpeedTimeUnitMs;
-    //             newInstConfig->_sessionRecvPacketStackLimit = _kernelConfig._sessionRecvPacketStackLimit;
-    //             pollerInstConfigs[idx] = newInstConfig;
-    //         }
-    //     }
-    // }
-
     {// application config
         {// 程序别名
             KERNEL_NS::LibString cache;
@@ -965,6 +560,12 @@ void Application::_OnMonitorThreadFrame()
     _statisticsInfoCache = sw;
     _guard.Unlock();
 
+    // 2.网络信息
+    KERNEL_NS::PollerMgrStatisticsInfo pollerMgrInfo;
+    auto pollerMgr = GetComp<KERNEL_NS::IPollerMgr>();
+    if(pollerMgr && pollerMgr->IsStarted())
+        pollerMgr->OnMonitor(pollerMgrInfo);
+    
     // 3.获取service信息
     auto serviceProxy = GetComp<ServiceProxy>();
     ServiceProxyStatisticsInfo serviceProxyInfo;
@@ -981,14 +582,17 @@ void Application::_OnMonitorThreadFrame()
         info.AppendFormat("%s\n", serviceProxyInfo.ToSummaryInfo().c_str());
         info.AppendFormat("[PROC:%d SUMMARY INFO END]\n", pid);
 
+        info.AppendFormat("\n[PROC:%d KERNEL INFO BEGIN]\n", pid);
+        info.AppendFormat("%s\n", pollerMgrInfo.ToString().c_str());
+        info.AppendFormat("[PROC:%d KERNEL INFO END]\n", pid);
+
         Double average = 0;
         if(_statisticsInfoCache->_resCount > 0)
         {
             average = static_cast<Double>(_statisticsInfoCache->_resTotalNs) / _statisticsInfoCache->_resCount / 1000000;
         }
-        
-        g_Log->Monitor("%s\n[- RESPONSE INFO BEGIN -]\nSampleNumber:%llu. Min:%lf(ms). Average:%lf(ms). Max:%lf(ms).\n[- RESPONSE INFO END -]\n"
-                    ,info.c_str(), _statisticsInfoCache->_resCount, static_cast<Double>(_statisticsInfoCache->_minResNs) / 1000000, average, static_cast<Double>(_statisticsInfoCache->_maxResNs) / 1000000);
+
+        CLOG_MONITOR("%s\n[- RESPONSE INFO BEGIN -]\nSampleNumber:%llu. Min:%lf(ms). Average:%lf(ms). Max:%lf(ms).\n[- RESPONSE INFO END -]\n", info.c_str(), _statisticsInfoCache->_resCount, static_cast<Double>(_statisticsInfoCache->_minResNs) / 1000000, average, static_cast<Double>(_statisticsInfoCache->_maxResNs) / 1000000);
     }
 
     _statisticsInfoCache->_minResNs = 0;
@@ -1016,81 +620,6 @@ void Application::_DoCloseApp()
     }
 }
 
-void Application::_OnMonitor(KERNEL_NS::LibThread *t)
-{
-    KERNEL_NS::CompObject *notReadyComp = NULL;
-    for(;!IsAllCompsReady(notReadyComp);)
-    {
-        g_Log->Info(LOGFMT_OBJ_TAG("app monitor wait for all comps ready, current not ready comp:%s."), notReadyComp->GetObjName().c_str());
-        KERNEL_NS::SystemUtil::ThreadSleep(1000);
-
-        if(t->IsDestroy())
-            break;
-
-        if(GetErrCode() != Status::Success)
-        {// 某些组件初始化失败
-            g_Log->Error(LOGFMT_OBJ_TAG("comp start fail errCode:%d"), GetErrCode());
-            break;
-        }
-    }
-
-    if(!t->IsDestroy())
-        MaskReady(true);
-
-    auto poller = KERNEL_NS::TlsUtil::GetPoller();
-    poller->PrepareLoop();
-
-    auto timerMgr = poller->GetTimerMgr();
-
-    if(LIKELY(GetErrCode() == Status::Success))
-    {
-        g_Log->Info(LOGFMT_OBJ_TAG("all comps are ready system info:%s."), ToString().c_str());
-
-        // 性能监控 1秒一次
-        KERNEL_NS::SmartPtr<KERNEL_NS::LibTimer, KERNEL_NS::AutoDelMethods::CustomDelete> monitorTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
-        monitorTimer.SetClosureDelegate([](void *p){
-            auto timer = reinterpret_cast<KERNEL_NS::LibTimer *>(p);
-            KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(timer);
-        });
-        monitorTimer->SetTimeOutHandler([this](KERNEL_NS::LibTimer *t){
-            _OnMonitorThreadFrame();
-        });
-        monitorTimer->Schedule(1000);
-
-        // 内存监控 60秒一次
-        KERNEL_NS::SmartPtr<KERNEL_NS::LibTimer, KERNEL_NS::AutoDelMethods::CustomDelete> memoryMonitorTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
-        memoryMonitorTimer.SetClosureDelegate([](void *p){
-            auto timer = reinterpret_cast<KERNEL_NS::LibTimer *>(p);
-            KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(timer);
-        });
-        KERNEL_NS::SmartPtr<KERNEL_NS::IDelegate<void>, KERNEL_NS::AutoDelMethods::Release> workHandler = KERNEL_NS::MemoryMonitor::GetInstance()->MakeWorkTask();
-        memoryMonitorTimer->SetTimeOutHandler([&workHandler](KERNEL_NS::LibTimer *t){
-            workHandler->Invoke();
-        });
-        memoryMonitorTimer->Schedule(KERNEL_NS::MemoryMonitor::GetInstance()->GetMilliSecInterval());
-
-        while (!t->IsDestroy())
-        {
-            timerMgr->Drive();
-            KERNEL_NS::SystemUtil::ThreadSleep(100);
-
-            // 内存日志信号触发则立即答应日志
-            if(KERNEL_NS::SignalHandleUtil::ExchangeSignoTriggerFlag(_memoryLogSigno, false))
-                workHandler->Invoke();
-        }
-
-        workHandler->Invoke();
-    }
-    else
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("application %s will close errCode:%d"), ToString().c_str(), GetErrCode());
-        SinalFinish(GetErrCode());
-    }
-
-    poller->OnLoopEnd();
-
-    g_Log->Info(LOGFMT_OBJ_TAG("monitor quik thread id:%llu."), KERNEL_NS::SystemUtil::GetCurrentThreadId());
-}
 
 void Application::_OnKillMonitorTimeOut(KERNEL_NS::LibTimer *timer)
 {

@@ -88,6 +88,14 @@ struct KERNEL_EXPORT NetConfig
     Int32 MaxAcceptCountPerFrame = 1024;
     // session缓冲大小
     Int32 SessionBufferCapacity = 8192;
+
+    // session包限速 LibSession.CheckUpdateRecvSpeed
+    Int32 SessionRecvPacketSpeedLimit = 0;
+    // 限速回满时间(毫秒数)
+    Int32 SessionRecvPacketSpeedTimeUnitMs = 0;
+
+    // 包堆叠上限
+    Int32 SessionRecvPacketStackLimit = 1024;
 };
 
 // 内核配置
@@ -222,6 +230,9 @@ namespace YAML
             node["MaxSendBytesPerFrame"] = rhs.MaxSendBytesPerFrame;
             node["MaxAcceptCountPerFrame"] = rhs.MaxAcceptCountPerFrame;
             node["SessionBufferCapacity"] = rhs.SessionBufferCapacity;
+            node["SessionRecvPacketSpeedLimit"] = rhs.SessionRecvPacketSpeedLimit;
+            node["SessionRecvPacketSpeedTimeUnitMs"] = rhs.SessionRecvPacketSpeedTimeUnitMs;
+            node["SessionRecvPacketStackLimit"] = rhs.SessionRecvPacketStackLimit;
             return node;
         }
 
@@ -288,6 +299,22 @@ namespace YAML
                     rhs.SessionBufferCapacity = value.as<Int32>();
             }
 
+            {
+                auto &&value = node["SessionRecvPacketSpeedLimit"];
+                if (value.IsDefined())
+                    rhs.SessionRecvPacketSpeedLimit = value.as<Int32>();
+            }
+            {
+                auto &&value = node["SessionRecvPacketSpeedTimeUnitMs"];
+                if (value.IsDefined())
+                    rhs.SessionRecvPacketSpeedTimeUnitMs = value.as<Int32>();
+            }
+
+            {
+                auto &&value = node["SessionRecvPacketStackLimit"];
+                if (value.IsDefined())
+                    rhs.SessionRecvPacketStackLimit = value.as<Int32>();
+            }
             return true;
         }
     };

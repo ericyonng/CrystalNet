@@ -416,7 +416,7 @@ void ServiceProxy::_OnPrepareServiceThread(UInt64 serviceId, const KERNEL_NS::Li
 
     // 剔除所有service的会话
     g_Log->Info(LOGFMT_OBJ_TAG("service %s quit all sessions..."), service->IntroduceInfo().c_str());
-    service->GetComp<KERNEL_NS::IPollerMgr>()->QuitAllSessions(service->GetServiceId());
+    service->GetApp()->GetComp<KERNEL_NS::IPollerMgr>()->QuitAllSessions(service->GetServiceId());
 
     try
     {

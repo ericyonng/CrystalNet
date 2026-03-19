@@ -86,11 +86,11 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
     KERNEL_NS::SessionOption option;
 
     // 发送和接收缓冲区使用默认值
-    auto &config = service->GetServiceProxy()->GetOwner()->CastTo<SERVICE_COMMON_NS::Application>()->GetKernelConfig();
+    auto &config = GetApp()->GetKernelConfig();
     option._noDelay = true;
     option._sockSendBufferSize = 0;
     option._sockRecvBufferSize = 0;
-    option._sessionBufferCapicity = config._sessionBufferCapicity;
+    option._sessionBufferCapicity = config.NetConfig.SessionBufferCapacity;
 
     if(sessionType == SessionType::INNER)
     {
@@ -99,11 +99,11 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
     }
     else
     {
-        option._sessionRecvPacketSpeedLimit = config._sessionRecvPacketSpeedLimit;
-        option._sessionRecvPacketSpeedTimeUnitMs = config._sessionRecvPacketSpeedTimeUnitMs;
+        option._sessionRecvPacketSpeedLimit =       config.NetConfig.SessionRecvPacketSpeedLimit;
+        option._sessionRecvPacketSpeedTimeUnitMs =  config.NetConfig.SessionRecvPacketSpeedTimeUnitMs;
     }
 
-    option._sessionRecvPacketStackLimit = config._sessionRecvPacketStackLimit;
+    option._sessionRecvPacketStackLimit = config.NetConfig.SessionRecvPacketStackLimit;
 
     option._forbidRecv = true;
     option._sessionType = sessionType;
@@ -117,7 +117,7 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
         option._sessionRecvPacketContentLimit = 0;
         break;
     case SessionType::OUTER:
-        option._sessionRecvPacketContentLimit = GetApp()->GetKernelConfig()._sessionRecvPacketContentLimit;
+        option._sessionRecvPacketContentLimit = GetApp()->GetKernelConfig().NetConfig.SessionRecvPacketContentLimit;
         break;
     default:
         break;
@@ -131,7 +131,7 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
         option._sessionSendPacketContentLimit = 0;
         break;
     case SessionType::OUTER:
-        option._sessionSendPacketContentLimit = GetApp()->GetKernelConfig()._sessionSendPacketContentLimit;
+        option._sessionSendPacketContentLimit = GetApp()->GetKernelConfig().NetConfig.SessionSendPacketContentLimit;
         break;
     default:
         break;
@@ -205,12 +205,12 @@ Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt1
     }
 
     auto serviceProxy = service->GetServiceProxy();
-    auto &config = serviceProxy->GetOwner()->CastTo<SERVICE_COMMON_NS::Application>()->GetKernelConfig();
+    auto &config = GetApp()->GetKernelConfig();
     KERNEL_NS::SessionOption option;
     option._noDelay = true;
     option._sockSendBufferSize = 0;
     option._sockRecvBufferSize = 0;
-    option._sessionBufferCapicity = config._sessionBufferCapicity;
+    option._sessionBufferCapicity = config.NetConfig.SessionBufferCapacity;
     
     if(sessionType == SessionType::INNER)
     {
@@ -219,11 +219,11 @@ Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt1
     }
     else
     {
-        option._sessionRecvPacketSpeedLimit = config._sessionRecvPacketSpeedLimit;
-        option._sessionRecvPacketSpeedTimeUnitMs = config._sessionRecvPacketSpeedTimeUnitMs;
+        option._sessionRecvPacketSpeedLimit =       config.NetConfig.SessionRecvPacketSpeedLimit;
+        option._sessionRecvPacketSpeedTimeUnitMs =  config.NetConfig.SessionRecvPacketSpeedTimeUnitMs;
     }
     
-    option._sessionRecvPacketStackLimit = config._sessionRecvPacketStackLimit;
+    option._sessionRecvPacketStackLimit = config.NetConfig.SessionRecvPacketStackLimit;
 
     option._forbidRecv = false;
     option._sessionType = sessionType;
@@ -237,7 +237,7 @@ Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt1
         option._sessionRecvPacketContentLimit = 0;
         break;
     case SessionType::OUTER:
-        option._sessionRecvPacketContentLimit = GetApp()->GetKernelConfig()._sessionRecvPacketContentLimit;
+        option._sessionRecvPacketContentLimit = GetApp()->GetKernelConfig().NetConfig.SessionRecvPacketContentLimit;
         break;
     default:
         break;
@@ -251,7 +251,7 @@ Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt1
         option._sessionSendPacketContentLimit = 0;
         break;
     case SessionType::OUTER:
-        option._sessionSendPacketContentLimit = GetApp()->GetKernelConfig()._sessionSendPacketContentLimit;
+        option._sessionSendPacketContentLimit = GetApp()->GetKernelConfig().NetConfig.SessionSendPacketContentLimit;
         break;
     default:
         break;

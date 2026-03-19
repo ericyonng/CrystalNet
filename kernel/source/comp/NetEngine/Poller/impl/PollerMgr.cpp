@@ -219,7 +219,7 @@ void PollerMgr::OnMonitor(PollerMgrStatisticsInfo &statistics)
             if(tcpPoller->IsStarted())
             {
                 NetPollerCompStatistics netPoller;
-                auto poller = tcpPoller->GetComp<Poller>();
+                auto poller = tcpPoller->GetPoller();
                 if(poller && poller->IsEnable())
                     poller->OnMonitor(netPoller._pollerStatistics);
 

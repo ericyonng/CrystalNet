@@ -46,6 +46,7 @@ KERNEL_BEGIN
 class LibIniFile;
 class LibThread;
 class LibTimer;
+class LibEventLoopThread;
 
 KERNEL_END
 
@@ -65,7 +66,6 @@ public:
 public:
     void SetIniFile(const KERNEL_NS::LibString &ini);
     void SetMemoryIniContent(const KERNEL_NS::LibString &content);
-    const KernelConfig &GetKernelConfig() const;
     const KERNEL_NS::LibString &GetProjectMainServiceName() const; // 获取项目功能名, 如：Gate, Login等
     const KERNEL_NS::LibString &GetMachineApplyId() const;
     UInt32 GetMachineId() const; 
@@ -119,9 +119,6 @@ private:
     // 生成机器id的申请id
     void _GenerateMachineApplyId();
 
-    // 监控
-    void _OnMonitor(KERNEL_NS::LibThread *t);
-
     // 检测程序退出
     void _OnKillMonitorTimeOut(KERNEL_NS::LibTimer *timer);
 
@@ -129,11 +126,10 @@ private:
     KERNEL_NS::LibString _ini;                              // 配置表路径
     KERNEL_NS::LibString _memoryIni;                        // 内存配置表内容
     KERNEL_NS::LibIniFile *_configIni;                      // 配置表
-    KernelConfig _kernelConfig;                             // 内核配置
     ApplicationConfig _appConfig;                           // app配置
 
     // 监控线程
-    KERNEL_NS::LibThread *_monitor;
+    KERNEL_NS::LibEventLoopThread *_monitor;
 
     // 退出程序监控定时
     KERNEL_NS::LibTimer *_killMonitorTimer;
@@ -154,11 +150,6 @@ ALWAYS_INLINE void Application::SetIniFile(const KERNEL_NS::LibString &ini)
 ALWAYS_INLINE void Application::SetMemoryIniContent(const KERNEL_NS::LibString &content)
 {
     _memoryIni = content;
-}
-
-ALWAYS_INLINE const KernelConfig &Application::GetKernelConfig() const
-{
-    return _kernelConfig;
 }
 
 ALWAYS_INLINE const KERNEL_NS::LibString &Application::GetProjectMainServiceName() const
