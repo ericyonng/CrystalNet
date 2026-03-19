@@ -159,27 +159,33 @@ bool LibLog::Init(const Byte8 *logConfigFile, const Byte8 *logCfgDir, YamlMemory
         auto &cfg = currentConfig->LogLevelList[i];
         if(cfg.Enable)
         {
-            auto newSpecifyLog = SpecifyLog::New_SpecifyLog();
-            auto logFileCfg = currentConfig->GetLogFile(cfg.LevelId);
-
-            const Int32 status = newSpecifyLog->Init(logPath, _fileMonitor, cfg.FileId, logFileCfg->ThreadRelationshipId);
-            if(status != Status::Success)
+            auto specifyLog = _fileIdIdxRefLog[cfg.FileId];
+            bool isNewLog = false;
+            if (!specifyLog)
             {
-                CRYSTAL_TRACE("newSpecifyLog INIT fail log file name=%s, file id:%d logPath=%s, status=%d"
-                , logFileCfg ? logFileCfg->FileName.c_str() : "", cfg.FileId, logPath.c_str(), status);
+                specifyLog = SpecifyLog::New_SpecifyLog();
+                auto logFileCfg = currentConfig->GetLogFile(cfg.LevelId);
 
-                CRYSTAL_DELETE_SAFE(newSpecifyLog);
-                return false;
+                const Int32 status = specifyLog->Init(logPath, _fileMonitor, cfg.FileId, logFileCfg->ThreadRelationshipId);
+                if(status != Status::Success)
+                {
+                    CRYSTAL_TRACE("newSpecifyLog INIT fail log file name=%s, file id:%d logPath=%s, status=%d"
+                    , logFileCfg ? logFileCfg->FileName.c_str() : "", cfg.FileId, logPath.c_str(), status);
+
+                    CRYSTAL_DELETE_SAFE(specifyLog);
+                    return false;
+                }
+                isNewLog = true;
             }
 
             // 日志着盘线程绑定关系
             const auto workingNum = g_LibEventLoopThreadPool->GetWorkerNum();
             auto &threads= g_LibEventLoopThreadPool->GetThreads();
-            if(workingNum <= newSpecifyLog->GetThreadRelationId())
+            if(workingNum <= specifyLog->GetThreadRelationId())
             {
-                g_LibEventLoopThreadPool->MakeThreadEnough(newSpecifyLog->GetThreadRelationId() + 1);
+                g_LibEventLoopThreadPool->MakeThreadEnough(specifyLog->GetThreadRelationId() + 1);
             }
-            auto realRelationId = newSpecifyLog->GetThreadRelationId() % threads.size();
+            auto realRelationId = specifyLog->GetThreadRelationId() % threads.size();
             if(_threadRelationLogs.size() <= realRelationId)
                 _threadRelationLogs.resize(realRelationId + 1);
             if(_flushLocks.size() <= realRelationId)
@@ -196,10 +202,15 @@ bool LibLog::Init(const Byte8 *logConfigFile, const Byte8 *logCfgDir, YamlMemory
                 threadBindLogs = new std::vector<SpecifyLog *>;
                 _threadRelationLogs[realRelationId] = threadBindLogs;
             }
-            threadBindLogs->push_back(newSpecifyLog);
 
-            newSpecifyLog->BindWakeupFlush(_flushLocks[realRelationId]);
-            _fileIdIdxRefLog[cfg.FileId] = newSpecifyLog;
+            if (isNewLog)
+            {
+                threadBindLogs->push_back(specifyLog);
+                specifyLog->BindWakeupFlush(_flushLocks[realRelationId]);
+                _fileIdIdxRefLog[cfg.FileId] = specifyLog;
+            }
+
+
         }
     }
 

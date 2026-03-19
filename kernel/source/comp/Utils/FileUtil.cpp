@@ -864,7 +864,14 @@ Int32 FileUtil::Rename(const LibString &oldPathFile, const LibString &newPathFil
 {
     auto ret = ::rename(oldPathFile.c_str(), newPathFile.c_str());
     if(ret != 0)
+    {
+        const auto err = SystemUtil::GetErrNo();
+        const auto &errStr = SystemUtil::GetErrString(err);
+        CLOG_ERROR_GLOBAL(FileUtil, "rename fail, errStr:%s, err:%d, oldFile:%s, newFile:%s"
+            , errStr.c_str(), err, oldPathFile.c_str(), newPathFile.c_str());
+        
         return Status::Failed;
+    }
 
     return Status::Success;
 }

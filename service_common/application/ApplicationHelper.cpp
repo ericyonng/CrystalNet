@@ -54,6 +54,7 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
     if(memoryIniConfig.empty())
     {
         app->SetYamlPath(configPath);
+        app->SetIniFile("./ini/service.ini");
     }
     else
     {

@@ -93,17 +93,8 @@ public:
     {
         auto poller = TlsUtil::GetPoller();
         poller->SetEventLoopMode(true);
-
-        KERNEL_NS::PostCaller([this]()->CoTask<>
-        {
-            if (_poller->_OnThreadStart())
-            {
-                CLOG_ERROR("_OnThreadStart fail.");
-                co_return;
-            }
-
-            CLOG_NET_INFO("epoll tcp poller event loop start loop.");
-        });
+        _poller->_OnThreadStart();
+        CLOG_NET_INFO("epoll tcp poller event loop start loop.");
 
         // MaskReady(true);
     }
