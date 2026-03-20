@@ -38,21 +38,74 @@
 SERVICE_COMMON_BEGIN
 
 // 全球id生成机制(63bit 兼容lua,lua实际上最大只能支持到63位最高位是符号位):国家id(8bit) + 16bit machineId（一个进程一个） + 39位序列号（数据库最大值+本地存储最大值保证高可用（数据库挂了还有本地存储引擎）,因为每个实例的序列号最大值不共用）
+// struct ApplicationConfig
+// {
+//     KERNEL_NS::LibString _appAliasName;             // 程序别名:比如gs, ls等
+//     KERNEL_NS::LibString _projectMainServiceName;   // 项目主服务名 如:Login, Gate等
+//     std::atomic<UInt32> _machineId = {0};       // 机器id(全球唯一,默认是0,此时应该向中心注册机器,获取机器id)
+//
+//     // 机器注册信息 machineId没获取成功之前以下参数都会变化
+//     UInt64 _registerTime = 0;                   // 注册成功的机器注册时间微妙
+//     KERNEL_NS::LibString _registerPath;         // 注册成功的机器注册时的进程路径
+//     UInt64 _registerProcessId = 0;              // 注册成功的机器注册时的进程id
+//     KERNEL_NS::LibString _machineApplyId;       // 程序创建生成的唯一标识符:base64(sha256(进程路径 + 项目类型名 + 时间 + 进程id)) 记录申请machineId时的唯一标识符
+//
+//     bool _disableConsoleMonitorInfo = false;    // 禁用控制台输出监控信息
+// };
+
 struct ApplicationConfig
 {
-    KERNEL_NS::LibString _appAliasName;             // 程序别名:比如gs, ls等
-    KERNEL_NS::LibString _projectMainServiceName;   // 项目主服务名 如:Login, Gate等
-    std::atomic<UInt32> _machineId = {0};       // 机器id(全球唯一,默认是0,此时应该向中心注册机器,获取机器id)
-
-    // 机器注册信息 machineId没获取成功之前以下参数都会变化
-    UInt64 _registerTime = 0;                   // 注册成功的机器注册时间微妙
-    KERNEL_NS::LibString _registerPath;         // 注册成功的机器注册时的进程路径
-    UInt64 _registerProcessId = 0;              // 注册成功的机器注册时的进程id
-    KERNEL_NS::LibString _machineApplyId;       // 程序创建生成的唯一标识符:base64(sha256(进程路径 + 项目类型名 + 时间 + 进程id)) 记录申请machineId时的唯一标识符
-
-    bool _disableConsoleMonitorInfo = false;    // 禁用控制台输出监控信息
+    // 别名
+    KERNEL_NS::LibString AliasName;
+    // 主服务
+    KERNEL_NS::LibString ProjectMainServiceName;
+    // 禁用控制台监控信息
+    bool DisableConsoleMonitorInfo;
 };
 
 SERVICE_COMMON_END
 
+
+namespace YAML
+{
+    // 网络单元定义
+    template<>
+    struct KERNEL_EXPORT convert<SERVICE_COMMON_NS::ApplicationConfig>
+    {
+        static Node encode(const SERVICE_COMMON_NS::ApplicationConfig& rhs)
+        {
+            Node node;
+            node["AliasName"] = rhs.AliasName.GetRaw();
+            node["ProjectMainServiceName"] = rhs.ProjectMainServiceName.GetRaw();
+            node["DisableConsoleMonitorInfo"] = rhs.DisableConsoleMonitorInfo;
+            return node;
+        }
+
+        static bool decode(const Node& node,  SERVICE_COMMON_NS::ApplicationConfig& rhs)
+        {
+            if(!node.IsMap())
+            {
+                return false;
+            }
+            
+            {
+                auto &&value = node["AliasName"];
+                if(value.IsDefined())
+                    rhs.AliasName = value.as<std::string>();
+            }
+            {
+                auto &&value = node["ProjectMainServiceName"];
+                if(value.IsDefined())
+                    rhs.ProjectMainServiceName = value.as<std::string>();
+            }
+            {
+                auto &&value = node["DisableConsoleMonitorInfo"];
+                if(value.IsDefined())
+                    rhs.DisableConsoleMonitorInfo = value.as<bool>();
+            }
+
+            return true;
+        }
+    };
+}
 #endif

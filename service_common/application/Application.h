@@ -38,7 +38,6 @@
 #include <kernel/comp/Lock/Impl/SpinLock.h>
 #include <kernel/comp/NetEngine/Poller/Defs/PollerConfig.h>
 #include <kernel/comp/App/app.h>
-#include <service_common/application/KernelConfig.h>
 #include <service_common/application/ApplicationConfig.h>
 
 KERNEL_BEGIN
@@ -67,9 +66,6 @@ public:
     void SetIniFile(const KERNEL_NS::LibString &ini);
     void SetMemoryIniContent(const KERNEL_NS::LibString &content);
     const KERNEL_NS::LibString &GetProjectMainServiceName() const; // 获取项目功能名, 如：Gate, Login等
-    const KERNEL_NS::LibString &GetMachineApplyId() const;
-    UInt32 GetMachineId() const; 
-    void SetMachineId(UInt32 machineId);
     const KERNEL_NS::LibIniFile *GetIni() const;
     KERNEL_NS::LibIniFile *GetIni();
     virtual const KERNEL_NS::LibString &GetAppAliasName() const override;
@@ -116,9 +112,6 @@ private:
     // 读基本配置
     Int32 _ReadBaseConfigs();
 
-    // 生成机器id的申请id
-    void _GenerateMachineApplyId();
-
     // 检测程序退出
     void _OnKillMonitorTimeOut(KERNEL_NS::LibTimer *timer);
 
@@ -154,17 +147,7 @@ ALWAYS_INLINE void Application::SetMemoryIniContent(const KERNEL_NS::LibString &
 
 ALWAYS_INLINE const KERNEL_NS::LibString &Application::GetProjectMainServiceName() const
 {
-    return _appConfig._projectMainServiceName;
-}
-
-ALWAYS_INLINE const KERNEL_NS::LibString &Application::GetMachineApplyId() const
-{
-    return _appConfig._machineApplyId;
-}
-
-ALWAYS_INLINE UInt32 Application::GetMachineId() const
-{
-    return _appConfig._machineId;
+    return _appConfig.ProjectMainServiceName;
 }
 
 ALWAYS_INLINE const KERNEL_NS::LibIniFile *Application::GetIni() const

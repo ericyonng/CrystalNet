@@ -65,7 +65,7 @@ void Application::Release()
 
 const KERNEL_NS::LibString &Application::GetAppAliasName() const 
 {
-    return _appConfig._appAliasName;
+    return _appConfig.AliasName;
 }
 
 void Application::Clear()
@@ -77,7 +77,7 @@ void Application::Clear()
 KERNEL_NS::LibString Application::ToString() const
 {
     KERNEL_NS::LibString info;
-    info.AppendFormat("iapplication:%s, alias:%s", KERNEL_NS::IApplication::ToString().c_str(), _appConfig._appAliasName.c_str());
+    info.AppendFormat("iapplication:%s, alias:%s", KERNEL_NS::IApplication::ToString().c_str(), _appConfig.AliasName.c_str());
     return info;
 }
 
@@ -99,15 +99,6 @@ void Application::SinalFinish(Int32 err)
     _poller->Push(ev);
 
     // _lck.Sinal();
-}
-
-void Application::SetMachineId(UInt32 machineId)
-{
-    _appConfig._machineId = machineId;
-
-    _configIni->Lock();
-    _configIni->WriteNumber(APPLICATION_CONFIG_SEG, MACHINE_ID_KEY, static_cast<UInt64>(machineId));
-    _configIni->Unlock();
 }
 
 void Application::PushResponceNs(UInt64 costNs)
@@ -238,9 +229,6 @@ Int32 Application::_OnHostInit()
     KERNEL_NS::CenterMemoryCollector::GetInstance()->SetWorkerIntervalMs(_kernelConfig.CenterCollectorIntervalMs);
     KERNEL_NS::CenterMemoryCollector::GetInstance()->SetBlockNumForPurgeLimit(_kernelConfig.WakeupCenterCollectorMinBlockNum);
     KERNEL_NS::CenterMemoryCollector::GetInstance()->SetRecycleForPurgeLimit(_kernelConfig.WakeupCenterCollectorMinMergeBufferInfoNum);
-
-    // 生成apply id
-    _GenerateMachineApplyId();
 
     // 信号处理
     auto &args = GetAppArgs();
@@ -410,143 +398,33 @@ void Application::_Clear()
 
 Int32 Application::_ReadBaseConfigs()
 {
-    {// application config
-        {// 程序别名
-            KERNEL_NS::LibString cache;
-            if(!_configIni->ReadStr(APPLICATION_CONFIG_SEG, PROJECT_ALIAS_NAME_KEY, cache))
-            {
-                g_Log->Error(LOGFMT_OBJ_TAG("have no project alias name please check!"));
-                return Status::ConfigError;
-            }
-            _appConfig._appAliasName = cache;
+    
+    try
+    {
+        if(_yamlContent.empty())
+        {
+            auto config = YAML::LoadFile(_yamlPath.c_str());
+            _appConfig = config["ApplicationConfig"].as<SERVICE_COMMON_NS::ApplicationConfig>();
         }
-        {// 项目主服务名
-            KERNEL_NS::LibString cache;
-            if(!_configIni->ReadStr(APPLICATION_CONFIG_SEG, PROJECT_MAIN_SERVICE_NAME_KEY, cache))
-            {
-                cache = PROJECT_MAIN_SERVICE_NAME_DEFAULT_VALUE;
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_CONFIG_SEG, PROJECT_MAIN_SERVICE_NAME_KEY, cache.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_CONFIG_SEG, PROJECT_MAIN_SERVICE_NAME_KEY, cache.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _appConfig._projectMainServiceName = cache;
-        }
-        {// 机器id
-            UInt64 cache;
-            if(!_configIni->CheckReadUInt(APPLICATION_CONFIG_SEG, MACHINE_ID_KEY, cache))
-            {
-                cache = MACHINE_ID_DEFAULT_VALUE;
-                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_CONFIG_SEG, MACHINE_ID_KEY, value.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_CONFIG_SEG, MACHINE_ID_KEY, value.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _appConfig._machineId = static_cast<UInt32>(cache);
-        }
-        {// 注册成功机器时间
-            UInt64 cache;
-            if(!_configIni->CheckReadUInt(APPLICATION_CONFIG_SEG, REGISTER_TIME_KEY, cache))
-            {
-                cache = REGISTER_TIME_DEFAULT_VALUE;
-                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_CONFIG_SEG, REGISTER_TIME_KEY, value.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_CONFIG_SEG, REGISTER_TIME_KEY, value.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _appConfig._registerTime = cache;
-        }
-        {// 注册成功的进程路径
-            KERNEL_NS::LibString cache;
-            if(!_configIni->ReadStr(APPLICATION_CONFIG_SEG, REGISTER_PATH_KEY, cache))
-            {
-                cache = REGISTER_PATH_DEFAULT_VALUE;
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_CONFIG_SEG, REGISTER_PATH_KEY, cache.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_CONFIG_SEG, REGISTER_PATH_KEY, cache.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _appConfig._registerPath = cache;
-        }
-        {// 注册成功的进程id
-            UInt64 cache;
-            if(!_configIni->CheckReadNumber(APPLICATION_CONFIG_SEG, REGISTER_PROCESS_ID_KEY, cache))
-            {
-                cache = REGISTER_PROCESS_ID_DEFAULT_VALUE;
-                if(UNLIKELY(!_configIni->WriteNumber(APPLICATION_CONFIG_SEG, REGISTER_PROCESS_ID_KEY, cache)))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%llu")
-                                , APPLICATION_CONFIG_SEG, REGISTER_PROCESS_ID_KEY, cache);
-                    return Status::ConfigError;
-                }
-            }
-            _appConfig._registerProcessId = cache;
-        }
-        {// 程序申请机器id时的生成的唯一标识id
-            KERNEL_NS::LibString cache;
-            if(!_configIni->ReadStr(APPLICATION_CONFIG_SEG, MACHINE_APPLY_ID_KEY, cache))
-            {
-                cache = MACHINE_APPLY_ID_DEFAULT_VALUE;
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_CONFIG_SEG, MACHINE_APPLY_ID_KEY, cache.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_CONFIG_SEG, MACHINE_APPLY_ID_KEY, cache.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _appConfig._machineApplyId = cache;
-        }
-
-        {// DisableConsoleMonitorInfo
-            Int32 cache;
-            if(!_configIni->CheckReadNumber(APPLICATION_CONFIG_SEG, "DisableConsoleMonitorInfo", cache))
-            {
-                cache = 0;
-                if(UNLIKELY(!_configIni->WriteNumber(APPLICATION_CONFIG_SEG, "DisableConsoleMonitorInfo", cache)))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%d")
-                                , APPLICATION_CONFIG_SEG, "DisableConsoleMonitorInfo", cache);
-                    return Status::ConfigError;
-                }
-            }
-            _appConfig._disableConsoleMonitorInfo = cache != 0;
+        else
+        {
+            auto config = YAML::Load(_yamlContent.GetRaw());
+            _appConfig = config["ApplicationConfig"].as<SERVICE_COMMON_NS::ApplicationConfig>();
         }
     }
+    catch (std::exception &e)
+    {
+        CLOG_ERROR("app config load fail:%s", e.what());
+        return Status::ConfigError;
+    }
+    catch (...)
+    {
+        CLOG_ERROR("app config init exception fail");
+        return Status::ConfigError;
+    }
 
+    CLOG_INFO("app config load success.");
     return Status::Success;
-}
-
-void Application::_GenerateMachineApplyId()
-{
-    if(_appConfig._machineId != 0)
-        return;
-
-    _appConfig._registerTime = static_cast<UInt64>(GetAppStartTime().GetMicroTimestamp());
-    _appConfig._registerPath = GetAppPath();
-    _appConfig._registerProcessId = GetProcessId();
-
-    // base64(sha256(进程路径 + 项目类型名 + 时间 + 进程id))
-    KERNEL_NS::LibString str;
-    str.AppendFormat("%s", _appConfig._registerPath.c_str())
-        .AppendFormat("%s", _appConfig._projectMainServiceName.c_str())
-        .AppendFormat("%s", KERNEL_NS::StringUtil::Num2Str(_appConfig._registerTime).c_str())
-        .AppendFormat("%s", KERNEL_NS::StringUtil::Num2Str(_appConfig._registerProcessId).c_str())
-        ;
-    str = KERNEL_NS::LibDigest::MakeSha256(str);
-    _appConfig._machineApplyId = KERNEL_NS::LibBase64::Encode(str);
-
-    // 打印machine apply id
-    g_Log->Info(LOGFMT_OBJ_TAG("%s \nmachine apply id:%s"), IntroduceStr().c_str(), _appConfig._machineApplyId.c_str());
 }
 
 void Application::_OnMonitorThreadFrame()
@@ -572,7 +450,7 @@ void Application::_OnMonitorThreadFrame()
     if(serviceProxy && serviceProxy->IsStarted())
         serviceProxy->OnMonitor(serviceProxyInfo);
 
-    if(!_appConfig._disableConsoleMonitorInfo)
+    if(!_appConfig.DisableConsoleMonitorInfo)
     {
         KERNEL_NS::LibString info;
         info.AppendFormat("\n%s\n", serviceProxyInfo.ToString().c_str());

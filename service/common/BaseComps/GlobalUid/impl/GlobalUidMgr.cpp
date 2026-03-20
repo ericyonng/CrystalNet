@@ -136,7 +136,8 @@ KERNEL_NS::LibString GlobalUidMgr::ToString() const
 
 Int32 GlobalUidMgr::_OnGlobalSysInit()
 {
-    _machineId = GetApp()->GetMachineId();
+    // TODO:machineId需要注册
+    // _machineId = GetApp()->GetMachineId();
 
     if(UNLIKELY(!_synStorageCb))
     {
