@@ -29,6 +29,7 @@
 #include <pch.h>
 #include <kernel/comp/thread/LibEventLoopThread.h>
 #include <kernel/comp/thread/LibThread.h>
+#include <kernel/comp/Utils/SystemUtil.h>
 
 KERNEL_BEGIN
 
@@ -62,6 +63,8 @@ void LibEventLoopThread::Start()
         if(!poller->PrepareLoop())
         {
             CRYSTAL_TRACE("thread1 prepare loop fail.")
+
+            throw std::exception("thread poller prepare fail");
             return;
         }
 

@@ -65,7 +65,7 @@ struct ApplicationConfig
 
 SERVICE_COMMON_END
 
-
+// yaml序列化反序列化
 namespace YAML
 {
     // 网络单元定义

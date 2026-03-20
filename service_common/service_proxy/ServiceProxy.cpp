@@ -191,22 +191,28 @@ Int32 ServiceProxy::_OnInit()
 
     auto ini = application->GetIni();
     {
-        KERNEL_NS::LibString cache;
-        if(!ini->ReadStr(SERVICE_COMMON_CONFIG_SEG, ACTIVE_SERVICE_ITEM_KEY, cache))
+        auto &yamlNode = application->GetYamlConfig();
+        auto &&serviceCommonCfg = yamlNode["ServiceCommon"];
+        if(!serviceCommonCfg.IsMap())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("have no active service, SERVICE_COMMON_CONFIG_SEG:%s, ACTIVE_SERVICE_ITEM_KEY:%s")
-                        , SERVICE_COMMON_CONFIG_SEG, ACTIVE_SERVICE_ITEM_KEY);
-
+            CLOG_ERROR("have no active service, SERVICE_COMMON_CONFIG_SEG:%s, ACTIVE_SERVICE_ITEM_KEY:%s", SERVICE_COMMON_CONFIG_SEG, ACTIVE_SERVICE_ITEM_KEY);
             SetErrCode(NULL, Status::ConfigError);
             return Status::ConfigError;
         }
 
-        cache.strip();
-        _activeServices = cache.Split(',', -1, false, false);
+        auto &&activeList = serviceCommonCfg["ActiveServiceItem"];
+        if(!activeList.IsSequence())
+        {
+            CLOG_ERROR("ActiveServiceItem not sequence, SERVICE_COMMON_CONFIG_SEG:%s, ACTIVE_SERVICE_ITEM_KEY:%s", SERVICE_COMMON_CONFIG_SEG, ACTIVE_SERVICE_ITEM_KEY);
+            SetErrCode(NULL, Status::ConfigError);
+            return Status::ConfigError;
+        }
+
+        _activeServices = activeList.as<std::vector<KERNEL_NS::LibString>>();
+        
         if(_activeServices.empty())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("have no active service SERVICE_COMMON_CONFIG_SEG:%s, ACTIVE_SERVICE_ITEM_KEY:%s")
-                        , SERVICE_COMMON_CONFIG_SEG, ACTIVE_SERVICE_ITEM_KEY);
+            CLOG_ERROR("have no active service SERVICE_COMMON_CONFIG_SEG:%s, ACTIVE_SERVICE_ITEM_KEY:%s", SERVICE_COMMON_CONFIG_SEG, ACTIVE_SERVICE_ITEM_KEY);
             SetErrCode(NULL, Status::ConfigError);
             return Status::ConfigError;
         }
@@ -232,14 +238,16 @@ Int32 ServiceProxy::_OnInit()
         newThread->AddTask2(this, &ServiceProxy::_OnServiceThread, newVar);
     }
 
-    g_Log->Info(LOGFMT_OBJ_TAG("init service proxy suc"));
+    CLOG_INFO("init service proxy suc");
     return Status::Success;
 }
 
 Int32 ServiceProxy::_OnStart()
 {
-    for(auto thread:_serviceThreads)
+    for(auto thread : _serviceThreads)
+    {
         thread->Start();
+    }
 
     g_Log->Info(LOGFMT_OBJ_TAG("service proxy start."));
     return Status::Success;
@@ -328,11 +336,11 @@ void ServiceProxy::_OnPrepareServiceThread(UInt64 serviceId, const KERNEL_NS::Li
         }
         catch (std::exception &e)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("abnormal:%s, when clean service: %s"), e.what(), service->IntroduceInfo().c_str());
+            CLOG_ERROR("abnormal:%s, when clean service: %s", e.what(), service->IntroduceInfo().c_str());
         }
         catch (...)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("unknown abnormal when clean service: %s"), service->IntroduceInfo().c_str());
+            CLOG_ERROR("unknown abnormal when clean service: %s", service->IntroduceInfo().c_str());
         }
     }
     KERNEL_FINALLY_END();
@@ -350,7 +358,7 @@ void ServiceProxy::_OnPrepareServiceThread(UInt64 serviceId, const KERNEL_NS::Li
         _guard.Unlock();
 
         // 1.获取配置,创建激活的服务t中需要带本服务线程所需要的相关服务信息，且本线程必须是某个服务独占的
-        g_Log->Info(LOGFMT_OBJ_TAG("service %s init..."), service->IntroduceInfo().c_str());
+        CLOG_INFO("service %s init...", service->IntroduceInfo().c_str());
         errCode = service->Init();
         if(errCode != Status::Success)
         {
@@ -360,7 +368,7 @@ void ServiceProxy::_OnPrepareServiceThread(UInt64 serviceId, const KERNEL_NS::Li
         }
 
         // 2.启动服务
-        g_Log->Info(LOGFMT_OBJ_TAG("service %s start..."), service->IntroduceInfo().c_str());
+        CLOG_INFO("service %s start...",  service->IntroduceInfo().c_str());
         errCode = service->Start();
         if(errCode != Status::Success)
         {

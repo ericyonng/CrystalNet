@@ -122,9 +122,9 @@ public:
    const LibDirtyHelper<void *, UInt32> *GetDirtyHelper() const;
 
    // 设置worker handler
-   void SetPepareEventWorkerHandler(IDelegate<bool, Poller *> *handler);
+   void AddPepareEventWorkerHandler(IDelegate<bool, Poller *> *handler);
    template<typename ObjType>
-   void SetPepareEventWorkerHandler(ObjType *obj, bool (ObjType::*handler)(Poller *));
+   void AddPepareEventWorkerHandler(ObjType *obj, bool (ObjType::*handler)(Poller *));
 
    // 设置帧末执行
    template<typename ObjType>
@@ -132,9 +132,9 @@ public:
    void SetFrameTick(IDelegate<void> *handler);
 
    // poller线程退出前销毁
-   void SetEventWorkerCloseHandler(IDelegate<void, Poller *> *handler);
+   void AddEventWorkerCloseHandler(IDelegate<void, Poller *> *handler);
    template<typename ObjType>
-   void SetEventWorkerCloseHandler(ObjType *obj, void (ObjType::*handler)(Poller *));
+   void AddEventWorkerCloseHandler(ObjType *obj, void (ObjType::*handler)(Poller *));
 
     // 订阅消息处理
     template<typename ObjType>
@@ -598,8 +598,8 @@ private:
   TimerMgr *_timerMgr;                                      // 定时器管理
   LibDirtyHelper<void *, UInt32> *_dirtyHelper;             // 事件脏标记
 
-  IDelegate<bool, Poller *> *_prepareEventWorkerHandler;    // 事件处理线程初始准备
-  IDelegate<void, Poller *> *_onEventWorkerCloseHandler;    // 事件处理线程结束销毁
+  std::vector<IDelegate<bool, Poller *> *> _prepareEventWorkerHandler; // 事件处理线程初始准备
+  std::vector<IDelegate<void, Poller *> *> _onEventWorkerCloseHandler;    // 事件处理线程结束销毁
   ConditionLocker _eventGuard;                              // 空闲挂起等待
 
   std::atomic<bool> _isWaiting;
@@ -695,17 +695,16 @@ ALWAYS_INLINE const LibDirtyHelper<void *, UInt32> *Poller::GetDirtyHelper() con
     return _dirtyHelper;
 }
 
-ALWAYS_INLINE void Poller::SetPepareEventWorkerHandler(IDelegate<bool, Poller *> *handler)
+ALWAYS_INLINE void Poller::AddPepareEventWorkerHandler(IDelegate<bool, Poller *> *handler)
 {
-    CRYSTAL_DELETE_SAFE(_prepareEventWorkerHandler);
-    _prepareEventWorkerHandler = handler;
+    _prepareEventWorkerHandler.push_back(handler);
 }
 
 template<typename ObjType>
-ALWAYS_INLINE void Poller::SetPepareEventWorkerHandler(ObjType *obj, bool (ObjType::*handler)(Poller *))
+ALWAYS_INLINE void Poller::AddPepareEventWorkerHandler(ObjType *obj, bool (ObjType::*handler)(Poller *))
 {
     auto delg = DelegateFactory::Create(obj, handler);
-    SetPepareEventWorkerHandler(delg);
+    AddPepareEventWorkerHandler(delg);
 }
 
 template<typename ObjType>
@@ -721,17 +720,16 @@ ALWAYS_INLINE void Poller::SetFrameTick(IDelegate<void> *handler)
     _onTick = handler;
 }
 
-ALWAYS_INLINE void Poller::SetEventWorkerCloseHandler(IDelegate<void, Poller *> *handler)
+ALWAYS_INLINE void Poller::AddEventWorkerCloseHandler(IDelegate<void, Poller *> *handler)
 {
-    CRYSTAL_DELETE_SAFE(_onEventWorkerCloseHandler);
-    _onEventWorkerCloseHandler = handler;
+    _onEventWorkerCloseHandler.push_back(handler);
 }
 
 template<typename ObjType>
-ALWAYS_INLINE void Poller::SetEventWorkerCloseHandler(ObjType *obj, void (ObjType::*handler)(Poller *))
+ALWAYS_INLINE void Poller::AddEventWorkerCloseHandler(ObjType *obj, void (ObjType::*handler)(Poller *))
 {
     auto delg = DelegateFactory::Create(obj, handler);
-    SetEventWorkerCloseHandler(delg);
+    AddEventWorkerCloseHandler(delg);
 }
 
 template<typename ObjType>

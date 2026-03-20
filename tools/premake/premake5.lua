@@ -402,6 +402,7 @@ project "testsuit"
             "../../OptionComponent/OptionComp/**.h",
             "../../OptionComponent/OptionComp/**.cpp",
             "../../doc/ini/**.yaml",
+            "../../doc/ini/**.ini",
             -- "../../OptionComponent/OptionComp/BehaviorTree/**.h",
             -- "../../OptionComponent/OptionComp/BehaviorTree/**.cpp",
             -- "../../OptionComponent/OptionComp/CodeAnalyze/**.h",
@@ -518,6 +519,8 @@ project "client"
         "../../service_common/**.cpp",
         "../../client/**.h",
         "../../client/**.cpp",
+        "../../doc/ini/**.yaml",
+        "../../doc/ini/**.ini",
     }
 
     filter{ "system:windows"}		

@@ -51,7 +51,6 @@ IService::IService(UInt64 objTypeId)
 ,_tcpPollerMgr(NULL)
 {
     _SetType(ServiceProxyCompType::COMP_SERVICE);
-    
 }
 
 IService::~IService()
@@ -245,6 +244,20 @@ void IService::Push(KERNEL_NS::LibList<KERNEL_NS::PollerEvent *> *evList)
 Int32 IService::_OnHostInit()
 {
     SetServiceStatus(ServiceStatus::SERVICE_INITING);
+
+    _poller = KERNEL_NS::TlsUtil::GetPoller();
+    _pollerMgr = GetApp()->GetComp<KERNEL_NS::IPollerMgr>();
+    _tcpPollerMgr = _pollerMgr->GetComp<KERNEL_NS::TcpPollerMgr>();
+
+    // todo:
+    InitPollerEventHandler();
+
+    // poller 设置
+    KERNEL_NS::TimeSlice span(0, 0, _maxPieceTimeInMicroseconds);
+    _poller->SetMaxSleepMilliseconds(_maxSleepMilliseconds);
+    _poller->AddPepareEventWorkerHandler(this, &IService::_OnPollerPrepare);
+    _poller->AddEventWorkerCloseHandler(this, &IService::_OnPollerWillDestroy);
+    
     auto errCode = _OnServiceInit();
     if(errCode != Status::Success)
     {
@@ -259,18 +272,6 @@ Int32 IService::_OnHostInit()
 
 Int32 IService::_OnPriorityLevelCompsCreated()
 {
-    // todo:
-    _poller = KERNEL_NS::TlsUtil::GetPoller();
-
-    InitPollerEventHandler();
-
-    // poller 设置
-    KERNEL_NS::TimeSlice span(0, 0, _maxPieceTimeInMicroseconds);
-    _poller->SetMaxSleepMilliseconds(_maxSleepMilliseconds);
-    _poller->SetPepareEventWorkerHandler(this, &IService::_OnPollerPrepare);
-    _poller->SetEventWorkerCloseHandler(this, &IService::_OnPollerWillDestroy);
-
-    _pollerMgr = GetApp()->GetComp<KERNEL_NS::IPollerMgr>();
     auto st = _OnServicePriorityLevelCompsCreated();
     if(st != Status::Success)
     {
@@ -297,7 +298,6 @@ Int32 IService::_OnCompsCreated()
 
 Int32 IService::_OnHostWillStart()
 {
-    _tcpPollerMgr = _pollerMgr->GetComp<KERNEL_NS::TcpPollerMgr>();
     SetServiceStatus(ServiceStatus::SERVICE_STARTING);
 
     g_Log->Info(LOGFMT_OBJ_TAG("service %s will start suc."), IntroduceInfo().c_str());
@@ -312,7 +312,7 @@ Int32 IService::_OnHostStart()
         g_Log->Error(LOGFMT_OBJ_TAG("service:%s, _OnServiceStartup fail errCode:%d"), IntroduceInfo().c_str(), errCode);
         return errCode;
     }
-
+    
     SetServiceStatus(ServiceStatus::SERVICE_STARTED);
     g_Log->Info(LOGFMT_OBJ_TAG("service %s start suc."), IntroduceInfo().c_str());
     return GetErrCode();

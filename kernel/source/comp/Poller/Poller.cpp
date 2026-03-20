@@ -109,8 +109,6 @@ Poller::Poller()
 ,_loopDetectTimeout(1000)   // 默认1000次循环检查一次
 ,_timerMgr(TimerMgr::New_TimerMgr())
 ,_dirtyHelper(LibDirtyHelper<void *, UInt32>::New_LibDirtyHelper())
-,_prepareEventWorkerHandler(NULL)
-,_onEventWorkerCloseHandler(NULL)
 ,_isWaiting{true}
 ,_eventAmountLeft{0}
 ,_genEventAmount{0}
@@ -434,12 +432,12 @@ bool Poller::PrepareLoop()
 {
     // _workThreadId.store(SystemUtil::GetCurrentThreadId(), std::memory_order_release);
     // _timerMgr->Launch(DelegateFactory::Create(this, &Poller::WakeupEventLoop));
-    if(LIKELY(_prepareEventWorkerHandler))
+    for(auto delg : _prepareEventWorkerHandler)
     {
-        if(!_prepareEventWorkerHandler->Invoke(this))
+        if(!delg->Invoke(this))
         {
-            if (g_Log)
-                g_Log->Error(LOGFMT_OBJ_TAG("prepare event worker fail poller info:%s"), ToString().c_str());
+            if(g_Log)
+                CLOG_ERROR("prepare event worker fail poller info:%s, delg:%s, owner rtti:%s", ToString().c_str(), delg->GetCallbackRtti().c_str(), delg->GetOwnerRtti().c_str());
             SetErrCode(NULL, Status::PollerFail);
             return false;
         }
@@ -822,9 +820,9 @@ void Poller::SafeEventLoop()
 void Poller::OnLoopEnd()
 {
     // worker 线程关闭
-    if(LIKELY(_onEventWorkerCloseHandler))
-        _onEventWorkerCloseHandler->Invoke(this);
-
+    for(auto delg : _onEventWorkerCloseHandler)
+        delg->Invoke(this);
+    
     if (g_Log && g_Log->IsEnable(LogLevel::Info))
         g_Log->Info(LOGFMT_OBJ_TAG("poller loop end poller info:%s"), ToString().c_str());
 }
@@ -921,8 +919,8 @@ void Poller::_Clear()
         _dirtyHelper = NULL;
     }
 
-    CRYSTAL_DELETE_SAFE(_prepareEventWorkerHandler);
-    CRYSTAL_DELETE_SAFE(_onEventWorkerCloseHandler);
+    KERNEL_NS::ContainerUtil::DelContainer2(_prepareEventWorkerHandler);
+    KERNEL_NS::ContainerUtil::DelContainer2(_onEventWorkerCloseHandler);
 
     if (g_Log && g_Log->IsEnable(LogLevel::Info))
         g_Log->Info(LOGFMT_OBJ_TAG("will destroy poller events list %s"), ToString().c_str());

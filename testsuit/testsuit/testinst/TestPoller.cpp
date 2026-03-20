@@ -100,8 +100,8 @@ protected:
     virtual Int32 _OnPriorityLevelCompsCreated() override
     {
         auto poller = GetComp<KERNEL_NS::Poller>();
-        poller->SetPepareEventWorkerHandler(this, &HostObj::_OnPollerPrepare);
-        poller->SetEventWorkerCloseHandler(this, &HostObj::_OnPollerWillDestroy);
+        poller->AddPepareEventWorkerHandler(this, &HostObj::_OnPollerPrepare);
+        poller->AddEventWorkerCloseHandler(this, &HostObj::_OnPollerWillDestroy);
         poller->Subscribe(1, this, &HostObj::_OnHelloWorldEv);
 
         auto dirtyHelper = poller->GetDirtyHelper();

@@ -70,6 +70,7 @@ public:
 
 public:
     void SetYamlPath(const KERNEL_NS::LibString &path);
+    const YAML::Node &GetYamlConfig() const;
     void SetYamlMemoryContent(const KERNEL_NS::LibString &content);
     
     virtual void WaitFinish(Int32 &err);
@@ -149,7 +150,13 @@ protected:
     KERNEL_NS::LibString _yamlPath;
     KERNEL_NS::LibString _yamlContent;
     KernelConfig _kernelConfig;
+    YAML::Node _yamlConfigNode;
 };
+
+ALWAYS_INLINE const YAML::Node &IApplication::GetYamlConfig() const
+{
+    return _yamlConfigNode;
+}
 
 ALWAYS_INLINE const LibString &IApplication::GetAppName() const
 {

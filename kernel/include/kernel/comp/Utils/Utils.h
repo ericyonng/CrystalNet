@@ -68,5 +68,6 @@
 #include <kernel/comp/Utils/AtomicUtil.h>
 #include <kernel/comp/Utils/TranscoderUtil.h>
 #include <kernel/comp/Utils/SortUtil.h>
+#include <kernel/comp/Utils/YamlUtil.h>
 
 #endif

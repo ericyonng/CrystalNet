@@ -1546,8 +1546,8 @@ bool EpollTcpPoller::_OnThreadStart()
     // 用 EpollTcpPoller 的poller 替换当前线程的poller组件
     auto poller = TlsUtil::GetPoller();
     poller->SetMaxSleepMilliseconds(10);
-    poller->SetPepareEventWorkerHandler(this, &EpollTcpPoller::_OnPollerPrepare);
-    poller->SetEventWorkerCloseHandler(this, &EpollTcpPoller::_OnPollerWillDestroy);
+    poller->AddPepareEventWorkerHandler(this, &EpollTcpPoller::_OnPollerPrepare);
+    poller->AddEventWorkerCloseHandler(this, &EpollTcpPoller::_OnPollerWillDestroy);
     
     poller->Subscribe(PollerEventType::Write, this, &EpollTcpPoller::_OnWrite);
     poller->Subscribe(PollerEventType::AsynConnect, this, &EpollTcpPoller::_OnAsynConnect);

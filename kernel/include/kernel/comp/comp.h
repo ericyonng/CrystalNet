@@ -35,6 +35,7 @@
 
 // 基础组件
 #include <kernel/comp/LibString.h>
+#include <kernel/comp/LibStringYaml.h>
 #include <kernel/comp/LibStringOut.h>
 #include <kernel/comp/LibTime.h>
 #include <kernel/comp/TimeSlice.h>

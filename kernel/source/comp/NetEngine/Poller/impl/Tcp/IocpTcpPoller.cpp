@@ -1887,8 +1887,8 @@ bool IocpTcpPoller::_OnThreadStart()
     auto poller = TlsUtil::GetPoller();
     
     poller->SetMaxSleepMilliseconds(10);
-    poller->SetPepareEventWorkerHandler(this, &IocpTcpPoller::_OnPollerPrepare);
-    poller->SetEventWorkerCloseHandler(this, &IocpTcpPoller::_OnPollerWillDestroy);
+    poller->AddPepareEventWorkerHandler(this, &IocpTcpPoller::_OnPollerPrepare);
+    poller->AddEventWorkerCloseHandler(this, &IocpTcpPoller::_OnPollerWillDestroy);
 
     poller->Subscribe(PollerEventType::Write, this, &IocpTcpPoller::_OnWrite);
     poller->Subscribe(PollerEventType::AsynConnect, this, &IocpTcpPoller::_OnAsynConnect);

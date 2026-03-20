@@ -185,13 +185,13 @@ Int32 IApplication::_OnHostInit()
     {
         if(_yamlContent.empty())
         {
-            auto config = YAML::LoadFile(_yamlPath.c_str());
-            _kernelConfig = config["KernelConfig"].as<KERNEL_NS::KernelConfig>();
+            _yamlConfigNode = YAML::LoadFile(_yamlPath.c_str());
+            _kernelConfig = _yamlConfigNode["KernelConfig"].as<KERNEL_NS::KernelConfig>();
         }
         else
         {
-            auto config = YAML::Load(_yamlContent.GetRaw());
-            _kernelConfig = config["KernelConfig"].as<KERNEL_NS::KernelConfig>();
+            _yamlConfigNode = YAML::Load(_yamlContent.GetRaw());
+            _kernelConfig = _yamlConfigNode["KernelConfig"].as<KERNEL_NS::KernelConfig>();
         }
     }
     catch (std::exception &e)
