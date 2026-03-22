@@ -84,3 +84,105 @@ ServiceCommon:
   # 激活的服务 填入想要激活的服务项名称
   ActiveServiceItem: [TestSuit]
   
+# testsuit配置(会动态热更)
+TestSuit:
+  # service层poller扫描间隔(不小于20ms)
+  PollerMaxSleepMilliseconds: 20
+  # 帧更新间隔(调用组件update)
+  FrameUpdateTimeMs: 50
+  # 监听信息
+  TcpListenList:
+    - BindTo: 0.0.0.0
+      Port: 3900
+      # 协议: CRYSTAL_PROTOCOL, JSON等系统支持的类型
+      Protocol: CRYSTAL_PROTOCOL
+      # 每个包是否设置接收包上限
+      PacketRecvBytesLimitSwitch: true
+      # 每个包是否设置发送包上限
+      PacketSendBytesLimitSwitch: true
+      # 监听该端口的session数量, 同一个端口多个session监听可以多线程负载均衡, 在linux下才可以, 因为Linux下有ReusePort选项，windows下最多只能是1
+      ListenSessionCount: 1
+      
+    - BindTo: 0.0.0.0
+      Port: 3901
+      # 协议: CRYSTAL_PROTOCOL, JSON等系统支持的类型
+      Protocol: JSON
+      # 每个包是否设置包上限, 开启的话会根据Kernel的包上限限制上行单包大小 SessionRecvPacketContentLimit
+      PacketRecvBytesLimitSwitch: true
+      # 每个包是否设置发送包上限
+      PacketSendBytesLimitSwitch: true
+      # 监听该端口的session数量, 同一个端口多个session监听可以多线程负载均衡, 在linux下才可以, 因为Linux下有ReusePort选项，windows下最多只能是1
+      ListenSessionCount: 1
+      
+    - BindTo: 0.0.0.0
+      Port: 3902
+      # 协议: CRYSTAL_PROTOCOL, JSON等系统支持的类型
+      Protocol: CRYSTAL_PROTOCOL
+      # 每个包是否设置包上限, 开启的话会根据Kernel的包上限限制上行单包大小 SessionRecvPacketContentLimit
+      PacketRecvBytesLimitSwitch: false
+      # 每个包是否设置发送包上限
+      PacketSendBytesLimitSwitch: false
+      # 监听该端口的session数量, 同一个端口多个session监听可以多线程负载均衡, 在linux下才可以, 因为Linux下有ReusePort选项，windows下最多只能是1
+      ListenSessionCount: 1
+      
+  # 是否开启网络协议打印
+  ProtoStackOpenLog: true
+  
+  # 数据库相关配置
+  DbConfigList: [RpgMysql]
+  # 指定当前服务的数据库
+  CurrentServiceDB: RpgMysql
+  # 数据库版本号, 跨版本号清档数据
+  DbVersion: 49
+  # 系统使用operator uid, operator uid用于多线程下的负载均衡
+  SystemOperatorUid: 0
+  # 数据清洗时间间隔
+  PurgeIntervalMs: 3000
+  # 系统表MysqlMgr表禁用自动清库
+  DisableSystemTableAutoDrop: true
+  # 用清库功能 用于线上, 线上不可以自动清库，线上必须设置成1, 只能修数据 TODO:
+  DisableAutoDropDB: true
+  
+  # UserLruLimit lru容量限制
+  UserLruCapacityLimit: 1000
+  # 配置表数据目录
+  ConfigDataPath: ./Cfgs
+  # 密钥 公钥使用PKC8
+  RsaPrivateKey: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlDWFFJQkFBS0JnUUMvSFM3QjN3UUdRcFcza0M0blhBbWV1Wkd0V01wcWkrWlZWdnVnanhQRi83L3V0MmIvCjNNZXFLQWZUQVNvZkMzNitpTHhEYzJYNTRzS3dWSzd0Y2Roclk1R2dZRUgwOWVmbVhCeHVQRXhZTXF2YWxFdlUKVHBuQjh0VHh3QkVXOFRuSnhrcThrVE4yM2VGTkludG02Q0hNa0tXd2MrRjlFekNCZEhMbkpxY0VEUUlEQVFBQgpBb0dBQ3R6UXhJbzFnMW1UZ3V4NkF4aXpIMGR5NVVSdnRPQ2d4ZWI4eEdKOWdEcUtJVHBoYTFlVUxiSzZ4eDZBCjAyVG0zbE9OUjlRdVRxYTU1Q1hjRDNqeUVRZFNPTDlkY1VDeTRPQlFodWJKYWZ2ZzI5SFZubjZWUXhMMTBodlYKcW5sZUVnRnRxaVVTVjhnR3p0UjZXUUwrbEZIcndxVGRkTnluRld6ZzNxN0JHSzBDUVFEdEhsdElib0ExZzJkMApxUHpRcDhGWitnRGtsSFJ6OEF0TjkzMzJycWNzNnZickVtTU5RTFBrUTVZbkNoWEZYakRwRU9MM2I2VktWdEROCmhwYVBOcGhEQWtFQXpsVUd1Q1hpSnRvdWpUQUNWdTlncTlRRy8wVCtZM0V0TGRkREp6V2JWZ2t1QlJpZ3pSdFIKd29ib2NjWkx3SEpzSWFHTDhzZ3VHRy84WTdDZmczU1Zid0pCQU9GZENNVSt3UHdiZUNpWXREQmNRSmlUMUdWcgo4NEo5azBEM0NQRjc3Y2Z6U2RzQ0RzSjV6SUFXL0k3K050THZRdTFBNzNiYzFleGh0dktnQ0ZqMU9xRUNRUUN6Cit3a2NjcmM5NnMzMmpHMU9CZ3NPZDZvTzI5RUhUejc0b0xCTU1IK3FZZUdKd256cHpTM1pnTEtjSkR3SnlBVzQKcEdFZVN5MmlWWFVVUklvd01lN3pBa0J5Y3dNdnNWeGszNFQrSU9CU0prcGw5cDVUdFBkN3REcTlhM2JTUW5IWQp6YjE0TGFUQkU1OTZCOWJKYXludmdqQ21SUENIeENsb0NQaUhMOEc4Q3lPMwotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=
+  RsaPublicKey: LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZk1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTkFEQ0JpUUtCZ1FDL0hTN0Izd1FHUXBXM2tDNG5YQW1ldVpHdApXTXBxaStaVlZ2dWdqeFBGLzcvdXQyYi8zTWVxS0FmVEFTb2ZDMzYraUx4RGMyWDU0c0t3Vks3dGNkaHJZNUdnCllFSDA5ZWZtWEJ4dVBFeFlNcXZhbEV2VVRwbkI4dFR4d0JFVzhUbkp4a3E4a1ROMjNlRk5JbnRtNkNITWtLV3cKYytGOUV6Q0JkSExuSnFjRURRSURBUUFCCi0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo=
+  # 协议加密key过期时间
+  EncryptKeyExpireTime: 3000
+  # 热更集 hotfixkey
+  PluginHotfixKey: TestPlugin
+  
+  # mysql数据库配置
+  RpgMysql:
+    # 数据库地址
+    Host: 127.0.0.1
+    # 数据库名
+    DB: TestSuit
+    # 用户名
+    User: root
+    # 密码
+    Pwd: 123456
+    # 端口
+    Port: 3306
+    # 绑定ip
+    BindIp: 127.0.0.1
+    # 数据库编码
+    CharacterSet: utf8mb4
+    # 数据库编码
+    COLLATE: utf8mb4_bin
+    # 自动重连
+    AutoReconnect: true
+    # mysql 包缓冲区最大单包大小 2GB
+    MaxPacketSize: 2147483648
+    # 开启一次执行多条sql 一般用于开启手动事务批量执行sql
+    EnableMultiStatements: true
+    # 网络断开sql重复执行次数
+    RetryTimesWhenNetInterrupt: 10
+    # 线程数量,每个线程一个 mysql 连接
+    DbThreadNum: 1
+    # ping时间间隔, 维持mysql连接活跃
+    PingIntervalSeconds: 3600
+  

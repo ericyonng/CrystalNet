@@ -90,11 +90,6 @@ const KERNEL_NS::IProtocolStack *GateService::GetProtocolStack(Int32 prototalSta
     return iter == _stackTypeRefProtocolStack.end() ? NULL : iter->second;
 }
 
-const KERNEL_NS::PollerConfig &GateService::GetPollerConfig() const
-{
-    return _serviceConfig->_pollerConfig;
-}
-
  const ServiceConfig *GateService::GetServiceConfig() const
  {
     return _serviceConfig;
@@ -259,11 +254,12 @@ Int32 GateService::_OnServiceCompsCreated()
     configLoader->SetBasePath(basePath);
     
     // 设置ip rule mgr
-    auto &config = GetPollerConfig();
+    auto &config = GetApp()->GetKernelConfig();
     auto ipRuleMgr = GetComp<KERNEL_NS::IpRuleMgr>();
-    if(!ipRuleMgr->SetBlackWhiteListFlag(config._blackWhiteListFlag))
+    auto flags = config.NetConfig.BlackWhiteListMode.ToFlags();
+    if(!ipRuleMgr->SetBlackWhiteListFlag(flags))
     {
-        g_Log->NetError(LOGFMT_OBJ_TAG("SetBlackWhiteListFlag fail black white list flag:%u"), config._blackWhiteListFlag);
+        CLOG_ERROR("SetBlackWhiteListFlag fail black white list flag:%u", flags);
         if(GetOwner())
             GetOwner()->SetErrCode(this, Status::Failed);
         return Status::Failed;

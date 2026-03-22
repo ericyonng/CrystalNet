@@ -41,8 +41,7 @@ IService::IService(UInt64 objTypeId)
 ,_serviceId(0)
 ,_poller(NULL)
 ,_serviceProxy(NULL)
-,_maxPieceTimeInMicroseconds(0)
-,_maxSleepMilliseconds(0)
+,_maxSleepMilliseconds(20)
 ,_recvPackets{0}
 ,_consumePackets{0}
 ,_maxEventType(KERNEL_NS::PollerEventType::EvMax)
@@ -253,7 +252,6 @@ Int32 IService::_OnHostInit()
     InitPollerEventHandler();
 
     // poller 设置
-    KERNEL_NS::TimeSlice span(0, 0, _maxPieceTimeInMicroseconds);
     _poller->SetMaxSleepMilliseconds(_maxSleepMilliseconds);
     _poller->AddPepareEventWorkerHandler(this, &IService::_OnPollerPrepare);
     _poller->AddEventWorkerCloseHandler(this, &IService::_OnPollerWillDestroy);

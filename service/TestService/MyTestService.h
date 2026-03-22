@@ -71,8 +71,6 @@ public:
     virtual KERNEL_NS::IProtocolStack *GetProtocolStack(Int32 prototalStackType) final;
     virtual const KERNEL_NS::IProtocolStack *GetProtocolStack(Int32 prototalStackType) const final;
 
-    virtual const KERNEL_NS::PollerConfig &GetPollerConfig() const override;
-
     // 获取定时器
     KERNEL_NS::TimerMgr *GetTimerMgr() override;
     const KERNEL_NS::TimerMgr *GetTimerMgr() const override;

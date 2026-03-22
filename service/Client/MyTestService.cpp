@@ -89,11 +89,6 @@ const KERNEL_NS::IProtocolStack *MyTestService::GetProtocolStack(Int32 prototalS
     return iter == _stackTypeRefProtocolStack.end() ? NULL : iter->second;
 }
 
-const KERNEL_NS::PollerConfig &MyTestService::GetPollerConfig() const
-{
-    return _serviceConfig->_pollerConfig;
-}
-
  const ServiceConfig *MyTestService::GetServiceConfig() const
  {
     return _serviceConfig;

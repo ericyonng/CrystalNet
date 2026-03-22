@@ -50,7 +50,7 @@ MyTestService::MyTestService()
 :SERVICE_COMMON_NS::IService(KERNEL_NS::RttiUtil::GetTypeId<MyTestService>())
 ,_timerMgr(NULL)
 ,_updateTimer(NULL)
-,_frameUpdateTimeMs(0)
+,_frameUpdateTimeMs(50)
 ,_eventMgr(NULL)
 ,_serviceConfig(NULL)
 ,_defaultStack(NULL)
@@ -91,11 +91,6 @@ const KERNEL_NS::IProtocolStack *MyTestService::GetProtocolStack(Int32 prototalS
 {
     auto iter = _stackTypeRefProtocolStack.find(prototalStackType);
     return iter == _stackTypeRefProtocolStack.end() ? NULL : iter->second;
-}
-
-const KERNEL_NS::PollerConfig &MyTestService::GetPollerConfig() const
-{
-    return _serviceConfig->_pollerConfig;
 }
 
  const ServiceConfig *MyTestService::GetServiceConfig() const
@@ -210,56 +205,33 @@ Int32 MyTestService::_OnServiceInit()
     _serviceConfig = ServiceConfig::New_ServiceConfig();
 
     Int32 err = Status::Success;
+    auto &config = GetApp()->GetYamlConfig();
+    auto &serviceName = GetServiceName();
+    auto &serviceConfig = config[serviceName.c_str()];
+    if(!serviceConfig.IsMap())
+    {
+        CLOG_ERROR("service config is not a map");
+        return Status::ConfigError;
+    }
     {// 2.读取配置
         auto application = _serviceProxy->GetOwner()->CastTo<SERVICE_COMMON_NS::Application>();
         auto ini = application->GetIni();
-        ini->Lock();
-        {// poller超时时间片
-            UInt64 cache = 0;
-            if(!ini->CheckReadNumber(GetServiceName().c_str(), "MaxPieceTimeInMicroseconds", cache))
-            {
-                cache = s_maxPieceTimeInMicrosecondsDefault;
-                if(!ini->WriteNumber(GetServiceName().c_str(), "MaxPieceTimeInMicroseconds", cache))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write nubmer fail ini:%s, service name:%s, MaxPieceTimeInMicroseconds"), ini->GetPath().c_str(), GetServiceName().c_str());
-                    ini->Unlock();
-                    return Status::ConfigError;
-                }
-            }
 
-            _maxPieceTimeInMicroseconds = cache;
-        }
 
         {// poller最大扫描时间间隔
-            UInt64 cache = 0;
-            if(!ini->CheckReadNumber(GetServiceName().c_str(), "PollerMaxSleepMilliseconds", cache))
+            auto &&value = serviceConfig["PollerMaxSleepMilliseconds"];
+            if(value.IsDefined())
             {
-                cache = s_maxPollerSleepInMilliSecondsDefault;
-                if(!ini->WriteNumber(GetServiceName().c_str(), "PollerMaxSleepMilliseconds", cache))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write nubmer fail ini:%s, service name:%s, PollerMaxSleepMilliseconds"), ini->GetPath().c_str(), GetServiceName().c_str());
-                    ini->Unlock();
-                    return Status::ConfigError;
-                }
+                _maxSleepMilliseconds = value.as<UInt64>();
             }
-
-            _maxSleepMilliseconds = cache;
         }
 
         {// 
-            Int64 cache = 0;
-            if(!ini->CheckReadNumber(GetServiceName().c_str(), "FrameUpdateTimeMs", cache))
+            auto &&value = serviceConfig["FrameUpdateTimeMs"];
+            if(value.IsDefined())
             {
-                cache = s_defaultFrameUpdateTimeMs;
-                if(!ini->WriteNumber(GetServiceName().c_str(), "FrameUpdateTimeMs", cache))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write nubmer fail ini:%s, service name:%s, FrameUpdateTimeMs"), ini->GetPath().c_str(), GetServiceName().c_str());
-                    ini->Unlock();
-                    return Status::ConfigError;
-                }
+                _frameUpdateTimeMs = value.as<Int64>();
             }
-
-            _frameUpdateTimeMs = cache;
         }
 
         if(!_serviceConfig->Parse(GetServiceName(), ini))
@@ -328,11 +300,12 @@ Int32 MyTestService::_OnServiceCompsCreated()
     configLoader->SetBasePath(basePath);
 
     // 设置ip rule mgr
-    auto &config = GetPollerConfig();
+    auto &config = GetApp()->GetKernelConfig();
     auto ipRuleMgr = GetComp<KERNEL_NS::IpRuleMgr>();
-    if(!ipRuleMgr->SetBlackWhiteListFlag(config._blackWhiteListFlag))
+    auto flags = config.NetConfig.BlackWhiteListMode.ToFlags();
+    if(!ipRuleMgr->SetBlackWhiteListFlag(flags))
     {
-        g_Log->NetError(LOGFMT_OBJ_TAG("SetBlackWhiteListFlag fail black white list flag:%u"), config._blackWhiteListFlag);
+        CLOG_ERROR("SetBlackWhiteListFlag fail black white list flag:%u", flags);
         if(GetOwner())
             GetOwner()->SetErrCode(this, Status::Failed);
         return Status::Failed;

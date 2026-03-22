@@ -138,7 +138,6 @@ public:
     Application *GetApp();
 
     virtual UInt64 GetSessionAmount() const;
-    virtual const KERNEL_NS::PollerConfig &GetPollerConfig() const = 0;
 
     // 事件循环
     bool PrepareLoop();
@@ -280,7 +279,6 @@ protected:
     ServiceProxy *_serviceProxy;
 
     KERNEL_NS::LibString _serviceName;
-    UInt64 _maxPieceTimeInMicroseconds;
     UInt64 _maxSleepMilliseconds;
 
     std::atomic<Int64> _recvPackets;

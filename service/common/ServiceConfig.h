@@ -122,18 +122,52 @@ struct ServiceConfig
 
     bool Parse(const KERNEL_NS::LibString &seg, const KERNEL_NS::LibIniFile *ini);
 
-private:
     bool _ParsePoller(const KERNEL_NS::LibString &seg, const KERNEL_NS::LibIniFile *ini);
 
-public:
     std::vector<AddrConfig *> _listenAddrs;
     std::vector<AddrConfig *> _connectAddrGroup;
 
-    AddrConfig *_centerAddr;    // 控制中心
     bool _protoStackOpenLog;
     Int64 _encryptKeyExpireTime;
+};
 
-    KERNEL_NS::PollerConfig _pollerConfig;                  // poller配置
+// 监听信息
+struct TcpListenInfo
+{
+    // 绑定地址
+    KERNEL_NS::LibString BindTo;
+    // 绑定端口
+    Int32 Port;
+    // 协议栈类型
+    KERNEL_NS::LibString ProtocolType;
+    // 每个包是否设置接收上限
+    bool PacketRecvBytesLimitSwitch = true;
+    // 每个包是否设置发送上限
+    bool PacketSendBytesLimitSwitch = true;
+    // 监听该端口的session数量, 同一个端口多个session监听可以多线程负载均衡, 在linux下才可以, 因为Linux下有ReusePort选项，windows下最多只能是1
+    Int32 ListenSessionCount = 1;
+};
+
+struct ServiceCfg
+{
+    // service层poller扫描间隔(不小于20ms)
+    Int32 PollerMaxSleepMilliseconds = 20;
+    // 帧更新间隔(调用组件update)
+    Int32 FrameUpdateTimeMs = 50;
+    // 监听信息
+    std::vector<TcpListenInfo> TcpListenList;
+    // 是否开启网络协议打印
+    bool ProtoStackOpenLog = true;
+    // 数据库相关配置
+    std::vector<KERNEL_NS::LibString> DbConfigList;
+    // 指定当前服务的数据库
+    KERNEL_NS::LibString CurrentServiceDB;
+    // 数据库版本号, 跨版本号清档数据
+    Int32 DbVersion = 0;
+    // 系统使用operator uid, operator uid用于多线程下的负载均衡
+    Int32 SystemOperatorUid = 0;
+    // 数据清洗时间间隔
+    Int32 PurgeIntervalMs = 3000;
 };
 
 SERVICE_END
