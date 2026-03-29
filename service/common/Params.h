@@ -48,7 +48,6 @@ namespace Params
         IS_FROM_CONNECT,    // 是否来自connect操作 bool
         IS_LINKER,    // 是否来自listen监听 bool
         SESSION_CLOSE_REASON,    // 关闭原因, Int32
-        SESSION_TYPE,    // 会话类型 SessionType Int32
         PROTOCOL_STACK, // 协议栈类型
         LAST_TIME,           // 最后一次时间
         ERROR_CODE,           // 错误码 Int32

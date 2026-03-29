@@ -20,19 +20,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2026-01-29 02:01:45
+// Date: 2026-03-28 18:03:32
 // Author: Eric Yonng
 // Description:
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_MONITOR_FILE_MONITOR_INC_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_MONITOR_FILE_MONITOR_INC_H__
+
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_MONITOR_SOURCE_WRAP_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_MONITOR_SOURCE_WRAP_H__
 
 #pragma once
 
-#include <kernel/comp/FileMonitor/FileMonitor.h>
-#include <kernel/comp/FileMonitor/FileChangeManager.h>
-#include <kernel/comp/FileMonitor/YamlDeserializer.h>
-#include <kernel/comp/FileMonitor/YamlMemory.h>
-#include <kernel/comp/FileMonitor/SourceWrap.h>
+
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseType.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/comp/LibString.h>
+
+KERNEL_BEGIN
+
+struct KERNEL_EXPORT SourceWrap
+{
+    KERNEL_NS::LibString Path = "";
+
+    // 共享的一块内存配置, FileMonitor不能操作, 由FileChangeManager检查是否内容变化,fromMemory由外部管生命周期, 这里不管生命周期, 但是不好处理fromMemory, 战略性泄露fromMemory
+    void *FromMemory = NULL;
+};
+
+KERNEL_END
 
 #endif

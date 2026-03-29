@@ -1268,7 +1268,6 @@ void IocpTcpPoller::_OnNewSession(PollerEvent *ev)
     sessionCreatedEv->_targetAddr = buildSessionInfo->_remoteAddr;
     sessionCreatedEv->_family = buildSessionInfo->_family;
     sessionCreatedEv->_protocolType = buildSessionInfo->_protocolType;
-    sessionCreatedEv->_sessionType = buildSessionInfo->_sessionOption._sessionType;
     sessionCreatedEv->_sessionPollerId = GetPollerId();
     sessionCreatedEv->_belongServiceId = buildSessionInfo->_serviceId;
     sessionCreatedEv->_stub = buildSessionInfo->_stub;
@@ -1474,7 +1473,6 @@ void IocpTcpPoller::_OnAddListen(PollerEvent *ev)
         sessionCreatedEv->_targetAddr = addr->GetRemoteBriefAddr();
         sessionCreatedEv->_family = sock->GetFamily();
         sessionCreatedEv->_protocolType = listenInfo->_protocolType;
-        sessionCreatedEv->_sessionType = listenInfo->_sessionOption._sessionType;
         sessionCreatedEv->_sessionPollerId = GetPollerId();
         sessionCreatedEv->_belongServiceId = listenInfo->_serviceId;
         sessionCreatedEv->_stub = listenInfo->_stub;

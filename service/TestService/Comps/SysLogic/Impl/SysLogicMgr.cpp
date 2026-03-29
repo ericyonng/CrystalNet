@@ -60,7 +60,7 @@ void SysLogicMgr::Release()
 Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
 , UInt64 &stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *delg
 , Int32 sessionCount
-, Int32 sessionType, Int32 family, Int32 protocolStackType) const
+, const PacketOptions &packetOptions, Int32 family, Int32 protocolStackType) const
 {
     // 1.校验ip
     if(!ip._ip.empty())
@@ -92,49 +92,40 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
     option._sockRecvBufferSize = 0;
     option._sessionBufferCapicity = config.NetConfig.SessionBufferCapacity;
 
-    if(sessionType == SessionType::INNER)
-    {
-        option._sessionRecvPacketSpeedLimit = 0;
-        option._sessionRecvPacketSpeedTimeUnitMs = 0;
-    }
-    else
+    if(packetOptions.PacketSpeedLimitSwitch)
     {
         option._sessionRecvPacketSpeedLimit =       config.NetConfig.SessionRecvPacketSpeedLimit;
         option._sessionRecvPacketSpeedTimeUnitMs =  config.NetConfig.SessionRecvPacketSpeedTimeUnitMs;
+    }
+    else
+    {
+        option._sessionRecvPacketSpeedLimit = 0;
+        option._sessionRecvPacketSpeedTimeUnitMs = 0;
     }
 
     option._sessionRecvPacketStackLimit = config.NetConfig.SessionRecvPacketStackLimit;
 
     option._forbidRecv = true;
-    option._sessionType = sessionType;
     option._protocolStackType = protocolStackType;
 
     // 消息接收限制
-    switch (option._sessionType)
+    if(packetOptions.PacketRecvBytesLimitSwitch)
     {
-    case SessionType::INNER:
-    case SessionType::OUTER_NO_LIMIT:
-        option._sessionRecvPacketContentLimit = 0;
-        break;
-    case SessionType::OUTER:
         option._sessionRecvPacketContentLimit = GetApp()->GetKernelConfig().NetConfig.SessionRecvPacketContentLimit;
-        break;
-    default:
-        break;
+    }
+    else
+    {
+        option._sessionRecvPacketContentLimit = 0;
     }
 
     // 消息发送限制
-    switch (option._sessionType)
+    if(packetOptions.PacketSendBytesLimitSwitch)
     {
-    case SessionType::INNER:
-    case SessionType::OUTER_NO_LIMIT:
-        option._sessionSendPacketContentLimit = 0;
-        break;
-    case SessionType::OUTER:
         option._sessionSendPacketContentLimit = GetApp()->GetKernelConfig().NetConfig.SessionSendPacketContentLimit;
-        break;
-    default:
-        break;
+    }
+    else
+    {
+        option._sessionSendPacketContentLimit = 0;
     }
 
     auto listenInfo = KERNEL_NS::LibListenInfo::New_LibListenInfo();
@@ -301,16 +292,16 @@ Int32 SysLogicMgr::_OnHostStart()
     auto serviceConfig = service->GetServiceConfig();
 
     // 1.添加监听
-    auto &listenAddrs = serviceConfig->_listenAddrs;
+    auto &listenAddrs = serviceConfig->TcpListenList;
     for(auto &addrInfo : listenAddrs)
     {
         UInt64 stub = 0;
-        auto st = AddTcpListen(addrInfo->_localIp
-                                , addrInfo->_localPort
+        auto st = AddTcpListen(addrInfo.ToAddrIp()
+                                , addrInfo.Port
                                 , stub
                                 , this
                                 , &SysLogicMgr::_OnAddListenRes
-                                , addrInfo->_listenSessionCount
+                                , addrInfo.ListenSessionCount
                                 , addrInfo->_sessionType
                                 , addrInfo->_af
                                 ,addrInfo->_protocolStackType
@@ -330,64 +321,6 @@ Int32 SysLogicMgr::_OnHostStart()
         #else
             _unhandledListenAddr.insert(std::make_pair(stub, std::make_pair(addrInfo, addrInfo->_listenSessionCount)));
         #endif
-    }
-
-    // 2.连接中心服
-    auto centerAddr = serviceConfig->_centerAddr;
-    if(centerAddr && !centerAddr->_remoteIp._ip.empty())
-    {
-        UInt64 stub = 0;
-        auto st = ISysLogicMgr::AsynTcpConnect(centerAddr->_remoteIp
-        , centerAddr->_remotePort
-        , stub
-        , this
-        , &SysLogicMgr::_OnConnectRes
-        , centerAddr->_localIp
-        , centerAddr->_localPort
-        , NULL
-        , 3
-        , 12000
-        ,  SessionType::INNER
-        , centerAddr->_remoteIp.GetAf()
-        , centerAddr->_protocolStackType);
-        if(st != Status::Success)
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, center addr:%s"), st, centerAddr->ToString().c_str());
-            return st;
-        }
-
-        _unhandledContectAddr.insert(std::make_pair(stub, centerAddr));
-    }
-
-    // 3.连接剩余的目标服
-    const Int32 leftTargetCount = static_cast<Int32>(serviceConfig->_connectAddrGroup.size());
-    for(Int32 idx = 0; idx < leftTargetCount; ++idx)
-    {
-        auto addr = serviceConfig->_connectAddrGroup[idx];
-        if(!addr || addr->_remoteIp._ip.empty())
-            continue;
-
-        UInt64 stub = 0;
-        auto st = ISysLogicMgr::AsynTcpConnect(addr->_remoteIp
-        , addr->_remotePort
-        , stub
-        , this
-        , &SysLogicMgr::_OnConnectRes
-        , addr->_localIp
-        , addr->_localPort
-        , NULL
-        , 0
-        , 0
-        ,  addr->_sessionType
-        , addr->_remoteIp.GetAf()
-        , addr->_protocolStackType);
-        if(st != Status::Success)
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, center addr:%s"), st, centerAddr->ToString().c_str());
-            return st;
-        }
-
-        _unhandledContectAddr.insert(std::make_pair(stub, addr));
     }
 
     // 4.启动定时器检测

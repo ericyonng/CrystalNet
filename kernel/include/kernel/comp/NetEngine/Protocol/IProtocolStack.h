@@ -49,7 +49,10 @@ class KERNEL_EXPORT IProtocolStack
 {
 public:
     IProtocolStack() {}
-    virtual ~IProtocolStack() {}
+    virtual ~IProtocolStack()
+    {
+        CRYSTAL_RELEASE_SAFE(_openProtocolLog);
+    }
     virtual void Release() = 0;
     
     // @param(buffer) : 原始数据缓冲区
@@ -78,7 +81,22 @@ public:
     UInt64 GetProtoVersionNumber() const;
 
     Int32 GetType() const;
-    virtual void SetOpenPorotoLog(bool enable){}
+    template<typename LambType>
+    requires requires(LambType lamb)
+    {
+        // 返回值是bool
+        {lamb()} ->std::same_as<bool>;
+    }
+    void SetOpenPorotoLog(LambType &&lamb)
+    {
+        auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(lamb, bool);
+        SetOpenPorotoLog(delg);
+    }
+    void SetOpenPorotoLog(IDelegate<bool> *lamb)
+    {
+        CRYSTAL_RELEASE_SAFE(_openProtocolLog);
+        _openProtocolLog = lamb;
+    }
 
     LibRsa &GetParsingRsa();
     const LibRsa &GetParsingRsa() const;
@@ -103,6 +121,7 @@ protected:
     KERNEL_NS::LibString _base64Key;    // base64的key
     Int64 _expireTime = 0;                  // key过期时间
     Int64 _expireIntervalMs = 3000;         // key过期时间间隔
+    IDelegate<bool> *_openProtocolLog;
 };
 
 ALWAYS_INLINE void IProtocolStack::SetProtoVersionNumber(UInt64 ver)

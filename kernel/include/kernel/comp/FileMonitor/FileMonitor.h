@@ -39,9 +39,10 @@
 #include <kernel/comp/FileMonitor/FileMonitorConcepts.h>
 #include <unordered_map>
 
-KERNEL_BEGIN
+#include <kernel/comp/FileMonitor/SourceWrap.h>
 
-// @param(ObjType): 反序列化最终的结果, 需要有:CreateNewObj/Release 接口
+KERNEL_BEGIN
+    // @param(ObjType): 反序列化最终的结果, 需要有:CreateNewObj/Release 接口
 // @param(FileDeserializer): 反序列化器, 将文件反序列化成ObjType, 需要有SwapNewData/Register接口, 
 // @param(FileDeserializerFactoryType): 反序列化器工厂, 需要有Create/Release接口, 
 template<typename ObjType, typename FileDeserializerType>
@@ -66,7 +67,7 @@ public:
     // 获取当前配置,注意如果是多线程环境Current则不安全 TODO:
     SmartPtr<ObjType, AutoDelMethods::Release> Current() const;
     // 初始化
-    bool Init(const KERNEL_NS::LibString &path, void *fromMemory);
+    bool Init(const SourceWrap *source, const KERNEL_NS::LibString &key = "");
 
     const LibString &GetPath() const;
 
@@ -81,10 +82,8 @@ private:
 
     }
 
-    alignas(SYSTEM_ALIGN_SIZE) LibString _filePath;
-
-    // 共享的一块内存配置, FileMonitor不能操作, 由FileChangeManager检查是否内容变化,fromMemory由外部管生命周期, 这里不管生命周期, 但是不好处理fromMemory, 战略性泄露fromMemory
-    alignas(SYSTEM_ALIGN_SIZE) void *_fromMemory;
+    alignas(SYSTEM_ALIGN_SIZE) const SourceWrap *_source;
+    alignas(SYSTEM_ALIGN_SIZE) LibString _key;
 };
 
 template<typename ObjType, typename FileDeserializerType>
@@ -99,7 +98,7 @@ ALWAYS_INLINE SmartPtr<ObjType, AutoDelMethods::Release> FileMonitor<ObjType, Fi
     {
         auto deserializeObj = FileDeserializerType::Create();
         iter = dict->insert(std::make_pair(this, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>( 
-            deserializeObj->template Register<ObjType>(_filePath, _fromMemory), deserializeObj
+            deserializeObj->template Register<ObjType>(_source->Path, _source->FromMemory, _key), deserializeObj
         ))).first;
     }
 
@@ -119,10 +118,10 @@ template<typename ObjType, typename FileDeserializerType>
 #ifdef CRYSTAL_NET_CPP20
 requires FileMonitorConcept<ObjType, FileDeserializerType>
 #endif
-ALWAYS_INLINE bool FileMonitor<ObjType, FileDeserializerType>::Init(const KERNEL_NS::LibString &path, void *fromMemory)
+ALWAYS_INLINE bool FileMonitor<ObjType, FileDeserializerType>::Init(const SourceWrap *source, const KERNEL_NS::LibString &key)
 {
-    _filePath = path;
-    _fromMemory = fromMemory;
+    _source = source;
+    _key = key;
 
     return Current();
 }

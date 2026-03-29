@@ -321,64 +321,6 @@ Int32 SysLogicMgr::_OnHostStart()
         #endif
     }
 
-    // 2.连接中心服
-    auto centerAddr = serviceConfig->_centerAddr;
-    if(centerAddr && !centerAddr->_remoteIp._ip.empty())
-    {
-        UInt64 stub = 0;
-        auto st = ISysLogicMgr::AsynTcpConnect(centerAddr->_remoteIp
-        , centerAddr->_remotePort
-        , stub
-        , this
-        , &SysLogicMgr::_OnConnectRes
-        , centerAddr->_localIp
-        , centerAddr->_localPort
-        , NULL
-        , 3
-        , 12000
-        ,  SessionType::INNER
-        , centerAddr->_remoteIp.GetAf()
-        , centerAddr->_protocolStackType);
-        if(st != Status::Success)
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, center addr:%s"), st, centerAddr->ToString().c_str());
-            return st;
-        }
-
-        _unhandledContectAddr.insert(std::make_pair(stub, centerAddr));
-    }
-
-    // 3.连接剩余的目标服
-    const Int32 leftTargetCount = static_cast<Int32>(serviceConfig->_connectAddrGroup.size());
-    for(Int32 idx = 0; idx < leftTargetCount; ++idx)
-    {
-        auto addr = serviceConfig->_connectAddrGroup[idx];
-        if(!addr || addr->_remoteIp._ip.empty())
-            continue;
-
-        UInt64 stub = 0;
-        auto st = ISysLogicMgr::AsynTcpConnect(addr->_remoteIp
-        , addr->_remotePort
-        , stub
-        , this
-        , &SysLogicMgr::_OnConnectRes
-        , addr->_localIp
-        , addr->_localPort
-        , NULL
-        , 0
-        , 0
-        ,  addr->_sessionType
-        , addr->_remoteIp.GetAf()
-        , addr->_protocolStackType);
-        if(st != Status::Success)
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, center addr:%s"), st, centerAddr->ToString().c_str());
-            return st;
-        }
-
-        _unhandledContectAddr.insert(std::make_pair(stub, addr));
-    }
-
     // 4.启动定时器检测
     _detectLink->Schedule(1000);
 

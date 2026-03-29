@@ -141,7 +141,6 @@ void SessionMgr::_OnSessionWillCreated(KERNEL_NS::LibEvent *ev)
     auto sessionId = ev->GetParam(Params::SESSION_ID).AsUInt64();
     auto localAddr = ev->GetParam(Params::LOCAL_ADDR).AsPtr<KERNEL_NS::BriefSockAddr>();
     auto remoteAddr = ev->GetParam(Params::REMOTE_ADDR).AsPtr<KERNEL_NS::BriefSockAddr>();
-    auto sessionType = ev->GetParam(Params::SESSION_TYPE).AsInt32();
     auto protocolStackType = ev->GetParam(Params::PROTOCOL_STACK).AsInt32();
     auto sesionPollerId = ev->GetParam(Params::SESSION_POLLER_ID).AsUInt64();
     auto serviceId = ev->GetParam(Params::SERVICE_ID).AsUInt64();
@@ -167,41 +166,12 @@ void SessionMgr::_OnSessionWillCreated(KERNEL_NS::LibEvent *ev)
     sessionInfo._serviceId = serviceId;
     sessionInfo._sessionId = sessionId;
     sessionInfo._pollerId = sesionPollerId;
-    sessionInfo._sessionType = sessionType;
     sessionInfo._localAddr = *localAddr;
     sessionInfo._remoteAddr = *remoteAddr;
     sessionInfo._protocolStack = protocolStack;
     sessionInfo._remoteOriginAddr = *remoteOriginAddr;
     sessionInfo._isFromLinker = !isFromConnect;
 
-
-    // 消息发送限速
-    switch (sessionInfo._sessionType)
-    {
-    case SessionType::INNER:
-    case SessionType::OUTER_NO_LIMIT:
-        sessionInfo._sessionSendBytesLimit = 0;
-        break;
-    case SessionType::OUTER:
-        sessionInfo._sessionSendBytesLimit = GetApp()->GetKernelConfig().NetConfig.SessionSendPacketContentLimit;
-        break;
-    default:
-        break;
-    }
-
-    // 消息发送限速
-    switch (sessionInfo._sessionType)
-    {
-    case SessionType::INNER:
-    case SessionType::OUTER_NO_LIMIT:
-        sessionInfo._sessionRecvBytesLimit = 0;
-        break;
-    case SessionType::OUTER:
-        sessionInfo._sessionRecvBytesLimit = GetApp()->GetKernelConfig().NetConfig.SessionRecvPacketContentLimit;
-        break;
-    default:
-        break;
-    }
 
     _CreateSession(sessionInfo);
 }
@@ -227,15 +197,14 @@ ServiceSession *SessionMgr::_CreateSession(const ServiceSessionInfo &sessionInfo
     UInt64 currentAmount = ++_sessionAmount;
 
     if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
-        g_Log->Debug(LOGFMT_OBJ_TAG("create new session sessionAmount:%llu session id:%llu [%s:%hu %s %s(%s):%hu] service id:%llu, poller id:%llu, msg session type:%d, send bytes limit:%llu, recv bytes limit:%llu")
+        g_Log->Debug(LOGFMT_OBJ_TAG("create new session sessionAmount:%llu session id:%llu [%s:%hu %s %s(%s):%hu] service id:%llu, poller id:%llu")
     , currentAmount
     , sessionInfo._sessionId
     , sessionInfo._localAddr._ip.c_str(), sessionInfo._localAddr._port
     , sessionInfo._isFromLinker ? "<=" : "=>"
     , sessionInfo._remoteOriginAddr._ip.c_str(), sessionInfo._remoteAddr._ip.c_str(), sessionInfo._remoteAddr._port
 
-    , sessionInfo._serviceId,  sessionInfo._pollerId, sessionInfo._sessionType
-    , sessionInfo._sessionSendBytesLimit, sessionInfo._sessionRecvBytesLimit);
+    , sessionInfo._serviceId,  sessionInfo._pollerId);
 
     // g_Log->Info(LOGFMT_OBJ_TAG("created new session:%s"), newSession->ToString().c_str());
     return newSession;
@@ -249,14 +218,13 @@ void SessionMgr::_DestroySession(ServiceSession *session)
     _sessionIdRefSession.erase(session->GetSessionId());
 
     if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
-        g_Log->Debug(LOGFMT_OBJ_TAG("destroy session sessionAmount:%llu session id:%llu [%s:%hu %s %s(%s):%hu] service id:%llu, poller id:%llu, msg session type:%d, send bytes limit:%llu, recv bytes limit:%llu")
+        g_Log->Debug(LOGFMT_OBJ_TAG("destroy session sessionAmount:%llu session id:%llu [%s:%hu %s %s(%s):%hu] service id:%llu, poller id:%llu")
     , currentAmount
     , sessionInfo->_sessionId
     , sessionInfo->_localAddr._ip.c_str(), sessionInfo->_localAddr._port
     , sessionInfo->_isFromLinker ? "<=" : "=>"
     , sessionInfo->_remoteOriginAddr._ip.c_str(), sessionInfo->_remoteAddr._ip.c_str(), sessionInfo->_remoteAddr._port
-    , sessionInfo->_serviceId,  sessionInfo->_pollerId, sessionInfo->_sessionType
-    , sessionInfo->_sessionSendBytesLimit, sessionInfo->_sessionRecvBytesLimit);
+    , sessionInfo->_serviceId,  sessionInfo->_pollerId);
 
     session->Release();
 }

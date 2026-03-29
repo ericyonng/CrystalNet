@@ -68,7 +68,7 @@ public:
         YAML::convert<T>::decode(node, t);
     }
 #endif
-    T *Register(const LibString &path, void *fromMemory)
+    T *Register(const LibString &path, void *fromMemory, const KERNEL_NS::LibString &key = "")
     {
         _path = path;
         
@@ -81,10 +81,12 @@ public:
         auto releaseDeleg = KERNEL_CREATE_CLOSURE_DELEGATE(releaseLamb, void, void *);
         // 反序列化
         const auto &dataName = KERNEL_NS::RttiUtil::GetByType<T>();
-        auto deserializeLamb = [dataName, path](YAML::Node *config) -> void *
+        auto deserializeLamb = [dataName, path, key](YAML::Node *config) -> void *
         {
             // TODO:需要测试是不是把命名空间等移除掉
-            auto tName = KERNEL_NS::RttiUtil::GetSimpleTypeName(dataName);
+            auto tName = key;
+            if(tName.length() == 0)
+                tName = KERNEL_NS::RttiUtil::GetSimpleTypeName(dataName);
             tName.strip();
 
             T *yamlOption = NULL;

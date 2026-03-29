@@ -52,7 +52,7 @@ MyTestService::MyTestService()
 ,_updateTimer(NULL)
 ,_frameUpdateTimeMs(50)
 ,_eventMgr(NULL)
-,_serviceConfig(NULL)
+,_serviceConfig(KERNEL_NS::FileMonitor<ServiceConfig, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
 ,_defaultStack(NULL)
 ,_dbLoadedEventStub(INVALID_LISTENER_STUB)
 {
@@ -93,10 +93,10 @@ const KERNEL_NS::IProtocolStack *MyTestService::GetProtocolStack(Int32 prototalS
     return iter == _stackTypeRefProtocolStack.end() ? NULL : iter->second;
 }
 
- const ServiceConfig *MyTestService::GetServiceConfig() const
- {
-    return _serviceConfig;
- }
+KERNEL_NS::SmartPtr<ServiceConfig, KERNEL_NS::AutoDelMethods::Release> MyTestService::GetServiceConfig() const
+{
+    return _serviceConfig->Current();
+}
 
 UInt64 MyTestService::GetSessionAmount() const
 {
@@ -202,53 +202,29 @@ Int32 MyTestService::_OnServiceInit()
 {
     // poller event 接口初始化
     _eventMgr = KERNEL_NS::EventManager::New_EventManager();
-    _serviceConfig = ServiceConfig::New_ServiceConfig();
 
     Int32 err = Status::Success;
-    auto &config = GetApp()->GetYamlConfig();
     auto &serviceName = GetServiceName();
-    auto &serviceConfig = config[serviceName.c_str()];
-    if(!serviceConfig.IsMap())
-    {
-        CLOG_ERROR("service config is not a map");
-        return Status::ConfigError;
-    }
     {// 2.读取配置
-        auto application = _serviceProxy->GetOwner()->CastTo<SERVICE_COMMON_NS::Application>();
-        auto ini = application->GetIni();
-
-
-        {// poller最大扫描时间间隔
-            auto &&value = serviceConfig["PollerMaxSleepMilliseconds"];
-            if(value.IsDefined())
-            {
-                _maxSleepMilliseconds = value.as<UInt64>();
-            }
-        }
-
-        {// 
-            auto &&value = serviceConfig["FrameUpdateTimeMs"];
-            if(value.IsDefined())
-            {
-                _frameUpdateTimeMs = value.as<Int64>();
-            }
-        }
-
-        if(!_serviceConfig->Parse(GetServiceName(), ini))
+        if(!_serviceConfig->Init(GetApp()->GetSourceWrap(), serviceName))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("parse service config fail seg:%s."), GetServiceName().c_str());
-            return Status::CfgError;
+            CLOG_ERROR("init service config fail, service name:%s", serviceName.c_str());
+            return Status::ConfigError;
         }
+        
+        auto currentConfig = _serviceConfig->Current();
 
-        if(!ini->ReadStr(GetServiceName().c_str(), "RsaPrivateKey", _rsaPrivKey) || _rsaPrivKey.empty())
+        // poller最大扫描时间间隔
+        _maxSleepMilliseconds = static_cast<UInt64>(currentConfig->PollerMaxSleepMilliseconds);
+
+        _frameUpdateTimeMs = static_cast<Int64>(currentConfig->FrameUpdateTimeMs);
+
+        _rsaPrivKey = currentConfig->RsaPrivateKey;
+        _rsaPubKey = currentConfig->RsaPublicKey;
+        if(_rsaPrivKey.empty() || _rsaPubKey.empty())
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:RsaPrivateKey config in ini:%s"), GetServiceName().c_str(), ini->GetPath().c_str());
-            return Status::Failed;
-        }
-        if(!ini->ReadStr(GetServiceName().c_str(), "RsaPublicKey", _rsaPubKey) || _rsaPubKey.empty())
-        {
-            g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:RsaPublicKey config in ini:%s"), GetServiceName().c_str(), ini->GetPath().c_str());
-            return Status::Failed;
+            CLOG_ERROR("rsaPrivKey is empty service name:%s, path:%s", GetServiceName().c_str(), GetApp()->GetSourceWrap()->Path.c_str());
+            return Status::ConfigError;
         }
 
         // base64解码
@@ -256,8 +232,6 @@ Int32 MyTestService::_OnServiceInit()
         _rsaPubKey = KERNEL_NS::LibBase64::Decode(_rsaPubKey);
         _rsaPrivKey.strip();
         _rsaPrivKey = KERNEL_NS::LibBase64::Decode(_rsaPrivKey);
-
-        ini->Unlock();
     }
 
     // 3.协议栈初始化
@@ -396,7 +370,6 @@ void MyTestService::_OnSessionCreated(KERNEL_NS::PollerEvent *msg)
         ev->SetParam(Params::LOCAL_ADDR, &sessionCreatedEv->_localAddr);
         ev->SetParam(Params::REMOTE_ADDR, &sessionCreatedEv->_targetAddr);
         ev->SetParam(Params::PROTOCOL_TYPE, sessionCreatedEv->_protocolType);
-        ev->SetParam(Params::SESSION_TYPE, sessionCreatedEv->_sessionType);
         ev->SetParam(Params::PROTOCOL_STACK, sessionCreatedEv->_protocolStackType);
         ev->SetParam(Params::SESSION_POLLER_ID, sessionCreatedEv->_sessionPollerId);
         ev->SetParam(Params::SERVICE_ID, sessionCreatedEv->_belongServiceId);
@@ -414,7 +387,6 @@ void MyTestService::_OnSessionCreated(KERNEL_NS::PollerEvent *msg)
     ev->SetParam(Params::LOCAL_ADDR, &sessionCreatedEv->_localAddr);
     ev->SetParam(Params::REMOTE_ADDR, &sessionCreatedEv->_targetAddr);
     ev->SetParam(Params::PROTOCOL_TYPE, sessionCreatedEv->_protocolType);
-    ev->SetParam(Params::SESSION_TYPE, sessionCreatedEv->_sessionType);
     ev->SetParam(Params::SESSION_POLLER_ID, sessionCreatedEv->_sessionPollerId);
     ev->SetParam(Params::SERVICE_ID, sessionCreatedEv->_belongServiceId);
     ev->SetParam(Params::STUB, sessionCreatedEv->_stub);
@@ -628,7 +600,7 @@ void MyTestService::_Clear()
 
     if(LIKELY(_serviceConfig))
     {
-        ServiceConfig::Delete_ServiceConfig(_serviceConfig);
+        KERNEL_NS::FileMonitor<ServiceConfig, KERNEL_NS::YamlDeserializer>::Delete_FileMonitor(_serviceConfig);
         _serviceConfig = NULL;
     }
 }
@@ -642,13 +614,17 @@ void MyTestService::_OnFrameTimer(KERNEL_NS::LibTimer *timer)
 Int32 MyTestService::_InitProtocolStack()
 {
     const auto limit = GetApp()->GetKernelConfig().NetConfig.SessionRecvPacketContentLimit;
+    auto currentServiceConfig = _serviceConfig->Current();
     for(Int32 idx = SERVICE_COMMON_NS::CrystalProtocolStackType::BEGIN; idx < SERVICE_COMMON_NS::CrystalProtocolStackType::END; ++idx)
     {
         auto stack = SERVICE_COMMON_NS::CrystalProtocolStackFactory::Create(idx, limit);
         if(stack)
         {
-            stack->SetOpenPorotoLog(_serviceConfig->_protoStackOpenLog);
-            stack->SetKeyExpireTimeIntervalMs(_serviceConfig->_encryptKeyExpireTime);
+            stack->SetOpenPorotoLog([this]() ->bool
+            {
+                return _serviceConfig->Current()->ProtoStackOpenLog;
+            });
+            stack->SetKeyExpireTimeIntervalMs(currentServiceConfig->EncryptKeyExpireTime);
             
             // opcode解析
             _stackTypeRefProtocolStack.insert(std::make_pair(idx, stack));

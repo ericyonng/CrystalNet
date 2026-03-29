@@ -32,6 +32,7 @@
 #include <service/TestService/Comps/SysLogic/Interface/ISysLogicMgr.h>
 #include <kernel/kernel.h>
 #include <service_common/ServiceCommon.h>
+#include <service/common/ServiceConfig.h>
 
 SERVICE_BEGIN
 
@@ -60,18 +61,18 @@ public:
                     , UInt64 &stub, ObjType *obj
                     , void(ObjType::*handler)(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params, bool &)
                     , Int32 sessionCount = 1
-                    , Int32 sessionType = SessionType::OUTER
+                    , const PacketOptions &packetOptions = PacketOptions()
                     , Int32 family = AF_INET, Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL) const;
 
   Int32 AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
   , UInt64 &stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *delg
   , Int32 sessionCount = 1
-  , Int32 sessionType = SessionType::OUTER
+  , const PacketOptions &packetOptions = PacketOptions()
   , Int32 family = AF_INET, Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL) const;
 
   Int32 AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port, UInt64 &stub
   , Int32 sessionCount = 1
-  , Int32 sessionType = SessionType::OUTER
+  , const PacketOptions &packetOptions = PacketOptions()
   , Int32 family = AF_INET, Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL) const;
 
   /*
@@ -118,11 +119,11 @@ ALWAYS_INLINE Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip,
                 , UInt64 &stub, ObjType *obj
                 , void(ObjType::*handler)(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params, bool &)
                 , Int32 sessionCount
-                , Int32 sessionType
+                , const PacketOptions &packetOptions
                 , Int32 family, Int32 protocolStackType) const
 {
     auto delg = KERNEL_NS::DelegateFactory::Create(obj, handler);
-    auto st = AddTcpListen(ip, port, stub, delg, sessionCount, sessionType, family, protocolStackType);
+    auto st = AddTcpListen(ip, port, stub, delg, sessionCount, packetOptions, family, protocolStackType);
     if(st != Status::Success)
     {
         g_Log->Error(LOGFMT_OBJ_TAG("add tcp listen fail st:%d, ip:%s, port:%hu, sessionType:%d, family:%d"), st, ip.ToString().c_str(), port, sessionType, family);
@@ -133,9 +134,9 @@ ALWAYS_INLINE Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip,
     return st;
 }
 
-ALWAYS_INLINE Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port, UInt64 &stub, Int32 sessionCount, Int32 sessionType, Int32 family, Int32 protocolStackType) const
+ALWAYS_INLINE Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port, UInt64 &stub, Int32 sessionCount, const PacketOptions &packetOptions, Int32 family, Int32 protocolStackType) const
 {
-    return AddTcpListen(ip, port, stub, NULL, sessionCount, sessionType, family, protocolStackType);
+    return AddTcpListen(ip, port, stub, NULL, sessionCount, packetOptions, family, protocolStackType);
 }
 
 SERVICE_END

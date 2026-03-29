@@ -273,7 +273,7 @@ Int32 CrystalProtocolJsonStack::ParsingPacket(KERNEL_NS::LibSession *session
             packet->SetOpcode(header._opcodeId);
             packet->SetCoder(coder);
 
-            if(_enableProtocolLog && IsNeedLog(header._opcodeId))
+            if(_openProtocolLog->Invoke() && IsNeedLog(header._opcodeId))
             {
                 auto &localAddr = addr->GetLocalBriefAddr();
                 auto &remoteAddr = addr->GetRemoteBriefAddr();
@@ -502,7 +502,7 @@ Int32 CrystalProtocolJsonStack::PacketsToBin(KERNEL_NS::LibSession *session
         // 8.写入完成跳过包数据
         stream->ShiftWritePos(keySize + contentSize);
 
-        if(_enableProtocolLog && IsNeedLog(header._opcodeId))
+        if(_openProtocolLog->Invoke() && IsNeedLog(header._opcodeId))
         {
             auto sock = session->GetSock();
             auto addr = sock->GetAddr();

@@ -38,6 +38,7 @@
 #include <kernel/comp/FileMonitor/YamlDeserializer.h>
 #include <kernel/comp/Log/LogCfg.h>
 #include <kernel/comp/Coroutines/CoTask.h>
+#include <kernel/comp/FileMonitor/SourceWrap.h>
 
 KERNEL_BEGIN
 
@@ -105,6 +106,7 @@ private:
     
     std::atomic_bool _isForceLogDiskAll;
     std::vector<std::atomic_bool *> _isForceDiskFlag;
+    KERNEL_NS::SourceWrap _source;
 };
 
 ALWAYS_INLINE UInt64 LibLog::_GetDynamicInterval(UInt64 logCount) const

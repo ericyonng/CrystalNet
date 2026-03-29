@@ -92,7 +92,6 @@ struct KERNEL_EXPORT SessionCreatedEvent : public PollerEvent
     BriefSockAddr _targetAddr;  // 远程ip地址信息
     UInt16 _family;             // 协议族 AF_INET/AF_INET6
     Int32 _protocolType;        // 协议类型（udp/tcp/quic等）ProtocolType
-    Int32 _sessionType;         // 会话类型 
     UInt64 _sessionPollerId;    // 会话最终所在poller
     UInt64 _belongServiceId;    // 会话所属的服务,连接时会指定服务id
     UInt64 _stub;               // 存根 给需要回执的 一般是连接远程时会有stub透传 addListen也有

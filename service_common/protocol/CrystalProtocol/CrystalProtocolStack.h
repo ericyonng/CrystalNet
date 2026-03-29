@@ -75,11 +75,9 @@ public:
     void SetMaxRecvMsgContentBytes(UInt64 maxBytesLimit);
     UInt64 GetMaxRecvMsgContentBytes() const;
 
-    virtual void SetOpenPorotoLog(bool enable) override { _enableProtocolLog = enable;}
 
 private:
     UInt64 _maxRecvContenBytes = 0;
-    bool _enableProtocolLog = false;
 };
 
 ALWAYS_INLINE void CrystalProtocolStack::SetMaxRecvMsgContentBytes(UInt64 recvMsgContentBytesLimit)

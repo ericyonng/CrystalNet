@@ -49,7 +49,7 @@ MyTestService::MyTestService()
 ,_updateTimer(NULL)
 ,_frameUpdateTimeMs(0)
 ,_eventMgr(NULL)
-,_serviceConfig(NULL)
+,_serviceConfig(KERNEL_NS::FileMonitor<ServiceConfig, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
 ,_defaultStack(NULL)
 {
     ILogicSys::GetCurrentService() = this;
@@ -89,10 +89,10 @@ const KERNEL_NS::IProtocolStack *MyTestService::GetProtocolStack(Int32 prototalS
     return iter == _stackTypeRefProtocolStack.end() ? NULL : iter->second;
 }
 
- const ServiceConfig *MyTestService::GetServiceConfig() const
- {
-    return _serviceConfig;
- }
+KERNEL_NS::SmartPtr<ServiceConfig, KERNEL_NS::AutoDelMethods::Release> MyTestService::GetServiceConfig() const
+{
+    return _serviceConfig->Current();
+}
 
 UInt64 MyTestService::GetSessionAmount() const
 {
@@ -170,75 +170,30 @@ Int32 MyTestService::_OnServiceInit()
 {
     // poller event 接口初始化
     _eventMgr = KERNEL_NS::EventManager::New_EventManager();
-    _serviceConfig = ServiceConfig::New_ServiceConfig();
 
     Int32 err = Status::Success;
     {// 2.读取配置
-        auto application = _serviceProxy->GetOwner()->CastTo<SERVICE_COMMON_NS::Application>();
-        auto ini = application->GetIni();
-        ini->Lock();
-        {// poller超时时间片
-            UInt64 cache = 0;
-            if(!ini->CheckReadNumber(GetServiceName().c_str(), "MaxPieceTimeInMicroseconds", cache))
-            {
-                cache = s_maxPieceTimeInMicrosecondsDefault;
-                if(!ini->WriteNumber(GetServiceName().c_str(), "MaxPieceTimeInMicroseconds", cache))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write nubmer fail ini:%s, service name:%s, MaxPieceTimeInMicroseconds"), ini->GetPath().c_str(), GetServiceName().c_str());
-                    ini->Unlock();
-                    return Status::ConfigError;
-                }
-            }
-
-            _maxPieceTimeInMicroseconds = cache;
-        }
-
-        {// poller最大扫描时间间隔
-            UInt64 cache = 0;
-            if(!ini->CheckReadNumber(GetServiceName().c_str(), "PollerMaxSleepMilliseconds", cache))
-            {
-                cache = s_maxPollerSleepInMilliSecondsDefault;
-                if(!ini->WriteNumber(GetServiceName().c_str(), "PollerMaxSleepMilliseconds", cache))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write nubmer fail ini:%s, service name:%s, PollerMaxSleepMilliseconds"), ini->GetPath().c_str(), GetServiceName().c_str());
-                    ini->Unlock();
-                    return Status::ConfigError;
-                }
-            }
-
-            _maxSleepMilliseconds = cache;
-        }
-
-        {// 
-            Int64 cache = 0;
-            if(!ini->CheckReadNumber(GetServiceName().c_str(), "FrameUpdateTimeMs", cache))
-            {
-                cache = s_defaultFrameUpdateTimeMs;
-                if(!ini->WriteNumber(GetServiceName().c_str(), "FrameUpdateTimeMs", cache))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write nubmer fail ini:%s, service name:%s, FrameUpdateTimeMs"), ini->GetPath().c_str(), GetServiceName().c_str());
-                    ini->Unlock();
-                    return Status::ConfigError;
-                }
-            }
-
-            _frameUpdateTimeMs = cache;
-        }
-
-        if(!_serviceConfig->Parse(GetServiceName(), ini))
+        if(!_serviceConfig->Init(GetApp()->GetSourceWrap(), GetServiceName()))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("parse service config fail seg:%s."), GetServiceName().c_str());
-            return Status::CfgError;
+            CLOG_ERROR("init service config fail, service name:%s", GetServiceName().c_str());
+            return Status::ConfigError;
         }
+        
+        auto currentConfig = _serviceConfig->Current();
 
-        ini->ReadStr(GetServiceName().c_str(), "UserRsaPrivateKey", _rsaPrivKey);
+        // poller最大扫描时间间隔
+        _maxSleepMilliseconds = static_cast<UInt64>(currentConfig->PollerMaxSleepMilliseconds);
 
-        if(!ini->ReadStr(GetServiceName().c_str(), "UserRsaPublicKey", _rsaPubKey) || _rsaPubKey.empty())
+        _frameUpdateTimeMs = static_cast<Int64>(currentConfig->FrameUpdateTimeMs);
+
+        _rsaPrivKey = currentConfig->RsaPrivateKey;
+        _rsaPubKey = currentConfig->RsaPublicKey;
+        if(_rsaPrivKey.empty() || _rsaPubKey.empty())
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:UserRsaPublicKey config in ini:%s"), GetServiceName().c_str(), ini->GetPath().c_str());
-            return Status::Failed;
+            CLOG_ERROR("rsaPrivKey is empty service name:%s, path:%s", GetServiceName().c_str(), GetApp()->GetSourceWrap()->Path.c_str());
+            return Status::ConfigError;
         }
-
+        
         // base64解码
         _rsaPubKey.strip();
         _rsaPubKey = KERNEL_NS::LibBase64::Decode(_rsaPubKey);
@@ -246,9 +201,6 @@ Int32 MyTestService::_OnServiceInit()
         _rsaPrivKey.strip();
         if(!_rsaPrivKey.empty())
             _rsaPrivKey = KERNEL_NS::LibBase64::Decode(_rsaPrivKey);
-
-
-        ini->Unlock();
     }
 
     // 3.协议栈初始化
@@ -355,7 +307,6 @@ void MyTestService::_OnSessionCreated(KERNEL_NS::PollerEvent *msg)
         ev->SetParam(Params::LOCAL_ADDR, &sessionCreatedEv->_localAddr);
         ev->SetParam(Params::REMOTE_ADDR, &sessionCreatedEv->_targetAddr);
         ev->SetParam(Params::PROTOCOL_TYPE, sessionCreatedEv->_protocolType);
-        ev->SetParam(Params::SESSION_TYPE, sessionCreatedEv->_sessionType);
         ev->SetParam(Params::PROTOCOL_STACK, sessionCreatedEv->_protocolStackType);
         ev->SetParam(Params::SESSION_POLLER_ID, sessionCreatedEv->_sessionPollerId);
         ev->SetParam(Params::SERVICE_ID, sessionCreatedEv->_belongServiceId);
@@ -373,7 +324,6 @@ void MyTestService::_OnSessionCreated(KERNEL_NS::PollerEvent *msg)
     ev->SetParam(Params::LOCAL_ADDR, &sessionCreatedEv->_localAddr);
     ev->SetParam(Params::REMOTE_ADDR, &sessionCreatedEv->_targetAddr);
     ev->SetParam(Params::PROTOCOL_TYPE, sessionCreatedEv->_protocolType);
-    ev->SetParam(Params::SESSION_TYPE, sessionCreatedEv->_sessionType);
     ev->SetParam(Params::PROTOCOL_STACK, sessionCreatedEv->_protocolStackType);
     ev->SetParam(Params::SESSION_POLLER_ID, sessionCreatedEv->_sessionPollerId);
     ev->SetParam(Params::SERVICE_ID, sessionCreatedEv->_belongServiceId);
@@ -550,7 +500,7 @@ void MyTestService::_Clear()
 
     if(LIKELY(_serviceConfig))
     {
-        ServiceConfig::Delete_ServiceConfig(_serviceConfig);
+        KERNEL_NS::FileMonitor<ServiceConfig, KERNEL_NS::YamlDeserializer>::Delete_FileMonitor(_serviceConfig);
         _serviceConfig = NULL;
     }
 }
@@ -564,6 +514,7 @@ void MyTestService::_OnFrameTimer(KERNEL_NS::LibTimer *timer)
 Int32 MyTestService::_InitProtocolStack()
 {
     const auto limit = GetApp()->GetKernelConfig().NetConfig.SessionRecvPacketContentLimit;
+    auto currentConfig = _serviceConfig->Current();
     for(Int32 idx = SERVICE_COMMON_NS::CrystalProtocolStackType::BEGIN; idx < SERVICE_COMMON_NS::CrystalProtocolStackType::END; ++idx)
     {
         auto stack = SERVICE_COMMON_NS::CrystalProtocolStackFactory::Create(idx, limit);
@@ -571,8 +522,11 @@ Int32 MyTestService::_InitProtocolStack()
         {
             // opcode解析
             _stackTypeRefProtocolStack.insert(std::make_pair(idx, stack));
-            stack->SetKeyExpireTimeIntervalMs(_serviceConfig->_encryptKeyExpireTime);
-            stack->SetOpenPorotoLog(_serviceConfig->_protoStackOpenLog);
+            stack->SetKeyExpireTimeIntervalMs(currentConfig->EncryptKeyExpireTime);
+            stack->SetOpenPorotoLog([this]()->bool
+            {
+                return _serviceConfig->Current()->ProtoStackOpenLog;
+            });
 
             // 消息到来是要私钥加密公钥解密
             auto &parsingRsa = stack->GetParsingRsa();

@@ -100,6 +100,8 @@ TestSuit:
       PacketRecvBytesLimitSwitch: true
       # 每个包是否设置发送包上限
       PacketSendBytesLimitSwitch: true
+      # 包速率限制开关
+      PacketSpeedLimitSwitch: true
       # 监听该端口的session数量, 同一个端口多个session监听可以多线程负载均衡, 在linux下才可以, 因为Linux下有ReusePort选项，windows下最多只能是1
       ListenSessionCount: 1
       
@@ -111,6 +113,8 @@ TestSuit:
       PacketRecvBytesLimitSwitch: true
       # 每个包是否设置发送包上限
       PacketSendBytesLimitSwitch: true
+      # 包速率限制开关
+      PacketSpeedLimitSwitch: true
       # 监听该端口的session数量, 同一个端口多个session监听可以多线程负载均衡, 在linux下才可以, 因为Linux下有ReusePort选项，windows下最多只能是1
       ListenSessionCount: 1
       
@@ -122,9 +126,11 @@ TestSuit:
       PacketRecvBytesLimitSwitch: false
       # 每个包是否设置发送包上限
       PacketSendBytesLimitSwitch: false
+      # 包速率限制开关
+      PacketSpeedLimitSwitch: false
       # 监听该端口的session数量, 同一个端口多个session监听可以多线程负载均衡, 在linux下才可以, 因为Linux下有ReusePort选项，windows下最多只能是1
       ListenSessionCount: 1
-      
+
   # 是否开启网络协议打印
   ProtoStackOpenLog: true
   
@@ -138,10 +144,12 @@ TestSuit:
   SystemOperatorUid: 0
   # 数据清洗时间间隔
   PurgeIntervalMs: 3000
-  # 系统表MysqlMgr表禁用自动清库
-  DisableSystemTableAutoDrop: true
-  # 用清库功能 用于线上, 线上不可以自动清库，线上必须设置成1, 只能修数据 TODO:
-  DisableAutoDropDB: true
+  
+  MysqlMgrOptions:
+    # 系统表MysqlMgr表禁用自动清库
+    DisableSystemTableAutoDrop: true
+    # 用清库功能 用于线上, 线上不可以自动清库，线上必须设置成1, 只能修数据 TODO:
+    DisableAutoDropDB: true
   
   # UserLruLimit lru容量限制
   UserLruCapacityLimit: 1000

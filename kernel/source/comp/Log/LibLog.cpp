@@ -128,7 +128,9 @@ bool LibLog::Init(const Byte8 *logConfigFile, const Byte8 *logCfgDir, YamlMemory
     }
     
     // 初始化配置
-    if (!_fileMonitor->Init(cfgFile, yamlMemory))
+    _source.Path = cfgFile;
+    _source.FromMemory = yamlMemory;
+    if (!_fileMonitor->Init(&_source))
     {
         CRYSTAL_TRACE("log config init fail %s", cfgFile.c_str());
         return false;

@@ -79,6 +79,7 @@ public:
     virtual const LibString &GetAppName() const;
     virtual const LibString &GetAppAliasName() const = 0;
     const LibString &GetAppPath() const;
+    const LibString &GetYamlPath() const;
     Int32 GetProcessId() const;
     UInt64 GetThreadId() const;
     const LibTime &GetAppStartTime() const;
@@ -96,6 +97,7 @@ public:
     void SetMaxSleepMilliseconds(UInt64 maxSleepMilliseconds);
 
     const KernelConfig &GetKernelConfig() const;
+    const SourceWrap *GetSourceWrap() const;
 
 public:
     void Clear() override;
@@ -151,6 +153,7 @@ protected:
     KERNEL_NS::LibString _yamlContent;
     KernelConfig _kernelConfig;
     YAML::Node _yamlConfigNode;
+    KERNEL_NS::SourceWrap _sourceWrap;
 };
 
 ALWAYS_INLINE const YAML::Node &IApplication::GetYamlConfig() const
@@ -167,6 +170,12 @@ ALWAYS_INLINE const LibString &IApplication::GetAppPath() const
 {
     return _path;
 }
+
+ALWAYS_INLINE const LibString &IApplication::GetYamlPath() const
+{
+    return _yamlPath;
+}
+
 
 ALWAYS_INLINE Int32 IApplication::GetProcessId() const
 {
@@ -212,6 +221,12 @@ ALWAYS_INLINE const KernelConfig &IApplication::GetKernelConfig() const
 {
     return _kernelConfig;
 }
+
+ALWAYS_INLINE const SourceWrap *IApplication::GetSourceWrap() const
+{
+    return &_sourceWrap;
+}
+
 
 KERNEL_END
 

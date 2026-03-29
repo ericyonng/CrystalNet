@@ -85,7 +85,7 @@ public:
     Int32 GetSessionTypeByPort(UInt16 port) const;
 
     // 获取配置
-    const ServiceConfig *GetServiceConfig() const;
+    KERNEL_NS::SmartPtr<ServiceConfig, KERNEL_NS::AutoDelMethods::Release> GetServiceConfig() const;
 
     UInt64 GetSessionAmount() const override;
 
@@ -153,7 +153,7 @@ private:
     KERNEL_NS::EventManager *_eventMgr;      // 事件管理器
 
     // 配置
-    ServiceConfig *_serviceConfig;
+    KERNEL_NS::FileMonitor<ServiceConfig, KERNEL_NS::YamlDeserializer> *_serviceConfig;
 
     std::unordered_map<Int32, KERNEL_NS::IProtocolStack *> _stackTypeRefProtocolStack;
     KERNEL_NS::IProtocolStack *_defaultStack;

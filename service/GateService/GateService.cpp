@@ -334,7 +334,6 @@ void GateService::_OnSessionCreated(KERNEL_NS::PollerEvent *msg)
         ev->SetParam(Params::LOCAL_ADDR, &sessionCreatedEv->_localAddr);
         ev->SetParam(Params::REMOTE_ADDR, &sessionCreatedEv->_targetAddr);
         ev->SetParam(Params::PROTOCOL_TYPE, sessionCreatedEv->_protocolType);
-        ev->SetParam(Params::SESSION_TYPE, sessionCreatedEv->_sessionType);
         ev->SetParam(Params::PROTOCOL_STACK, sessionCreatedEv->_protocolStackType);
         ev->SetParam(Params::SESSION_POLLER_ID, sessionCreatedEv->_sessionPollerId);
         ev->SetParam(Params::SERVICE_ID, sessionCreatedEv->_belongServiceId);
@@ -350,7 +349,6 @@ void GateService::_OnSessionCreated(KERNEL_NS::PollerEvent *msg)
     ev->SetParam(Params::LOCAL_ADDR, &sessionCreatedEv->_localAddr);
     ev->SetParam(Params::REMOTE_ADDR, &sessionCreatedEv->_targetAddr);
     ev->SetParam(Params::PROTOCOL_TYPE, sessionCreatedEv->_protocolType);
-    ev->SetParam(Params::SESSION_TYPE, sessionCreatedEv->_sessionType);
     ev->SetParam(Params::SESSION_POLLER_ID, sessionCreatedEv->_sessionPollerId);
     ev->SetParam(Params::SERVICE_ID, sessionCreatedEv->_belongServiceId);
     ev->SetParam(Params::STUB, sessionCreatedEv->_stub);

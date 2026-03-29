@@ -128,7 +128,6 @@ public:
     UInt64 GetMaxPacketSize() const;
     Int32 GetProtocolType() const;
     const SessionOption &GetOption() const;
-    Int32 GetSessionType() const;
     Int32 GetProtocolStackType() const;
 
     const IProtocolStack *GetProtocolStack() const;
@@ -332,11 +331,6 @@ ALWAYS_INLINE Int32 LibSession::GetProtocolType() const
 ALWAYS_INLINE const SessionOption &LibSession::GetOption() const
 {
     return _option;
-}
-
-ALWAYS_INLINE Int32 LibSession::GetSessionType() const
-{
-    return _option._sessionType;
 }
 
 ALWAYS_INLINE Int32 LibSession::GetProtocolStackType() const

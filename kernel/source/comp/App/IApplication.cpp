@@ -185,11 +185,13 @@ Int32 IApplication::_OnHostInit()
     {
         if(_yamlContent.empty())
         {
+            _sourceWrap.Path = _yamlPath;
             _yamlConfigNode = YAML::LoadFile(_yamlPath.c_str());
             _kernelConfig = _yamlConfigNode["KernelConfig"].as<KERNEL_NS::KernelConfig>();
         }
         else
         {
+            _sourceWrap.FromMemory = YamlMemory::From(_yamlContent);
             _yamlConfigNode = YAML::Load(_yamlContent.GetRaw());
             _kernelConfig = _yamlConfigNode["KernelConfig"].as<KERNEL_NS::KernelConfig>();
         }

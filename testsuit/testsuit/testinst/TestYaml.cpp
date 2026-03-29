@@ -122,10 +122,14 @@ void TestYaml::Run()
     data->_data.AppendFormat("GameServer:\n  Bind: 127.0.0.1\n  BindPort: 1207\n  HostStr: www.baidu.com\n  Arr: [1, 2, 3, 4]");
     yamlFromMemory->SetNewData(data);
     KERNEL_NS::FileMonitor<GameServer, KERNEL_NS::YamlDeserializer> gs;
-    gs.Init("", yamlFromMemory);
+    KERNEL_NS::SourceWrap source;
+    source.FromMemory = yamlFromMemory;
+    gs.Init(&source);
 
     KERNEL_NS::FileMonitor<KERNEL_NS::LogCfg, KERNEL_NS::YamlDeserializer> testMonitor;
-    testMonitor.Init(yamlFile, NULL);
+    KERNEL_NS::SourceWrap source2;
+    source2.Path = yamlFile;
+    testMonitor.Init(&source2);
 
     auto cfg = testMonitor.Current();
 

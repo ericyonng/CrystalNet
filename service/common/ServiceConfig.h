@@ -98,42 +98,15 @@ public:
     Int32 _listenSessionCount = 1;
 };
 
-struct ServiceConfig
-{
-    POOL_CREATE_OBJ_DEFAULT(ServiceConfig);
-
-    ServiceConfig()
-    :_centerAddr(AddrConfig::Create()) 
-    ,_protoStackOpenLog(false)
-    ,_encryptKeyExpireTime(3000)
-    {
-
-    }
-
-    ~ServiceConfig()
-    {
-        KERNEL_NS::ContainerUtil::DelContainer2(_listenAddrs);
-        KERNEL_NS::ContainerUtil::DelContainer2(_connectAddrGroup);
-        
-        if(_centerAddr)
-            _centerAddr->Release();
-        _centerAddr = NULL;
-    }
-
-    bool Parse(const KERNEL_NS::LibString &seg, const KERNEL_NS::LibIniFile *ini);
-
-    bool _ParsePoller(const KERNEL_NS::LibString &seg, const KERNEL_NS::LibIniFile *ini);
-
-    std::vector<AddrConfig *> _listenAddrs;
-    std::vector<AddrConfig *> _connectAddrGroup;
-
-    bool _protoStackOpenLog;
-    Int64 _encryptKeyExpireTime;
-};
-
 // 监听信息
 struct TcpListenInfo
 {
+    KERNEL_NS::AddrIpConfig ToAddrIp() const
+    {
+        KERNEL_NS::AddrIpConfig addrIp;
+        addrIp._ip = BindTo;
+        return addrIp;
+    }
     // 绑定地址
     KERNEL_NS::LibString BindTo;
     // 绑定端口
@@ -144,12 +117,39 @@ struct TcpListenInfo
     bool PacketRecvBytesLimitSwitch = true;
     // 每个包是否设置发送上限
     bool PacketSendBytesLimitSwitch = true;
+    // 包速率限制开关
+    bool PacketSpeedLimitSwitch = true;
     // 监听该端口的session数量, 同一个端口多个session监听可以多线程负载均衡, 在linux下才可以, 因为Linux下有ReusePort选项，windows下最多只能是1
     Int32 ListenSessionCount = 1;
 };
 
-struct ServiceCfg
+// 包配置
+struct PacketOptions
 {
+    // 每个包是否设置接收上限
+    bool PacketRecvBytesLimitSwitch = true;
+    // 每个包是否设置发送上限
+    bool PacketSendBytesLimitSwitch = true;
+    // 包速率限制开关
+    bool PacketSpeedLimitSwitch = true;
+};
+
+struct ServiceConfig
+{
+    POOL_CREATE_OBJ_DEFAULT(ServiceConfig);
+    
+    // 创建自己
+    static ServiceConfig *CreateNewObj(ServiceConfig &&cfg)
+    {
+        return ServiceConfig::New_ServiceConfig(std::move(cfg));
+    }
+
+    // 释放自己
+    void Release()
+    {
+        ServiceConfig::Delete_ServiceConfig(this);
+    }
+    
     // service层poller扫描间隔(不小于20ms)
     Int32 PollerMaxSleepMilliseconds = 20;
     // 帧更新间隔(调用组件update)
@@ -168,6 +168,211 @@ struct ServiceCfg
     Int32 SystemOperatorUid = 0;
     // 数据清洗时间间隔
     Int32 PurgeIntervalMs = 3000;
+
+    // 用户lru限制数量
+    Int32 UserLruCapacityLimit = 1000;
+    // 配置表数据目录
+    KERNEL_NS::LibString ConfigDataPath = "./Cfgs";
+
+    // 密钥 公钥使用PKC8
+    KERNEL_NS::LibString RsaPrivateKey;
+    KERNEL_NS::LibString RsaPublicKey;
+
+    // 协议加密key过期时间
+    Int64 EncryptKeyExpireTime;
+    // 热更集 hotfixkey
+    KERNEL_NS::LibString PluginHotfixKey;
 };
 
 SERVICE_END
+
+
+namespace YAML
+{
+    template<>
+    struct convert<SERVICE_NS::TcpListenInfo>
+    {
+        static Node encode(const SERVICE_NS::TcpListenInfo& rhs)
+        {
+            Node node;
+            node["BindTo"] = rhs.BindTo;
+            node["Port"] = rhs.Port;
+            node["ProtocolType"] = rhs.ProtocolType;
+            node["PacketRecvBytesLimitSwitch"] = rhs.PacketRecvBytesLimitSwitch;
+            node["PacketSendBytesLimitSwitch"] = rhs.PacketSendBytesLimitSwitch;
+            node["PacketSpeedLimitSwitch"] = rhs.PacketSpeedLimitSwitch;
+            node["ListenSessionCount"] = rhs.ListenSessionCount;
+        }
+        
+        static bool decode(const Node& node, SERVICE_NS::TcpListenInfo& rhs)
+        {
+            if(!node.IsMap())
+            {
+                return false;
+            }
+            
+            {
+                auto &&value = node["BindTo"];
+                if(value.IsDefined())
+                    rhs.BindTo = value.as<KERNEL_NS::LibString>();
+            }
+
+            {
+                auto &&value = node["Port"];
+                if(value.IsDefined())
+                    rhs.Port = value.as<Int32>();
+            }
+            
+            {
+                auto &&value = node["ProtocolType"];
+                if(value.IsDefined())
+                    rhs.ProtocolType = value.as<KERNEL_NS::LibString>();
+            }
+            {
+                auto &&value = node["PacketRecvBytesLimitSwitch"];
+                if(value.IsDefined())
+                    rhs.PacketRecvBytesLimitSwitch = value.as<bool>();
+            }
+                
+            {
+              auto &&value = node["PacketSendBytesLimitSwitch"];
+              if(value.IsDefined())
+                  rhs.PacketSendBytesLimitSwitch = value.as<bool>();
+            }
+
+            {
+                auto &&value = node["PacketSpeedLimitSwitch"];
+                if(value.IsDefined())
+                    rhs.PacketSpeedLimitSwitch = value.as<bool>();
+            }
+            
+            {
+              auto &&value = node["ListenSessionCount"];
+              if(value.IsDefined())
+                  rhs.ListenSessionCount = value.as<Int32>();
+            }       
+            
+            return true;
+        }
+
+    };
+    
+    // 网络单元定义
+    template<>
+    struct convert<SERVICE_NS::ServiceConfig>
+    {
+        static Node encode(const SERVICE_NS::ServiceConfig& rhs)
+        {
+            Node node;
+            node["PollerMaxSleepMilliseconds"] = rhs.PollerMaxSleepMilliseconds;
+            node["FrameUpdateTimeMs"] = rhs.FrameUpdateTimeMs;
+            node["TcpListenList"] = rhs.TcpListenList;
+            node["ProtoStackOpenLog"] = rhs.ProtoStackOpenLog;
+            node["DbConfigList"] = rhs.DbConfigList;
+            node["CurrentServiceDB"] = rhs.CurrentServiceDB;
+            node["DbVersion"] = rhs.DbVersion;
+            node["SystemOperatorUid"] = rhs.SystemOperatorUid;
+            node["PurgeIntervalMs"] = rhs.PurgeIntervalMs;
+            node["UserLruCapacityLimit"] = rhs.UserLruCapacityLimit;
+            node["ConfigDataPath"] = rhs.ConfigDataPath;
+            node["RsaPrivateKey"] = rhs.RsaPrivateKey;
+            node["RsaPublicKey"] = rhs.RsaPublicKey;
+            node["EncryptKeyExpireTime"] = rhs.EncryptKeyExpireTime;
+            node["PluginHotfixKey"] = rhs.PluginHotfixKey;
+            return node;
+        }
+
+        static bool decode(const Node& node,  SERVICE_NS::ServiceConfig& rhs)
+        {
+            if(!node.IsMap())
+            {
+                return false;
+            }
+            
+            {
+                auto &&value = node["PollerMaxSleepMilliseconds"];
+                if(value.IsDefined())
+                    rhs.PollerMaxSleepMilliseconds = value.as<Int32>();
+            }
+
+            {
+                auto &&value = node["FrameUpdateTimeMs"];
+                if(value.IsDefined())
+                    rhs.FrameUpdateTimeMs = value.as<Int32>();
+            }
+
+            {
+                auto &&value = node["TcpListenList"];
+                if(value.IsDefined())
+                    rhs.TcpListenList = value.as<std::vector<SERVICE_NS::TcpListenInfo>>();
+            }
+
+            {
+                auto &&value = node["ProtoStackOpenLog"];
+                if(value.IsDefined())
+                    rhs.ProtoStackOpenLog = value.as<bool>();
+            }
+
+            {
+                auto &&value = node["DbConfigList"];
+                if(value.IsDefined())
+                    rhs.DbConfigList = value.as<std::vector<KERNEL_NS::LibString>>();
+            }
+
+            {
+                auto &&value = node["CurrentServiceDB"];
+                if(value.IsDefined())
+                    rhs.CurrentServiceDB = value.as<KERNEL_NS::LibString>();
+            }
+
+            {
+                auto &&value = node["DbVersion"];
+                if(value.IsDefined())
+                    rhs.DbVersion = value.as<Int32>();
+            }
+
+            {
+                auto &&value = node["SystemOperatorUid"];
+                if(value.IsDefined())
+                    rhs.SystemOperatorUid = value.as<Int32>();
+            }
+
+            {
+                auto &&value = node["PurgeIntervalMs"];
+                if(value.IsDefined())
+                    rhs.PurgeIntervalMs = value.as<Int32>();
+            }
+            {
+                auto &&value = node["UserLruCapacityLimit"];
+                if(value.IsDefined())
+                    rhs.UserLruCapacityLimit = value.as<Int32>();
+            }
+            {
+                auto &&value = node["ConfigDataPath"];
+                if(value.IsDefined())
+                    rhs.ConfigDataPath = value.as<KERNEL_NS::LibString>();
+            }            
+            {
+                auto &&value = node["RsaPrivateKey"];
+                if(value.IsDefined())
+                    rhs.RsaPrivateKey = value.as<KERNEL_NS::LibString>();
+            }                 
+            {
+                auto &&value = node["RsaPublicKey"];
+                if(value.IsDefined())
+                    rhs.RsaPublicKey = value.as<KERNEL_NS::LibString>();
+            }  
+            {
+                auto &&value = node["EncryptKeyExpireTime"];
+                if(value.IsDefined())
+                    rhs.EncryptKeyExpireTime = value.as<Int32>();
+            }             
+            {
+                auto &&value = node["PluginHotfixKey"];
+                if(value.IsDefined())
+                    rhs.PluginHotfixKey = value.as<KERNEL_NS::LibString>();
+            }              
+            return true;
+        }
+    };
+}
