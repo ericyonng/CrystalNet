@@ -37,6 +37,7 @@
 #include <kernel/comp/NetEngine/Defs/AddrIpConfig.h>
 #include <unordered_map>
 #include <vector>
+#include <service_common/protocol/CrystalProtocol/CrystalProtocolStackType.h>
 
 
 SERVICE_BEGIN
@@ -98,6 +99,18 @@ public:
     Int32 _listenSessionCount = 1;
 };
 
+// 包配置
+struct PacketOptions
+{
+    // 每个包是否设置接收上限
+    bool PacketRecvBytesLimitSwitch = true;
+    // 每个包是否设置发送上限
+    bool PacketSendBytesLimitSwitch = true;
+    // 包速率限制开关
+    bool PacketSpeedLimitSwitch = true;
+};
+
+
 // 监听信息
 struct TcpListenInfo
 {
@@ -107,6 +120,21 @@ struct TcpListenInfo
         addrIp._ip = BindTo;
         return addrIp;
     }
+
+    PacketOptions ToPacketOptions() const
+    {
+        PacketOptions packetOptions;
+        packetOptions.PacketRecvBytesLimitSwitch = PacketRecvBytesLimitSwitch;
+        packetOptions.PacketSendBytesLimitSwitch = PacketSendBytesLimitSwitch;
+        packetOptions.PacketSpeedLimitSwitch = PacketSpeedLimitSwitch;
+        return packetOptions;
+    }
+
+    SERVICE_COMMON_NS::CrystalProtocolStackType::ENUMS TurnStackType() const
+    {
+        return static_cast<SERVICE_COMMON_NS::CrystalProtocolStackType::ENUMS>(SERVICE_COMMON_NS::CrystalProtocolStackType::TurnFromString(ProtocolType));
+    }
+    
     // 绑定地址
     KERNEL_NS::LibString BindTo;
     // 绑定端口
@@ -121,17 +149,6 @@ struct TcpListenInfo
     bool PacketSpeedLimitSwitch = true;
     // 监听该端口的session数量, 同一个端口多个session监听可以多线程负载均衡, 在linux下才可以, 因为Linux下有ReusePort选项，windows下最多只能是1
     Int32 ListenSessionCount = 1;
-};
-
-// 包配置
-struct PacketOptions
-{
-    // 每个包是否设置接收上限
-    bool PacketRecvBytesLimitSwitch = true;
-    // 每个包是否设置发送上限
-    bool PacketSendBytesLimitSwitch = true;
-    // 包速率限制开关
-    bool PacketSpeedLimitSwitch = true;
 };
 
 struct ServiceConfig

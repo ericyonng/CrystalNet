@@ -77,8 +77,8 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
     stub = stubHandleMgr->NewStub();
     if(stubHandleMgr->HasStub(stub))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("stub callback is already existes please check stub:%llu, ip:%s, port:%hu, sessionType:%d, family:%d")
-                    , stub, ip.ToString().c_str(), port, sessionType, family);
+        g_Log->Warn(LOGFMT_OBJ_TAG("stub callback is already existes please check stub:%llu, ip:%s, port:%hu, family:%d")
+                    , stub, ip.ToString().c_str(), port, family);
 
         return Status::Repeat;
     }
@@ -155,8 +155,8 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
         stubHandleMgr->NewHandle(stub, delg);
 
     if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
-        g_Log->Info(LOGFMT_OBJ_TAG("post a new listen ip:%s, port:%hu, sessionType:%d, family:%d, stub:%llu")
-                , ip.ToString().c_str(), port, sessionType, family, stub);
+        g_Log->Info(LOGFMT_OBJ_TAG("post a new listen ip:%s, port:%hu, family:%d, stub:%llu")
+                , ip.ToString().c_str(), port, family, stub);
 
     return Status::Success;
 }
@@ -296,15 +296,16 @@ Int32 SysLogicMgr::_OnHostStart()
     for(auto &addrInfo : listenAddrs)
     {
         UInt64 stub = 0;
-        auto st = AddTcpListen(addrInfo.ToAddrIp()
-                                , addrInfo.Port
+        auto &&addrIp = addrInfo.ToAddrIp();
+        auto st = AddTcpListen(addrIp
+                                , static_cast<UInt16>(addrInfo.Port)
                                 , stub
                                 , this
                                 , &SysLogicMgr::_OnAddListenRes
                                 , addrInfo.ListenSessionCount
-                                , addrInfo->_sessionType
-                                , addrInfo->_af
-                                ,addrInfo->_protocolStackType
+                                , addrInfo.ToPacketOptions()
+                                , addrIp.GetAf()
+                                ,addrInfo.TurnStackType()
                                 );
 
         if(st != Status::Success)
