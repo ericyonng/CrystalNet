@@ -107,7 +107,7 @@ private:
 
 private:
     // 可能多个session负载均衡
-    std::unordered_map<UInt64, std::pair<AddrConfig *, Int32>> _unhandledListenAddr;
+    std::unordered_map<UInt64, std::pair<KERNEL_NS::AddrIpConfig, Int32>> _unhandledListenAddr;
     std::unordered_map<UInt64, AddrConfig *> _unhandledContectAddr;
     KERNEL_NS::LibTimer *_detectLink;
 

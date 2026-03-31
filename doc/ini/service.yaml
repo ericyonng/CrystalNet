@@ -92,7 +92,9 @@ TestSuit:
   FrameUpdateTimeMs: 50
   # 监听信息
   TcpListenList:
+      # ip
     - BindTo: 0.0.0.0
+      # 端口
       Port: 3900
       # 协议: CRYSTAL_PROTOCOL, JSON等系统支持的类型
       Protocol: CRYSTAL_PROTOCOL

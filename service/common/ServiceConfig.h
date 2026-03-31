@@ -94,7 +94,6 @@ public:
     // KERNEL_NS::LibString _remoteIp;
 
     Int32 _af = AF_INET;            // ipv4/ipv6
-    Int32 _sessionType = 0;         // 配置的会话类型
     Int32 _protocolStackType = 0;   // 通信使用的协议栈类型
     Int32 _listenSessionCount = 1;
 };
@@ -133,6 +132,12 @@ struct TcpListenInfo
     SERVICE_COMMON_NS::CrystalProtocolStackType::ENUMS TurnStackType() const
     {
         return static_cast<SERVICE_COMMON_NS::CrystalProtocolStackType::ENUMS>(SERVICE_COMMON_NS::CrystalProtocolStackType::TurnFromString(ProtocolType));
+    }
+
+    KERNEL_NS::LibString ToString() const
+    {
+        return KERNEL_NS::LibString().AppendFormat("%s:%d - [%s, %d, %d, %d, %d]", BindTo.c_str(), Port, ProtocolType.c_str()
+            , PacketRecvBytesLimitSwitch, PacketSendBytesLimitSwitch, PacketSpeedLimitSwitch,  ListenSessionCount);
     }
     
     // 绑定地址

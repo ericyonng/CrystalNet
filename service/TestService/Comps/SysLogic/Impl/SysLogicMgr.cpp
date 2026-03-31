@@ -315,12 +315,12 @@ Int32 SysLogicMgr::_OnHostStart()
         }
 
         #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-            if(addrInfo->_localPort != 0)
-                _unhandledListenAddr.insert(std::make_pair(stub, std::make_pair(addrInfo, 1)));
+            if(addrInfo.Port != 0)
+                _unhandledListenAddr.insert(std::make_pair(stub, std::make_pair(addrIp, 1)));
             else
-                _unhandledListenAddr.insert(std::make_pair(stub, std::make_pair(addrInfo, addrInfo->_listenSessionCount)));
+                _unhandledListenAddr.insert(std::make_pair(stub, std::make_pair(addrIp, addrInfo.ListenSessionCount)));
         #else
-            _unhandledListenAddr.insert(std::make_pair(stub, std::make_pair(addrInfo, addrInfo->_listenSessionCount)));
+            _unhandledListenAddr.insert(std::make_pair(stub, std::make_pair(addrIp, addrInfo.ListenSessionCount)));
         #endif
     }
 
@@ -344,7 +344,7 @@ void SysLogicMgr::_OnDetectLinkTimer(KERNEL_NS::LibTimer *timer)
 {
     // 1.检测监听是否成功
     for(auto iter : _unhandledListenAddr)
-        g_Log->Warn(LOGFMT_OBJ_TAG("listen addr %s, not success..."), iter.second.first->ToString().c_str());
+        g_Log->Warn(LOGFMT_OBJ_TAG("listen addr %s, not success..."), iter.second.first.ToString().c_str());
 
     for(auto iter : _unhandledContectAddr)
     {
@@ -368,7 +368,7 @@ void SysLogicMgr::_OnAddListenRes(UInt64 stub, Int32 errCode, const KERNEL_NS::V
 {
     if(errCode != Status::Success)
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("add listen fail stub:%llu, errCode:%d"), stub, errCode);
+        CLOG_WARN("add listen fail stub:%llu, errCode:%d", stub, errCode);
 
         auto iter = _unhandledListenAddr.find(stub);
         if(iter == _unhandledListenAddr.end())
@@ -389,7 +389,7 @@ void SysLogicMgr::_OnAddListenRes(UInt64 stub, Int32 errCode, const KERNEL_NS::V
 
     auto &addrInfo = iter->second;
     --addrInfo.second;
-    g_Log->Warn(LOGFMT_OBJ_TAG("[ADD LISTEN SUCCESS]:%s, LeftCount:%d"), addrInfo.first->ToString().c_str(), addrInfo.second);
+    CLOG_INFO("[ADD LISTEN SUCCESS]:%s, LeftCount:%d", addrInfo.first->ToString().c_str(), addrInfo.second);
 
     if(addrInfo.second <= 0)
     {

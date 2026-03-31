@@ -393,13 +393,21 @@ void TcpPollerMgr::PostAddlistenList(std::vector<LibListenInfo *> &listenInfoLis
                     LibListenInfo::Delete_LibListenInfo(listenInfo);
                     listenInfo = NULL;
                 });
-                break;
+                return;
             }
 
+            // 多个session负载均衡需要做拷贝
+            auto newListenInfo = LibListenInfo::New_LibListenInfo();
+            *newListenInfo = *listenInfo;
             excludes.insert(poller);
-            poller->PostAddlisten(listenInfo);
+            poller->PostAddlisten(newListenInfo);
         }
     }
+
+    KERNEL_NS::ContainerUtil::DelContainer(listenInfoList, [](LibListenInfo *info)
+    {
+        LibListenInfo::Delete_LibListenInfo(info);
+    });
 }
 
 void TcpPollerMgr::PostSend(UInt64 pollerId, UInt64 sessionId, LibPacket *packet)

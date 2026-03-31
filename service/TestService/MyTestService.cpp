@@ -571,9 +571,10 @@ void MyTestService::_OnDbLoaded(KERNEL_NS::LibEvent *ev)
         GetEventMgr()->FireEvent(ev);
 
         KERNEL_NS::LibString listenAddrs;
-        for(auto &addr : _serviceConfig->_listenAddrs)
+        auto currentConfig = _serviceConfig->Current();
+        for(auto &addr : currentConfig->TcpListenList)
         {
-            listenAddrs.AppendData(addr->ToString());
+            listenAddrs.AppendData(addr.ToString());
             listenAddrs.AppendFormat(";");
         }
 
