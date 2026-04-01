@@ -36,9 +36,10 @@
 #include "kernel/comp/NetEngine/Poller/Defs/PollerInnerEvent.h"
 #include <TestServicePlugin/TestServicePlugin.h>
 
-SERVICE_BEGIN
+#include "MyTestService.h"
 
-PluginMgr::PluginMgr()
+SERVICE_BEGIN
+    PluginMgr::PluginMgr()
 : IPluginMgr(KERNEL_NS::RttiUtil::GetTypeId<PluginMgr>())
 {
     
@@ -103,18 +104,13 @@ Int32 PluginMgr::_OnGlobalSysInit()
 {
     auto ini = GetApp()->GetIni();
     KERNEL_NS::LibString hotfixKey;
-    if(UNLIKELY(!ini->ReadStr(GetService()->GetServiceName().c_str(), "PluginHotfixKey", hotfixKey)))
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("have no ConfigDataPath please check service:%s"), GetService()->GetServiceName().c_str());
-        return Status::ConfigError;
-    }
-
-    _hotfixKey = hotfixKey;
+    auto currentConfig = GetService()->CastTo<MyTestService>()->GetServiceConfig();
+    _hotfixKey = currentConfig->PluginHotfixKey;
 
     GetService()->GetPoller()->Subscribe(KERNEL_NS::PollerEventType::HotfixShareLibrary, this, &PluginMgr::_OnHotfixPlubin);
     GetService()->GetPoller()->Subscribe(KERNEL_NS::PollerEventType::HotfixShareLibraryComplete, this, &PluginMgr::_OnHotfixPlubinComplete);
 
-    g_Log->Info(LOGFMT_OBJ_TAG("plugin mgr hotfix key:%s"), _hotfixKey.c_str());
+    CLOG_INFO("plugin mgr hotfix key:%s", _hotfixKey.c_str());
 
     return Status::Success;
 }

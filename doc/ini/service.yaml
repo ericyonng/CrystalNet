@@ -147,11 +147,10 @@ TestSuit:
   # 数据清洗时间间隔
   PurgeIntervalMs: 3000
   
-  MysqlMgrOptions:
-    # 系统表MysqlMgr表禁用自动清库
-    DisableSystemTableAutoDrop: true
-    # 用清库功能 用于线上, 线上不可以自动清库，线上必须设置成1, 只能修数据 TODO:
-    DisableAutoDropDB: true
+  # 系统表MysqlMgr表禁用自动清库
+  DisableSystemTableAutoDrop: true
+  # 用清库功能 用于线上, 线上不可以自动清库，线上必须设置成1, 只能修数据 TODO:
+  DisableAutoDropDB: true
   
   # UserLruLimit lru容量限制
   UserLruCapacityLimit: 1000
@@ -195,4 +194,10 @@ TestSuit:
     DbThreadNum: 1
     # ping时间间隔, 维持mysql连接活跃
     PingIntervalSeconds: 3600
+    
+  MysqlCommon:
+    # 默认初始blob字段大小 64字节
+    DefaultBlobOriginSize: 16
+    # 初始string key大小 VARCHAR(256)
+    DefaultStringKeyOriginSize: 64
   

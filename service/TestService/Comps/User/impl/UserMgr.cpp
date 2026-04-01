@@ -45,10 +45,10 @@
 #include <Comps/User/impl/UserSessionMgrFactory.h>
 #include <Comps/NickName/nickname.h>
 
+#include "MyTestService.h"
+
 SERVICE_BEGIN
-
-
-UserMgr::UserMgr()
+    UserMgr::UserMgr()
 :IUserMgr(KERNEL_NS::RttiUtil::GetTypeId<UserMgr>())
 ,_lruCapacityLimit(1000)
 {
@@ -1027,23 +1027,11 @@ void UserMgr::OnPassTimeEnd(const KERNEL_NS::LibTime &nowTime)
 
 Int32 UserMgr::_OnGlobalSysInit()
 {
-    auto ini = GetApp()->GetIni();
-    if(!ini->CheckReadNumber(GetService()->GetServiceName().c_str(), "UserLruCapacityLimit", _lruCapacityLimit))
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:UserLruCapacityLimit config in ini:%s"), GetService()->GetServiceName().c_str(), ini->GetPath().c_str());
-        return Status::Failed;
-    }
-
-    if(!ini->ReadStr(GetService()->GetServiceName().c_str(), "RsaPrivateKey", _rsaPrivateKey))
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:RsaPrivateKey config in ini:%s"), GetService()->GetServiceName().c_str(), ini->GetPath().c_str());
-        return Status::Failed;
-    }
-    if(!ini->ReadStr(GetService()->GetServiceName().c_str(), "RsaPublicKey", _rsaPubKey))
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:RsaPublicKey config in ini:%s"), GetService()->GetServiceName().c_str(), ini->GetPath().c_str());
-        return Status::Failed;
-    }
+    auto currentCfg = GetService()->CastTo<MyTestService>()->GetServiceConfig();
+    _lruCapacityLimit = currentCfg->UserLruCapacityLimit;
+    _rsaPrivateKey = currentCfg->RsaPrivateKey;
+    _rsaPubKey = currentCfg->RsaPublicKey;
+    
     _rsaPrivateKey.strip();
     _rsaPubKey.strip();
 

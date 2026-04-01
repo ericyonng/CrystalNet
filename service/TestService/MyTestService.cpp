@@ -259,19 +259,8 @@ Int32 MyTestService::_OnServiceCompsCreated()
 
     // 配置路径设置
     auto configLoader = GetComp<SERVICE_COMMON_NS::IConfigLoader>();
-    auto ini = GetApp()->GetIni();
-    KERNEL_NS::LibString basePath;
-    if(UNLIKELY(!ini->ReadStr(GetServiceName().c_str(), "ConfigDataPath", basePath)))
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("have no ConfigDataPath please check service:%s"), GetServiceName().c_str());
-        return Status::ConfigError;
-    }
-    if(UNLIKELY(basePath.empty()))
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("ConfigDataPath is empty please check service:%s"), GetServiceName().c_str());
-        return Status::ConfigError;
-    }
-    configLoader->SetBasePath(basePath);
+    auto curConfig = _serviceConfig->Current();
+    configLoader->SetBasePath(curConfig->ConfigDataPath);
 
     // 设置ip rule mgr
     auto &config = GetApp()->GetKernelConfig();

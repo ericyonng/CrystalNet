@@ -204,6 +204,11 @@ struct ServiceConfig
     Int64 EncryptKeyExpireTime;
     // 热更集 hotfixkey
     KERNEL_NS::LibString PluginHotfixKey;
+
+    // 系统表MysqlMgr表禁用自动清库
+    bool DisableSystemTableAutoDrop = true;
+    // 用清库功能 用于线上, 线上不可以自动清库，线上必须设置成1, 只能修数据 TODO:
+    bool DisableAutoDropDB = true;
 };
 
 SERVICE_END
@@ -301,6 +306,8 @@ namespace YAML
             node["RsaPublicKey"] = rhs.RsaPublicKey;
             node["EncryptKeyExpireTime"] = rhs.EncryptKeyExpireTime;
             node["PluginHotfixKey"] = rhs.PluginHotfixKey;
+            node["DisableSystemTableAutoDrop"] = rhs.DisableSystemTableAutoDrop;
+            node["DisableAutoDropDB"] = rhs.DisableAutoDropDB;
             return node;
         }
 
@@ -393,7 +400,18 @@ namespace YAML
                 auto &&value = node["PluginHotfixKey"];
                 if(value.IsDefined())
                     rhs.PluginHotfixKey = value.as<KERNEL_NS::LibString>();
-            }              
+            }
+
+            {
+                auto &&value = node["DisableSystemTableAutoDrop"];
+                if(value.IsDefined())
+                    rhs.DisableSystemTableAutoDrop = value.as<bool>();
+            }
+            {
+                auto &&value = node["DisableAutoDropDB"];
+                if(value.IsDefined())
+                    rhs.DisableAutoDropDB = value.as<bool>();
+            }
             return true;
         }
     };

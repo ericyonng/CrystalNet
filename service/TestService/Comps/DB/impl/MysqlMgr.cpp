@@ -45,10 +45,11 @@
 #include <service/TestService/Comps/DB/impl/MysqlMgrStorageFactory.h>
 #include <service/common/BaseComps/Storage/Impl/MysqlDefs.h>
 
+#include "MyTestService.h"
+
 
 SERVICE_BEGIN
-
-MysqlMgr::MysqlMgr()
+    MysqlMgr::MysqlMgr()
 :IMysqlMgr(KERNEL_NS::RttiUtil::GetTypeId<MysqlMgr>())
 ,_closeServiceStub(INVALID_LISTENER_STUB)
 ,_onServiceFrameTickStub(INVALID_LISTENER_STUB)
@@ -942,19 +943,36 @@ Int32 MysqlMgr::_OnGlobalSysInit()
     _closeServiceStub = GetEventMgr()->AddListener(EventEnums::QUIT_SERVICE_EVENT, this, &MysqlMgr::_CloseServiceEvent);
     _onServiceFrameTickStub = GetEventMgr()->AddListener(EventEnums::SERVICE_FRAME_TICK, this, &MysqlMgr::_OnServiceFrameTick);
 
-    auto ini = GetApp()->GetIni();
-    if(!ini->CheckReadNumber("MysqlCommon", "DefaultBlobOriginSize", _defaultBlobOriginSize))
+    try
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("lack of MysqlCommon:DefaultBlobOriginSize config in ini:%s"), ini->GetPath().c_str());
-        return Status::Failed;
+        auto &yamlConfig = GetApp()->GetYamlConfig();
+        {
+            auto &&value = yamlConfig["DefaultBlobOriginSize"];
+            if(value.IsDefined())
+            {
+                _defaultBlobOriginSize = value.as<Int64>();
+            }
+        }
+        {
+            auto &&value = yamlConfig["DefaultStringKeyOriginSize"];
+            if(value.IsDefined())
+            {
+                _defaultStringKeyOriginSize = value.as<Int32>();
+            }
+        }
+    }
+    catch (std::exception &e)
+    {
+        CLOG_ERROR("load config fail e:%s", e.what());
+        return Status::ConfigError;
+    }
+    catch (...)
+    {
+        CLOG_ERROR("load config fail");
+        return Status::ConfigError;
     }
 
-    if(!ini->CheckReadNumber("MysqlCommon", "DefaultStringKeyOriginSize", _defaultStringKeyOriginSize))
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("lack of MysqlCommon:DefaultStringKeyOriginSize config in ini:%s"), ini->GetPath().c_str());
-        return Status::Failed;
-    }
-
+    
     if(!ini->ReadStr(GetService()->GetServiceName().c_str(), "CurrentServiceDB", _currentServiceDBOption))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:CurrentServiceDB config in ini:%s"), GetService()->GetServiceName().c_str(), ini->GetPath().c_str());
@@ -966,12 +984,8 @@ Int32 MysqlMgr::_OnGlobalSysInit()
         g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:DB config in ini:%s"), _currentServiceDBName.c_str(), ini->GetPath().c_str());
         return Status::Failed;
     }
-
-    if(!ini->CheckReadNumber(GetService()->GetServiceName().c_str(), "DisableAutoDropDB", _disableAutoDrop))
-    {
-        _disableAutoDrop = 1;
-        g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:DisableAutoDropDB config in ini:%s"), _currentServiceDBName.c_str(), ini->GetPath().c_str());
-    }
+    auto currentConfig = GetService()->CastTo<MyTestService>()->GetServiceConfig();
+    _disableAutoDrop = currentConfig->DisableAutoDropDB ? 1 : 0;
 
     if(!ini->CheckReadNumber(GetService()->GetServiceName().c_str(), "DbVersion", _curVersionNo))
     {
@@ -991,12 +1005,7 @@ Int32 MysqlMgr::_OnGlobalSysInit()
         return Status::Failed;
     }
 
-    _disableSystemTableAutoDrop = 1;
-    if(!ini->CheckReadNumber(GetService()->GetServiceName().c_str(), "DisableSystemTableAutoDrop", _disableSystemTableAutoDrop))
-    {
-        _disableAutoDrop = 1;
-        g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:DisableSystemTableAutoDrop config in ini:%s"), _currentServiceDBName.c_str(), ini->GetPath().c_str());
-    }
+    _disableSystemTableAutoDrop = currentConfig->DisableSystemTableAutoDrop ? 1 : 0;
 
     // 设置操作id
     SetStorageOperatorId(_systemOperatorUid);
