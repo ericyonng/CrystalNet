@@ -189,7 +189,6 @@ Int32 ServiceProxy::_OnInit()
     auto application = GetOwner()->CastTo<Application>();
     _closeServiceNum = 0;
 
-    auto ini = application->GetIni();
     {
         auto &yamlNode = application->GetYamlConfig();
         auto &&serviceCommonCfg = yamlNode["ServiceCommon"];

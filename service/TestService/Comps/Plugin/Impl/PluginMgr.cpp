@@ -102,7 +102,6 @@ void PluginMgr::_OnHostBeforeCompsClose()
 
 Int32 PluginMgr::_OnGlobalSysInit()
 {
-    auto ini = GetApp()->GetIni();
     KERNEL_NS::LibString hotfixKey;
     auto currentConfig = GetService()->CastTo<MyTestService>()->GetServiceConfig();
     _hotfixKey = currentConfig->PluginHotfixKey;

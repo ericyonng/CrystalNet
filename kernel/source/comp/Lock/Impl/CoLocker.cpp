@@ -944,11 +944,11 @@ void CoLocker::Destroy()
     {
         auto atomicPtr = _waiters[idx];
 
-        auto coLockerInfo = atomicPtr->load(std::memory_order_acquire);
-        if(!coLockerInfo)
-            continue;
+        if (auto coLockerInfo = atomicPtr->load(std::memory_order_acquire))
+        {
+            coLockerInfo->Release();
+        }
         
-        coLockerInfo->Release();
         delete atomicPtr;
     }
     _waiters.clear();

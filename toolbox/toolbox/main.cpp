@@ -34,6 +34,7 @@
 #include "TestActive.h"
 #include "TestHit.h"
 #include "TestBuff.h"
+#include "TestSortedContext.h"
 
 
 class LibTestLog : public KERNEL_NS::LibLog
@@ -77,7 +78,7 @@ int main(int argc, char const *argv[])
     KERNEL_NS::KernelUtil::Start();
     g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "kernel started."));
 
-    TestActive::Run(argc, argv);
+    TestSortedContext::Run(argc, argv);
 
     KERNEL_NS::KernelUtil::Destroy();
 

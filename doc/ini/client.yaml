@@ -72,3 +72,36 @@ ApplicationConfig:
   ProjectMainServiceName: Client
   # 禁用控制台监控信息
   DisableConsoleMonitorInfo: false
+  
+Client:
+  # 测试数量
+  TestSessionCount: 100
+  # 连接的时间间隔
+  TestConnectIntervalMs: 100
+  # 地址信息
+  TestTargetAddr:
+    # 本地绑定地址
+    BindTo: 0.0.0.0
+    # 本地绑定端口
+    BindPort: 0
+    # 目标地址
+    TargetHost: 127.0.0.1
+    # 目标端口
+    TargetPort: 3902
+    # 如果地址是域名是否转成ipv4(true:获取ipv4地址, false:获取ipv6地址)
+    AsIpv4IfHost: true
+    # 连接失败重试次数
+    FailureTryCount: 3
+    # 协议类型, CRYSTAL_PROTOCOL, JSON等
+    Protocol: CRYSTAL_PROTOCOL
+    
+    # 收发限制
+    # 每个包是否设置接收包上限
+    PacketRecvBytesLimitSwitch: false
+    # 每个包是否设置发送包上限
+    PacketSendBytesLimitSwitch: true
+    # 包速率限制开关
+    PacketSpeedLimitSwitch: false
+    
+    
+    

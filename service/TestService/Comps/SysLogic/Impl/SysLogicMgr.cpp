@@ -168,7 +168,7 @@ Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt1
 , KERNEL_NS::IProtocolStack *stack /* 指定协议栈 */
 , Int32 retryTimes    /* 超时重试次数 */
 , Int64 periodMs  /* 超时时间 */
-, Int32 sessionType /* 会话类型 */
+, const PacketOptions &packetOptions /* 包配置 */
 , Int32 family /* AF_INET:ipv4, AF_INET6:ipv6 */
 , Int32 protocolStackType
 ) const
@@ -202,58 +202,51 @@ Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt1
     option._sockSendBufferSize = 0;
     option._sockRecvBufferSize = 0;
     option._sessionBufferCapicity = config.NetConfig.SessionBufferCapacity;
-    
-    if(sessionType == SessionType::INNER)
+
     {
-        option._sessionRecvPacketSpeedLimit = 0;
-        option._sessionRecvPacketSpeedTimeUnitMs = 0;
-    }
-    else
-    {
-        option._sessionRecvPacketSpeedLimit =       config.NetConfig.SessionRecvPacketSpeedLimit;
-        option._sessionRecvPacketSpeedTimeUnitMs =  config.NetConfig.SessionRecvPacketSpeedTimeUnitMs;
+        if(packetOptions.PacketSpeedLimitSwitch)
+        {
+            option._sessionRecvPacketSpeedLimit =       config.NetConfig.SessionRecvPacketSpeedLimit;
+            option._sessionRecvPacketSpeedTimeUnitMs =  config.NetConfig.SessionRecvPacketSpeedTimeUnitMs;
+        }
+        else
+        {
+            option._sessionRecvPacketSpeedLimit = 0;
+            option._sessionRecvPacketSpeedTimeUnitMs = 0;
+        }
+
+        // 消息接收限制
+        if(packetOptions.PacketRecvBytesLimitSwitch)
+        {
+            option._sessionRecvPacketContentLimit = GetApp()->GetKernelConfig().NetConfig.SessionRecvPacketContentLimit;
+        }
+        else
+        {
+            option._sessionRecvPacketContentLimit = 0;
+        }
+
+        // 消息发送限制
+        if(packetOptions.PacketSendBytesLimitSwitch)
+        {
+            option._sessionSendPacketContentLimit = GetApp()->GetKernelConfig().NetConfig.SessionSendPacketContentLimit;
+        }
+        else
+        {
+            option._sessionSendPacketContentLimit = 0;
+        }
     }
     
     option._sessionRecvPacketStackLimit = config.NetConfig.SessionRecvPacketStackLimit;
 
     option._forbidRecv = false;
-    option._sessionType = sessionType;
     option._protocolStackType = protocolStackType;
-
-    // 消息发送限速
-    switch (option._sessionType)
-    {
-    case SessionType::INNER:
-    case SessionType::OUTER_NO_LIMIT:
-        option._sessionRecvPacketContentLimit = 0;
-        break;
-    case SessionType::OUTER:
-        option._sessionRecvPacketContentLimit = GetApp()->GetKernelConfig().NetConfig.SessionRecvPacketContentLimit;
-        break;
-    default:
-        break;
-    }
-
-    // 消息发送限速
-    switch (option._sessionType)
-    {
-    case SessionType::INNER:
-    case SessionType::OUTER_NO_LIMIT:
-        option._sessionSendPacketContentLimit = 0;
-        break;
-    case SessionType::OUTER:
-        option._sessionSendPacketContentLimit = GetApp()->GetKernelConfig().NetConfig.SessionSendPacketContentLimit;
-        break;
-    default:
-        break;
-    }
 
     auto connectInfo = KERNEL_NS::LibConnectInfo::New_LibConnectInfo();
     connectInfo->_localIp = localIp;
     connectInfo->_localPort = localPort;
     connectInfo->_targetIp = remoteIp;
     connectInfo->_targetPort = remotePort;
-    connectInfo->_family = family;
+    connectInfo->_family = static_cast<UInt16>(family);
     connectInfo->_protocolType = KERNEL_NS::ProtocolType::TCP;
     connectInfo->_pollerId = 0;
     connectInfo->_retryTimes = retryTimes;

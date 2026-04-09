@@ -49,7 +49,7 @@ struct KERNEL_EXPORT AddrIpConfig
     // 如果是域名是否转成ipv4
     bool _toIpv4 = false;
 
-    // 最多解析多少次新地址
+    // 最多解析多少次新地址(连接失败最多多少次尝试)
     Int32 _mostSwitchIpCount = 0;
 
     KERNEL_NS::LibString ToString() const;

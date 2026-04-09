@@ -85,7 +85,7 @@ public:
   , KERNEL_NS::IProtocolStack *stack = NULL /* 指定协议栈 */
   , Int32 retryTimes = 0    /* 超时重试次数 */
   , Int64 periodMs = 0  /* 超时时间 */
-  , Int32 sessionType = SessionType::INNER /* 会话类型 */
+  , const PacketOptions &packetOptions = PacketOptions() /*包配置*/
   , Int32 family = AF_INET /* AF_INET:ipv4, AF_INET6:ipv6 */
   , Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL
   ) const  override;

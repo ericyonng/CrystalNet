@@ -143,6 +143,18 @@
 - 支持CoLocker, 跨线程协程同步, 测试用例见TestColocker.cpp
 
   
+  
+  
+
+# CoTask协程支持
+
+项目引入C++20协程, 为了简化异步编程, 让异步代码变的丝滑
+
+测试用例:CrystalNet\testsuit\testsuit\testinst\TestCoroutine.cpp
+
+Claude Code给的评价:
+
+![image-20260326144954396](.\doc\CoTaskClaudeCode.log)
 
 # Log 使用
 

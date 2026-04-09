@@ -68,4 +68,154 @@ struct MysqlConfig
 
 KERNEL_END
 
+namespace YAML
+{
+    template<>
+    struct convert<KERNEL_NS::MysqlConfig>
+    {
+        static Node encode(const KERNEL_NS::MysqlConfig& rhs)
+        {
+            Node node;
+            node["Host"] = rhs._host;
+            node["DB"] = rhs._dbName;
+            node["User"] = rhs._user;
+            node["Pwd"] = rhs._pwd;
+            node["Port"] = rhs._port;
+            node["BindIp"] = rhs._bindIp;
+            node["CharacterSet"] = rhs._dbCharset;
+            node["COLLATE"] = rhs._dbCollate;
+            node["AutoReconnect"] = rhs._autoReconnect;
+            node["MaxPacketSize"] = rhs._maxPacketSize;
+            node["EnableMultiStatements"] = rhs._enableMultiStatements;
+            node["RetryTimesWhenNetInterrupt"] = rhs._retryWhenError;
+            node["DbThreadNum"] = rhs._dbThreadNum;
+            node["PingIntervalSeconds"] = rhs._pingIntervalSeconds;
+            return node;
+        }
+        
+        static bool decode(const Node& node, KERNEL_NS::MysqlConfig& rhs)
+        {
+            if (!node.IsMap())
+                return false;
+
+            {
+                auto &&value = node["Host"];
+                if (value.IsDefined())
+                {
+                    rhs._host = value.as<KERNEL_NS::LibString>();
+                }
+            }
+
+            {
+                auto &&value = node["DB"];
+                if (value.IsDefined())
+                {
+                    rhs._dbName = value.as<KERNEL_NS::LibString>();
+                }
+            }
+
+            {
+                auto &&value = node["User"];
+                if (value.IsDefined())
+                {
+                    rhs._user = value.as<KERNEL_NS::LibString>();
+                }
+            }
+
+            {
+                auto &&value = node["Pwd"];
+                if (value.IsDefined())
+                {
+                    rhs._pwd = value.as<KERNEL_NS::LibString>();
+                }
+            }
+
+            {
+                auto &&value = node["Port"];
+                if (value.IsDefined())
+                {
+                    rhs._port = value.as<UInt16>();
+                }
+            }
+
+            {
+                auto &&value = node["BindIp"];
+                if (value.IsDefined())
+                {
+                    rhs._bindIp = value.as<KERNEL_NS::LibString>();
+                }
+            }
+
+            {
+                auto &&value = node["CharacterSet"];
+                if (value.IsDefined())
+                {
+                    rhs._dbCharset = value.as<KERNEL_NS::LibString>();
+
+                    // mysql操作时的编码需要和数据库编码一致
+                    rhs._charset = rhs._dbCharset;
+                }
+            }
+
+            {
+                auto &&value = node["COLLATE"];
+                if (value.IsDefined())
+                {
+                    rhs._dbCollate = value.as<KERNEL_NS::LibString>();
+                }
+            }
+
+            {
+                auto &&value = node["AutoReconnect"];
+                if (value.IsDefined())
+                {
+                    rhs._autoReconnect = value.as<Int32>();
+                }
+            }
+
+            {
+                auto &&value = node["MaxPacketSize"];
+                if (value.IsDefined())
+                {
+                    rhs._maxPacketSize = value.as<UInt64>();
+                }
+            }
+
+            {
+                auto &&value = node["EnableMultiStatements"];
+                if (value.IsDefined())
+                {
+                    rhs._enableMultiStatements = value.as<bool>();
+                }
+            }
+            
+            {
+                auto &&value = node["RetryTimesWhenNetInterrupt"];
+                if (value.IsDefined())
+                {
+                    rhs._retryWhenError = value.as<Int32>();
+                }
+            }
+
+            {
+                auto &&value = node["DbThreadNum"];
+                if (value.IsDefined())
+                {
+                    rhs._dbThreadNum = value.as<Int32>();
+                }
+            }
+
+            {
+                auto &&value = node["PingIntervalSeconds"];
+                if (value.IsDefined())
+                {
+                    rhs._pingIntervalSeconds = value.as<Int64>();
+                }
+            }
+            return true;
+        }
+    };
+}
+
+
 #endif

@@ -441,7 +441,7 @@ void TestMgr::_OnCommonSessionReady(KERNEL_NS::LibEvent *ev)
         , NULL
         , 0
         , 0
-        ,  _targetAddrConfig->_sessionType
+        ,  _targetAddrConfig->
         , _targetAddrConfig->_af
         , _targetAddrConfig->_protocolStackType);
         if(st != Status::Success)
@@ -485,7 +485,6 @@ Int32 TestMgr::_ReadTestConfigs()
         return Status::Success;
 
     auto app = GetService()->GetApp();
-    auto ini = app->GetIni();
     const auto &serviceName = GetService()->GetServiceName();
 
     // 读取配置

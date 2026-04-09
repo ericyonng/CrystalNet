@@ -943,23 +943,78 @@ Int32 MysqlMgr::_OnGlobalSysInit()
     _closeServiceStub = GetEventMgr()->AddListener(EventEnums::QUIT_SERVICE_EVENT, this, &MysqlMgr::_CloseServiceEvent);
     _onServiceFrameTickStub = GetEventMgr()->AddListener(EventEnums::SERVICE_FRAME_TICK, this, &MysqlMgr::_OnServiceFrameTick);
 
+
     try
     {
         auto &yamlConfig = GetApp()->GetYamlConfig();
+        if (!yamlConfig.IsMap())
         {
-            auto &&value = yamlConfig["DefaultBlobOriginSize"];
-            if(value.IsDefined())
+            CLOG_ERROR("yamlconfig error");
+            return Status::Failed;
+        }
+        auto &&serviceConfig = yamlConfig[GetService()->GetServiceName().c_str()];
+        if (!serviceConfig.IsMap())
+        {
+            CLOG_ERROR("service config not exists %s", GetService()->GetServiceName().c_str());
+
+            return Status::Failed;
+        }
+
+        auto &&commonConfig = yamlConfig["MysqlCommon"];
+        if (commonConfig.IsMap())
+        {
             {
-                _defaultBlobOriginSize = value.as<Int64>();
+                auto &&value = commonConfig["DefaultBlobOriginSize"];
+                if(value.IsDefined())
+                {
+                    _defaultBlobOriginSize = value.as<Int64>();
+                }
+            }
+            {
+                auto &&value = commonConfig["DefaultStringKeyOriginSize"];
+                if(value.IsDefined())
+                {
+                    _defaultStringKeyOriginSize = value.as<Int32>();
+                }
             }
         }
+
+
+        auto &&defaultStorage = serviceConfig["DefaultStorage"];
+        if (defaultStorage.IsDefined())
         {
-            auto &&value = yamlConfig["DefaultStringKeyOriginSize"];
-            if(value.IsDefined())
-            {
-                _defaultStringKeyOriginSize = value.as<Int32>();
-            }
+            _currentServiceDBOption = defaultStorage.as<KERNEL_NS::LibString>();
         }
+        
+        if (_currentServiceDBOption.empty())
+        {
+            CLOG_ERROR("have no default storage %s", GetService()->GetServiceName().c_str());
+            return Status::Failed;
+        }
+
+        auto &&currentDbConfig = yamlConfig[_currentServiceDBOption.c_str()];
+        if (!currentDbConfig.IsMap())
+        {
+            CLOG_ERROR("have no default storage config %s, db option:%s", GetService()->GetServiceName().c_str(), _currentServiceDBOption.c_str());
+
+            return Status::Failed;
+        }
+        
+        auto &&dbNameNode = currentDbConfig["DB"];
+        if (dbNameNode.IsDefined())
+            _currentServiceDBName = dbNameNode.as<KERNEL_NS::LibString>();
+        if (_currentServiceDBName.empty())
+        {
+            CLOG_ERROR("have no db name, db option:%s, service name:%s", _currentServiceDBOption.c_str(),  GetService()->GetServiceName().c_str());
+            return Status::Failed;
+        }
+
+        auto currentConfig = GetService()->CastTo<MyTestService>()->GetServiceConfig();
+        _disableAutoDrop = currentConfig->DisableAutoDropDB ? 1 : 0;
+        _curVersionNo = currentConfig->DbVersion;
+        _systemOperatorUid = currentConfig->SystemOperatorUid;
+        _purgeIntervalMs = currentConfig->PurgeIntervalMs;
+        _disableSystemTableAutoDrop = currentConfig->DisableSystemTableAutoDrop ? 1 : 0;
     }
     catch (std::exception &e)
     {
@@ -971,41 +1026,6 @@ Int32 MysqlMgr::_OnGlobalSysInit()
         CLOG_ERROR("load config fail");
         return Status::ConfigError;
     }
-
-    
-    if(!ini->ReadStr(GetService()->GetServiceName().c_str(), "CurrentServiceDB", _currentServiceDBOption))
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:CurrentServiceDB config in ini:%s"), GetService()->GetServiceName().c_str(), ini->GetPath().c_str());
-        return Status::Failed;
-    }
-
-    if(!ini->ReadStr(_currentServiceDBOption.c_str(), "DB", _currentServiceDBName))
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:DB config in ini:%s"), _currentServiceDBName.c_str(), ini->GetPath().c_str());
-        return Status::Failed;
-    }
-    auto currentConfig = GetService()->CastTo<MyTestService>()->GetServiceConfig();
-    _disableAutoDrop = currentConfig->DisableAutoDropDB ? 1 : 0;
-
-    if(!ini->CheckReadNumber(GetService()->GetServiceName().c_str(), "DbVersion", _curVersionNo))
-    {
-        _disableAutoDrop = 1;
-        g_Log->Warn(LOGFMT_OBJ_TAG("lack of MysqlCommon:DbVersion config in ini:%s"), ini->GetPath().c_str());
-    }
-
-    if(!ini->CheckReadNumber(GetService()->GetServiceName().c_str(), "SystemOperatorUid", _systemOperatorUid))
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("lack of MysqlCommon:SystemOperatorUid config in ini:%s"), ini->GetPath().c_str());
-        return Status::Failed;
-    }
-
-    if(!ini->CheckReadNumber(GetService()->GetServiceName().c_str(), "PurgeIntervalMs", _purgeIntervalMs))
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:PurgeIntervalMs config in ini:%s"), _currentServiceDBName.c_str(), ini->GetPath().c_str());
-        return Status::Failed;
-    }
-
-    _disableSystemTableAutoDrop = currentConfig->DisableSystemTableAutoDrop ? 1 : 0;
 
     // 设置操作id
     SetStorageOperatorId(_systemOperatorUid);
@@ -1020,36 +1040,13 @@ Int32 MysqlMgr::_OnGlobalSysInit()
 Int32 MysqlMgr::_OnGlobalSysCompsCreated()
 {
     auto service = GetService();
-    auto ini = service->GetApp()->GetIni();
-    
-    // 获取需要加载的数据库段名列表
-    KERNEL_NS::LibString dbList;
-    if(!ini->ReadStr(service->GetServiceName().c_str(), "DbConfigList", dbList))
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("service DbConfigList config not exists, service name:%s."), service->GetServiceName().c_str());
-        return Status::Failed;
-    }
+    auto defaultStorage = service->CastTo<MyTestService>()->GetServiceConfig()->DefaultStorage;
+    auto &appYamlConfig = service->GetApp()->GetYamlConfig();
 
-    if(UNLIKELY(dbList.empty()))
+    if(UNLIKELY(defaultStorage.empty()))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("have no DbConfigList please check service name:%s"), service->GetServiceName().c_str());
+        CLOG_WARN("have no defaultStorage please check service name:%s", service->GetServiceName().c_str());
         return Status::Failed;
-    }
-
-    const auto &dbs = dbList.Split(",");
-    if(UNLIKELY(dbs.empty()))
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("DbConfigList config error:%s check service name:%s"), dbList.c_str(), service->GetServiceName().c_str());
-        return Status::Failed;
-    }
-
-    for(auto &db : dbs)
-    {
-        if(UNLIKELY(db.empty()))
-        {
-            g_Log->Warn(LOGFMT_OBJ_TAG("DbConfigList config error:%s check service name:%s"), dbList.c_str(), service->GetServiceName().c_str());
-            return Status::Failed;
-        }
     }
 
     auto dbMgr = GetComp<KERNEL_NS::MysqlDBMgr>();
@@ -1057,8 +1054,8 @@ Int32 MysqlMgr::_OnGlobalSysCompsCreated()
 
     dbMgr->SetDbEventType(ServicePollerEvent::MysqlDbEvent);
 
-    dbMgr->SetIniFile(ini);
-    dbMgr->SetDbSegmentList(dbs);
+    dbMgr->SetYamlConfig(&appYamlConfig);
+    dbMgr->SetDbSegmentList({defaultStorage});
 
     // 其他系统使用数据库时候跳过系统的操作id, 避免干扰系统行为
     dbMgr->SkipOperatorId(_currentServiceDBName, _systemOperatorUid);
@@ -1079,7 +1076,7 @@ Int32 MysqlMgr::_OnGlobalSysCompsCreated()
         systemStorageInfo->ClearFlags(StorageFlagType::DISABLE_AUTO_DROP_FLAG);
     }
 
-    g_Log->Info(LOGFMT_OBJ_TAG("mysql mgr init success."));
+    CLOG_INFO("mysql mgr init success.");
 
     return Status::Success;
 }

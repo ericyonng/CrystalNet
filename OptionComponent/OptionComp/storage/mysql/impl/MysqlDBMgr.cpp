@@ -38,7 +38,7 @@ KERNEL_BEGIN
 
 MysqlDBMgr::MysqlDBMgr()
 :CompHostObject(KERNEL_NS::RttiUtil::GetTypeId<MysqlDBMgr>())
-,_ini(NULL)
+,_config(NULL)
 ,_maxSeqId(0)
 ,_msgBackpoller(NULL)
 ,_dbEventType(0)
@@ -196,11 +196,11 @@ Int32 MysqlDBMgr::_OnHostInit()
     for(auto &dbSeg : _dbConfigSegments)
     {
         MysqlConfig config;
-        auto errCode = _ReadToConfig(dbSeg, config);
-        if(errCode != Status::Success)
+        auto appYamlConfig = (*_config)[dbSeg.c_str()];
+        if (!appYamlConfig.IsMap())
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("read db config fail errCode:%d, dbSeg:%s, ini path:%s"), errCode, dbSeg.c_str(), _ini->GetPath().c_str());
-            return errCode;
+            CLOG_WARN("read db config fail errCode:%d, dbSeg:%s", dbSeg.c_str());
+            return Status::ConfigError;
         }
 
         if(_dbNameRefMysqlConfig.find(config._dbName) != _dbNameRefMysqlConfig.end())

@@ -35,6 +35,7 @@
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/CompObject/CompObjectInc.h>
 #include <OptionComp/storage/mysql/impl/MysqlConfig.h>
+#include <yaml-cpp/yaml.h>
 
 KERNEL_BEGIN
 
@@ -76,7 +77,7 @@ public:
     void SetDbEventType(Int32 dbEventType);
 
     // 设置配置
-    void SetIniFile(const LibIniFile *iniFile);
+    void SetYamlConfig(const YAML::Node *config);
 
     // 设置需要加载的数据库段名列表
     void SetDbSegmentList(const std::vector<LibString> &dbConfigSegments);
@@ -131,8 +132,8 @@ protected:
     bool _IsAllDBStop() const;
 
 private:
-    // 配置表
-    const LibIniFile *_ini;
+    // 配置
+    const YAML::Node *_config;
     // db对象
     std::unordered_map<LibString, MysqlDB *> _dbNameRefMysqlDB;
     // db配置
@@ -174,10 +175,11 @@ ALWAYS_INLINE void MysqlDBMgr::SetDbEventType(Int32 dbEventType)
     _dbEventType = dbEventType;
 }
 
-ALWAYS_INLINE void MysqlDBMgr::SetIniFile(const LibIniFile *iniFile)
+ALWAYS_INLINE void MysqlDBMgr::SetYamlConfig(const YAML::Node *config)
 {
-    _ini = iniFile;
+    _config = config;
 }
+
 
 ALWAYS_INLINE void MysqlDBMgr::SetDbSegmentList(const std::vector<LibString> &dbConfigSegments)
 {

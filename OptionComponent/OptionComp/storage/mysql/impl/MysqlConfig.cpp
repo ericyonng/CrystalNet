@@ -34,6 +34,7 @@ KERNEL_BEGIN
 
 MysqlConfig::MysqlConfig()
 :_port(3306)
+,_bindIp("127.0.0.1")
 ,_charset("utf8mb4")
 ,_dbCharset("utf8mb4")
 ,_dbCollate("utf8mb4_bin")

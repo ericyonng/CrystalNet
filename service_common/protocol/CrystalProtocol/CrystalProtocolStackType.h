@@ -66,6 +66,22 @@ public:
 
         return CrystalProtocolStackType::UNKNOWN;
     }
+
+    static KERNEL_NS::LibString ToString(Int32 stackTypeValue)
+    {
+        switch (stackTypeValue)
+        {
+            case CrystalProtocolStackType::CRYSTAL_PROTOCOL: return "CRYSTAL_PROTOCOL";
+            case CrystalProtocolStackType::CRYSTAL_PROTOCOL_NO_LIMIT: return "CRYSTAL_PROTOCOL_NO_LIMIT";
+            case CrystalProtocolStackType::HTTP: return "HTTP";
+            case CrystalProtocolStackType::JSON: return "JSON";
+            case CrystalProtocolStackType::WEBSOCKET: return "WEBSOCKET";
+            default:
+                break;
+        }
+
+        return "UNKNOWN";
+    }
 };
 
 SERVICE_COMMON_END

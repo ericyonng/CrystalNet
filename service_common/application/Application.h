@@ -63,11 +63,7 @@ public:
     void Release() override;
 
 public:
-    void SetIniFile(const KERNEL_NS::LibString &ini);
-    void SetMemoryIniContent(const KERNEL_NS::LibString &content);
     const KERNEL_NS::LibString &GetProjectMainServiceName() const; // 获取项目功能名, 如：Gate, Login等
-    const KERNEL_NS::LibIniFile *GetIni() const;
-    KERNEL_NS::LibIniFile *GetIni();
     virtual const KERNEL_NS::LibString &GetAppAliasName() const override;
 
     void Clear() override;
@@ -116,9 +112,7 @@ private:
     void _OnKillMonitorTimeOut(KERNEL_NS::LibTimer *timer);
 
 private:
-    KERNEL_NS::LibString _ini;                              // 配置表路径
     KERNEL_NS::LibString _memoryIni;                        // 内存配置表内容
-    KERNEL_NS::LibIniFile *_configIni;                      // 配置表
     ApplicationConfig _appConfig;                           // app配置
 
     // 监控线程
@@ -135,29 +129,9 @@ private:
     Int32 _maxEventType;
 };
     
-ALWAYS_INLINE void Application::SetIniFile(const KERNEL_NS::LibString &ini)
-{
-    _ini = ini;
-}
-
-ALWAYS_INLINE void Application::SetMemoryIniContent(const KERNEL_NS::LibString &content)
-{
-    _memoryIni = content;
-}
-
 ALWAYS_INLINE const KERNEL_NS::LibString &Application::GetProjectMainServiceName() const
 {
     return _appConfig.ProjectMainServiceName;
-}
-
-ALWAYS_INLINE const KERNEL_NS::LibIniFile *Application::GetIni() const
-{
-    return _configIni;
-}
-
-ALWAYS_INLINE KERNEL_NS::LibIniFile *Application::GetIni()
-{
-    return _configIni;
 }
 
 ALWAYS_INLINE void Application::SetMaxEventType(Int32 maxEventType)

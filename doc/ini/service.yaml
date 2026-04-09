@@ -136,10 +136,8 @@ TestSuit:
   # 是否开启网络协议打印
   ProtoStackOpenLog: true
   
-  # 数据库相关配置
-  DbConfigList: [RpgMysql]
-  # 指定当前服务的数据库
-  CurrentServiceDB: RpgMysql
+  # 默认的存储数据库
+  DefaultStorage: RpgMysql
   # 数据库版本号, 跨版本号清档数据
   DbVersion: 49
   # 系统使用operator uid, operator uid用于多线程下的负载均衡
@@ -164,40 +162,42 @@ TestSuit:
   # 热更集 hotfixkey
   PluginHotfixKey: TestPlugin
   
-  # mysql数据库配置
-  RpgMysql:
-    # 数据库地址
-    Host: 127.0.0.1
-    # 数据库名
-    DB: TestSuit
-    # 用户名
-    User: root
-    # 密码
-    Pwd: 123456
-    # 端口
-    Port: 3306
-    # 绑定ip
-    BindIp: 127.0.0.1
-    # 数据库编码
-    CharacterSet: utf8mb4
-    # 数据库编码
-    COLLATE: utf8mb4_bin
-    # 自动重连
-    AutoReconnect: true
-    # mysql 包缓冲区最大单包大小 2GB
-    MaxPacketSize: 2147483648
-    # 开启一次执行多条sql 一般用于开启手动事务批量执行sql
-    EnableMultiStatements: true
-    # 网络断开sql重复执行次数
-    RetryTimesWhenNetInterrupt: 10
-    # 线程数量,每个线程一个 mysql 连接
-    DbThreadNum: 1
-    # ping时间间隔, 维持mysql连接活跃
-    PingIntervalSeconds: 3600
+# mysql数据库配置
+RpgMysql:
+  # 数据库地址
+  Host: 127.0.0.1
+  # 数据库名
+  DB: TestSuit
+  # 用户名
+  User: root
+  # 密码
+  Pwd: 123456
+  # 端口
+  Port: 3306
+  # 绑定ip
+  BindIp: 127.0.0.1
+  # 数据库编码
+  CharacterSet: utf8mb4
+  # 数据库编码
+  COLLATE: utf8mb4_bin
+  # 自动重连
+  AutoReconnect: 1
+  # mysql 包缓冲区最大单包大小 2GB
+  MaxPacketSize: 2147483648
+  # 开启一次执行多条sql 一般用于开启手动事务批量执行sql
+  EnableMultiStatements: true
+  # 网络断开sql重复执行次数
+  RetryTimesWhenNetInterrupt: 10
+  # 线程数量,每个线程一个 mysql 连接
+  DbThreadNum: 1
+  # ping时间间隔, 维持mysql连接活跃
+  PingIntervalSeconds: 3600
     
-  MysqlCommon:
-    # 默认初始blob字段大小 64字节
-    DefaultBlobOriginSize: 16
-    # 初始string key大小 VARCHAR(256)
-    DefaultStringKeyOriginSize: 64
+    
+    
+MysqlCommon:
+  # 默认初始blob字段大小 64字节
+  DefaultBlobOriginSize: 16
+  # 初始string key大小 VARCHAR(256)
+  DefaultStringKeyOriginSize: 64
   

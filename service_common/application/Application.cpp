@@ -40,10 +40,8 @@
 
 SERVICE_COMMON_BEGIN
 
-
 Application::Application()
 :IApplication(KERNEL_NS::RttiUtil::GetTypeId<Application>())
-,_configIni(NULL)
 ,_monitor(NULL)
 ,_killMonitorTimer(NULL)
 ,_statisticsInfo(StatisticsInfo::New_StatisticsInfo())
@@ -197,16 +195,6 @@ Int32 Application::_OnHostInit()
         });
     }));
     
-    _configIni = KERNEL_NS::LibIniFile::New_LibIniFile();
-    if(!_memoryIni.empty())
-        _configIni->SetMemoryIniContent(_memoryIni);
-        
-    if(!_configIni->Init(_ini.c_str()))
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("config ini init fail ini file:%s"), _ini.c_str());
-        return Status::ConfigError;
-    }
-
     #ifndef DISABLE_OPCODES
     errCode = Opcodes::Init();
     if(errCode != Status::Success)
