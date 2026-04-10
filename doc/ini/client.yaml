@@ -98,28 +98,28 @@ Client:
     FailureTryCount: 3
     # 协议类型, CRYSTAL_PROTOCOL, JSON等
     Protocol: CRYSTAL_PROTOCOL
-    
-    # 收发限制
-    # 每个包是否设置接收包上限
-    PacketRecvBytesLimitSwitch: false
-    # 每个包是否设置发送包上限
-    PacketSendBytesLimitSwitch: true
-    # 包速率限制开关
-    PacketSpeedLimitSwitch: false
-    
-    # 1表示等响应包回来继续发送, 其他是间隔发送
-    TestSendMode: 1 
-    # 发送时间间隔
-    TestSendIntervalMs: 0 
-    # 一次发送多少个包
-    TestSendPackCountOnce: 1
-    # 一次发送的包内容至少多少个字节(pb序列化会多增加数据量)
-    TestSendPackageBytes: 100
-    # 发包超时时间 30s
-    TestSendPackageTimeoutMilliseconds: 30000
-    TestLoginAccountName: test_user
-    
-    # 公钥
-    UserRsaPublicKey: LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZk1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTkFEQ0JpUUtCZ1FDL0hTN0Izd1FHUXBXM2tDNG5YQW1ldVpHdApXTXBxaStaVlZ2dWdqeFBGLzcvdXQyYi8zTWVxS0FmVEFTb2ZDMzYraUx4RGMyWDU0c0t3Vks3dGNkaHJZNUdnCllFSDA5ZWZtWEJ4dVBFeFlNcXZhbEV2VVRwbkI4dFR4d0JFVzhUbkp4a3E4a1ROMjNlRk5JbnRtNkNITWtLV3cKYytGOUV6Q0JkSExuSnFjRURRSURBUUFCCi0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo=
+  
+  # 收发限制
+  # 每个包是否设置接收包上限
+  PacketRecvBytesLimitSwitch: false
+  # 每个包是否设置发送包上限
+  PacketSendBytesLimitSwitch: true
+  # 包速率限制开关
+  PacketSpeedLimitSwitch: false
+  
+  # 1表示等响应包回来继续发送, 其他是间隔发送
+  TestSendMode: 1 
+  # 发送时间间隔
+  TestSendIntervalMs: 0 
+  # 一次发送多少个包
+  TestSendPackCountOnce: 1
+  # 一次发送的包内容至少多少个字节(pb序列化会多增加数据量)
+  TestSendPackageBytes: 100
+  # 发包超时时间 30s
+  TestSendPackageTimeoutMilliseconds: 30000
+  TestLoginAccountName: test_user
+  
+  # 公钥
+  UserRsaPublicKey: LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZk1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTkFEQ0JpUUtCZ1FDL0hTN0Izd1FHUXBXM2tDNG5YQW1ldVpHdApXTXBxaStaVlZ2dWdqeFBGLzcvdXQyYi8zTWVxS0FmVEFTb2ZDMzYraUx4RGMyWDU0c0t3Vks3dGNkaHJZNUdnCllFSDA5ZWZtWEJ4dVBFeFlNcXZhbEV2VVRwbkI4dFR4d0JFVzhUbkp4a3E4a1ROMjNlRk5JbnRtNkNITWtLV3cKYytGOUV6Q0JkSExuSnFjRURRSURBUUFCCi0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo=
 
     
