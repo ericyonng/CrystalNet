@@ -78,6 +78,21 @@ Int32 UserSessionMgr::_OnInit()
     _heartbeatExpireTime = _userMgr->GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::USER_HEARTBEAT_EXPIRE_TIME)->_int64Value;
 
     _userMgr->GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_ClientHeartbeatReq, this, &UserSessionMgr::_OnHeartbeatReq);
+
+    // 关注用户的会话
+    auto service = GetOwner()->CastTo<MyTestService>();
+    auto serviceConfig = service->GetApp()->GetYamlConfig()[service->GetServiceName().c_str()];
+    if (serviceConfig.IsMap())
+    {
+        auto &&value = serviceConfig["UserLinkinPort"];
+        if (value.IsDefined())
+        {
+            auto &&ports = value.as<std::vector<UInt16>>();
+            for (auto &port : ports)
+                _userPorts.insert(port);
+        }
+    }
+    
     _RegisterEvents();
     return Status::Success;
 }
@@ -160,17 +175,17 @@ void UserSessionMgr::_UnRegisterEvents()
 void UserSessionMgr::_OnSessionCreated(KERNEL_NS::LibEvent *ev)
 {
     auto sessionId = ev->GetParam(Params::SESSION_ID).AsUInt64();
-    auto sessionType = ev->GetParam(Params::SESSION_TYPE).AsInt32();
     auto isLinker = ev->GetParam(Params::IS_LINKER).AsBool();
     auto isFromConnect = ev->GetParam(Params::IS_FROM_CONNECT).AsBool();
+    auto localAddr = ev->GetParam(Params::LOCAL_ADDR).AsPtr<KERNEL_NS::BriefAddrInfo>();
 
     if(isLinker || isFromConnect)
         return;
 
-    // 关注用户的会话
-    if((sessionType != SessionType::OUTER) && (sessionType != SessionType::OUTER_NO_LIMIT))
+    // 是不是User端口
+    if (!_userPorts.empty() && _userPorts.find(localAddr->_port) == _userPorts.end())
         return;
-
+    
     auto expireConfig = _userMgr->GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::USER_LOGIN_EXPIRE_TIME);
     KERNEL_NS::SmartPtr<LoginPendingInfo, KERNEL_NS::AutoDelMethods::CustomDelete> pending = LoginPendingInfo::NewThreadLocal_LoginPendingInfo(sessionId);
     pending.SetClosureDelegate([](void *p){

@@ -66,6 +66,7 @@ namespace Params
 
         TARGET_ADDR_IP_CONFIG,  // 目标ip配置   
         TARGET_ADDR_FAILURE_IP_SET, // 连接失败后的ip集合
+        TARGET_PACKET_OPTIONS,      // 包设置
 
         COMMON_MAX_ENUM,
     };

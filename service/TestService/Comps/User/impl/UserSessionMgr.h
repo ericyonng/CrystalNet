@@ -44,6 +44,7 @@
 
 #include <set>
 #include <map>
+#include <unordered_set>
 
 KERNEL_BEGIN
 
@@ -106,6 +107,8 @@ private:
     KERNEL_NS::ListenerStub _sessionMsgRecvStub;
     KERNEL_NS::ListenerStub _userWillRemoveStub;
     KERNEL_NS::ListenerStub _sessionWillRemoveStub;
+
+    std::unordered_set<UInt16> _userPorts;
 };
 
 SERVICE_END

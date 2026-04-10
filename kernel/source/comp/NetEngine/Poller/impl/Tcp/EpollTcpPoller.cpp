@@ -821,6 +821,10 @@ void EpollTcpPoller::_OnNewSession(PollerEvent *ev)
                 connectRes->_sessionId = buildSessionInfo->_sessionId;
                 connectRes->_targetConfig = buildSessionInfo->_remoteOriginIpConfig;
                 connectRes->_failureIps = buildSessionInfo->_failureIps;
+                connectRes->_packetOptions.PacketSpeedLimitSwitch = (buildSessionInfo->_sessionOption._sessionRecvPacketSpeedLimit != 0) || (buildSessionInfo->_sessionOption._sessionRecvPacketSpeedTimeUnitMs != 0);
+                connectRes->_packetOptions.PacketRecvBytesLimitSwitch = buildSessionInfo->_sessionOption._sessionRecvPacketContentLimit != 0;
+                connectRes->_packetOptions.PacketSendBytesLimitSwitch = buildSessionInfo->_sessionOption._sessionSendPacketContentLimit != 0;
+                
                 _serviceProxy->PostMsg(connectRes->_fromServiceId, connectRes);
             }
             else if(buildSessionInfo->_isLinker)
@@ -881,6 +885,10 @@ void EpollTcpPoller::_OnNewSession(PollerEvent *ev)
             connectRes->_sessionId = buildSessionInfo->_sessionId;
             connectRes->_targetConfig = buildSessionInfo->_remoteOriginIpConfig;
             connectRes->_failureIps = buildSessionInfo->_failureIps;
+            connectRes->_packetOptions.PacketSpeedLimitSwitch = (buildSessionInfo->_sessionOption._sessionRecvPacketSpeedLimit != 0) || (buildSessionInfo->_sessionOption._sessionRecvPacketSpeedTimeUnitMs != 0);
+            connectRes->_packetOptions.PacketRecvBytesLimitSwitch = buildSessionInfo->_sessionOption._sessionRecvPacketContentLimit != 0;
+            connectRes->_packetOptions.PacketSendBytesLimitSwitch = buildSessionInfo->_sessionOption._sessionSendPacketContentLimit != 0;
+                
             _serviceProxy->PostMsg(connectRes->_fromServiceId, connectRes);
         }
         else if(buildSessionInfo->_isLinker)
@@ -1262,6 +1270,10 @@ void EpollTcpPoller::_OnConnectFailure(LibConnectInfo *connectInfo, LibConnectPe
         targetAddr._ipAndPort.AppendFormat("%s:%hu", targetAddr._ip.c_str(), targetAddr._port);
         res->_targetConfig = connectInfo->_targetIp;
         res->_failureIps = connectInfo->_failureIps;
+        auto &sessionOptions = connectInfo->_sessionOption;
+        res->_packetOptions.PacketSpeedLimitSwitch = (sessionOptions._sessionRecvPacketSpeedLimit != 0)|| (sessionOptions._sessionRecvPacketSpeedTimeUnitMs != 0);
+        res->_packetOptions.PacketRecvBytesLimitSwitch = sessionOptions._sessionRecvPacketContentLimit != 0;
+        res->_packetOptions.PacketSendBytesLimitSwitch = sessionOptions._sessionSendPacketContentLimit != 0;
 
         _serviceProxy->PostMsg(res->_fromServiceId, res);
     }

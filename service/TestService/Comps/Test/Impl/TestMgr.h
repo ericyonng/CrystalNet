@@ -33,11 +33,9 @@
 #include <service/TestService/Comps/Test/Interface/ITestMgr.h>
 #include <protocols/protocols.h>
 #include <unordered_map>
+#include <service/common/ServiceConfig.h>
 
 SERVICE_BEGIN
-
-struct ServiceConfig;
-struct AddrConfig;
 
 struct SessionAnalyzeInfo;
 
@@ -93,7 +91,7 @@ private:
     const ServiceConfig *_serviceConfig;
     Int32 _testSessionCount;        // 测试的会话数量
     Int32 _testConnectIntervalMs;   // 连接的时间间隔
-    AddrConfig *_targetAddrConfig;  // 测试的目标地址
+    AddrConfig _targetAddrConfig;  // 测试的目标地址
     Int32 _testSendMode;            // 1等待响应包发送 其他是间隔发送
     Int32 _testSendIntervalMs;      // 发送时间间隔
     Int32 _testSendPackCountOnce;   // 一次发送多少个包

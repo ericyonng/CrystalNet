@@ -57,6 +57,17 @@ struct KERNEL_EXPORT AddrIpConfig
     Int32 GetAf() const;
 };
 
+// 包配置
+struct PacketOptions
+{
+    // 每个包是否设置接收上限
+    bool PacketRecvBytesLimitSwitch = true;
+    // 每个包是否设置发送上限
+    bool PacketSendBytesLimitSwitch = true;
+    // 包速率限制开关
+    bool PacketSpeedLimitSwitch = true;
+};
+
 KERNEL_END
 
 #endif

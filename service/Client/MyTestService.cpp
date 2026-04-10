@@ -376,6 +376,9 @@ void MyTestService::_OnAsynConnectRes(KERNEL_NS::PollerEvent *msg)
     ev->SetParam(Params::SERVICE_ID, connectRes->_fromServiceId);
     ev->SetParam(Params::STUB, connectRes->_stub);
     ev->SetParam(Params::SESSION_ID, connectRes->_sessionId);
+    ev->SetParam(Params::TARGET_ADDR_IP_CONFIG, &connectRes->_targetConfig);
+    ev->SetParam(Params::TARGET_ADDR_FAILURE_IP_SET, &connectRes->_failureIps);
+    ev->SetParam(Params::TARGET_PACKET_OPTIONS, &connectRes->_packetOptions);
     GetEventMgr()->FireEvent(ev);
 }
 

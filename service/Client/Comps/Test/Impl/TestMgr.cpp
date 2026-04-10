@@ -49,7 +49,6 @@ TestMgr::TestMgr()
 ,_serviceConfig(NULL)
 ,_testSessionCount(0)
 ,_testConnectIntervalMs(10)
-,_targetAddrConfig(AddrConfig::NewThreadLocal_AddrConfig())
 ,_testSendMode(0)
 ,_testSendIntervalMs(0)
 ,_testSendPackCountOnce(0)
@@ -120,12 +119,6 @@ void TestMgr::_OnGlobalSysClose()
 
 void TestMgr::_Clear()
 {
-    if(_targetAddrConfig)
-    {
-        AddrConfig::DeleteThreadLocal_AddrConfig(_targetAddrConfig);
-        _targetAddrConfig = NULL;
-    }
-
     KERNEL_NS::ContainerUtil::DelContainer2(_sessionIdRefAnalyzeInfo);
 
     if(_sessionConnected == INVALID_LISTENER_STUB)
@@ -334,20 +327,20 @@ void TestMgr::_OnCommonSessionReady(KERNEL_NS::LibEvent *ev)
     g_Log->Info(LOGFMT_OBJ_TAG("common ready start test."));
 
     UInt64 stub = 0;
-    auto st = this->GetGlobalSys<ISysLogicMgr>()->AsynTcpConnect(_targetAddrConfig->_remoteIp
-    , _targetAddrConfig->_remotePort
+    auto st = this->GetGlobalSys<ISysLogicMgr>()->AsynTcpConnect(_targetAddrConfig._remoteIp
+    , _targetAddrConfig._remotePort
     , stub
-    , _targetAddrConfig->_localIp
-    , _targetAddrConfig->_localPort
+    , _targetAddrConfig._localIp
+    , _targetAddrConfig._localPort
     , NULL
     , 0
     , 0
-    ,  _targetAddrConfig->_sessionType
-    , _targetAddrConfig->_af
-    , _targetAddrConfig->_protocolStackType);
+    ,  _targetAddrConfig.ToPacketOptions()
+    , _targetAddrConfig._af
+    , _targetAddrConfig._protocolStackType);
     if(st != Status::Success)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, _targetAddrConfig:%s"), st, _targetAddrConfig->ToString().c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, _targetAddrConfig:%s"), st, _targetAddrConfig.ToString().c_str());
     }
 
     // 一直连接直到连接数足够
@@ -366,20 +359,20 @@ void TestMgr::_OnCommonSessionReady(KERNEL_NS::LibEvent *ev)
         }
 
         UInt64 stub = 0;
-        auto st = this->GetGlobalSys<ISysLogicMgr>()->AsynTcpConnect(_targetAddrConfig->_remoteIp
-        , _targetAddrConfig->_remotePort
+        auto st = this->GetGlobalSys<ISysLogicMgr>()->AsynTcpConnect(_targetAddrConfig._remoteIp
+        , _targetAddrConfig._remotePort
         , stub
-        , _targetAddrConfig->_localIp
-        , _targetAddrConfig->_localPort
+        , _targetAddrConfig._localIp
+        , _targetAddrConfig._localPort
         , NULL
         , 0
         , 0
-        ,  _targetAddrConfig->_sessionType
-        , _targetAddrConfig->_af
-        , _targetAddrConfig->_protocolStackType);
+        ,  _targetAddrConfig.ToPacketOptions()
+        , _targetAddrConfig._af
+        , _targetAddrConfig._protocolStackType);
         if(st != Status::Success)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, _targetAddrConfig:%s"), st, _targetAddrConfig->ToString().c_str());
+            g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, _targetAddrConfig:%s"), st, _targetAddrConfig.ToString().c_str());
         }
     };
 
@@ -463,98 +456,101 @@ Int32 TestMgr::_ReadTestConfigs()
         return Status::Success;
 
     auto app = GetService()->GetApp();
-    auto ini = app->GetIni();
     const auto &serviceName = GetService()->GetServiceName();
 
     // 读取配置
     _serviceConfig = GetService()->CastTo<MyTestService>()->GetServiceConfig();
 
+    auto &&yamlConfig = app->GetYamlConfig()[GetService()->GetServiceName().c_str()];
     {// 会话创建总数
-        Int64 count = 0;
-        if(!ini->CheckReadInt(serviceName.c_str(), "TestSessionCount", count))
+        auto &&value = yamlConfig["TestSessionCount"];
+        if (value.IsDefined())
+            _testSessionCount = value.as<Int32>();
+
+        if(_testSessionCount <= 0)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("check read TestSessionCount config fail service name:%s"), serviceName.c_str());
             return Status::ConfigError;
         }
-        _testSessionCount = static_cast<Int32>(count);
     }
 
     {// 连接时间间隔
-        Int64 value = 0;
-        if(!ini->CheckReadInt(serviceName.c_str(), "TestConnectIntervalMs", value))
+        auto &&value = yamlConfig["TestConnectIntervalMs"];
+        if (value.IsDefined())
+            _testConnectIntervalMs = value.as<Int32>();
+
+        if(_testConnectIntervalMs <= 0)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("check read TestConnectIntervalMs config fail service name:%s"), serviceName.c_str());
             return Status::ConfigError;
         }
-        _testConnectIntervalMs = static_cast<Int32>(value);
     }
 
     {// 目标地址
-        KERNEL_NS::LibString cache;
-        if(!ini->ReadStr(serviceName.c_str(), "TestTargetAddr", cache))
+        auto &&value = yamlConfig["TestTargetAddr"];
+        if (value.IsDefined())
+            _targetAddrConfig = value.as<AddrConfig>();
+        
+        if(!value.IsDefined())
         {
             g_Log->Error(LOGFMT_OBJ_TAG("check read TestTargetAddr config fail service name:%s"), GetService()->GetServiceName().c_str());
-            return Status::ConfigError;
-        }
-        cache.strip();
-        
-        if(!_targetAddrConfig->Parse(cache))
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("check parse TestTargetAddr config fail service name:%s, value:%s")
-                    , GetService()->GetServiceName().c_str(), cache.c_str());
             return Status::ConfigError;
         }
     }
 
     {// 测试发送模式
-        Int64 value = 0;
-        if(!ini->CheckReadInt(serviceName.c_str(), "TestSendMode", value))
+        auto &&value = yamlConfig["TestSendMode"];
+        if (value.IsDefined())
+            _testSendMode = value.as<Int32>();
+        if(!value.IsDefined())
         {
             g_Log->Error(LOGFMT_OBJ_TAG("check read TestSendMode config fail service name:%s"), serviceName.c_str());
             return Status::ConfigError;
         }
-        _testSendMode = static_cast<Int32>(value);
     }
 
     {// 发送时间间隔
-        Int64 value = 0;
-        if(!ini->CheckReadInt(serviceName.c_str(), "TestSendIntervalMs", value))
+        auto &&value = yamlConfig["TestSendIntervalMs"];
+        if (value.IsDefined())
+            _testSendIntervalMs = value.as<Int32>();
+        if(!value.IsDefined())
         {
             g_Log->Error(LOGFMT_OBJ_TAG("check read TestSendIntervalMs config fail service name:%s"), serviceName.c_str());
             return Status::ConfigError;
         }
-        _testSendIntervalMs = static_cast<Int32>(value);
     }
 
     {// 一次发送多少个包
-        Int64 value = 0;
-        if(!ini->CheckReadInt(serviceName.c_str(), "TestSendPackCountOnce", value))
+        auto &&value = yamlConfig["TestSendPackCountOnce"];
+        if (value.IsDefined())
+            _testSendPackCountOnce = value.as<Int32>();
+        if(_testSendPackCountOnce <= 0)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("check read TestSendPackCountOnce config fail service name:%s"), serviceName.c_str());
             return Status::ConfigError;
         }
-        _testSendPackCountOnce = static_cast<Int32>(value);
     }
 
     {// 一次发送的包内容至少多少个字节
-        Int64 value = 0;
-        if(!ini->CheckReadInt(serviceName.c_str(), "TestSendPackageBytes", value))
+        auto &&value = yamlConfig["TestSendPackageBytes"];
+        if (value.IsDefined())
+            _testSendPackageBytes = value.as<Int32>();
+        if(_testSendPackageBytes <= 0)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("check read TestSendPackageBytes config fail service name:%s"), serviceName.c_str());
             return Status::ConfigError;
         }
-        _testSendPackageBytes = static_cast<Int32>(value);
     }
 
     {// 发包超时时间
-        Int64 value = 0;
-        if(!ini->CheckReadInt(serviceName.c_str(), "TestSendPackageTimeoutMilliseconds", value))
+        auto &&value = yamlConfig["TestSendPackageTimeoutMilliseconds"];
+        if (value.IsDefined())
+            _testSendPackTimeoutMilliseconds = value.as<Int64>();
+        if(!_testSendPackTimeoutMilliseconds <= 0)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("check read TestSendPackageTimeoutMilliseconds config fail service name:%s"), serviceName.c_str());
             return Status::ConfigError;
         }
-
-        _testSendPackTimeoutMilliseconds = value;
     }
 
     return Status::Success;

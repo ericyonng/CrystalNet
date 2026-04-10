@@ -124,6 +124,7 @@ struct KERNEL_EXPORT AsynConnectResEvent : public PollerEvent
 
     AddrIpConfig _targetConfig; // 连接远程的ip信息
     std::set<LibString> _failureIps;    // 连接远程失败的ip合集
+    KERNEL_NS::PacketOptions _packetOptions;    // 包配置
 };
 
 // 监听回包

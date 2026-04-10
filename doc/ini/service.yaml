@@ -90,6 +90,8 @@ TestSuit:
   PollerMaxSleepMilliseconds: 20
   # 帧更新间隔(调用组件update)
   FrameUpdateTimeMs: 50
+  # 用户连入端口
+  UserLinkinPort: [3900]
   # 监听信息
   TcpListenList:
       # ip

@@ -42,17 +42,6 @@
 
 SERVICE_BEGIN
 
-// 包配置
-struct PacketOptions
-{
-    // 每个包是否设置接收上限
-    bool PacketRecvBytesLimitSwitch = true;
-    // 每个包是否设置发送上限
-    bool PacketSendBytesLimitSwitch = true;
-    // 包速率限制开关
-    bool PacketSpeedLimitSwitch = true;
-};
-
 // 地址配置
 struct AddrConfig
 {
@@ -91,16 +80,16 @@ struct AddrConfig
         return info;
     }
 
-    PacketOptions ToPacketOptions() const
+    KERNEL_NS::PacketOptions ToPacketOptions() const
     {
-        PacketOptions packetOptions;
+        KERNEL_NS::PacketOptions packetOptions;
         packetOptions.PacketRecvBytesLimitSwitch = PacketRecvBytesLimitSwitch;
         packetOptions.PacketSendBytesLimitSwitch = PacketSendBytesLimitSwitch;
         packetOptions.PacketSpeedLimitSwitch = PacketSpeedLimitSwitch;
         return packetOptions;
     }
 
-    static SERVICE_COMMON_NS::CrystalProtocolStackType::ENUMS TurnStackType(const KERNEL_NS::LibString &protocolType) const
+    static SERVICE_COMMON_NS::CrystalProtocolStackType::ENUMS TurnStackType(const KERNEL_NS::LibString &protocolType)
     {
         return static_cast<SERVICE_COMMON_NS::CrystalProtocolStackType::ENUMS>(SERVICE_COMMON_NS::CrystalProtocolStackType::TurnFromString(protocolType));
     }
@@ -143,9 +132,9 @@ struct TcpListenInfo
         return addrIp;
     }
 
-    PacketOptions ToPacketOptions() const
+    KERNEL_NS::PacketOptions ToPacketOptions() const
     {
-        PacketOptions packetOptions;
+        KERNEL_NS::PacketOptions packetOptions;
         packetOptions.PacketRecvBytesLimitSwitch = PacketRecvBytesLimitSwitch;
         packetOptions.PacketSendBytesLimitSwitch = PacketSendBytesLimitSwitch;
         packetOptions.PacketSpeedLimitSwitch = PacketSpeedLimitSwitch;
@@ -441,7 +430,6 @@ namespace YAML
             node["FrameUpdateTimeMs"] = rhs.FrameUpdateTimeMs;
             node["TcpListenList"] = rhs.TcpListenList;
             node["ProtoStackOpenLog"] = rhs.ProtoStackOpenLog;
-            node["CurrentServiceDB"] = rhs.CurrentServiceDB;
             node["DbVersion"] = rhs.DbVersion;
             node["SystemOperatorUid"] = rhs.SystemOperatorUid;
             node["PurgeIntervalMs"] = rhs.PurgeIntervalMs;

@@ -47,34 +47,17 @@ public:
     ~SysLogicMgr();
 
     void Release() override;
+    
+    Int32 AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
+    , UInt64 &stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *delg
+    , Int32 sessionCount = 1
+    , const KERNEL_NS::PacketOptions &packetOptions = KERNEL_NS::PacketOptions()
+    , Int32 family = AF_INET, Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL) const override;
 
-  /*
-  * 新增监听
-  * @param(ip): 0.0.0.0或放空将监听所有网卡,
-  * @param(port): 0将由系统分配一个端口
-  * @param(sessionType): SessionType指定一个会话类型,连入的会话都将继承这个类型
-  * @param(family): AF_INET:ipv4, AF_INET6 :ipv6
-  * @param(family): AF_INET:ipv4, AF_INET6 :ipv6
-  */
-  template<typename ObjType>
-  Int32 AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
-                    , UInt64 &stub, ObjType *obj
-                    , void(ObjType::*handler)(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params, bool &)
-                    , Int32 sessionCount = 1
-                    , const PacketOptions &packetOptions = PacketOptions()
-                    , Int32 family = AF_INET, Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL) const;
-
-  Int32 AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
-  , UInt64 &stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *delg
-  , Int32 sessionCount = 1
-  , const PacketOptions &packetOptions = PacketOptions()
-  , Int32 family = AF_INET, Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL) const;
-
-  Int32 AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port, UInt64 &stub
-  , Int32 sessionCount = 1
-  , const PacketOptions &packetOptions = PacketOptions()
-  , Int32 family = AF_INET, Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL) const;
-
+    Int32 AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port, UInt64 &stub
+    , Int32 sessionCount = 1
+    , const KERNEL_NS::PacketOptions &packetOptions = KERNEL_NS::PacketOptions()
+    , Int32 family = AF_INET, Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL) const override;
   /*
   * 连接远程 bool &:是否移除stub对应的响应回调
   */
@@ -85,7 +68,7 @@ public:
   , KERNEL_NS::IProtocolStack *stack = NULL /* 指定协议栈 */
   , Int32 retryTimes = 0    /* 超时重试次数 */
   , Int64 periodMs = 0  /* 超时时间 */
-  , const PacketOptions &packetOptions = PacketOptions() /*包配置*/
+  , const KERNEL_NS::PacketOptions &packetOptions = KERNEL_NS::PacketOptions() /*包配置*/
   , Int32 family = AF_INET /* AF_INET:ipv4, AF_INET6:ipv6 */
   , Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL
   ) const  override;
@@ -113,30 +96,5 @@ private:
 
     KERNEL_NS::ListenerStub _closeServiceStub;
 };
-
-template<typename ObjType>
-ALWAYS_INLINE Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
-                , UInt64 &stub, ObjType *obj
-                , void(ObjType::*handler)(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params, bool &)
-                , Int32 sessionCount
-                , const PacketOptions &packetOptions
-                , Int32 family, Int32 protocolStackType) const
-{
-    auto delg = KERNEL_NS::DelegateFactory::Create(obj, handler);
-    auto st = AddTcpListen(ip, port, stub, delg, sessionCount, packetOptions, family, protocolStackType);
-    if(st != Status::Success)
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("add tcp listen fail st:%d, ip:%s, port:%hu, sessionType:%d, family:%d"), st, ip.ToString().c_str(), port, sessionType, family);
-        delg->Release();
-        return st;
-    }
-
-    return st;
-}
-
-ALWAYS_INLINE Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port, UInt64 &stub, Int32 sessionCount, const PacketOptions &packetOptions, Int32 family, Int32 protocolStackType) const
-{
-    return AddTcpListen(ip, port, stub, NULL, sessionCount, packetOptions, family, protocolStackType);
-}
 
 SERVICE_END

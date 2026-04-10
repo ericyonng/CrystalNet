@@ -121,8 +121,6 @@ protected:
     void _UnRegisterPollerEvents();
     void _OnDbEvent(PollerEvent *dbEvent);
 
-    // 读取db配置
-    Int32 _ReadToConfig(const LibString &dbSeg, MysqlConfig &config) const;
     // 创建mysql对象
     void _CreateDb();
     // 初始化db

@@ -1009,8 +1009,8 @@ KERNEL_NS::LibString User::ToString() const
     if(session)
     {
         auto sessionInfo = session->GetSessionInfo();
-        info.AppendFormat("session id:%llu, session type:%d, remote addr:%s:%hu"
-            , _activedSessionId, sessionInfo->_sessionType
+        info.AppendFormat("session id:%llu, remote addr:%s:%hu"
+            , _activedSessionId
             ,  sessionInfo->_remoteAddr._ip.c_str()
             , sessionInfo->_remoteAddr._port);
     }

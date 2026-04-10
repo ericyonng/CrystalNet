@@ -201,7 +201,8 @@ void StubHandleMgr::_OnAsynConnectResEvent(KERNEL_NS::LibEvent *ev)
     (*var)[Params::SESSION_ID] = ev->GetParam(Params::SESSION_ID).AsUInt64();
     (*var)[Params::TARGET_ADDR_IP_CONFIG] = ev->GetParam(Params::TARGET_ADDR_IP_CONFIG).AsPtr<KERNEL_NS::AddrIpConfig>();
     (*var)[Params::TARGET_ADDR_FAILURE_IP_SET] = ev->GetParam(Params::TARGET_ADDR_FAILURE_IP_SET).AsPtr<std::set<KERNEL_NS::LibString>>();
-    
+    (*var)[Params::TARGET_PACKET_OPTIONS] = ev->GetParam(Params::TARGET_PACKET_OPTIONS).AsPtr<KERNEL_NS::PacketOptions>();
+
     InvokeHandle(ev->GetParam(Params::STUB).AsUInt64()
                 , ev->GetParam(Params::ERROR_CODE).AsInt32()
                 , var);

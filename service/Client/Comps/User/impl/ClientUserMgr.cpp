@@ -83,7 +83,7 @@ void ClientUserMgr::OnStartup()
     auto &random = KERNEL_NS::LibInt64Random<KERNEL_NS::_Build::TL>::GetInstance();
 
     // 写死账号
-    _testLoginAccountName = TestAccount::AccountInfo.Account;
+    // _testLoginAccountName = TestAccount::AccountInfo.Account;
     if(_testLoginAccountName.empty())
         accountName.AppendFormat("bot_user_%lld", random.Gen(0, 127));
     else
@@ -280,19 +280,27 @@ Int32 ClientUserMgr::_OnGlobalSysInit()
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_LogoutNty, this, &ClientUserMgr::_OnClientLogoutNty);
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_LoginFinishRes, this, &ClientUserMgr::_OnLoginFinishRes);
     
-    auto ini = GetApp()->GetIni();
-    if(!ini->ReadStr(GetService()->GetServiceName().c_str(), "UserRsaPublicKey", _rsaPublicKey) || _rsaPublicKey.empty())
+    auto &yamlConfig = GetApp()->GetYamlConfig();
+    auto serviceYaml = yamlConfig[GetService()->GetServiceName().c_str()];
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("UserRsaPublicKey lack"));
-
-        return Status::Failed;
+        auto &&value = serviceYaml["UserRsaPublicKey"];
+        if (value.IsDefined())
+        {
+            _rsaPublicKey = value.as<KERNEL_NS::LibString>();
+            _rsaPublicKey.strip();
+        }
+        if (_rsaPublicKey.empty())
+        {
+            CLOG_ERROR("UserRsaPublicKey lack");
+            return Status::Failed;
+        }
     }
-    _rsaPublicKey.strip();
+
 
     _rsaPublicKeyRaw = KERNEL_NS::LibBase64::Decode(_rsaPublicKey);
     if(!_rsa.ImportKey(&_rsaPublicKeyRaw, NULL, KERNEL_NS::LibRsa::PUB_PKC8_FLAG))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("ImportKey fail"));
+        CLOG_ERROR("ImportKey fail");
         return Status::Failed;
     }
 
@@ -313,7 +321,13 @@ Int32 ClientUserMgr::_OnGlobalSysInit()
         // }
     }
 
-    ini->ReadStr(GetService()->GetServiceName().c_str(), "TestLoginAccountName", _testLoginAccountName);
+    {
+        auto &&value = serviceYaml["TestLoginAccountName"];
+        if (value.IsDefined())
+        {
+            _testLoginAccountName = value.as<KERNEL_NS::LibString>();
+        }
+    }
 
     return Status::Success;
 }

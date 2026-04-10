@@ -354,10 +354,6 @@ void Application::_OnHostClose()
 
 void Application::_Clear()
 {
-    if(_configIni)
-        KERNEL_NS::LibIniFile::Delete_LibIniFile(_configIni);
-    _configIni = NULL;
-
     CRYSTAL_DELETE_SAFE(_monitor);
 
     if(_statisticsInfoCache)

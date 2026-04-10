@@ -470,8 +470,8 @@ Int32 CrystalProtocolJsonStack::PacketsToBin(KERNEL_NS::LibSession *session
         const auto sessionPacketContentLimit = session->GetOption()._sessionSendPacketContentLimit;
         if(sessionPacketContentLimit && contentSize > static_cast<Int64>(sessionPacketContentLimit))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("coder encode fail packet content size over session packet content limit, content size:%lld, sessionType:%d, limit:%llu, packet:%s, session:%s")
-            , contentSize, session->GetSessionType(), sessionPacketContentLimit, StackPacketToString(packet).c_str(), session->ToString().c_str());
+            g_Log->Error(LOGFMT_OBJ_TAG("coder encode fail packet content size over session packet content limit, content size:%lld, limit:%llu, packet:%s, session:%s")
+            , contentSize, sessionPacketContentLimit, StackPacketToString(packet).c_str(), session->ToString().c_str());
             errCode = Status::CoderFail;
             stream->ShiftWritePos(-(contentSize));
             stream->ShiftWritePos(-(static_cast<Int64>(MsgHeaderStructure::MSG_HEADER_SIZE + keySize)));

@@ -252,7 +252,6 @@ Int32 IService::_OnHostInit()
     InitPollerEventHandler();
 
     // poller 设置
-    _poller->SetMaxSleepMilliseconds(_maxSleepMilliseconds);
     _poller->AddPepareEventWorkerHandler(this, &IService::_OnPollerPrepare);
     _poller->AddEventWorkerCloseHandler(this, &IService::_OnPollerWillDestroy);
     
@@ -262,6 +261,8 @@ Int32 IService::_OnHostInit()
         g_Log->Error(LOGFMT_OBJ_TAG("service %s init fail suc errCode:%d."), IntroduceInfo().c_str(), errCode);
         return errCode;
     }
+
+    _poller->SetMaxSleepMilliseconds(_maxSleepMilliseconds);
 
     SetServiceStatus(ServiceStatus::SERVICE_INITED);
     g_Log->Info(LOGFMT_OBJ_TAG("service %s init suc."), IntroduceInfo().c_str());

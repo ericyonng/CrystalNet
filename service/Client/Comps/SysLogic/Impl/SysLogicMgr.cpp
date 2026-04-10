@@ -57,7 +57,7 @@ void SysLogicMgr::Release()
 Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
 , UInt64 &stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *delg
 , Int32 sessionCount
-, Int32 sessionType, Int32 family
+, const KERNEL_NS::PacketOptions &packetOptions, Int32 family
 , Int32 protocolStackType) const
 {
     // 1.校验ip
@@ -75,8 +75,8 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
     stub = stubHandleMgr->NewStub();
     if(stubHandleMgr->HasStub(stub))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("stub callback is already existes please check stub:%llu, ip:%s, port:%hu, sessionType:%d, family:%d")
-                    , stub, ip.ToString().c_str(), port, sessionType, family);
+        g_Log->Warn(LOGFMT_OBJ_TAG("stub callback is already existes please check stub:%llu, ip:%s, port:%hu, family:%d")
+                    , stub, ip.ToString().c_str(), port, family);
 
         return Status::Repeat;
     }
@@ -90,49 +90,40 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
     option._sockRecvBufferSize = 0;
     option._sessionBufferCapicity = config.NetConfig.SessionBufferCapacity;
 
-    if(sessionType == SessionType::INNER)
-    {
-        option._sessionRecvPacketSpeedLimit = 0;
-        option._sessionRecvPacketSpeedTimeUnitMs = 0;
-    }
-    else
+    if (packetOptions.PacketSpeedLimitSwitch)
     {
         option._sessionRecvPacketSpeedLimit =       config.NetConfig.SessionRecvPacketSpeedLimit;
         option._sessionRecvPacketSpeedTimeUnitMs =  config.NetConfig.SessionRecvPacketSpeedTimeUnitMs;
+    }
+    else
+    {
+        option._sessionRecvPacketSpeedLimit = 0;
+        option._sessionRecvPacketSpeedTimeUnitMs = 0;
     }
 
     option._sessionRecvPacketStackLimit = config.NetConfig.SessionRecvPacketStackLimit;
 
     option._forbidRecv = true;
-    option._sessionType = sessionType;
     option._protocolStackType = protocolStackType;
-
+    
     // 消息接收限制
-    switch (option._sessionType)
+    if (packetOptions.PacketRecvBytesLimitSwitch)
     {
-    case SessionType::INNER:
-    case SessionType::OUTER_NO_LIMIT:
-        option._sessionRecvPacketContentLimit = 0;
-        break;
-    case SessionType::OUTER:
         option._sessionRecvPacketContentLimit = GetApp()->GetKernelConfig().NetConfig.SessionRecvPacketContentLimit;
-        break;
-    default:
-        break;
+    }
+    else
+    {
+        option._sessionRecvPacketContentLimit = 0;
     }
 
     // 消息发送限制
-    switch (option._sessionType)
+    if (packetOptions.PacketSendBytesLimitSwitch)
     {
-    case SessionType::INNER:
-    case SessionType::OUTER_NO_LIMIT:
-        option._sessionSendPacketContentLimit = 0;
-        break;
-    case SessionType::OUTER:
         option._sessionSendPacketContentLimit = GetApp()->GetKernelConfig().NetConfig.SessionSendPacketContentLimit;
-        break;
-    default:
-        break;
+    }
+    else
+    {
+        option._sessionSendPacketContentLimit = 0;
     }
 
     auto listenInfo = KERNEL_NS::LibListenInfo::New_LibListenInfo();
@@ -158,11 +149,16 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
     if(delg)
         stubHandleMgr->NewHandle(stub, delg);
 
-    g_Log->Info(LOGFMT_OBJ_TAG("post a new listen ip:%s, port:%hu, sessionType:%d, family:%d, stub:%llu")
-                , ip.ToString().c_str(), port, sessionType, family, stub);
+    g_Log->Info(LOGFMT_OBJ_TAG("post a new listen ip:%s, port:%hu, family:%d, stub:%llu")
+                , ip.ToString().c_str(), port, family, stub);
 
 
     return Status::Success;
+}
+
+Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port, UInt64 &stub, Int32 sessionCount, const KERNEL_NS::PacketOptions &packetOptions, Int32 family, Int32 protocolStackType) const
+{
+    return AddTcpListen(ip, port, stub, NULL, sessionCount, packetOptions, family, protocolStackType);
 }
 
 Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt16 remotePort, UInt64 &stub
@@ -172,7 +168,7 @@ Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt1
 , KERNEL_NS::IProtocolStack *stack /* 指定协议栈 */
 , Int32 retryTimes    /* 超时重试次数 */
 , Int64 periodMs  /* 超时时间 */
-, Int32 sessionType /* 会话类型 */
+, const KERNEL_NS::PacketOptions &packetOptions
 , Int32 family /* AF_INET:ipv4, AF_INET6:ipv6 */
 , Int32 protocolStackType
 ) const
@@ -207,50 +203,41 @@ Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt1
     option._sockSendBufferSize = 0;
     option._sockRecvBufferSize = 0;
     option._sessionBufferCapicity = config.NetConfig.SessionBufferCapacity;
-    
-    if(sessionType == SessionType::INNER)
-    {
-        option._sessionRecvPacketSpeedLimit = 0;
-        option._sessionRecvPacketSpeedTimeUnitMs = 0;
-    }
-    else
+
+    if (packetOptions.PacketSpeedLimitSwitch)
     {
         option._sessionRecvPacketSpeedLimit =       config.NetConfig.SessionRecvPacketSpeedLimit;
         option._sessionRecvPacketSpeedTimeUnitMs =  config.NetConfig.SessionRecvPacketSpeedTimeUnitMs;
+    }
+    else
+    {
+        option._sessionRecvPacketSpeedLimit = 0;
+        option._sessionRecvPacketSpeedTimeUnitMs = 0;
     }
     
     option._sessionRecvPacketStackLimit = config.NetConfig.SessionRecvPacketStackLimit;
 
     option._forbidRecv = false;
-    option._sessionType = sessionType;
     option._protocolStackType = protocolStackType;
 
     // 消息发送限速
-    switch (option._sessionType)
+    if (packetOptions.PacketRecvBytesLimitSwitch)
     {
-    case SessionType::INNER:
-    case SessionType::OUTER_NO_LIMIT:
-        option._sessionRecvPacketContentLimit = 0;
-        break;
-    case SessionType::OUTER:
         option._sessionRecvPacketContentLimit = GetApp()->GetKernelConfig().NetConfig.SessionRecvPacketContentLimit;
-        break;
-    default:
-        break;
+    }
+    else
+    {
+        option._sessionRecvPacketContentLimit = 0;
     }
 
     // 消息发送限速
-    switch (option._sessionType)
+    if (packetOptions.PacketSendBytesLimitSwitch)
     {
-    case SessionType::INNER:
-    case SessionType::OUTER_NO_LIMIT:
-        option._sessionSendPacketContentLimit = 0;
-        break;
-    case SessionType::OUTER:
         option._sessionSendPacketContentLimit = GetApp()->GetKernelConfig().NetConfig.SessionSendPacketContentLimit;
-        break;
-    default:
-        break;
+    }
+    else
+    {
+        option._sessionSendPacketContentLimit = 0;
     }
 
     auto connectInfo = KERNEL_NS::LibConnectInfo::New_LibConnectInfo();
@@ -292,39 +279,36 @@ Int32 SysLogicMgr::_OnHostStart()
     auto serviceConfig = service->GetServiceConfig();
 
     // 1.添加监听
-    auto &listenAddrs = serviceConfig->_listenAddrs;
+    auto &listenAddrs = serviceConfig->TcpListenList;
     for(auto &addrInfo : listenAddrs)
     {
         UInt64 stub = 0;
-        auto st = AddTcpListen(addrInfo->_localIp
-                                , addrInfo->_localPort
+        auto &&addrIp = addrInfo.ToAddrIp();
+        auto st = ISysLogicMgr::AddTcpListen(addrIp
+                                , static_cast<UInt16>(addrInfo.Port)
                                 , stub
                                 , this
                                 , &SysLogicMgr::_OnAddListenRes
-                                , addrInfo->_listenSessionCount
-                                , addrInfo->_sessionType
-                                , addrInfo->_af
-                                , addrInfo->_protocolStackType);
+                                , addrInfo.ListenSessionCount
+                                , addrInfo.ToPacketOptions()
+                                , addrIp.GetAf()
+                                ,addrInfo.TurnStackType()
+                                );
 
         if(st != Status::Success)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("add tcp listen fail addrInfo:%s, st:%d"), addrInfo->ToString().c_str(), st);
+            g_Log->Error(LOGFMT_OBJ_TAG("add tcp listen fail addrInfo:%s, st:%d"), addrInfo.ToString().c_str(), st);
             return st;
         }
 
-        #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-            if(addrInfo->_localPort != 0)
-            {
-                _unhandledListenAddr.insert(std::make_pair(stub, std::make_pair(addrInfo, 1)));
-            }
-            else
-            {
-                _unhandledListenAddr.insert(std::make_pair(stub, std::make_pair(addrInfo, addrInfo->_listenSessionCount)));
-            }
-
-        #else
-            _unhandledListenAddr.insert(std::make_pair(stub, std::make_pair(addrInfo, addrInfo->_listenSessionCount)));
-        #endif
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+        if(addrInfo.Port != 0)
+            _unhandledListenAddr.insert(std::make_pair(stub, std::make_pair(addrIp, 1)));
+        else
+            _unhandledListenAddr.insert(std::make_pair(stub, std::make_pair(addrIp, addrInfo.ListenSessionCount)));
+#else
+        _unhandledListenAddr.insert(std::make_pair(stub, std::make_pair(addrIp, addrInfo.ListenSessionCount)));
+#endif
     }
 
     // 4.启动定时器检测
@@ -347,7 +331,7 @@ void SysLogicMgr::_OnDetectLinkTimer(KERNEL_NS::LibTimer *timer)
 {
     // 1.检测监听是否成功
     for(auto iter : _unhandledListenAddr)
-        g_Log->Warn(LOGFMT_OBJ_TAG("listen addr %s, not success..."), iter.second.first->ToString().c_str());
+        g_Log->Warn(LOGFMT_OBJ_TAG("listen addr %s, not success..."), iter.second.first.ToString().c_str());
 
     for(auto iter : _unhandledContectAddr)
     {
@@ -393,7 +377,7 @@ void SysLogicMgr::_OnAddListenRes(UInt64 stub, Int32 errCode, const KERNEL_NS::V
 
     auto &addrInfo = iter->second;
     --addrInfo.second;
-    g_Log->Warn(LOGFMT_OBJ_TAG("[ADD LISTEN SUCCESS]:%s, LeftCount:%d"), addrInfo.first->ToString().c_str(), addrInfo.second);
+    g_Log->Warn(LOGFMT_OBJ_TAG("[ADD LISTEN SUCCESS]:%s, LeftCount:%d"), addrInfo.first.ToString().c_str(), addrInfo.second);
 
     if(addrInfo.second <= 0)
     {
@@ -413,6 +397,7 @@ void SysLogicMgr::_OnConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Var
     auto remoteAddr = (*params)[Params::REMOTE_ADDR].AsPtr<KERNEL_NS::BriefAddrInfo>();
     auto localAddr = (*params)[Params::LOCAL_ADDR].AsPtr<KERNEL_NS::BriefAddrInfo>();
     auto sessionId = (*params)[Params::SESSION_ID].AsUInt64();
+    auto packetOptions = (*params)[Params::TARGET_PACKET_OPTIONS].AsPtr<KERNEL_NS::PacketOptions>();
 
     if(errCode != Status::Success)
     {
@@ -449,7 +434,7 @@ void SysLogicMgr::_OnConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Var
         , NULL
         , 0
         , 0
-        ,  SessionType::INNER
+        ,  *packetOptions
         , af
         , addr->_protocolStackType);
         if(st != Status::Success)

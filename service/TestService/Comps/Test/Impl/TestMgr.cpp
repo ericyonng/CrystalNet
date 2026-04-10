@@ -56,7 +56,6 @@ TestMgr::TestMgr()
 ,_serviceConfig(NULL)
 ,_testSessionCount(0)
 ,_testConnectIntervalMs(10)
-,_targetAddrConfig(AddrConfig::NewThreadLocal_AddrConfig())
 ,_testSendMode(0)
 ,_testSendIntervalMs(0)
 ,_testSendPackCountOnce(0)
@@ -198,12 +197,6 @@ void TestMgr::_OnGlobalSysClose()
 
 void TestMgr::_Clear()
 {
-    if(_targetAddrConfig)
-    {
-        AddrConfig::DeleteThreadLocal_AddrConfig(_targetAddrConfig);
-        _targetAddrConfig = NULL;
-    }
-
     KERNEL_NS::ContainerUtil::DelContainer2(_datas);
 
     KERNEL_NS::ContainerUtil::DelContainer2(_sessionIdRefAnalyzeInfo);
@@ -433,20 +426,20 @@ void TestMgr::_OnCommonSessionReady(KERNEL_NS::LibEvent *ev)
         }
 
         UInt64 stub = 0;
-        auto st = this->GetGlobalSys<ISysLogicMgr>()->AsynTcpConnect(_targetAddrConfig->_remoteIp
-        , _targetAddrConfig->_remotePort
+        auto st = this->GetGlobalSys<ISysLogicMgr>()->AsynTcpConnect(_targetAddrConfig._remoteIp
+        , _targetAddrConfig._remotePort
         , stub
-        , _targetAddrConfig->_localIp
-        , _targetAddrConfig->_localPort
+        , _targetAddrConfig._localIp
+        , _targetAddrConfig._localPort
         , NULL
         , 0
         , 0
-        ,  _targetAddrConfig->
-        , _targetAddrConfig->_af
-        , _targetAddrConfig->_protocolStackType);
+        ,  _targetAddrConfig.ToPacketOptions()
+        , _targetAddrConfig._af
+        , _targetAddrConfig._protocolStackType);
         if(st != Status::Success)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, _targetAddrConfig:%s"), st, _targetAddrConfig->ToString().c_str());
+            g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, _targetAddrConfig:%s"), st, _targetAddrConfig.ToString().c_str());
         }
     };
 
@@ -490,92 +483,96 @@ Int32 TestMgr::_ReadTestConfigs()
     // 读取配置
     _serviceConfig = GetService()->CastTo<MyTestService>()->GetServiceConfig();
 
+    auto &yamalConfig = app->GetYamlConfig();
+    auto serviceConfig = yamalConfig[serviceName.c_str()];
+
     {// 会话创建总数
-        Int64 count = 0;
-        if(!ini->CheckReadInt(serviceName.c_str(), "TestSessionCount", count))
+        auto &&value = serviceConfig["TestSessionCount"];
+        if (!value.IsDefined())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("check read TestSessionCount config fail service name:%s"), serviceName.c_str());
+            CLOG_ERROR("have no test session count field.");
             return Status::ConfigError;
         }
-        _testSessionCount = static_cast<Int32>(count);
+        {
+            _testSessionCount = value.as<Int32>();
+        }
     }
 
     {// 连接时间间隔
-        Int64 value = 0;
-        if(!ini->CheckReadInt(serviceName.c_str(), "TestConnectIntervalMs", value))
+        auto &&value = serviceConfig["TestConnectIntervalMs"];
+        if (!value.IsDefined())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("check read TestConnectIntervalMs config fail service name:%s"), serviceName.c_str());
+            CLOG_ERROR("have no test cnnect interval ms field.");
+
             return Status::ConfigError;
         }
-        _testConnectIntervalMs = static_cast<Int32>(value);
+
+        _testConnectIntervalMs = value.as<Int32>();
     }
 
     {// 目标地址
-        KERNEL_NS::LibString cache;
-        if(!ini->ReadStr(serviceName.c_str(), "TestTargetAddr", cache))
+        auto &&value = serviceConfig["TestTargetAddr"];
+        if (!value.IsMap())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("check read TestTargetAddr config fail service name:%s"), GetService()->GetServiceName().c_str());
+            CLOG_ERROR("have no test target addr field.");
             return Status::ConfigError;
         }
-        cache.strip();
-        
-        if(!_targetAddrConfig->Parse(cache))
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("check parse TestTargetAddr config fail service name:%s, value:%s")
-                    , GetService()->GetServiceName().c_str(), cache.c_str());
-            return Status::ConfigError;
-        }
+
+        _targetAddrConfig = value.as<AddrConfig>();
     }
 
     {// 测试发送模式
-        Int64 value = 0;
-        if(!ini->CheckReadInt(serviceName.c_str(), "TestSendMode", value))
+        auto &&value = serviceConfig["TestSendMode"];
+        if (!value.IsDefined())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("check read TestSendMode config fail service name:%s"), serviceName.c_str());
+            CLOG_ERROR("have no test send mode field.");
             return Status::ConfigError;
         }
-        _testSendMode = static_cast<Int32>(value);
+        _testSendMode = value.as<Int32>();
     }
 
     {// 发送时间间隔
-        Int64 value = 0;
-        if(!ini->CheckReadInt(serviceName.c_str(), "TestSendIntervalMs", value))
+        auto &&value = serviceConfig["TestSendIntervalMs"];
+        if (!value.IsDefined())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("check read TestSendIntervalMs config fail service name:%s"), serviceName.c_str());
+            CLOG_ERROR("have no test send interval ms field.");
             return Status::ConfigError;
         }
-        _testSendIntervalMs = static_cast<Int32>(value);
+        
+        _testSendIntervalMs = value.as<Int32>();
     }
 
     {// 一次发送多少个包
-        Int64 value = 0;
-        if(!ini->CheckReadInt(serviceName.c_str(), "TestSendPackCountOnce", value))
+        auto &&value = serviceConfig["TestSendPackCountOnce"];
+        if (!value.IsDefined())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("check read TestSendPackCountOnce config fail service name:%s"), serviceName.c_str());
+            CLOG_ERROR("have no test send pack count once field.");
             return Status::ConfigError;
         }
-        _testSendPackCountOnce = static_cast<Int32>(value);
+
+        _testSendPackCountOnce = value.as<Int32>();
     }
 
     {// 一次发送的包内容至少多少个字节
-        Int64 value = 0;
-        if(!ini->CheckReadInt(serviceName.c_str(), "TestSendPackageBytes", value))
+        auto &&value = serviceConfig["TestSendPackageBytes"];
+        if (!value.IsDefined())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("check read TestSendPackageBytes config fail service name:%s"), serviceName.c_str());
+            CLOG_ERROR("have no test send package bytes field.");
             return Status::ConfigError;
         }
-        _testSendPackageBytes = static_cast<Int32>(value);
+        
+        _testSendPackageBytes = value.as<Int32>();
     }
 
     {// 发包超时时间
-        Int64 value = 0;
-        if(!ini->CheckReadInt(serviceName.c_str(), "TestSendPackageTimeoutMilliseconds", value))
+        auto &&value = serviceConfig["TestSendPackageTimeoutMilliseconds"];
+        if (!value.IsDefined())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("check read TestSendPackageTimeoutMilliseconds config fail service name:%s"), serviceName.c_str());
+            CLOG_ERROR("have no test send package timeout ms field.");
             return Status::ConfigError;
         }
 
-        _testSendPackTimeoutMilliseconds = value;
+        _testSendPackTimeoutMilliseconds = value.as<Int64>();
     }
 
     return Status::Success;

@@ -60,7 +60,7 @@ void SysLogicMgr::Release()
 Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
 , UInt64 &stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *delg
 , Int32 sessionCount
-, const PacketOptions &packetOptions, Int32 family, Int32 protocolStackType) const
+, const KERNEL_NS::PacketOptions &packetOptions, Int32 family, Int32 protocolStackType) const
 {
     // 1.校验ip
     if(!ip._ip.empty())
@@ -161,6 +161,11 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
     return Status::Success;
 }
 
+Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port, UInt64 &stub, Int32 sessionCount, const KERNEL_NS::PacketOptions &packetOptions, Int32 family, Int32 protocolStackType) const
+{
+    return AddTcpListen(ip, port, stub, NULL, sessionCount, packetOptions, family, protocolStackType);
+}
+
 Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt16 remotePort, UInt64 &stub
 , KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *callback
 , const KERNEL_NS::AddrIpConfig &localIp
@@ -168,7 +173,7 @@ Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt1
 , KERNEL_NS::IProtocolStack *stack /* 指定协议栈 */
 , Int32 retryTimes    /* 超时重试次数 */
 , Int64 periodMs  /* 超时时间 */
-, const PacketOptions &packetOptions /* 包配置 */
+, const KERNEL_NS::PacketOptions &packetOptions /* 包配置 */
 , Int32 family /* AF_INET:ipv4, AF_INET6:ipv6 */
 , Int32 protocolStackType
 ) const
@@ -290,7 +295,7 @@ Int32 SysLogicMgr::_OnHostStart()
     {
         UInt64 stub = 0;
         auto &&addrIp = addrInfo.ToAddrIp();
-        auto st = AddTcpListen(addrIp
+        auto st = ISysLogicMgr::AddTcpListen(addrIp
                                 , static_cast<UInt16>(addrInfo.Port)
                                 , stub
                                 , this
@@ -303,7 +308,7 @@ Int32 SysLogicMgr::_OnHostStart()
 
         if(st != Status::Success)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("add tcp listen fail addrInfo:%s, st:%d"), addrInfo->ToString().c_str(), st);
+            g_Log->Error(LOGFMT_OBJ_TAG("add tcp listen fail addrInfo:%s, st:%d"), addrInfo.ToString().c_str(), st);
             return st;
         }
 
@@ -382,7 +387,7 @@ void SysLogicMgr::_OnAddListenRes(UInt64 stub, Int32 errCode, const KERNEL_NS::V
 
     auto &addrInfo = iter->second;
     --addrInfo.second;
-    CLOG_INFO("[ADD LISTEN SUCCESS]:%s, LeftCount:%d", addrInfo.first->ToString().c_str(), addrInfo.second);
+    CLOG_INFO("[ADD LISTEN SUCCESS]:%s, LeftCount:%d", addrInfo.first.ToString().c_str(), addrInfo.second);
 
     if(addrInfo.second <= 0)
     {
@@ -402,6 +407,7 @@ void SysLogicMgr::_OnConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Var
     auto remoteAddr = (*params)[Params::REMOTE_ADDR].AsPtr<KERNEL_NS::BriefAddrInfo>();
     auto localAddr = (*params)[Params::LOCAL_ADDR].AsPtr<KERNEL_NS::BriefAddrInfo>();
     auto sessionId = (*params)[Params::SESSION_ID].AsUInt64();
+    auto packetOptions = (*params)[Params::TARGET_PACKET_OPTIONS].AsPtr<KERNEL_NS::PacketOptions>();
 
     if(errCode != Status::Success)
     {
@@ -439,7 +445,7 @@ void SysLogicMgr::_OnConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Var
         , NULL
         , 0
         , 0
-        ,  SessionType::INNER
+        ,  *packetOptions
         , af
         , addr->_protocolStackType);
         if(st != Status::Success)
