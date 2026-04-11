@@ -21,32 +21,29 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-09-19 02:24:59
+ * Date: 2022-09-22 15:03:11
  * Author: Eric Yonng
- * Description: 
+ * Description: 系统的业务,如连接，监听等
 */
 
-#include <pch.h>
-#include <service/Client/Comps/StubHandle/Impl/StubHandleMgr.h>
-#include <service/Client/Comps/StubHandle/Impl/StubHandleMgrFactory.h>
+#pragma once
+
+#include <kernel/comp/CompObject/CompFactory.h>
+#include <service/common/macro.h>
 
 SERVICE_BEGIN
 
-KERNEL_NS::CompFactory *StubHandleMgrFactory::FactoryCreate()
+class SysLogicMgrFactory : public KERNEL_NS::CompFactory
 {
-    return KERNEL_NS::ObjPoolWrap<StubHandleMgrFactory>::NewByAdapter(_buildType.V);
-}
+public:
+    static constexpr KERNEL_NS::_Build::TL _buildType{};
 
-void StubHandleMgrFactory::Release()
-{
-    KERNEL_NS::ObjPoolWrap<StubHandleMgrFactory>::DeleteByAdapter(_buildType.V, this);
-}
+    static KERNEL_NS::CompFactory *FactoryCreate();
 
-KERNEL_NS::CompObject *StubHandleMgrFactory::Create() const
-{
-    CREATE_CRYSTAL_COMP(comp, StubHandleMgr);
-    return comp;
-}
-
+    virtual void Release() override;
+    
+public:
+    virtual KERNEL_NS::CompObject *Create() const override;
+};
 
 SERVICE_END

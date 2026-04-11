@@ -28,11 +28,11 @@
 
 #pragma once
 
-#include <service/TestService/ServiceCompHeader.h>
-#include <service/TestService/Comps/SysLogic/Interface/ISysLogicMgr.h>
+#include <service/common/BaseComps/SysLogic/Interface/ISysLogicMgr.h>
 #include <kernel/kernel.h>
 #include <service_common/ServiceCommon.h>
 #include <service/common/ServiceConfig.h>
+#include <service/common/Configs/SysLogicOptions.h>
 
 SERVICE_BEGIN
 
@@ -79,6 +79,7 @@ protected:
    Int32 _OnGlobalSysInit() override;
    Int32 _OnHostStart() override;
    void _OnGlobalSysClose() override;
+    void OnStartup() override;
 
     void _OnDetectLinkTimer(KERNEL_NS::LibTimer *timer);
 
@@ -95,6 +96,7 @@ private:
     KERNEL_NS::LibTimer *_detectLink;
 
     KERNEL_NS::ListenerStub _closeServiceStub;
+    KERNEL_NS::FileMonitor<SysLogicOptions, KERNEL_NS::YamlDeserializer> *_options;
 };
 
 SERVICE_END

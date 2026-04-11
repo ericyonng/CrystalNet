@@ -20,51 +20,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2025-02-02 22:02:11
+// Date: 2026-04-11 22:04:51
 // Author: Eric Yonng
 // Description:
 
-#include <Comps/Plugin/Interface/IPluginMgr.h>
-#include <Comps/Plugin/Impl/PluginOptions.h>
-#include <kernel/comp/FileMonitor/FileMonitor.h>
-#include <kernel/comp/FileMonitor/YamlDeserializer.h>
 
-SERVICE_BEGIN
+#pragma once
 
-class PluginMgr : public IPluginMgr
-{
-    POOL_CREATE_OBJ_DEFAULT_P1(IPluginMgr, PluginMgr);
-
-public:
-    PluginMgr();
-    ~PluginMgr() override;
-    void Release() override;
-    void OnRegisterComps() override;
-
-    KERNEL_NS::LibString ToString() const override;
-
-private:
-    virtual Int32 _OnGlobalSysCompsCreated() override;
-    virtual Int32 _OnHostStart() override;
-    void _OnHostBeforeCompsWillClose() override;
-    virtual void _OnHostBeforeCompsClose() override;
-
-    Int32 _OnGlobalSysInit() override;
-    void _OnGlobalSysClose() override;
-    
-    void _OnHotfixPlubin(KERNEL_NS::PollerEvent *ev);
-    void _OnHotfixPlubinComplete(KERNEL_NS::PollerEvent *ev);
-
-    void _InitPluginModule();
-    void _WillClosePlugin();
-    void _ClosePlugin();
-    void _Clear();
-
-
-private:
-    KERNEL_NS::LibString _hotfixKey;
-
-    KERNEL_NS::FileMonitor<PluginOptions, KERNEL_NS::YamlDeserializer> *_options;
-};
-
-SERVICE_END
+#include <service/common/Configs/AddrConfig.h>
+#include <service/common/Configs/SysLogicOptions.h>
+#include <service/common/Configs/TcpListenInfo.h>

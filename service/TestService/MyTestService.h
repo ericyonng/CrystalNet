@@ -37,6 +37,9 @@
 
 #include <unordered_map>
 
+#include <kernel/comp/FileMonitor/FileMonitor.h>
+#include <kernel/comp/FileMonitor/YamlDeserializer.h>
+
 KERNEL_BEGIN
 
 class LibSession;

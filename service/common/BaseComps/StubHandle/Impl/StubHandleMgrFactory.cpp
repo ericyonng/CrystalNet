@@ -21,30 +21,31 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-09-22 15:03:11
+ * Date: 2022-09-19 02:24:59
  * Author: Eric Yonng
- * Description: 系统的业务,如连接，监听等
+ * Description: 
 */
 
 #include <pch.h>
-#include <service/Client/Comps/SysLogic/Impl/SysLogicMgr.h>
-#include <service/Client/Comps/SysLogic/Impl/SysLogicMgrFactory.h>
+#include <kernel/kernel.h>
+#include <service/common/BaseComps/StubHandle/Impl/StubHandleMgr.h>
+#include <service/common/BaseComps/StubHandle/Impl/StubHandleMgrFactory.h>
 
 SERVICE_BEGIN
 
-KERNEL_NS::CompFactory *SysLogicMgrFactory::FactoryCreate()
+KERNEL_NS::CompFactory *StubHandleMgrFactory::FactoryCreate()
 {
-    return KERNEL_NS::ObjPoolWrap<SysLogicMgrFactory>::NewByAdapter(_buildType.V);
+    return KERNEL_NS::ObjPoolWrap<StubHandleMgrFactory>::NewByAdapter(_buildType.V);
 }
 
-void SysLogicMgrFactory::Release()
+void StubHandleMgrFactory::Release()
 {
-    KERNEL_NS::ObjPoolWrap<SysLogicMgrFactory>::DeleteByAdapter(_buildType.V, this);
+    KERNEL_NS::ObjPoolWrap<StubHandleMgrFactory>::DeleteByAdapter(_buildType.V, this);
 }
 
-KERNEL_NS::CompObject *SysLogicMgrFactory::Create() const
+KERNEL_NS::CompObject *StubHandleMgrFactory::Create() const
 {
-    CREATE_CRYSTAL_COMP(comp, SysLogicMgr);
+    CREATE_CRYSTAL_COMP(comp, StubHandleMgr);
     return comp;
 }
 

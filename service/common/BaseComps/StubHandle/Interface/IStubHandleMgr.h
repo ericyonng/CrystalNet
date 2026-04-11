@@ -21,32 +21,36 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-09-22 15:03:11
+ * Date: 2022-09-19 02:24:17
  * Author: Eric Yonng
- * Description: 系统的业务,如连接，监听等
+ * Description: 
 */
 
-#include <pch.h>
-#include <kernel/kernel.h>
-#include <service/TestService/Comps/SysLogic/Impl/SysLogicMgr.h>
-#include <service/TestService/Comps/SysLogic/Impl/SysLogicMgrFactory.h>
+#pragma once
+
+#include <service/common/BaseComps/GlobalSys/GlobalSys.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
+#include <kernel/comp/Variant/variant_inc.h>
 
 SERVICE_BEGIN
 
-KERNEL_NS::CompFactory *SysLogicMgrFactory::FactoryCreate()
+class IStubHandleMgr : public IGlobalSys
 {
-    return KERNEL_NS::ObjPoolWrap<SysLogicMgrFactory>::NewByAdapter(_buildType.V);
-}
+    POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, IStubHandleMgr);
 
-void SysLogicMgrFactory::Release()
-{
-    KERNEL_NS::ObjPoolWrap<SysLogicMgrFactory>::DeleteByAdapter(_buildType.V, this);
-}
-
-KERNEL_NS::CompObject *SysLogicMgrFactory::Create() const
-{
-    CREATE_CRYSTAL_COMP(comp, SysLogicMgr);
-    return comp;
-}
+public:
+    IStubHandleMgr(UInt64 objTypeId) : IGlobalSys(objTypeId) {}
+    
+    // 新存根
+    virtual UInt64 NewStub() = 0;
+    // 存根是否存在
+    virtual bool HasStub(UInt64 stub) const = 0;
+    // 新存根回调
+    virtual Int32 NewHandle(UInt64 stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *delg) = 0;
+    // 新存根回调
+    virtual Int32 NewHandle(KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *delg, UInt64 &stub) = 0;
+    // 调用回调
+    virtual void InvokeHandle(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params) = 0;
+};
 
 SERVICE_END

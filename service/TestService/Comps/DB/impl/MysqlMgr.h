@@ -33,6 +33,9 @@
 #include <kernel/comp/LibStream.h>
 #include <kernel/comp/LibDirtyHelper.h>
 #include <kernel/comp/Event/Defs.h>
+#include <kernel/comp/FileMonitor/FileMonitor.h>
+#include <kernel/comp/FileMonitor/YamlDeserializer.h>
+#include <service/TestService/Comps/DB/impl/MysqlOptions.h>
 
 #include <map>
 #include <vector>
@@ -227,6 +230,8 @@ private:
     Int64 _purgeIntervalMs;
     Int32 _disableSystemTableAutoDrop;
     Int32 _disableAutoDrop;
+    KERNEL_NS::FileMonitor<MysqlOptions, KERNEL_NS::YamlDeserializer> *_options;
+    KERNEL_NS::FileMonitor<MysqlCommonOptions, KERNEL_NS::YamlDeserializer> *_commonOptions;
 };
 
 ALWAYS_INLINE const ILogicSys *MysqlMgr::_GetDependenceLogic(const KERNEL_NS::LibString &tableName) const

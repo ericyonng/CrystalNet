@@ -41,13 +41,14 @@
 SERVICE_BEGIN
     PluginMgr::PluginMgr()
 : IPluginMgr(KERNEL_NS::RttiUtil::GetTypeId<PluginMgr>())
+,_options(KERNEL_NS::FileMonitor<PluginOptions, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
 {
     
 }
 
 PluginMgr::~PluginMgr()
 {
-    
+    _Clear();
 }
 
 void PluginMgr::Release()
@@ -102,9 +103,13 @@ void PluginMgr::_OnHostBeforeCompsClose()
 
 Int32 PluginMgr::_OnGlobalSysInit()
 {
-    KERNEL_NS::LibString hotfixKey;
-    auto currentConfig = GetService()->CastTo<MyTestService>()->GetServiceConfig();
-    _hotfixKey = currentConfig->PluginHotfixKey;
+    if(!_options->Init(GetApp()->GetSourceWrap(), KERNEL_NS::LibString().AppendFormat("%s.PluginOptions", GetService()->GetServiceName().c_str())))
+    {
+        CLOG_ERROR("plugin options init fail service:%s", GetService()->GetServiceName().c_str());
+        return Status::ConfigError;
+    }
+    
+    _hotfixKey = _options->Current()->PluginHotfixKey;
 
     GetService()->GetPoller()->Subscribe(KERNEL_NS::PollerEventType::HotfixShareLibrary, this, &PluginMgr::_OnHotfixPlubin);
     GetService()->GetPoller()->Subscribe(KERNEL_NS::PollerEventType::HotfixShareLibraryComplete, this, &PluginMgr::_OnHotfixPlubinComplete);
@@ -116,7 +121,7 @@ Int32 PluginMgr::_OnGlobalSysInit()
 
 void PluginMgr::_OnGlobalSysClose()
 {
-    
+    _Clear();
 }
 
 void PluginMgr::_OnHotfixPlubin(KERNEL_NS::PollerEvent *ev)
@@ -250,5 +255,15 @@ void PluginMgr::_ClosePlugin()
     g_Log->Info(LOGFMT_OBJ_TAG("close plugin"));
 #endif
 }
+
+void PluginMgr::_Clear()
+{
+    if(_options)
+    {
+        KERNEL_NS::FileMonitor<PluginOptions, KERNEL_NS::YamlDeserializer>::Delete_FileMonitor(_options);
+        _options = NULL;
+    }
+}
+
 
 SERVICE_END

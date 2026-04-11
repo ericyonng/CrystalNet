@@ -98,14 +98,13 @@ Client:
     FailureTryCount: 3
     # 协议类型, CRYSTAL_PROTOCOL, JSON等
     Protocol: CRYSTAL_PROTOCOL
-  
-  # 收发限制
-  # 每个包是否设置接收包上限
-  PacketRecvBytesLimitSwitch: false
-  # 每个包是否设置发送包上限
-  PacketSendBytesLimitSwitch: true
-  # 包速率限制开关
-  PacketSpeedLimitSwitch: false
+    # 收发限制
+    # 每个包是否设置接收包上限
+    PacketRecvBytesLimitSwitch: false
+    # 每个包是否设置发送包上限
+    PacketSendBytesLimitSwitch: true
+    # 包速率限制开关
+    PacketSpeedLimitSwitch: false
   
   # 1表示等响应包回来继续发送, 其他是间隔发送
   TestSendMode: 1 

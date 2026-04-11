@@ -27,8 +27,11 @@
 */
 
 #include <pch.h>
-#include <service/Client/Comps/StubHandle/Impl/StubHandleMgr.h>
-#include <service/Client/Comps/StubHandle/Impl/StubHandleMgrFactory.h>
+#include <kernel/kernel.h>
+#include <service/common/common.h>
+
+#include <service/common/BaseComps/StubHandle/Impl/StubHandleMgr.h>
+#include <service/common/BaseComps/StubHandle/Impl/StubHandleMgrFactory.h>
 
 SERVICE_BEGIN
 
@@ -111,7 +114,7 @@ void StubHandleMgr::InvokeHandle(UInt64 stub, Int32 errCode, const KERNEL_NS::Va
         iter->second->Invoke(stub, errCode, params, doRemove);
 
         if(LIKELY(doRemove))
-            iter->second->Release();
+           iter->second->Release();
     }
 
     if(LIKELY(doRemove))
@@ -209,7 +212,5 @@ void StubHandleMgr::_OnAsynConnectResEvent(KERNEL_NS::LibEvent *ev)
                 
     KERNEL_NS::Variant::DeleteThreadLocal_Variant(var);
 }
-
-
 
 SERVICE_END

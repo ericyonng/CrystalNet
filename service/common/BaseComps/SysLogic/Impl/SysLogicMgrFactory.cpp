@@ -26,23 +26,27 @@
  * Description: 系统的业务,如连接，监听等
 */
 
-#pragma once
-
-#include <service/Client/ServiceCompFactoryHeader.h>
+#include <pch.h>
+#include <kernel/kernel.h>
+#include <service/common/BaseComps/SysLogic/Impl/SysLogicMgr.h>
+#include <service/common/BaseComps/SysLogic/Impl/SysLogicMgrFactory.h>
 
 SERVICE_BEGIN
 
-class SysLogicMgrFactory : public KERNEL_NS::CompFactory
+KERNEL_NS::CompFactory *SysLogicMgrFactory::FactoryCreate()
 {
-public:
-    static constexpr KERNEL_NS::_Build::TL _buildType{};
+    return KERNEL_NS::ObjPoolWrap<SysLogicMgrFactory>::NewByAdapter(_buildType.V);
+}
 
-    static KERNEL_NS::CompFactory *FactoryCreate();
+void SysLogicMgrFactory::Release()
+{
+    KERNEL_NS::ObjPoolWrap<SysLogicMgrFactory>::DeleteByAdapter(_buildType.V, this);
+}
 
-    virtual void Release() override;
-    
-public:
-    virtual KERNEL_NS::CompObject *Create() const override;
-};
+KERNEL_NS::CompObject *SysLogicMgrFactory::Create() const
+{
+    CREATE_CRYSTAL_COMP(comp, SysLogicMgr);
+    return comp;
+}
 
 SERVICE_END

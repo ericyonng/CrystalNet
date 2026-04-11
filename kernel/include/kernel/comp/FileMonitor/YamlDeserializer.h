@@ -68,6 +68,7 @@ public:
         YAML::convert<T>::decode(node, t);
     }
 #endif
+    // key:可以是多级的, 比如:a.b.c
     T *Register(const LibString &path, void *fromMemory, const KERNEL_NS::LibString &key = "")
     {
         _path = path;
@@ -83,31 +84,51 @@ public:
         const auto &dataName = KERNEL_NS::RttiUtil::GetByType<T>();
         auto deserializeLamb = [dataName, path, key](YAML::Node *config) -> void *
         {
-            // TODO:需要测试是不是把命名空间等移除掉
-            auto tName = key;
-            if(tName.length() == 0)
-                tName = KERNEL_NS::RttiUtil::GetSimpleTypeName(dataName);
-            tName.strip();
-
             T *yamlOption = NULL;
+            auto tName = key;
+
             try
             {
-                auto yamlKey = tName.c_str();
-                yamlOption = T::CreateNewObj((*config)[yamlKey].template as<T>());
+                // TODO:需要测试是不是把命名空间等移除掉
+                if(tName.empty())
+                {
+                    tName = KERNEL_NS::RttiUtil::GetSimpleTypeName(dataName);
+                    tName.strip();
+                    yamlOption = T::CreateNewObj((*config)[tName.c_str()].template as<T>());
+                }
+
+                // 多级key处理
+                else
+                {
+                    tName.strip();
+                    auto &&parts = tName.Split(".");
+                    if(UNLIKELY(parts.empty()))
+                    {
+                        if (g_Log)
+                        {
+                            CLOG_ERROR_GLOBAL(YamlDeserializer, "yaml deserialize fail tName invalid, path:%s, key:%s", path.c_str(), tName.c_str());
+                        }
+                        return NULL;
+                    }
+
+                    const Int32 sz = static_cast<Int32>(parts.size());
+                    auto &&node = IndexNode(std::move(*config), parts, 0, sz - 1);
+
+                    yamlOption = T::CreateNewObj(node.template as<T>());
+                }
             }
             catch (std::exception &e)
             {
                 if (g_Log)
                 {
-                    CLOG_ERROR_GLOBAL(YamlDeserializer, "yaml deserialize fail, path:%s, exception:%s", path.c_str(), e.what());
+                    CLOG_ERROR_GLOBAL(YamlDeserializer, "yaml deserialize fail, path:%s, exception:%s, key:%s", path.c_str(), e.what(), tName.c_str());
                 }
-
             }
             catch (...)
             {
                 if (g_Log)
                 {
-                    CLOG_ERROR_GLOBAL(YamlDeserializer, "yaml deserialize fail, path:%s", path.c_str());
+                    CLOG_ERROR_GLOBAL(YamlDeserializer, "yaml deserialize fail, path:%s, key:%s", path.c_str(), tName.c_str());
                 }
             }
 
@@ -127,8 +148,21 @@ public:
         }
         return KERNEL_NS::KernelCastTo<T>(data);
     }
-    
+
 private:
+    // 多级YamlNode索引, keys多级key集合
+    static YAML::Node IndexNode(YAML::Node &&config, const std::vector<KERNEL_NS::LibString> &keys, Int32 curIndex, Int32 maxIndex)
+    {
+        // 最后一级config
+        if(curIndex == maxIndex)
+        {
+            return std::forward<YAML::Node>(config)[keys[curIndex].c_str()];
+        }
+
+        // 下一级config
+        return IndexNode(std::forward<YAML::Node>(config)[keys[curIndex].c_str()], keys, curIndex + 1, maxIndex);
+    }
+
     // return:具体的对象T
     void *_Register(const LibString &dataName, IDelegate<void, void *> * releaseObj, IDelegate<void *, YAML::Node *> *deserializeObj, YamlMemory *fromMemory);
 

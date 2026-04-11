@@ -28,7 +28,9 @@
 
 #pragma once
 
-#include <service/Client/Comps/StubHandle/Interface/IStubHandleMgr.h>
+#include <service/common/BaseComps/StubHandle/Interface/IStubHandleMgr.h>
+#include <kernel/comp/Event/event_inc.h>
+#include <map>
 
 SERVICE_BEGIN
 

@@ -32,8 +32,6 @@
 #include <Comps/EventRelay/EventRelay.h>
 #include <Comps/MyServiceComp/MyServiceComp.h>
 #include <Comps/PlayerSys/PlayerSys.h>
-#include <Comps/StubHandle/StubHandle.h>
-#include <Comps/SysLogic/SysLogic.h>
 #include <Comps/Test/Test.h>
 #include <Comps/DB/db.h>
 #include <Comps/User/User.h>

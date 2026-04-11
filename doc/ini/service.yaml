@@ -86,74 +86,12 @@ ServiceCommon:
   
 # testsuit配置(会动态热更)
 TestSuit:
+  # 是否开启网络协议打印
+  ProtoStackOpenLog: true
   # service层poller扫描间隔(不小于20ms)
   PollerMaxSleepMilliseconds: 20
   # 帧更新间隔(调用组件update)
   FrameUpdateTimeMs: 50
-  # 用户连入端口
-  UserLinkinPort: [3900]
-  # 监听信息
-  TcpListenList:
-      # ip
-    - BindTo: 0.0.0.0
-      # 端口
-      Port: 3900
-      # 协议: CRYSTAL_PROTOCOL, JSON等系统支持的类型
-      Protocol: CRYSTAL_PROTOCOL
-      # 每个包是否设置接收包上限
-      PacketRecvBytesLimitSwitch: true
-      # 每个包是否设置发送包上限
-      PacketSendBytesLimitSwitch: true
-      # 包速率限制开关
-      PacketSpeedLimitSwitch: true
-      # 监听该端口的session数量, 同一个端口多个session监听可以多线程负载均衡, 在linux下才可以, 因为Linux下有ReusePort选项，windows下最多只能是1
-      ListenSessionCount: 1
-      
-    - BindTo: 0.0.0.0
-      Port: 3901
-      # 协议: CRYSTAL_PROTOCOL, JSON等系统支持的类型
-      Protocol: JSON
-      # 每个包是否设置包上限, 开启的话会根据Kernel的包上限限制上行单包大小 SessionRecvPacketContentLimit
-      PacketRecvBytesLimitSwitch: true
-      # 每个包是否设置发送包上限
-      PacketSendBytesLimitSwitch: true
-      # 包速率限制开关
-      PacketSpeedLimitSwitch: true
-      # 监听该端口的session数量, 同一个端口多个session监听可以多线程负载均衡, 在linux下才可以, 因为Linux下有ReusePort选项，windows下最多只能是1
-      ListenSessionCount: 1
-      
-    - BindTo: 0.0.0.0
-      Port: 3902
-      # 协议: CRYSTAL_PROTOCOL, JSON等系统支持的类型
-      Protocol: CRYSTAL_PROTOCOL
-      # 每个包是否设置包上限, 开启的话会根据Kernel的包上限限制上行单包大小 SessionRecvPacketContentLimit
-      PacketRecvBytesLimitSwitch: false
-      # 每个包是否设置发送包上限
-      PacketSendBytesLimitSwitch: false
-      # 包速率限制开关
-      PacketSpeedLimitSwitch: false
-      # 监听该端口的session数量, 同一个端口多个session监听可以多线程负载均衡, 在linux下才可以, 因为Linux下有ReusePort选项，windows下最多只能是1
-      ListenSessionCount: 1
-
-  # 是否开启网络协议打印
-  ProtoStackOpenLog: true
-  
-  # 默认的存储数据库
-  DefaultStorage: RpgMysql
-  # 数据库版本号, 跨版本号清档数据
-  DbVersion: 49
-  # 系统使用operator uid, operator uid用于多线程下的负载均衡
-  SystemOperatorUid: 0
-  # 数据清洗时间间隔
-  PurgeIntervalMs: 3000
-  
-  # 系统表MysqlMgr表禁用自动清库
-  DisableSystemTableAutoDrop: true
-  # 用清库功能 用于线上, 线上不可以自动清库，线上必须设置成1, 只能修数据 TODO:
-  DisableAutoDropDB: true
-  
-  # UserLruLimit lru容量限制
-  UserLruCapacityLimit: 1000
   # 配置表数据目录
   ConfigDataPath: ./Cfgs
   # 密钥 公钥使用PKC8
@@ -161,8 +99,79 @@ TestSuit:
   RsaPublicKey: LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZk1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTkFEQ0JpUUtCZ1FDL0hTN0Izd1FHUXBXM2tDNG5YQW1ldVpHdApXTXBxaStaVlZ2dWdqeFBGLzcvdXQyYi8zTWVxS0FmVEFTb2ZDMzYraUx4RGMyWDU0c0t3Vks3dGNkaHJZNUdnCllFSDA5ZWZtWEJ4dVBFeFlNcXZhbEV2VVRwbkI4dFR4d0JFVzhUbkp4a3E4a1ROMjNlRk5JbnRtNkNITWtLV3cKYytGOUV6Q0JkSExuSnFjRURRSURBUUFCCi0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo=
   # 协议加密key过期时间
   EncryptKeyExpireTime: 3000
-  # 热更集 hotfixkey
-  PluginHotfixKey: TestPlugin
+  
+  
+  # 用户连入端口
+  UserLinkinPort: [3900]
+  
+  SysLogicOptions:
+    # 监听信息
+    TcpListenList:
+        # ip
+      - BindTo: 0.0.0.0
+        # 端口
+        Port: 3900
+        # 协议: CRYSTAL_PROTOCOL, JSON等系统支持的类型
+        Protocol: CRYSTAL_PROTOCOL
+        # 每个包是否设置接收包上限
+        PacketRecvBytesLimitSwitch: true
+        # 每个包是否设置发送包上限
+        PacketSendBytesLimitSwitch: true
+        # 包速率限制开关
+        PacketSpeedLimitSwitch: true
+        # 监听该端口的session数量, 同一个端口多个session监听可以多线程负载均衡, 在linux下才可以, 因为Linux下有ReusePort选项，windows下最多只能是1
+        ListenSessionCount: 1
+        
+      - BindTo: 0.0.0.0
+        Port: 3901
+        # 协议: CRYSTAL_PROTOCOL, JSON等系统支持的类型
+        Protocol: JSON
+        # 每个包是否设置包上限, 开启的话会根据Kernel的包上限限制上行单包大小 SessionRecvPacketContentLimit
+        PacketRecvBytesLimitSwitch: true
+        # 每个包是否设置发送包上限
+        PacketSendBytesLimitSwitch: true
+        # 包速率限制开关
+        PacketSpeedLimitSwitch: true
+        # 监听该端口的session数量, 同一个端口多个session监听可以多线程负载均衡, 在linux下才可以, 因为Linux下有ReusePort选项，windows下最多只能是1
+        ListenSessionCount: 1
+        
+      - BindTo: 0.0.0.0
+        Port: 3902
+        # 协议: CRYSTAL_PROTOCOL, JSON等系统支持的类型
+        Protocol: CRYSTAL_PROTOCOL
+        # 每个包是否设置包上限, 开启的话会根据Kernel的包上限限制上行单包大小 SessionRecvPacketContentLimit
+        PacketRecvBytesLimitSwitch: false
+        # 每个包是否设置发送包上限
+        PacketSendBytesLimitSwitch: false
+        # 包速率限制开关
+        PacketSpeedLimitSwitch: false
+        # 监听该端口的session数量, 同一个端口多个session监听可以多线程负载均衡, 在linux下才可以, 因为Linux下有ReusePort选项，windows下最多只能是1
+        ListenSessionCount: 1
+  
+  # mysql数据库配置
+  MysqlOptions:
+    # 默认的存储数据库
+    DefaultStorage: RpgMysql
+    # 数据库版本号, 跨版本号清档数据
+    DbVersion: 49
+    # 系统使用operator uid, operator uid用于多线程下的负载均衡
+    SystemOperatorUid: 0
+    # 数据清洗时间间隔
+    PurgeIntervalMs: 3000
+    # 系统表MysqlMgr表禁用自动清库
+    DisableSystemTableAutoDrop: true
+    # 用清库功能 用于线上, 线上不可以自动清库，线上必须设置成1, 只能修数据 TODO:
+    DisableAutoDropDB: true
+  
+  # 用户配置
+  UserOptions:
+    # UserLruLimit lru容量限制
+    UserLruCapacityLimit: 1000
+  
+  # 热更集
+  PluginOptions:
+    # 热更集 hotfixkey
+    PluginHotfixKey: TestPlugin
   
 # mysql数据库配置
 RpgMysql:
@@ -196,8 +205,7 @@ RpgMysql:
   PingIntervalSeconds: 3600
     
     
-    
-MysqlCommon:
+MysqlCommonOptions:
   # 默认初始blob字段大小 64字节
   DefaultBlobOriginSize: 16
   # 初始string key大小 VARCHAR(256)

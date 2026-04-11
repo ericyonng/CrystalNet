@@ -29,7 +29,7 @@
 #include <pch.h>
 #include <Comps/User/impl/ClientUser.h>
 #include <Comps/User/interface/IClientUserMgr.h>
-#include <Comps/SysLogic/SysLogic.h>
+#include <service/common/BaseComps/SysLogic/SysLogic.h>
 #include <Comps/User/interface/IClientSys.h>
 
 SERVICE_BEGIN

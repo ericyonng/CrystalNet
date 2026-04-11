@@ -31,7 +31,7 @@
 
 #include <service/Client/MyTestService.h>
 #include <service/Client/Comps/Test/Defs/TestDefs.h>
-#include <service/Client/Comps/SysLogic/SysLogic.h>
+#include <service/common/BaseComps/SysLogic/SysLogic.h>
 
 #include <service/Client/Comps/Test/Impl/TestMgr.h>
 

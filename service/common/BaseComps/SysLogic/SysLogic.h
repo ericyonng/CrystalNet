@@ -21,34 +21,12 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-09-19 02:24:59
+ * Date: 2022-09-22 15:03:11
  * Author: Eric Yonng
- * Description: 
+ * Description: 系统的业务,如连接，监听等
 */
 
-#include <pch.h>
-#include <kernel/kernel.h>
-#include <service/TestService/Comps/StubHandle/Impl/StubHandleMgr.h>
-#include <service/TestService/Comps/StubHandle/Impl/StubHandleMgrFactory.h>
+#pragma once
 
-SERVICE_BEGIN
-
-KERNEL_NS::CompFactory *StubHandleMgrFactory::FactoryCreate()
-{
-    return KERNEL_NS::ObjPoolWrap<StubHandleMgrFactory>::NewByAdapter(_buildType.V);
-}
-
-void StubHandleMgrFactory::Release()
-{
-    KERNEL_NS::ObjPoolWrap<StubHandleMgrFactory>::DeleteByAdapter(_buildType.V, this);
-}
-
-KERNEL_NS::CompObject *StubHandleMgrFactory::Create() const
-{
-    CREATE_CRYSTAL_COMP(comp, StubHandleMgr);
-    return comp;
-}
-
-
-
-SERVICE_END
+#include <service/common/BaseComps/SysLogic/Impl/SysLogicMgrFactory.h>
+#include <service/common/BaseComps/SysLogic/Interface/ISysLogicMgr.h>

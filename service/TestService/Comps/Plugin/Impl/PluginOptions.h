@@ -1,0 +1,88 @@
+// MIT License
+// 
+// Copyright (c) 2020 ericyonng<120453674@qq.com>
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+// 
+// Date: 2026-04-11 23:04:27
+// Author: Eric Yonng
+// Description:
+
+#pragma once
+
+#include <service/common/macro.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/comp/LibStringYaml.h>
+
+SERVICE_BEGIN
+
+struct PluginOptions
+{
+    POOL_CREATE_OBJ_DEFAULT(PluginOptions);
+    
+    // 创建自己
+    static PluginOptions *CreateNewObj(PluginOptions &&cfg)
+    {
+        return PluginOptions::New_PluginOptions(std::move(cfg));
+    }
+
+    // 释放自己
+    void Release()
+    {
+        PluginOptions::Delete_PluginOptions(this);
+    }
+
+    // 热更集 hotfixkey Plugin
+    KERNEL_NS::LibString PluginHotfixKey;
+};
+
+SERVICE_END
+
+
+namespace YAML
+{
+    template<>
+    struct convert<SERVICE_NS::PluginOptions>
+    {
+        static Node encode(const SERVICE_NS::PluginOptions& rhs)
+        {
+            Node node;
+            node["PluginHotfixKey"] = rhs.PluginHotfixKey;
+            return node;
+        }
+
+        static bool decode(const Node& node, SERVICE_NS::PluginOptions& rhs)
+        {
+            if (!node.IsMap())
+            {
+                return false;
+            }
+
+            {
+                auto &&value = node["PluginHotfixKey"];
+                if(value.IsDefined())
+                {
+                    rhs.PluginHotfixKey = value.as<KERNEL_NS::LibString>();
+                }
+            }
+
+            return true;
+        }
+    };
+}

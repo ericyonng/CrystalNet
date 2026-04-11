@@ -27,14 +27,12 @@
 */
 
 #include <pch.h>
-#include <service/TestService/Comps/StubHandle/StubHandle.h>
-#include <service/TestService/MyTestService.h>
+#include <service/common/BaseComps/StubHandle/StubHandle.h>
 
 #include <service/common/common.h>
-#include <service/TestService/Common/ServiceCommon.h>
 
-#include <service/TestService/Comps/SysLogic/Impl/SysLogicMgr.h>
-#include <service/TestService/Comps/SysLogic/Impl/SysLogicMgrFactory.h>
+#include <service/common/BaseComps/SysLogic/Impl/SysLogicMgr.h>
+#include <service/common/BaseComps/SysLogic/Impl/SysLogicMgrFactory.h>
 
 SERVICE_BEGIN
 
@@ -43,6 +41,7 @@ SysLogicMgr::SysLogicMgr()
 :ISysLogicMgr(KERNEL_NS::RttiUtil::GetTypeId<SysLogicMgr>())
 ,_detectLink(NULL)
 ,_closeServiceStub(INVALID_LISTENER_STUB)
+,_options(KERNEL_NS::FileMonitor<SysLogicOptions, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
 {
 
 }
@@ -280,17 +279,20 @@ Int32 SysLogicMgr::_OnGlobalSysInit()
 
     _closeServiceStub = GetEventMgr()->AddListener(EventEnums::QUIT_SERVICE_EVENT, this, &SysLogicMgr::_CloseServiceEvent);
 
+    if(!_options->Init(GetApp()->GetSourceWrap(), KERNEL_NS::LibString().AppendFormat("%s.SysLogicOptions", GetService()->GetServiceName().c_str())))
+    {
+        CLOG_ERROR("SysLogicOptions init fail service name:%s", GetService()->GetServiceName().c_str());
+        return Status::ConfigError;
+    }
+
     return Status::Success;
 }
 
 Int32 SysLogicMgr::_OnHostStart()
 {
-    // 获取系统配置
-    auto service = GetService()->CastTo<MyTestService>();
-    auto serviceConfig = service->GetServiceConfig();
-
     // 1.添加监听
-    auto &listenAddrs = serviceConfig->TcpListenList;
+    auto &listenAddrs = _options->Current()->TcpListenList;
+    
     for(auto &addrInfo : listenAddrs)
     {
         UInt64 stub = 0;
@@ -305,13 +307,13 @@ Int32 SysLogicMgr::_OnHostStart()
                                 , addrIp.GetAf()
                                 ,addrInfo.TurnStackType()
                                 );
-
+    
         if(st != Status::Success)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("add tcp listen fail addrInfo:%s, st:%d"), addrInfo.ToString().c_str(), st);
             return st;
         }
-
+    
         #if CRYSTAL_TARGET_PLATFORM_WINDOWS
             if(addrInfo.Port != 0)
                 _unhandledListenAddr.insert(std::make_pair(stub, std::make_pair(addrIp, 1)));
@@ -336,6 +338,20 @@ void SysLogicMgr::_OnGlobalSysClose()
     {
         GetEventMgr()->RemoveListenerX(_closeServiceStub);
     }
+}
+
+void SysLogicMgr::OnStartup()
+{
+    KERNEL_NS::LibString listenAddrs;
+    auto currentConfig = _options->Current();
+    for(auto &addr : currentConfig->TcpListenList)
+    {
+        listenAddrs.AppendData(addr.ToString());
+        listenAddrs.AppendFormat(";");
+    }
+
+    g_Log->Info(LOGFMT_OBJ_TAG("service start up finish:%s, listen at:%s"), ToString().c_str(), listenAddrs.c_str());
+
 }
 
 void SysLogicMgr::_OnDetectLinkTimer(KERNEL_NS::LibTimer *timer)
@@ -508,7 +524,12 @@ void SysLogicMgr::_Clear()
         KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(_detectLink);
         _detectLink = NULL;
     }
-}
 
+    if(_options)
+    {
+        KERNEL_NS::FileMonitor<SysLogicOptions, KERNEL_NS::YamlDeserializer>::Delete_FileMonitor(_options);
+        _options = NULL;
+    }
+}
 
 SERVICE_END

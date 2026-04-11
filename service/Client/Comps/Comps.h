@@ -31,8 +31,6 @@
 #include <service/common/BaseComps/BaseComps.h>
 #include <service/Client/Comps/MyServiceComp/MyServiceComp.h>
 #include <service/Client/Comps/PlayerSys/PlayerSys.h>
-#include <service/Client/Comps/StubHandle/StubHandle.h>
-#include <service/Client/Comps/SysLogic/SysLogic.h>
 #include <service/Client/Comps/Test/Test.h>
 #include <Comps/User/user.h>
 #include <Comps/SendLog/SendLog.h>

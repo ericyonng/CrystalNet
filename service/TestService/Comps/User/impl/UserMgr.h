@@ -32,6 +32,7 @@
 #include <Comps/User/impl/UserLruCompare.h>
 #include <protocols/protocols.h>
 #include <kernel/kernel.h>
+#include <service/TestService/Comps/User/impl/UserOptions.h>
 
 KERNEL_BEGIN
 
@@ -170,6 +171,8 @@ private:
     KERNEL_NS::LibString _rsaPubKey;
     KERNEL_NS::LibString _rsaPubKeyRaw;
     mutable KERNEL_NS::LibRsa _rsa;
+
+    KERNEL_NS::FileMonitor<UserOptions, KERNEL_NS::YamlDeserializer> *_options;
 };
 
 ALWAYS_INLINE PendingUser *UserMgr::_GetPendingByAccount(const KERNEL_NS::LibString &accountName)

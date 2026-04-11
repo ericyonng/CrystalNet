@@ -34,6 +34,7 @@
 #include <protocols/protocols.h>
 #include <unordered_map>
 #include <service/common/ServiceConfig.h>
+#include <service/common/Configs/AddrConfig.h>
 
 SERVICE_BEGIN
 

@@ -35,7 +35,7 @@
 
 #include <service/TestService/MyTestService.h>
 #include <service/TestService/Comps/Test/Defs/TestDefs.h>
-#include <service/TestService/Comps/SysLogic/SysLogic.h>
+#include <service/common/BaseComps/SysLogic/SysLogic.h>
 
 #include <service/TestService/Comps/Test/Impl/TestMgr.h>
 #include <service/TestService/Comps/Test/Impl/TestMgrStorage.h>

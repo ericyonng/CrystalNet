@@ -33,7 +33,7 @@
 
 #include <service/TestService/Comps/DB/impl/MysqlMgr.h>
 #include <service/TestService/Comps/DB/impl/MysqlMgrFactory.h>
-#include <service/TestService/Comps/StubHandle/StubHandle.h>
+#include <service/common/BaseComps/StubHandle/StubHandle.h>
 
 #ifdef CRYSTAL_STORAGE_ENABLE
 #include <OptionComp/storage/mysql/mysqlcomp.h>
@@ -62,6 +62,8 @@ SERVICE_BEGIN
 ,_purgeIntervalMs(3000)
 ,_disableSystemTableAutoDrop(1)
 ,_disableAutoDrop(1)
+,_options(KERNEL_NS::FileMonitor<MysqlOptions, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
+,_commonOptions(KERNEL_NS::FileMonitor<MysqlCommonOptions, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
 {
 }
 
@@ -960,32 +962,24 @@ Int32 MysqlMgr::_OnGlobalSysInit()
             return Status::Failed;
         }
 
-        auto &&commonConfig = yamlConfig["MysqlCommon"];
-        if (commonConfig.IsMap())
+        if(!_options->Init(GetApp()->GetSourceWrap(), KERNEL_NS::LibString().AppendFormat("%s.MysqlOptions")))
         {
-            {
-                auto &&value = commonConfig["DefaultBlobOriginSize"];
-                if(value.IsDefined())
-                {
-                    _defaultBlobOriginSize = value.as<Int64>();
-                }
-            }
-            {
-                auto &&value = commonConfig["DefaultStringKeyOriginSize"];
-                if(value.IsDefined())
-                {
-                    _defaultStringKeyOriginSize = value.as<Int32>();
-                }
-            }
+            CLOG_ERROR("mysql options init fail service:%s", GetService()->GetServiceName().c_str());
+            return Status::ConfigError;
         }
-
-
-        auto &&defaultStorage = serviceConfig["DefaultStorage"];
-        if (defaultStorage.IsDefined())
+        if(!_commonOptions->Init(GetApp()->GetSourceWrap()))
         {
-            _currentServiceDBOption = defaultStorage.as<KERNEL_NS::LibString>();
+            CLOG_ERROR("common mysql options init fail service:%s", GetService()->GetServiceName().c_str());
+
+            return Status::ConfigError;
         }
-        
+        auto currentMysqlOptions = _options->Current();
+        auto currentCommonOptions = _commonOptions->Current();
+
+        _defaultBlobOriginSize = currentCommonOptions->DefaultBlobOriginSize;
+        _defaultStringKeyOriginSize = currentCommonOptions->DefaultStringKeyOriginSize;
+
+        _currentServiceDBOption = currentMysqlOptions->DefaultStorage;
         if (_currentServiceDBOption.empty())
         {
             CLOG_ERROR("have no default storage %s", GetService()->GetServiceName().c_str());
@@ -1009,12 +1003,11 @@ Int32 MysqlMgr::_OnGlobalSysInit()
             return Status::Failed;
         }
 
-        auto currentConfig = GetService()->CastTo<MyTestService>()->GetServiceConfig();
-        _disableAutoDrop = currentConfig->DisableAutoDropDB ? 1 : 0;
-        _curVersionNo = currentConfig->DbVersion;
-        _systemOperatorUid = currentConfig->SystemOperatorUid;
-        _purgeIntervalMs = currentConfig->PurgeIntervalMs;
-        _disableSystemTableAutoDrop = currentConfig->DisableSystemTableAutoDrop ? 1 : 0;
+        _disableAutoDrop = currentMysqlOptions->DisableAutoDropDB ? 1 : 0;
+        _curVersionNo = currentMysqlOptions->DbVersion;
+        _systemOperatorUid = currentMysqlOptions->SystemOperatorUid;
+        _purgeIntervalMs = currentMysqlOptions->PurgeIntervalMs;
+        _disableSystemTableAutoDrop = currentMysqlOptions->DisableSystemTableAutoDrop ? 1 : 0;
     }
     catch (std::exception &e)
     {
@@ -1040,7 +1033,7 @@ Int32 MysqlMgr::_OnGlobalSysInit()
 Int32 MysqlMgr::_OnGlobalSysCompsCreated()
 {
     auto service = GetService();
-    auto defaultStorage = service->CastTo<MyTestService>()->GetServiceConfig()->DefaultStorage;
+    auto defaultStorage = _options->Current()->DefaultStorage;
     auto &appYamlConfig = service->GetApp()->GetYamlConfig();
 
     if(UNLIKELY(defaultStorage.empty()))
@@ -4777,6 +4770,18 @@ void MysqlMgr::_Clear()
     {
         TableInfo::DeleteThreadLocal_TableInfo(ptr);
     });
+
+    if(_options)
+    {
+        KERNEL_NS::FileMonitor<MysqlOptions, KERNEL_NS::YamlDeserializer>::Delete_FileMonitor(_options);
+        _options = NULL;
+    }
+    if(_commonOptions)
+    {
+        KERNEL_NS::FileMonitor<MysqlCommonOptions, KERNEL_NS::YamlDeserializer>::Delete_FileMonitor(_commonOptions);
+
+        _commonOptions = NULL;
+    }
 }
 
 TableInfo *MysqlMgr::_CreateNewTableInfo(const ILogicSys *logic)

@@ -40,5 +40,6 @@
 #include <service/common/ServiceConfig.h>
 #include <service/common/SessionType.h>
 #include <service/common/BaseComps/BaseComps.h>
+#include <service/common/Configs/Configs.h>
 
 #endif

@@ -66,7 +66,7 @@ public:
 public:
     // 获取当前配置,注意如果是多线程环境Current则不安全 TODO:
     SmartPtr<ObjType, AutoDelMethods::Release> Current() const;
-    // 初始化
+    // 初始化,key支持多级key: a.b.c
     bool Init(const SourceWrap *source, const KERNEL_NS::LibString &key = "");
 
     const LibString &GetPath() const;

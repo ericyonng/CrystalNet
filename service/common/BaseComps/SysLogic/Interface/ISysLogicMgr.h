@@ -28,7 +28,15 @@
 
 #pragma once
 
-#include <service/Client/ServiceCompHeader.h>
+#include <service/common/BaseComps/GlobalSys/GlobalSys.h>
+#include <kernel/comp/Log/log.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
+#include <kernel/common/statics.h>
+
+KERNEL_BEGIN
+class Variant;
+class IProtocolStack;
+KERNEL_END
 
 SERVICE_BEGIN
 
@@ -39,40 +47,36 @@ class ISysLogicMgr : public IGlobalSys
 public:
   ISysLogicMgr(UInt64 objTypeId) : IGlobalSys(objTypeId) {}
 
+    
     /*
-* 新增监听
-* @param(ip): 0.0.0.0或放空将监听所有网卡,
-* @param(port): 0将由系统分配一个端口
-* @param(sessionType): SessionType指定一个会话类型,连入的会话都将继承这个类型
-* @param(family): AF_INET:ipv4, AF_INET6 :ipv6
-* @param(family): AF_INET:ipv4, AF_INET6 :ipv6
-*/
+    * 新增监听
+    * @param(ip): 0.0.0.0或放空将监听所有网卡,
+    * @param(port): 0将由系统分配一个端口
+    * @param(sessionType): SessionType指定一个会话类型,连入的会话都将继承这个类型
+    * @param(family): AF_INET:ipv4, AF_INET6 :ipv6
+    * @param(family): AF_INET:ipv4, AF_INET6 :ipv6
+    */
     template<typename ObjType>
     Int32 AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
                       , UInt64 &stub, ObjType *obj
                       , void(ObjType::*handler)(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params, bool &)
                       , Int32 sessionCount = 1
                       , const KERNEL_NS::PacketOptions &packetOptions = KERNEL_NS::PacketOptions()
-                      , Int32 family = AF_INET
-                      , Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL
-                      ) const;
+                      , Int32 family = AF_INET, Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL) const;
 
-   virtual  Int32 AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
-, UInt64 &stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *delg
-, Int32 sessionCount = 1
-, const KERNEL_NS::PacketOptions &packetOptions = KERNEL_NS::PacketOptions()
-, Int32 family = AF_INET
-, Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL
-) const = 0;
-
-    virtual Int32 AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port, UInt64 &stub
+    virtual Int32 AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
+    , UInt64 &stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *delg
     , Int32 sessionCount = 1
     , const KERNEL_NS::PacketOptions &packetOptions = KERNEL_NS::PacketOptions()
-    , Int32 family = AF_INET
-    , Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL) const = 0;
+    , Int32 family = AF_INET, Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL) const = 0;
+
+    virtual  Int32 AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port, UInt64 &stub
+    , Int32 sessionCount = 1
+    , const KERNEL_NS::PacketOptions &packetOptions = KERNEL_NS::PacketOptions()
+    , Int32 family = AF_INET, Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL) const = 0;
     
   /*
-  * 连接远程
+  * 连接远程 bool:需要删除stub的响应回调么, 默认是要删除
   */
  template<typename ObjType>
   Int32 AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt16 remotePort, UInt64 &stub
@@ -82,11 +86,12 @@ public:
   , KERNEL_NS::IProtocolStack *stack = NULL /* 指定协议栈 */
   , Int32 retryTimes = 0    /* 超时重试次数 */
   , Int64 periodMs = 0  /* 超时时间 */
-  , const KERNEL_NS::PacketOptions &packetOptions = KERNEL_NS::PacketOptions()
+  , const KERNEL_NS::PacketOptions &packetOptions = KERNEL_NS::PacketOptions() /*包配置*/
   , Int32 family = AF_INET /* AF_INET:ipv4, AF_INET6:ipv6 */
   , Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL
   ) const;
 
+  // bool:需要删除stub的响应回调么, 默认是要删除
   virtual Int32 AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt16 remotePort, UInt64 &stub
   , KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *callback
   , const KERNEL_NS::AddrIpConfig &localIp = KERNEL_NS::AddrIpConfig()
@@ -94,7 +99,7 @@ public:
   , KERNEL_NS::IProtocolStack *stack = NULL /* 指定协议栈 */
   , Int32 retryTimes = 0    /* 超时重试次数 */
   , Int64 periodMs = 0  /* 超时时间 */
-  , const KERNEL_NS::PacketOptions &packetOptions = KERNEL_NS::PacketOptions()
+  , const KERNEL_NS::PacketOptions &packetOptions = KERNEL_NS::PacketOptions() /*包配置*/
   , Int32 family = AF_INET /* AF_INET:ipv4, AF_INET6:ipv6 */
   , Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL
   ) const = 0;
@@ -105,10 +110,13 @@ public:
   , KERNEL_NS::IProtocolStack *stack = NULL /* 指定协议栈 */
   , Int32 retryTimes = 0    /* 超时重试次数 */
   , Int64 periodMs = 0  /* 超时时间 */
-  ,  const KERNEL_NS::PacketOptions &packetOptions = KERNEL_NS::PacketOptions()
+  , const KERNEL_NS::PacketOptions &packetOptions = KERNEL_NS::PacketOptions() /*包配置*/
   , Int32 family = AF_INET /* AF_INET:ipv4, AF_INET6:ipv6 */
   , Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL
   ) const;
+
+    // 模块准备就绪
+  virtual bool IsAllTaskFinish() const = 0;
 };
 
 
@@ -118,8 +126,7 @@ ALWAYS_INLINE Int32 ISysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip
                 , void(ObjType::*handler)(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params, bool &)
                 , Int32 sessionCount
                 , const KERNEL_NS::PacketOptions &packetOptions
-                , Int32 family
-                , Int32 protocolStackType) const
+                , Int32 family, Int32 protocolStackType) const
 {
     auto delg = KERNEL_NS::DelegateFactory::Create(obj, handler);
     auto st = AddTcpListen(ip, port, stub, delg, sessionCount, packetOptions, family, protocolStackType);
@@ -141,7 +148,7 @@ ALWAYS_INLINE Int32 ISysLogicMgr::AsynTcpConnect(const KERNEL_NS::AddrIpConfig &
 , KERNEL_NS::IProtocolStack *stack /* 指定协议栈 */
 , Int32 retryTimes   /* 超时重试次数 */
 , Int64 periodMs  /* 超时时间 */
-,  const KERNEL_NS::PacketOptions &packetOptions
+, const KERNEL_NS::PacketOptions &packetOptions /*包配置*/
 , Int32 family /* AF_INET:ipv4, AF_INET6:ipv6 */
 , Int32 protocolStackType
 ) const
@@ -164,7 +171,7 @@ ALWAYS_INLINE Int32 ISysLogicMgr::AsynTcpConnect(const KERNEL_NS::AddrIpConfig &
 , KERNEL_NS::IProtocolStack *stack /* 指定协议栈 */
 , Int32 retryTimes    /* 超时重试次数 */
 , Int64 periodMs   /* 超时时间 */
-,  const KERNEL_NS::PacketOptions &packetOptions
+, const KERNEL_NS::PacketOptions &packetOptions /*包配置*/
 , Int32 family /* AF_INET:ipv4, AF_INET6:ipv6 */
 , Int32 protocolStackType
 ) const

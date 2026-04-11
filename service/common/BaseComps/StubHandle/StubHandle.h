@@ -21,31 +21,12 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-09-19 02:24:49
+ * Date: 2022-09-19 02:23:37
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-
-#include <service/TestService/ServiceCompFactoryHeader.h>
-#include <kernel/comp/CompObject/CompFactory.h>
-
-SERVICE_BEGIN
-
-class StubHandleMgrFactory : public KERNEL_NS::CompFactory
-{
-    // 创建factory对象时候使用创建的方法类型
-public:
-    static constexpr KERNEL_NS::_Build::TL _buildType{};
-
-    static KERNEL_NS::CompFactory *FactoryCreate();
-
-    virtual void Release() override;
-    
-public:
-    virtual KERNEL_NS::CompObject *Create() const override;
-};
-
-SERVICE_END
+#include <service/common/BaseComps/StubHandle/Interface/IStubHandleMgr.h>
+#include <service/common/BaseComps/StubHandle/Impl/StubHandleMgrFactory.h>

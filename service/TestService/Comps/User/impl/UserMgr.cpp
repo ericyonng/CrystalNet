@@ -36,7 +36,7 @@
 #include <Comps/User/impl/UserMgrStorage.h>
 #include <Comps/User/impl/UserMgrStorageFactory.h>
 #include <Comps/User/impl/User.h>
-#include <Comps/StubHandle/StubHandle.h>
+#include <service/common/BaseComps/StubHandle/StubHandle.h>
 #include <OptionComp/storage/mysql/mysqlcomp.h>
 #include <Comps/DB/db.h>
 #include <Comps/UserSys/UserSys.h>
@@ -51,6 +51,7 @@ SERVICE_BEGIN
     UserMgr::UserMgr()
 :IUserMgr(KERNEL_NS::RttiUtil::GetTypeId<UserMgr>())
 ,_lruCapacityLimit(1000)
+,_options(KERNEL_NS::FileMonitor<UserOptions, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
 {
 
 }
@@ -1028,7 +1029,14 @@ void UserMgr::OnPassTimeEnd(const KERNEL_NS::LibTime &nowTime)
 Int32 UserMgr::_OnGlobalSysInit()
 {
     auto currentCfg = GetService()->CastTo<MyTestService>()->GetServiceConfig();
-    _lruCapacityLimit = currentCfg->UserLruCapacityLimit;
+
+    if(!_options->Init(GetApp()->GetSourceWrap(), KERNEL_NS::LibString().AppendFormat("%s.UserOptions", GetService()->GetServiceName().c_str())))
+    {
+        CLOG_ERROR("user options init fail service:%s", GetService()->GetServiceName().c_str());
+        return Status::ConfigError;
+    }
+    
+    _lruCapacityLimit = _options->Current()->UserLruCapacityLimit;
     _rsaPrivateKey = currentCfg->RsaPrivateKey;
     _rsaPubKey = currentCfg->RsaPublicKey;
     
@@ -1903,6 +1911,12 @@ void UserMgr::_Clear()
     KERNEL_NS::ContainerUtil::DelContainer2(_userIdRefUser);
     _accountNameRefUser.clear();
     _lru.clear();
+
+    if(_options)
+    {
+        KERNEL_NS::FileMonitor<UserOptions, KERNEL_NS::YamlDeserializer>::Delete_FileMonitor(_options);
+        _options = NULL;
+    }
 }
 
 

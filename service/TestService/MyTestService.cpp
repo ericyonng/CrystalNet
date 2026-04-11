@@ -559,17 +559,7 @@ void MyTestService::_OnDbLoaded(KERNEL_NS::LibEvent *ev)
 
         ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_STARTUP);
         GetEventMgr()->FireEvent(ev);
-
-        KERNEL_NS::LibString listenAddrs;
-        auto currentConfig = _serviceConfig->Current();
-        for(auto &addr : currentConfig->TcpListenList)
-        {
-            listenAddrs.AppendData(addr.ToString());
-            listenAddrs.AppendFormat(";");
-        }
-
-        g_Log->Info(LOGFMT_OBJ_TAG("service start up finish:%s, listen at:%s"), ToString().c_str(), listenAddrs.c_str());
-
+        
         KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
     });
     timer->Schedule(1000);
