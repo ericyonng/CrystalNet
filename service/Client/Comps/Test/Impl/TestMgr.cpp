@@ -46,7 +46,6 @@ TestMgr::TestMgr()
 ,_quiteService(INVALID_LISTENER_STUB)
 ,_enableStartLink(false)
 ,_isStopTest(false)
-,_serviceConfig(NULL)
 ,_testSessionCount(0)
 ,_testConnectIntervalMs(10)
 ,_testSendMode(0)
@@ -54,6 +53,7 @@ TestMgr::TestMgr()
 ,_testSendPackCountOnce(0)
 ,_testSendPackageBytes(0)
 ,_testSendPackTimeoutMilliseconds(0)
+,_testOptions(KERNEL_NS::FileMonitor<TestOptions, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
 {
 
 }
@@ -121,13 +121,20 @@ void TestMgr::_Clear()
 {
     KERNEL_NS::ContainerUtil::DelContainer2(_sessionIdRefAnalyzeInfo);
 
-    if(_sessionConnected == INVALID_LISTENER_STUB)
-        return;
+    if(_sessionConnected != INVALID_LISTENER_STUB)
+    {
+        GetEventMgr()->RemoveListenerX(_sessionConnected);
+        GetEventMgr()->RemoveListenerX(_sessionWillDestroy);
+        GetEventMgr()->RemoveListenerX(_commonSessionReady);
+        GetEventMgr()->RemoveListenerX(_quiteService);
+    }
 
-    GetEventMgr()->RemoveListenerX(_sessionConnected);
-    GetEventMgr()->RemoveListenerX(_sessionWillDestroy);
-    GetEventMgr()->RemoveListenerX(_commonSessionReady);
-    GetEventMgr()->RemoveListenerX(_quiteService);
+
+    if(_testOptions)
+    {
+        KERNEL_NS::FileMonitor<TestOptions, KERNEL_NS::YamlDeserializer>::Delete_FileMonitor(_testOptions);
+        _testOptions = NULL;
+    }
 }
 
 void TestMgr::_OnTestOpcodeReq(KERNEL_NS::LibPacket *&packet)
@@ -458,27 +465,25 @@ Int32 TestMgr::_ReadTestConfigs()
     auto app = GetService()->GetApp();
     const auto &serviceName = GetService()->GetServiceName();
 
-    // 读取配置
-    _serviceConfig = GetService()->CastTo<MyTestService>()->GetServiceConfig();
-
-    auto &&yamlConfig = app->GetYamlConfig()[GetService()->GetServiceName().c_str()];
-    {// 会话创建总数
-        auto &&value = yamlConfig["TestSessionCount"];
-        if (value.IsDefined())
-            _testSessionCount = value.as<Int32>();
-
-        if(_testSessionCount <= 0)
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("check read TestSessionCount config fail service name:%s"), serviceName.c_str());
-            return Status::ConfigError;
-        }
+    if(!_testOptions->Init(GetApp()->GetSourceWrap(), KERNEL_NS::LibString().AppendFormat("%s.TestOptions", GetService()->GetServiceName().c_str())))
+    {
+        CLOG_ERROR("test options init fail service:%s", serviceName.c_str());
+        return Status::ConfigError;
     }
 
-    {// 连接时间间隔
-        auto &&value = yamlConfig["TestConnectIntervalMs"];
-        if (value.IsDefined())
-            _testConnectIntervalMs = value.as<Int32>();
+    auto testOptions = _testOptions->Current();
 
+    // 会话创建总数
+    _testSessionCount = testOptions->TestSessionCount;
+    if(_testSessionCount <= 0)
+    {
+        CLOG_ERROR("check read TestSessionCount config fail service name:%s", serviceName.c_str());
+        return Status::ConfigError;
+    }
+
+
+    {// 连接时间间隔
+        _testConnectIntervalMs = testOptions->TestConnectIntervalMs;
         if(_testConnectIntervalMs <= 0)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("check read TestConnectIntervalMs config fail service name:%s"), serviceName.c_str());
@@ -487,54 +492,30 @@ Int32 TestMgr::_ReadTestConfigs()
     }
 
     {// 目标地址
-        auto &&value = yamlConfig["TestTargetAddr"];
-        if (value.IsDefined())
-            _targetAddrConfig = value.as<AddrConfig>();
-        
-        if(!value.IsDefined())
+        if(!testOptions->HasTargetAddr)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("check read TestTargetAddr config fail service name:%s"), GetService()->GetServiceName().c_str());
             return Status::ConfigError;
         }
+
+        _targetAddrConfig = testOptions->TestTargetAddr;
     }
 
     {// 测试发送模式
-        auto &&value = yamlConfig["TestSendMode"];
-        if (value.IsDefined())
-            _testSendMode = value.as<Int32>();
-        if(!value.IsDefined())
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("check read TestSendMode config fail service name:%s"), serviceName.c_str());
-            return Status::ConfigError;
-        }
+        _testSendMode = testOptions->TestSendMode;
     }
 
     {// 发送时间间隔
-        auto &&value = yamlConfig["TestSendIntervalMs"];
-        if (value.IsDefined())
-            _testSendIntervalMs = value.as<Int32>();
-        if(!value.IsDefined())
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("check read TestSendIntervalMs config fail service name:%s"), serviceName.c_str());
-            return Status::ConfigError;
-        }
+        _testSendIntervalMs = testOptions->TestSendIntervalMs;
     }
 
     {// 一次发送多少个包
-        auto &&value = yamlConfig["TestSendPackCountOnce"];
-        if (value.IsDefined())
-            _testSendPackCountOnce = value.as<Int32>();
-        if(_testSendPackCountOnce <= 0)
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("check read TestSendPackCountOnce config fail service name:%s"), serviceName.c_str());
-            return Status::ConfigError;
-        }
+        _testSendPackCountOnce = testOptions->TestSendPackCountOnce;
     }
 
     {// 一次发送的包内容至少多少个字节
-        auto &&value = yamlConfig["TestSendPackageBytes"];
-        if (value.IsDefined())
-            _testSendPackageBytes = value.as<Int32>();
+        _testSendPackageBytes = testOptions->TestSendPackageBytes;
+
         if(_testSendPackageBytes <= 0)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("check read TestSendPackageBytes config fail service name:%s"), serviceName.c_str());
@@ -543,10 +524,8 @@ Int32 TestMgr::_ReadTestConfigs()
     }
 
     {// 发包超时时间
-        auto &&value = yamlConfig["TestSendPackageTimeoutMilliseconds"];
-        if (value.IsDefined())
-            _testSendPackTimeoutMilliseconds = value.as<Int64>();
-        if(!_testSendPackTimeoutMilliseconds <= 0)
+        _testSendPackTimeoutMilliseconds = testOptions->TestSendPackageTimeoutMilliseconds;
+        if(_testSendPackTimeoutMilliseconds <= 0)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("check read TestSendPackageTimeoutMilliseconds config fail service name:%s"), serviceName.c_str());
             return Status::ConfigError;

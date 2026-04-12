@@ -962,7 +962,7 @@ Int32 MysqlMgr::_OnGlobalSysInit()
             return Status::Failed;
         }
 
-        if(!_options->Init(GetApp()->GetSourceWrap(), KERNEL_NS::LibString().AppendFormat("%s.MysqlOptions")))
+        if(!_options->Init(GetApp()->GetSourceWrap(), KERNEL_NS::LibString().AppendFormat("%s.MysqlOptions", GetService()->GetServiceName().c_str())))
         {
             CLOG_ERROR("mysql options init fail service:%s", GetService()->GetServiceName().c_str());
             return Status::ConfigError;
@@ -1572,39 +1572,48 @@ bool MysqlMgr::_CheckDropTables()
     {
         auto tableInfo = iter.second;
         auto logic = _GetDependenceLogic(tableInfo->_tableName);
+        
+        // TODO:logic没注册处理?
         if(tableInfo->_simpleInfo->versionno() != _curVersionNo)
         {
             tableInfo->_simpleInfo->set_versionno(_curVersionNo);
             MaskStringKeyModifyDirty(tableInfo->_tableName);
 
             // 禁止清表
-            if(logic->GetStorageInfo()->IsDisableAutoDrop())
+            if(logic && logic->GetStorageInfo()->IsDisableAutoDrop())
                 continue;
 
             // 系统表也需要清理, 清理后需要立即创建
             if(logic == this)
                 hasMe = true;
 
-            // sql
-            auto newBuilder = KERNEL_NS::DropTableSqlBuilder::NewThreadLocal_DropTableSqlBuilder();
+            // 清空数据
+            auto newBuilder = KERNEL_NS::TruncateTableSqlBuilder::New_TruncateTableSqlBuilder();
             newBuilder->DB(_currentServiceDBName).Table(tableInfo->_tableName);
-            
             auto mysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
             mysqlBuilder->_builder = newBuilder;
             builders.push_back(mysqlBuilder);
 
-            // 创建表
-            auto createBuilder = MysqlFieldTypeHelper::NewCreateTableSqlBuilder(_currentServiceDBName, logic->GetStorageInfo());
-            if(!createBuilder)
-            {
-                g_Log->Error(LOGFMT_OBJ_TAG("NewCreateTableSqlBuilder fail logic:%s"), logic->GetObjName().c_str());
-                KERNEL_NS::ContainerUtil::DelContainer2(builders);
-                return false;
-            }
-            
-            mysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
-            mysqlBuilder->_builder = createBuilder;
-            builders.push_back(mysqlBuilder);
+            // sql
+            // auto newBuilder = KERNEL_NS::DropTableSqlBuilder::NewThreadLocal_DropTableSqlBuilder();
+            // newBuilder->DB(_currentServiceDBName).Table(tableInfo->_tableName);
+            //
+            // auto mysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+            // mysqlBuilder->_builder = newBuilder;
+            // builders.push_back(mysqlBuilder);
+            //
+            // // 创建表
+            // auto createBuilder = MysqlFieldTypeHelper::NewCreateTableSqlBuilder(_currentServiceDBName, logic->GetStorageInfo());
+            // if(!createBuilder)
+            // {
+            //     g_Log->Error(LOGFMT_OBJ_TAG("NewCreateTableSqlBuilder fail logic:%s"), logic->GetObjName().c_str());
+            //     KERNEL_NS::ContainerUtil::DelContainer2(builders);
+            //     return false;
+            // }
+            //
+            // mysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+            // mysqlBuilder->_builder = createBuilder;
+            // builders.push_back(mysqlBuilder);
         }
     }
 
@@ -1628,6 +1637,9 @@ bool MysqlMgr::_CheckDropTables()
         for(auto iter : tmp)
         {
             auto logic = _GetDependenceLogic(iter.first);
+            if(!logic)
+                continue;
+            
             _CreateNewTableInfo(logic);
         }
     }

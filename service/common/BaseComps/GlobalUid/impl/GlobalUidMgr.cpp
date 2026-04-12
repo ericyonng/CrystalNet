@@ -136,8 +136,8 @@ KERNEL_NS::LibString GlobalUidMgr::ToString() const
 
 Int32 GlobalUidMgr::_OnGlobalSysInit()
 {
-    // TODO:machineId需要注册
-    // _machineId = GetApp()->GetMachineId();
+    // TODO:机器id需要注册
+    _machineId = KERNEL_NS::LibRandom<Int32, KERNEL_NS::_Build::TL>::GetInstance<1, 127>().Gen();
 
     if(UNLIKELY(!_synStorageCb))
     {

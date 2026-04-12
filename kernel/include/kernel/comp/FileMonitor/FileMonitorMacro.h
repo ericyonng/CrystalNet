@@ -20,20 +20,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2026-01-29 02:01:45
+// Date: 2026-04-12 14:04:32
 // Author: Eric Yonng
 // Description:
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_MONITOR_FILE_MONITOR_INC_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_MONITOR_FILE_MONITOR_INC_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_MONITOR_FILE_MONITOR_MACRO_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_MONITOR_FILE_MONITOR_MACRO_H__
 
 #pragma once
 
-#include <kernel/comp/FileMonitor/FileMonitorMacro.h>
-#include <kernel/comp/FileMonitor/FileMonitor.h>
-#include <kernel/comp/FileMonitor/FileChangeManager.h>
-#include <kernel/comp/FileMonitor/YamlDeserializer.h>
-#include <kernel/comp/FileMonitor/YamlMemory.h>
-#include <kernel/comp/FileMonitor/SourceWrap.h>
+// 支持FileMonitor对象接口, Yaml的序列化反序列化自己参照案例写
+#ifndef FILE_MONITOR_DECLARE
+ #define FILE_MONITOR_DECLARE(TYPE)                 \
+    POOL_CREATE_OBJ_DEFAULT(TYPE);                  \
+    static TYPE *CreateNewObj(TYPE &&cfg)           \
+    {                                               \
+        return TYPE::New_##TYPE(std::move(cfg));    \
+    }                                               \
+                                                    \
+    void Release()                                  \
+    {                                               \
+        TYPE::Delete_##TYPE(this);                  \
+    }
+
+#endif
 
 #endif

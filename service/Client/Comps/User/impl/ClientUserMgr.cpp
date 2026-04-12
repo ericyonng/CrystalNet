@@ -53,6 +53,7 @@ ClientUserMgr::ClientUserMgr()
 ,_heartbeatRemoveUserTimer(NULL)
 // ,_targetAddrConfig(AddrConfig::NewThreadLocal_AddrConfig())
 ,_finalTargetPort(0)
+,_userOptions(KERNEL_NS::FileMonitor<UserOptions, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
 {
 
 }
@@ -100,8 +101,18 @@ void ClientUserMgr::OnStartup()
     //     }
     // }
 
+    if(TestAccount::AccountInfo.ip.empty())
+    {
+        AccountData info;
+        // info.ip = "43.132.198.63";
+        info.ip = "127.0.0.1";
+        info.port = 3900;
+        info.Account = "test_role_broadcast";
+        info.Pwd = "1998569%&Jd20.";
+        TestAccount::AccountInfo = info;
+    }
     KERNEL_NS::LibString ip = TestAccount::AccountInfo.ip;
-    
+
     LoginInfo loginInfo;
     _finalTargetIp = ip;
     _finalPwq = TestAccount::AccountInfo.Pwd;
@@ -272,6 +283,12 @@ std::map<KERNEL_NS::LibString, IClientUser *> &ClientUserMgr::GetAllUsers()
 
 Int32 ClientUserMgr::_OnGlobalSysInit()
 {
+    if(!_userOptions->Init(GetApp()->GetSourceWrap(), KERNEL_NS::LibString().AppendFormat("%s.UserOptions", GetService()->GetServiceName().c_str())))
+    {
+        CLOG_ERROR("user options init failed service:%s", GetService()->GetServiceName().c_str());
+        return Status::ConfigError;
+    }
+    
     _heartbeatRemoveUserTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
     _heartbeatRemoveUserTimer->SetTimeOutHandler(this, &ClientUserMgr::_OnHeartbeatTimeOut);
 
@@ -280,23 +297,15 @@ Int32 ClientUserMgr::_OnGlobalSysInit()
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_LogoutNty, this, &ClientUserMgr::_OnClientLogoutNty);
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_LoginFinishRes, this, &ClientUserMgr::_OnLoginFinishRes);
     
-    auto &yamlConfig = GetApp()->GetYamlConfig();
-    auto serviceYaml = yamlConfig[GetService()->GetServiceName().c_str()];
+    auto curUserOptions = _userOptions->Current();
+    _rsaPublicKey = curUserOptions->UserRsaPublicKey;
+    _rsaPublicKey.strip();
+    if (_rsaPublicKey.empty())
     {
-        auto &&value = serviceYaml["UserRsaPublicKey"];
-        if (value.IsDefined())
-        {
-            _rsaPublicKey = value.as<KERNEL_NS::LibString>();
-            _rsaPublicKey.strip();
-        }
-        if (_rsaPublicKey.empty())
-        {
-            CLOG_ERROR("UserRsaPublicKey lack");
-            return Status::Failed;
-        }
+        CLOG_ERROR("UserRsaPublicKey lack");
+        return Status::Failed;
     }
-
-
+    
     _rsaPublicKeyRaw = KERNEL_NS::LibBase64::Decode(_rsaPublicKey);
     if(!_rsa.ImportKey(&_rsaPublicKeyRaw, NULL, KERNEL_NS::LibRsa::PUB_PKC8_FLAG))
     {
@@ -321,13 +330,7 @@ Int32 ClientUserMgr::_OnGlobalSysInit()
         // }
     }
 
-    {
-        auto &&value = serviceYaml["TestLoginAccountName"];
-        if (value.IsDefined())
-        {
-            _testLoginAccountName = value.as<KERNEL_NS::LibString>();
-        }
-    }
+    _testLoginAccountName = curUserOptions->TestLoginAccountName;
 
     return Status::Success;
 }
@@ -651,6 +654,12 @@ void ClientUserMgr::_Clear()
     //     AddrConfig::DeleteThreadLocal_AddrConfig(_targetAddrConfig);
     //
     // _targetAddrConfig = NULL;
+
+    if(_userOptions)
+    {
+        KERNEL_NS::FileMonitor<UserOptions, KERNEL_NS::YamlDeserializer>::Delete_FileMonitor(_userOptions);
+        _userOptions = NULL;
+    }
 }
 
 void ClientUserMgr::_BuildLoginInfo(LoginInfo &loginInfo, const KERNEL_NS::LibString &accountName, const KERNEL_NS::LibString &ip, const KERNEL_NS::LibString &pwd) const

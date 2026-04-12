@@ -81,9 +81,6 @@ struct AddrConfig
         return static_cast<SERVICE_COMMON_NS::CrystalProtocolStackType::ENUMS>(SERVICE_COMMON_NS::CrystalProtocolStackType::TurnFromString(protocolType));
     }
     
-private:
-    bool ParseIpInfo(const KERNEL_NS::LibString &addrInfo, KERNEL_NS::AddrIpConfig &ipConfig, UInt16 &port);
-
 public:
     KERNEL_NS::AddrIpConfig _localIp;
     UInt16 _localPort = 0;

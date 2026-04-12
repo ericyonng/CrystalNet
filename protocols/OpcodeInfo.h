@@ -53,7 +53,7 @@
     {// TestOpcodeReq
         auto info = OpcodeInfo();
         info._opcode = 3;
-        info._noLog = true;
+        info._noLog = false;
         info._enableStorage = false;
         info._opcodeName = "TestOpcodeReq";
         info._protoFile = "test_opcode.proto";

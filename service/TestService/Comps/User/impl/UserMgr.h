@@ -119,6 +119,8 @@ public:
    virtual void OnPassYear(const KERNEL_NS::LibTime &nowTime) override;
    virtual void OnPassTimeEnd(const KERNEL_NS::LibTime &nowTime) override;
 
+    const KERNEL_NS::FileMonitor<UserOptions, KERNEL_NS::YamlDeserializer> * GetOptions() const;
+
 private:
     virtual Int32 _OnGlobalSysInit() override;
     virtual Int32 _OnGlobalSysCompsCreated() override;
@@ -210,5 +212,11 @@ ALWAYS_INLINE const PendingUser *UserMgr::_GetPendingByUserId(UInt64 userId) con
     auto iter = _userIdRefPendingUser.find(userId);
     return iter == _userIdRefPendingUser.end() ? NULL : iter->second.AsSelf();
 }
+
+ALWAYS_INLINE const KERNEL_NS::FileMonitor<UserOptions, KERNEL_NS::YamlDeserializer> * UserMgr::GetOptions() const
+{
+    return _options;
+}
+
 
 SERVICE_END

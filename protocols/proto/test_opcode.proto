@@ -2,7 +2,7 @@ syntax = "proto3";
 package CRYSTAL_NET.service;
 
 // bytes 数据结构转json的时候会转成base64编码
-/// Opcode:,NoLog:true
+/// Opcode:,NoLog:false
 message TestOpcodeReq
 {
     string content = 1;

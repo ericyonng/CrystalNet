@@ -99,7 +99,7 @@ void User::Release()
 
 void User::OnRegisterComps()
 {
-    // RegisterComp<LoginMgrFactory>();
+    RegisterComp<LoginMgrFactory>();
     // RegisterComp<LibraryMgrFactory>();
     // RegisterComp<BookBagMgrFactory>();
     // RegisterComp<NotifyMgrFactory>();

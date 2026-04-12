@@ -132,6 +132,8 @@ protected:
 
     // db加载完毕事件
     void _OnDbLoaded(KERNEL_NS::LibEvent *ev);
+    bool HasDbComps() const;
+    void _CheckStartup();
 
     // 获取消息处理器
     KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *_GetMsgHandler(Int32 opcode);
@@ -165,6 +167,7 @@ private:
     std::unordered_map<Int32, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *> _opcodeRefHandler;
 
     KERNEL_NS::ListenerStub _dbLoadedEventStub;
+    bool _dbLoaded;
 
     KERNEL_NS::LibString _rsaPubKey;
     KERNEL_NS::LibString _rsaPrivKey;

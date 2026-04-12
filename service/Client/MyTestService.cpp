@@ -50,6 +50,7 @@ MyTestService::MyTestService()
 ,_frameUpdateTimeMs(0)
 ,_eventMgr(NULL)
 ,_serviceConfig(KERNEL_NS::FileMonitor<ServiceConfig, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
+,_userOptions(KERNEL_NS::FileMonitor<UserOptions, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
 ,_defaultStack(NULL)
 {
     ILogicSys::GetCurrentService() = this;
@@ -150,19 +151,19 @@ void MyTestService::_OnServiceRegisterComps()
     RegisterComp<TestMgrFactory>();
 
     // 用户管理
-    RegisterComp<ClientUserMgrFactory>();
+    // RegisterComp<ClientUserMgrFactory>();
 
-    const auto &serviceName = GetServiceName();
-    if(serviceName == "Client")
-    {
-        // SendLog
-        RegisterComp<SendLogFactory>();
-    }
+    // const auto &serviceName = GetServiceName();
+    // if(serviceName == "Client")
+    // {
+    //     // SendLog
+    //     RegisterComp<SendLogFactory>();
+    // }
 
-    if(serviceName == "LogReciever")
-    {
-        RegisterComp<LogRecieverFactory>();
-    }
+    // if(serviceName == "LogReciever")
+    // {
+    //     RegisterComp<LogRecieverFactory>();
+    // }
 
 }
 
@@ -178,6 +179,12 @@ Int32 MyTestService::_OnServiceInit()
             CLOG_ERROR("init service config fail, service name:%s", GetServiceName().c_str());
             return Status::ConfigError;
         }
+
+        if(!_userOptions->Init(GetApp()->GetSourceWrap(), KERNEL_NS::LibString().AppendFormat("%s.UserOptions", GetServiceName().c_str())))
+        {
+            CLOG_ERROR("init user options fail, service name:%s", GetServiceName().c_str());
+            return Status::ConfigError;
+        }
         
         auto currentConfig = _serviceConfig->Current();
 
@@ -186,9 +193,11 @@ Int32 MyTestService::_OnServiceInit()
 
         _frameUpdateTimeMs = static_cast<Int64>(currentConfig->FrameUpdateTimeMs);
 
-        _rsaPrivKey = currentConfig->RsaPrivateKey;
-        _rsaPubKey = currentConfig->RsaPublicKey;
-        if(_rsaPrivKey.empty() || _rsaPubKey.empty())
+        auto userOptions = _userOptions->Current();
+
+        // _rsaPrivKey = userOptions->UserRsaPublicKey;
+        _rsaPubKey = userOptions->UserRsaPublicKey;
+        if(_rsaPrivKey.empty() && _rsaPubKey.empty())
         {
             CLOG_ERROR("rsaPrivKey is empty service name:%s, path:%s", GetServiceName().c_str(), GetApp()->GetSourceWrap()->Path.c_str());
             return Status::ConfigError;
@@ -505,6 +514,12 @@ void MyTestService::_Clear()
     {
         KERNEL_NS::FileMonitor<ServiceConfig, KERNEL_NS::YamlDeserializer>::Delete_FileMonitor(_serviceConfig);
         _serviceConfig = NULL;
+    }
+
+    if(_userOptions)
+    {
+        KERNEL_NS::FileMonitor<UserOptions, KERNEL_NS::YamlDeserializer>::Delete_FileMonitor(_userOptions);
+        _userOptions = NULL;
     }
 }
 

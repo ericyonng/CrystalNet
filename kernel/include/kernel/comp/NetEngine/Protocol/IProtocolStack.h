@@ -121,7 +121,7 @@ protected:
     KERNEL_NS::LibString _base64Key;    // base64的key
     Int64 _expireTime = 0;                  // key过期时间
     Int64 _expireIntervalMs = 3000;         // key过期时间间隔
-    IDelegate<bool> *_openProtocolLog;
+    IDelegate<bool> *_openProtocolLog = NULL;
 };
 
 ALWAYS_INLINE void IProtocolStack::SetProtoVersionNumber(UInt64 ver)

@@ -29,6 +29,9 @@
 #pragma once
 
 #include <Comps/User/interface/IClientUserMgr.h>
+#include <Comps/User/impl/UserOptions.h>
+#include <kernel/comp/FileMonitor/FileMonitor.h>
+#include <kernel/comp/FileMonitor/YamlDeserializer.h>
 
 SERVICE_BEGIN
 struct AddrConfig;
@@ -96,6 +99,8 @@ private:
     KERNEL_NS::LibString _finalTargetIp;
     KERNEL_NS::LibString _finalPwq;
     Int32 _finalTargetPort;
+
+    KERNEL_NS::FileMonitor<UserOptions, KERNEL_NS::YamlDeserializer> *_userOptions;
 };
 
 SERVICE_END

@@ -93,7 +93,7 @@ namespace service {
 
 // ===================================================================
 
-// AnnotaionInfo[opcode(3), nolog(true), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
+// AnnotaionInfo[opcode(3), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class TestOpcodeReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.TestOpcodeReq) */ , public KERNEL_NS::ICoder {
 public:

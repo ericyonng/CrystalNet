@@ -55,6 +55,7 @@ MyTestService::MyTestService()
 ,_serviceConfig(KERNEL_NS::FileMonitor<ServiceConfig, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
 ,_defaultStack(NULL)
 ,_dbLoadedEventStub(INVALID_LISTENER_STUB)
+,_dbLoaded(false)
 {
     ILogicSys::GetCurrentService() = this;
 }
@@ -155,10 +156,10 @@ void MyTestService::_OnServiceRegisterComps()
     // RegisterComp<MysqlMgrFactory>();
 #endif
 
-    // 全球唯一id组件
+    // 全球唯一id组件(需要有存储组件)
     // RegisterComp<GlobalUidMgrFactory>();
 
-    // 跨时间组件
+    // 跨时间组件(需要有GlobalUidMgr与存储组件)
     // RegisterComp<PassTimeGlobalFactory>();
 
     // 测试组件
@@ -168,7 +169,7 @@ void MyTestService::_OnServiceRegisterComps()
     RegisterComp<TestMgrFactory>();
 
     // 用户系统
-    RegisterComp<UserMgrFactory>();
+    // RegisterComp<UserMgrFactory>();
 
     // 昵称系统
     // RegisterComp<NicknameGlobalFactory>();
@@ -192,10 +193,10 @@ void MyTestService::_OnServiceRegisterComps()
     // RegisterComp<SystemLogGlobalFactory>();
 
     // 插件集
-    // RegisterComp<PluginMgrFactory>();
+    RegisterComp<PluginMgrFactory>();
 
     // 中转节点功能
-    RegisterComp<MiddleNodeMgrFactory>();
+    // RegisterComp<MiddleNodeMgrFactory>();
 }
 
 Int32 MyTestService::_OnServiceInit()
@@ -288,6 +289,8 @@ Int32 MyTestService::_OnServiceCompsCreated()
     
     // 设置帧尾回调
     GetPoller()->SetFrameTick(this, &MyTestService::_OnFrameTick);
+
+    _CheckStartup();
 
     return Status::Success;
 }
@@ -536,12 +539,28 @@ void MyTestService::_OnPollerWillDestroy(KERNEL_NS::Poller *poller)
 
 void MyTestService::_OnDbLoaded(KERNEL_NS::LibEvent *ev)
 {
+    _dbLoaded = true;
+    
+}
+bool MyTestService::HasDbComps() const
+{
+    // TODO:后续如果接入mongodb则替换掉
+    return GetComp<IMysqlMgr>();
+}
+
+void MyTestService::_CheckStartup()
+{
     // 等待SysLogicMgr完成
     auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
     timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t){
         KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
     });
     timer->SetTimeOutHandler([this](KERNEL_NS::LibTimer *t) mutable{
+
+        // 有db组件需要先加载完成数据, TODO:后续接入mongodb时应该替换掉
+        if(HasDbComps() && !_dbLoaded)
+            return;
+        
         auto service = reinterpret_cast<IService *>(this);
         auto sysLogicMgr = service->GetComp<ISysLogicMgr>();
         if(!sysLogicMgr->IsAllTaskFinish())
@@ -552,7 +571,8 @@ void MyTestService::_OnDbLoaded(KERNEL_NS::LibEvent *ev)
 
         // 先执行跨天
         auto passTimeGlobal = service->GetComp<IPassTimeGlobal>();
-        passTimeGlobal->CheckPassTime();
+        if(passTimeGlobal)
+            passTimeGlobal->CheckPassTime();
 
         auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_WILL_STARTUP);
         GetEventMgr()->FireEvent(ev);
@@ -564,6 +584,7 @@ void MyTestService::_OnDbLoaded(KERNEL_NS::LibEvent *ev)
     });
     timer->Schedule(1000);
 }
+
 
 void MyTestService::_Clear()
 {

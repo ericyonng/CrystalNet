@@ -154,7 +154,7 @@
 
 Claude Code给的评价:
 
-![image-20260326144954396](.\doc\CoTaskClaudeCode.log)
+![image-20260326144954396](./doc/CoTaskClaudeCode.log)
 
 # Log 使用
 

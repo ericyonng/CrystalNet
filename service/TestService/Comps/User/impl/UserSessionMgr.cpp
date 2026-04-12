@@ -80,18 +80,9 @@ Int32 UserSessionMgr::_OnInit()
     _userMgr->GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_ClientHeartbeatReq, this, &UserSessionMgr::_OnHeartbeatReq);
 
     // 关注用户的会话
-    auto service = GetOwner()->CastTo<MyTestService>();
-    auto serviceConfig = service->GetApp()->GetYamlConfig()[service->GetServiceName().c_str()];
-    if (serviceConfig.IsMap())
-    {
-        auto &&value = serviceConfig["UserLinkinPort"];
-        if (value.IsDefined())
-        {
-            auto &&ports = value.as<std::vector<UInt16>>();
-            for (auto &port : ports)
-                _userPorts.insert(port);
-        }
-    }
+    auto options = _userMgr->GetOptions()->Current();
+    for(auto port : options->UserLinkinPort)
+        _userPorts.insert(port);
     
     _RegisterEvents();
     return Status::Success;
@@ -177,7 +168,7 @@ void UserSessionMgr::_OnSessionCreated(KERNEL_NS::LibEvent *ev)
     auto sessionId = ev->GetParam(Params::SESSION_ID).AsUInt64();
     auto isLinker = ev->GetParam(Params::IS_LINKER).AsBool();
     auto isFromConnect = ev->GetParam(Params::IS_FROM_CONNECT).AsBool();
-    auto localAddr = ev->GetParam(Params::LOCAL_ADDR).AsPtr<KERNEL_NS::BriefAddrInfo>();
+    auto localAddr = ev->GetParam(Params::LOCAL_ADDR).AsPtr<KERNEL_NS::BriefSockAddr>();
 
     if(isLinker || isFromConnect)
         return;

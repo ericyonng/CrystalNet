@@ -20,53 +20,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2026-04-11 23:04:33
+// Date: 2026-04-12 14:04:16
 // Author: Eric Yonng
 // Description:
-
 
 #pragma once
 
 #include <service/common/macro.h>
 #include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/comp/FileMonitor/FileMonitorMacro.h>
+#include <kernel/comp/LibString.h>
+#include <kernel/comp/LibStringYaml.h>
 
 SERVICE_BEGIN
 
 struct UserOptions
 {
-    POOL_CREATE_OBJ_DEFAULT(UserOptions);
-    
-    // 创建自己
-    static UserOptions *CreateNewObj(UserOptions &&cfg)
-    {
-        return UserOptions::New_UserOptions(std::move(cfg));
-    }
+    FILE_MONITOR_DECLARE(UserOptions)
 
-    // 释放自己
-    void Release()
-    {
-        UserOptions::Delete_UserOptions(this);
-    }
-
-    // 用户lru限制数量 usermgr
-    Int32 UserLruCapacityLimit = 1000;
-    // 用户连入端口号
-    std::vector<UInt16> UserLinkinPort;
+    // 公钥
+    KERNEL_NS::LibString UserRsaPublicKey;
+    // 测试用账号
+    KERNEL_NS::LibString TestLoginAccountName;
 };
 
 SERVICE_END
 
-
 namespace YAML
 {
-    template<>
-    struct convert<SERVICE_NS::UserOptions>
+   template<>
+   struct convert<SERVICE_NS::UserOptions>
     {
         static Node encode(const SERVICE_NS::UserOptions& rhs)
         {
             Node node;
-            node["UserLruCapacityLimit"] = rhs.UserLruCapacityLimit;
-            node["UserLinkinPort"] = rhs.UserLinkinPort;
+            node["UserRsaPublicKey"] = rhs.UserRsaPublicKey;
+            node["TestLoginAccountName"] = rhs.TestLoginAccountName;
             return node;
         }
 
@@ -78,18 +67,18 @@ namespace YAML
             }
 
             {
-                auto &&value = node["UserLruCapacityLimit"];
+                auto &&value = node["UserRsaPublicKey"];
                 if(value.IsDefined())
                 {
-                    rhs.UserLruCapacityLimit = value.as<Int32>();
+                    rhs.UserRsaPublicKey = value.as<KERNEL_NS::LibString>();
                 }
             }
 
             {
-                auto &&value = node["UserLinkinPort"];
+                auto &&value = node["TestLoginAccountName"];
                 if(value.IsDefined())
                 {
-                    rhs.UserLinkinPort = value.as<std::vector<UInt16>>();
+                    rhs.TestLoginAccountName = value.as<KERNEL_NS::LibString>();
                 }
             }
 

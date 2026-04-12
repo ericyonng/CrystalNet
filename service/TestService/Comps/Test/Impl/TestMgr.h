@@ -89,7 +89,6 @@ private:
     bool _isStopTest;
 
     // 配置
-    const ServiceConfig *_serviceConfig;
     Int32 _testSessionCount;        // 测试的会话数量
     Int32 _testConnectIntervalMs;   // 连接的时间间隔
     AddrConfig _targetAddrConfig;  // 测试的目标地址

@@ -1623,7 +1623,7 @@ export namespace crystal_net_service
 
     }
     // bytes 数据结构转json的时候会转成base64编码
-    /// Opcode:,NoLog:true
+    /// Opcode:,NoLog:false
     // test_opcode.proto
     export class TestOpcodeReq {
         content:string = "";

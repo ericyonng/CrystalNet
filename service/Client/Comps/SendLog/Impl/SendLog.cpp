@@ -132,11 +132,14 @@ void SendLog::_OnSendDataResponse(KERNEL_NS::LibPacket *&packet)
     if (_waitConfirmId)
     {
         auto userMgr = GetGlobalSys<IClientUserMgr>();
-        auto &allUsers = userMgr->GetAllUsers();
-        for(auto iter : allUsers)
+        if(userMgr)
         {
-            auto user = iter.second;
-            UNUSED(user->Send(Opcodes::OpcodeConst::OPCODE_SendDataRequest, _requestWaitConfirm));
+            auto &allUsers = userMgr->GetAllUsers();
+            for(auto iter : allUsers)
+            {
+                auto user = iter.second;
+                UNUSED(user->Send(Opcodes::OpcodeConst::OPCODE_SendDataRequest, _requestWaitConfirm));
+            }
         }
 
         _reSendTimer->Schedule(_reSendInterval);
@@ -157,6 +160,9 @@ void SendLog::_OnResendTimer(KERNEL_NS::LibTimer *timer)
 
     // 超时重传
     auto userMgr = GetGlobalSys<IClientUserMgr>();
+    if(!userMgr)
+        return;
+    
     auto &allUsers = userMgr->GetAllUsers();
     for(auto iter : allUsers)
     {

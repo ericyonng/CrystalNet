@@ -178,7 +178,7 @@ Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt1
 ) const
 {
     // 1.校验参数
-    if(!remoteIp._ip.empty())
+    if(remoteIp._ip.empty())
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("invalid remote ip:%s"), remoteIp.ToString().c_str());
         return Status::SockError_IllegalIp;

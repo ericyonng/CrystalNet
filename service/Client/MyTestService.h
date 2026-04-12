@@ -31,9 +31,10 @@
 #include <service_common/ServiceCommon.h>
 #include <service/common/common.h>
 
-KERNEL_BEGIN
+#include "Comps/User/impl/UserOptions.h"
 
-struct PollerConfig;
+KERNEL_BEGIN
+    struct PollerConfig;
 
 KERNEL_END
 
@@ -133,6 +134,7 @@ private:
 
     // 配置
     KERNEL_NS::FileMonitor<ServiceConfig, KERNEL_NS::YamlDeserializer> *_serviceConfig;
+    KERNEL_NS::FileMonitor<UserOptions, KERNEL_NS::YamlDeserializer> *_userOptions;
 
     std::unordered_map<Int32, KERNEL_NS::IProtocolStack *> _stackTypeRefProtocolStack;
     KERNEL_NS::IProtocolStack *_defaultStack;

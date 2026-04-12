@@ -55,7 +55,7 @@ using ProtoPackage.Attributes;
   #region Messages
   /// <summary>
   /// bytes 数据结构转json的时候会转成base64编码
-  //// Opcode:,NoLog:true
+  //// Opcode:,NoLog:false
   /// </summary>
 [ProtoMessage(3)]
   public sealed partial class TestOpcodeReq : pb::IMessage<TestOpcodeReq>

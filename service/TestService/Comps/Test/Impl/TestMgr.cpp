@@ -53,7 +53,6 @@ TestMgr::TestMgr()
 ,_quiteService(INVALID_LISTENER_STUB)
 ,_enableStartLink(false)
 ,_isStopTest(false)
-,_serviceConfig(NULL)
 ,_testSessionCount(0)
 ,_testConnectIntervalMs(10)
 ,_testSendMode(0)
@@ -479,9 +478,6 @@ Int32 TestMgr::_ReadTestConfigs()
 
     auto app = GetService()->GetApp();
     const auto &serviceName = GetService()->GetServiceName();
-
-    // 读取配置
-    _serviceConfig = GetService()->CastTo<MyTestService>()->GetServiceConfig();
 
     auto &yamalConfig = app->GetYamlConfig();
     auto serviceConfig = yamalConfig[serviceName.c_str()];

@@ -32,9 +32,10 @@
 #include <service/Client/Comps/Test/Interface/ITestMgr.h>
 #include <protocols/protocols.h>
 
-SERVICE_BEGIN
+#include "TestOptions.h"
 
-struct SessionAnalyzeInfo;
+SERVICE_BEGIN
+    struct SessionAnalyzeInfo;
 
 class TestMgr : public ITestMgr
 {
@@ -79,7 +80,6 @@ private:
     bool _isStopTest;
 
     // 配置
-    const ServiceConfig *_serviceConfig;
     Int32 _testSessionCount;        // 测试的会话数量
     Int32 _testConnectIntervalMs;   // 连接的时间间隔
     AddrConfig _targetAddrConfig;  // 测试的目标地址
@@ -92,6 +92,8 @@ private:
     // 需要发送数据包的会话
     std::unordered_map<UInt64, SessionAnalyzeInfo *> _sessionIdRefAnalyzeInfo;
     TestOpcodeReq req;
+
+    KERNEL_NS::FileMonitor<TestOptions, KERNEL_NS::YamlDeserializer> *_testOptions;
 };
 
 SERVICE_END

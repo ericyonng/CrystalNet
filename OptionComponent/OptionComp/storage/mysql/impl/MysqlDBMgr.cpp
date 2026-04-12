@@ -196,6 +196,7 @@ Int32 MysqlDBMgr::_OnHostInit()
             CLOG_WARN("read db config fail errCode:%d, dbSeg:%s", dbSeg.c_str());
             return Status::ConfigError;
         }
+        config = appYamlConfig.as<MysqlConfig>();
 
         if(_dbNameRefMysqlConfig.find(config._dbName) != _dbNameRefMysqlConfig.end())
         {

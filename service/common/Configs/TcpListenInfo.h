@@ -52,12 +52,12 @@ struct TcpListenInfo
 
     SERVICE_COMMON_NS::CrystalProtocolStackType::ENUMS TurnStackType() const
     {
-        return static_cast<SERVICE_COMMON_NS::CrystalProtocolStackType::ENUMS>(SERVICE_COMMON_NS::CrystalProtocolStackType::TurnFromString(ProtocolType));
+        return static_cast<SERVICE_COMMON_NS::CrystalProtocolStackType::ENUMS>(SERVICE_COMMON_NS::CrystalProtocolStackType::TurnFromString(Protocol));
     }
 
     KERNEL_NS::LibString ToString() const
     {
-        return KERNEL_NS::LibString().AppendFormat("%s:%d - [%s, %d, %d, %d, %d]", BindTo.c_str(), Port, ProtocolType.c_str()
+        return KERNEL_NS::LibString().AppendFormat("%s:%d - [%s, %d, %d, %d, %d]", BindTo.c_str(), Port, Protocol.c_str()
             , PacketRecvBytesLimitSwitch, PacketSendBytesLimitSwitch, PacketSpeedLimitSwitch,  ListenSessionCount);
     }
     
@@ -66,7 +66,7 @@ struct TcpListenInfo
     // 绑定端口
     Int32 Port;
     // 协议栈类型
-    KERNEL_NS::LibString ProtocolType;
+    KERNEL_NS::LibString Protocol;
     // 每个包是否设置接收上限
     bool PacketRecvBytesLimitSwitch = true;
     // 每个包是否设置发送上限
@@ -90,7 +90,7 @@ namespace YAML
             Node node;
             node["BindTo"] = rhs.BindTo;
             node["Port"] = rhs.Port;
-            node["ProtocolType"] = rhs.ProtocolType;
+            node["Protocol"] = rhs.Protocol;
             node["PacketRecvBytesLimitSwitch"] = rhs.PacketRecvBytesLimitSwitch;
             node["PacketSendBytesLimitSwitch"] = rhs.PacketSendBytesLimitSwitch;
             node["PacketSpeedLimitSwitch"] = rhs.PacketSpeedLimitSwitch;
@@ -118,9 +118,9 @@ namespace YAML
             }
             
             {
-                auto &&value = node["ProtocolType"];
+                auto &&value = node["Protocol"];
                 if(value.IsDefined())
-                    rhs.ProtocolType = value.as<KERNEL_NS::LibString>();
+                    rhs.Protocol = value.as<KERNEL_NS::LibString>();
             }
             {
                 auto &&value = node["PacketRecvBytesLimitSwitch"];
