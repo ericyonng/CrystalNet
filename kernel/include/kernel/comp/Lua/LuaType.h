@@ -178,7 +178,7 @@ public:
     }
 };
 
-typedef KERNEL_EXPORT Int32 (*LuaFunction) (lua_State *L);
+typedef Int32 (*LuaFunction) (lua_State *L);
 
 class KERNEL_EXPORT LuaNil
 {

@@ -48,7 +48,7 @@ UInt32 BlackWhiteListMode::ToFlags() const
  if (flags == 0)
     flags |= BlackWhiteFlag::AllowAllFlag;
 
-    return flags;
+ return flags;
 }
 
 KERNEL_END

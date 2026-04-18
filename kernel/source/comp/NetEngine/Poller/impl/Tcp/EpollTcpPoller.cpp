@@ -135,7 +135,7 @@ public:
                  }
              }
 
-            CLOG_NET_INFO("epoll tcp poller epoll monitor start threadid = [%llu], SystemUtil::GetCurrentThreadId());
+            CLOG_NET_INFO("epoll tcp poller epoll monitor start threadid = [%llu]", SystemUtil::GetCurrentThreadId());
 
             auto poller = KERNEL_NS::TlsUtil::GetPoller();
 
