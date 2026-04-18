@@ -193,7 +193,7 @@ Int32 MysqlDBMgr::_OnHostInit()
         auto appYamlConfig = (*_config)[dbSeg.c_str()];
         if (!appYamlConfig.IsMap())
         {
-            CLOG_WARN("read db config fail errCode:%d, dbSeg:%s", dbSeg.c_str());
+            CLOG_WARN("read db config fail dbSeg:%s", dbSeg.c_str());
             return Status::ConfigError;
         }
         config = appYamlConfig.as<MysqlConfig>();

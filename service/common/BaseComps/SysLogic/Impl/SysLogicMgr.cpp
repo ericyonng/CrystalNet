@@ -199,7 +199,6 @@ Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt1
         return Status::CreateNewStubFail;
     }
 
-    auto serviceProxy = service->GetServiceProxy();
     auto &config = GetApp()->GetKernelConfig();
     KERNEL_NS::SessionOption option;
     option._noDelay = true;

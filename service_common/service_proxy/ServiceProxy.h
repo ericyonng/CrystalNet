@@ -75,7 +75,7 @@ public:
     ServiceProxy();
     virtual ~ServiceProxy();
     void Release() final;
-    virtual void DefaultMaskReady(bool isReady){}
+    virtual void DefaultMaskReady(bool isReady) override{}
 
 public:
     // kernel => service
