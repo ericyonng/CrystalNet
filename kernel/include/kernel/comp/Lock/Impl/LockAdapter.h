@@ -151,10 +151,10 @@ public:
     ALWAYS_INLINE void Unlock()  { _raw.Unlock();}
     ALWAYS_INLINE bool TryLock() { return _raw.TryLock();}
 
-    ALWAYS_INLINE CoTask<Int32> Wait() { co_return co_await _raw.Wait();}
-    ALWAYS_INLINE CoTask<Int32> TimeWait(UInt64 second, UInt64 microSec) { co_return co_await _raw.TimeWait(second, microSec);}
-    ALWAYS_INLINE CoTask<Int32> TimeWait(UInt64 milliSecond) { co_return co_await _raw.TimeWait(milliSecond); }
-    ALWAYS_INLINE CoTask<Int32> TimeWait(TimeSlice slice) { co_return co_await _raw.TimeWait(slice); }
+    CoTask<Int32> Wait() { co_return co_await _raw.Wait();}
+    CoTask<Int32> TimeWait(UInt64 second, UInt64 microSec) { co_return co_await _raw.TimeWait(second, microSec);}
+    CoTask<Int32> TimeWait(UInt64 milliSecond) { co_return co_await _raw.TimeWait(milliSecond); }
+    CoTask<Int32> TimeWait(TimeSlice slice) { co_return co_await _raw.TimeWait(slice); }
 
     ALWAYS_INLINE bool Sinal() { return _raw.Sinal();}
     ALWAYS_INLINE bool HasWaiter() { return _raw.HasWaiter();}

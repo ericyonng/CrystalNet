@@ -112,7 +112,7 @@ private:
     alignas(SYSTEM_ALIGN_SIZE) std::atomic<Int32> _curWaiterCount;
 
     alignas(SYSTEM_ALIGN_SIZE) std::atomic<UInt32> _incId;
-    mutable alignas(SYSTEM_ALIGN_SIZE) std::atomic<Int32> _working;
+    alignas(SYSTEM_ALIGN_SIZE) mutable std::atomic<Int32> _working;
 
     alignas(SYSTEM_ALIGN_SIZE) std::vector<std::atomic<CoLockerInfo *> *> _waiters;
 
