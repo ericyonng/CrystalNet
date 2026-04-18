@@ -467,20 +467,19 @@ void TcpPollerMgr::PostIpControl(const std::list<IpControlInfo *> &controlList)
 void TcpPollerMgr::OnConnectRemoteSuc(BuildSessionInfo *newSessionInfo)
 {
     std::set<TcpPollerMgr::TcpPoller *> excludes;
-    auto poller = _SelectLowerLoaderPoller(_dataTransfer, excludes);
+    auto poller = _SelectLowerLoaderPoller(&_dataTransfer, excludes);
     if(UNLIKELY(!poller))
     {
-        g_Log->NetError(LOGFMT_OBJ_TAG("_SelectLowerLoaderPoller fail have no data transfer poller cluster newSessionInfo:%s"), newSessionInfo->ToString().c_str());
-        
+        CLOG_NET_ERROR("_SelectLowerLoaderPoller fail have no data transfer poller cluster newSessionInfo:%s", newSessionInfo->ToString().c_str());
+
         GetOwner()->CastTo<IPollerMgr>()->ReduceSessionPending(1);
         SocketUtil::DestroySocket(newSessionInfo->_sock);
         BuildSessionInfo::Delete_BuildSessionInfo(newSessionInfo);
         return;
     }
 
-    if(g_Log->IsEnable(LogLevel::NetInfo))
-        g_Log->NetInfo(LOGFMT_OBJ_TAG("connect remote suc new session info:%s"), newSessionInfo->ToString().c_str());
-    
+    CLOG_NET_INFO("connect remote suc new session info:%s", newSessionInfo->ToString().c_str());
+
     poller->PostNewSession(newSessionInfo);
 }
 #endif
@@ -491,15 +490,14 @@ void TcpPollerMgr::OnAcceptedSuc(BuildSessionInfo *newSessionInfo)
     auto poller = _SelectLowerLoaderPoller(&_dataTransfer, excludes);
     if(UNLIKELY(!poller))
     {
-        g_Log->NetError(LOGFMT_OBJ_TAG("_SelectLowerLoaderPoller fail have no data transfer poller cluster newSessionInfo:%s"), newSessionInfo->ToString().c_str());
+        CLOG_NET_ERROR("_SelectLowerLoaderPoller fail have no data transfer poller cluster newSessionInfo:%s", newSessionInfo->ToString().c_str());
         GetOwner()->CastTo<IPollerMgr>()->ReduceSessionPending(1);
         SocketUtil::DestroySocket(newSessionInfo->_sock);
         BuildSessionInfo::Delete_BuildSessionInfo(newSessionInfo);
         return;
     }
 
-    if(g_Log->IsEnable(LogLevel::NetInfo))
-        g_Log->NetInfo(LOGFMT_OBJ_TAG("accepted new link in suc new session info:%s"), newSessionInfo->ToString().c_str());
+    CLOG_NET_INFO("accepted new link in suc new session info:%s", newSessionInfo->ToString().c_str());
     poller->PostNewSession(newSessionInfo);
 }
 
