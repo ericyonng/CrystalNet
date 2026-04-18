@@ -77,8 +77,11 @@ private:
     // 多线程访问
     static  std::unordered_map<const FileMonitor<ObjType, FileDeserializerType> *, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>> *&GetFileMonitorInstRefCurrentObjAndDeserialize()
     {
-        DEF_STATIC_THREAD_LOCAL_DECLEAR std::unordered_map<const FileMonitor<ObjType, FileDeserializerType> *, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>> * s_FileMonitorInstRefCurrentObjAndDeserialize =
-            new std::unordered_map<const  FileMonitor<ObjType, FileDeserializerType> *, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>>();
+        DEF_STATIC_THREAD_LOCAL_DECLEAR std::unordered_map<const FileMonitor<ObjType, FileDeserializerType> *, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>> * s_FileMonitorInstRefCurrentObjAndDeserialize = NULL;
+        if(UNLIKELY(!s_FileMonitorInstRefCurrentObjAndDeserialize))
+        {
+            s_FileMonitorInstRefCurrentObjAndDeserialize = new std::unordered_map<const  FileMonitor<ObjType, FileDeserializerType> *, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>>();
+        }
         return s_FileMonitorInstRefCurrentObjAndDeserialize;
 
     }
