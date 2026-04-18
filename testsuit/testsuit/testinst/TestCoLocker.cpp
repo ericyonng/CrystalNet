@@ -30,7 +30,7 @@
 
 namespace TestCoLockerNs
 {
-    static std::atomic<Int64> s_GenQps;
+    // static std::atomic<Int64> s_GenQps;
     static std::atomic<Int64> s_comsumeQps;
 
     class EventLoopStartupCounter : public KERNEL_NS::IThreadStartUp

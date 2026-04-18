@@ -192,7 +192,7 @@ bool LibLog::Init(const Byte8 *logConfigFile, const Byte8 *logCfgDir, YamlMemory
                 _threadRelationLogs.resize(realRelationId + 1);
             if(_flushLocks.size() <= realRelationId)
                 _flushLocks.resize(realRelationId + 1);
-            auto flushThread = threads[realRelationId];
+            // auto flushThread = threads[realRelationId];
             if (UNLIKELY(_flushLocks[realRelationId] == NULL))
             {
                 auto coreNum = g_cpu->GetCpuCoreCnt();
