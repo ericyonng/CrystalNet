@@ -258,8 +258,8 @@ echo "create_mongo_shard_cluster init configsvr nodes..."
 
 # 初始化Configsvr主节点
 if [ ${CONFIG_SVR_PRIMARY} = "127.0.0.1" ] || [ ${CONFIG_SVR_PRIMARY} = ${LOCAL_IP} ]; then
-    echo "create_mongo_shard_cluster init local config primary..."
-    . ${SCRIPT_PATH}/init_primary.sh ${TARGET_USER} ${TARGET_PWD} ${REPLISET_INSTALL_PATH} ${CONFIG_SVR_PRIMARY} ${CONFIG_SVR_PRIMARY_PORT} ${DB_NAME}_config_1 "${RS_NAME}_config" ${KEYFILE_PATH} configsvr || {
+    echo "create_mongo_shard_cluster init local config primary DB_NAME:${DB_NAME}..."
+    . ${SCRIPT_PATH}/init_primary.sh ${TARGET_USER} ${TARGET_PWD} ${REPLISET_INSTALL_PATH} ${CONFIG_SVR_PRIMARY} ${CONFIG_SVR_PRIMARY_PORT} ${DB_NAME}_config_1 ${RS_NAME}_config ${KEYFILE_PATH} configsvr || {
         echo "错误：${CONFIG_SVR_PRIMARY} init_primary fail ${SCRIPT_PATH}/init_primary.sh 失败" >&2
         exit 1
     }
@@ -268,7 +268,7 @@ if [ ${CONFIG_SVR_PRIMARY} = "127.0.0.1" ] || [ ${CONFIG_SVR_PRIMARY} = ${LOCAL_
 else
     echo "create_mongo_shard_cluster init remote ${CONFIG_SVR_PRIMARY} config primary..."
 
-    ssh root@${CONFIG_SVR_PRIMARY} "sh ${WORK_PATH}/init_primary.sh ${TARGET_USER} ${TARGET_PWD} ${REPLISET_INSTALL_PATH} ${CONFIG_SVR_PRIMARY} ${CONFIG_SVR_PRIMARY_PORT} \"${DB_NAME}_config_1\" \"${RS_NAME}_config\" ${KEYFILE_PATH} configsvr" || {
+    ssh root@${CONFIG_SVR_PRIMARY} "sh ${WORK_PATH}/init_primary.sh ${TARGET_USER} ${TARGET_PWD} ${REPLISET_INSTALL_PATH} ${CONFIG_SVR_PRIMARY} ${CONFIG_SVR_PRIMARY_PORT} ${DB_NAME}_config_1 ${RS_NAME}_config ${KEYFILE_PATH} configsvr" || {
         echo "错误：${CONFIG_SVR_PRIMARY} init_primary fail ${WORK_PATH}/init_primary.sh 失败" >&2
         exit 1
     }
@@ -280,8 +280,8 @@ echo "create_mongo_shard_cluster init mongod nodes..."
 
 # 初始化数据主节点
 if [ ${MONGOD_SVR_PRIMARY} = "127.0.0.1" ] || [ ${MONGOD_SVR_PRIMARY} = ${LOCAL_IP} ]; then
-    echo "create_mongo_shard_cluster init local mongod primary..."
-    . ${SCRIPT_PATH}/init_primary.sh ${TARGET_USER} ${TARGET_PWD} ${REPLISET_INSTALL_PATH} ${MONGOD_SVR_PRIMARY} ${MONGOD_SVR_PRIMARY_PORT} \"${DB_NAME}_mongod_1\" \"${RS_NAME}_mongod\" ${KEYFILE_PATH} shardsvr || {
+    echo "create_mongo_shard_cluster init local mongod primary DB_NAME:${DB_NAME}..."
+    . ${SCRIPT_PATH}/init_primary.sh ${TARGET_USER} ${TARGET_PWD} ${REPLISET_INSTALL_PATH} ${MONGOD_SVR_PRIMARY} ${MONGOD_SVR_PRIMARY_PORT} ${DB_NAME}_mongod_1 ${RS_NAME}_mongod ${KEYFILE_PATH} shardsvr || {
         echo "错误：${MONGOD_SVR_PRIMARY} init_primary fail ${SCRIPT_PATH}/init_primary.sh 失败" >&2
         exit 1
     }
@@ -290,7 +290,7 @@ if [ ${MONGOD_SVR_PRIMARY} = "127.0.0.1" ] || [ ${MONGOD_SVR_PRIMARY} = ${LOCAL_
 else
     echo "create_mongo_shard_cluster init remote ${MONGOD_SVR_PRIMARY} mongod primary..."
 
-    ssh root@${MONGOD_SVR_PRIMARY} "sh ${WORK_PATH}/init_primary.sh ${TARGET_USER} ${TARGET_PWD} ${REPLISET_INSTALL_PATH} ${MONGOD_SVR_PRIMARY} ${MONGOD_SVR_PRIMARY_PORT} \"${DB_NAME}_mongod_1\" \"${RS_NAME}_mongod\" ${KEYFILE_PATH} shardsvr" || {
+    ssh root@${MONGOD_SVR_PRIMARY} "sh ${WORK_PATH}/init_primary.sh ${TARGET_USER} ${TARGET_PWD} ${REPLISET_INSTALL_PATH} ${MONGOD_SVR_PRIMARY} ${MONGOD_SVR_PRIMARY_PORT} ${DB_NAME}_mongod_1 ${RS_NAME}_mongod ${KEYFILE_PATH} shardsvr" || {
         echo "错误：${MONGOD_SVR_PRIMARY} init_primary fail ${WORK_PATH}/init_primary.sh 失败" >&2
         exit 1
     }
