@@ -7,18 +7,18 @@
 SCRIPT_PATH="$(cd $(dirname $0); pwd)"
 
 # 复制集路径
-local TARGET_USER=$1
-local TARGET_PWD=$2
-local REPLISET_INSTALL_PATH=$3
-local PRIMARY_IP=$4
-local PRIMARY_PORT=$5
-local DB_NAME=$6
+TARGET_USER=$1
+TARGET_PWD=$2
+LOCAL_REPLISET_INSTALL_PATH=$3
+LOCAL_PRIMARY_IP=$4
+LOCAL_PRIMARY_PORT=$5
+LOCAL_DB_NAME=$6
 # 复制集名 config/数据集的rs_name必须唯一
-local RS_NAME=$7
+LOCAL_RS_NAME=$7
 # keyfile路径
-local KEYFILE_PATH=$8
+LOCAL_KEYFILE_PATH=$8
 # 如果是mongos需要configDB
-local MONGOS_CONFIG_ADDR="$9"
+LOCAL_MONGOS_CONFIG_ADDR="$9"
 
 if [ -z "${TARGET_USER}" ] || [ -z "${TARGET_PWD}" ]; then
     echo "TARGET_USER:${TARGET_USER} TARGET_PWD:${TARGET_PWD} lack of pwd info"
@@ -26,58 +26,58 @@ if [ -z "${TARGET_USER}" ] || [ -z "${TARGET_PWD}" ]; then
 fi
 
 # 校验参数0
-if [ -e "${REPLISET_INSTALL_PATH}" ]; then
-    echo "REPLISET_INSTALL_PATH:${REPLISET_INSTALL_PATH} exists"
+if [ -e "${LOCAL_REPLISET_INSTALL_PATH}" ]; then
+    echo "LOCAL_REPLISET_INSTALL_PATH:${LOCAL_REPLISET_INSTALL_PATH} exists"
 else
-    echo "REPLISET_INSTALL_PATH:${REPLISET_INSTALL_PATH} not exists"
+    echo "LOCAL_REPLISET_INSTALL_PATH:${LOCAL_REPLISET_INSTALL_PATH} not exists"
     exit 1
 fi
 
-if [ -z "${PRIMARY_IP}" ] || [ -z "${PRIMARY_PORT}" ]; then
-    echo "PRIMARY_IP:${PRIMARY_IP} PRIMARY_PORT:${PRIMARY_PORT} lack of primary info"
+if [ -z "${LOCAL_PRIMARY_IP}" ] || [ -z "${LOCAL_PRIMARY_PORT}" ]; then
+    echo "LOCAL_PRIMARY_IP:${LOCAL_PRIMARY_IP} LOCAL_PRIMARY_PORT:${LOCAL_PRIMARY_PORT} lack of primary info"
     exit 1
 fi
 
-if [ -z "${DB_NAME}" ]; then
-    echo "DB_NAME:${DB_NAME} is empty"
+if [ -z "${LOCAL_DB_NAME}" ]; then
+    echo "LOCAL_DB_NAME:${LOCAL_DB_NAME} is empty"
     exit 1
 fi
 
-if [ -z "${RS_NAME}" ]; then
-    echo "RS_NAME:${RS_NAME} is empty"
+if [ -z "${LOCAL_RS_NAME}" ]; then
+    echo "LOCAL_RS_NAME:${LOCAL_RS_NAME} is empty"
     exit 1
 fi
 
-if [ -e "${KEYFILE_PATH}" ]; then
-    echo "KEYFILE_PATH:${KEYFILE_PATH} is exists"
+if [ -e "${LOCAL_KEYFILE_PATH}" ]; then
+    echo "LOCAL_KEYFILE_PATH:${LOCAL_KEYFILE_PATH} is exists"
 else
-    echo "KEYFILE_PATH:${KEYFILE_PATH} is not exists"
+    echo "LOCAL_KEYFILE_PATH:${LOCAL_KEYFILE_PATH} is not exists"
     exit 1
 fi
 
 echo "TARGET_USER:${TARGET_USER}"
 echo "TARGET_PWD:${TARGET_PWD}"
-echo "REPLISET_INSTALL_PATH:${REPLISET_INSTALL_PATH}"
-echo "PRIMARY_IP:${PRIMARY_IP}"
-echo "PRIMARY_PORT:${PRIMARY_PORT}"
-echo "DB_NAME:${DB_NAME}"
-echo "RS_NAME:${RS_NAME}"
-echo "KEYFILE_PATH:${KEYFILE_PATH}"
-echo "MONGOS_CONFIG_ADDR:${MONGOS_CONFIG_ADDR}"
+echo "LOCAL_REPLISET_INSTALL_PATH:${LOCAL_REPLISET_INSTALL_PATH}"
+echo "LOCAL_PRIMARY_IP:${LOCAL_PRIMARY_IP}"
+echo "LOCAL_PRIMARY_PORT:${LOCAL_PRIMARY_PORT}"
+echo "LOCAL_DB_NAME:${LOCAL_DB_NAME}"
+echo "LOCAL_RS_NAME:${LOCAL_RS_NAME}"
+echo "LOCAL_KEYFILE_PATH:${LOCAL_KEYFILE_PATH}"
+echo "LOCAL_MONGOS_CONFIG_ADDR:${LOCAL_MONGOS_CONFIG_ADDR}"
 
 # 先启动并创建用户, 密码与授权
-sh ${SCRIPT_PATH}/create_mongos_inst.sh ${REPLISET_INSTALL_PATH}/${DB_NAME} ${PRIMARY_PORT} "${RS_NAME}" ${KEYFILE_PATH} "${MONGOS_CONFIG_ADDR}" "no_auth" || {
+sh ${SCRIPT_PATH}/create_mongos_inst.sh ${LOCAL_REPLISET_INSTALL_PATH}/${LOCAL_DB_NAME} ${LOCAL_PRIMARY_PORT} "${LOCAL_RS_NAME}" ${LOCAL_KEYFILE_PATH} "${LOCAL_MONGOS_CONFIG_ADDR}" "no_auth" || {
     echo "创建主节点db1实例失败！" >&2
     exit 1
 }
-echo "创建mongos ${DB_NAME} 实例成功"
+echo "创建mongos ${LOCAL_DB_NAME} 实例成功"
 
 
 echo "创建权限用户:${TARGET_USER}..."
 
 # 创建用户并赋予权限
-mongosh 127.0.0.1:${PRIMARY_PORT}/admin --eval "db.createUser({user: \"${TARGET_USER}\", pwd: \"${TARGET_PWD}\", roles:[{role: \"userAdminAnyDatabase\", db: \"admin\"}, {role: \"readWriteAnyDatabase\", db: \"admin\"}, {role: \"clusterAdmin\", db: \"admin\"}]})" || {
-    echo "错误：创建用户并赋予权限:${REPLISET_INSTALL_PATH}/db1！" >&2
+mongosh 127.0.0.1:${LOCAL_PRIMARY_PORT}/admin --eval "db.createUser({user: \"${TARGET_USER}\", pwd: \"${TARGET_PWD}\", roles:[{role: \"userAdminAnyDatabase\", db: \"admin\"}, {role: \"readWriteAnyDatabase\", db: \"admin\"}, {role: \"clusterAdmin\", db: \"admin\"}]})" || {
+    echo "错误：创建用户并赋予权限:${LOCAL_REPLISET_INSTALL_PATH}/db1！" >&2
     exit 1
 }
 
