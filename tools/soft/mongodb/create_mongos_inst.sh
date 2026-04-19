@@ -4,21 +4,21 @@
 
 
 # 当前脚本路径
-local SCRIPT_PATH="$(cd $(dirname $0); pwd)"
+SCRIPT_PATH="$1"
 
 # 变量
 # 目标db目录
-local TARGET_DB_PATH=$1
+TARGET_DB_PATH=$2
 # 端口号
-local TARGET_PORT=$2
+TARGET_PORT=$3
 # 复制集名
-local REPL_SET_NAME=$3
+REPL_SET_NAME=$4
 # keyfile 绝对路径
-local KEYFILE_PATH=$4
+KEYFILE_PATH=$5
 # mongos configsvr地址
-local MONGOS_CONFIG_ADDR=$5
+MONGOS_CONFIG_ADDR=$6
 # 是否不需要启动验证
-local IS_NO_AUTH=$6
+IS_NO_AUTH=$7
 
 echo "TARGET_DB_PATH:${TARGET_DB_PATH}"
 echo "TARGET_PORT:${TARGET_PORT}"

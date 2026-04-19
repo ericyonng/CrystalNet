@@ -4,25 +4,25 @@
 # sh ./init_primary.sh
 
 # 当前脚本路径
-SCRIPT_PATH="$(cd $(dirname $0); pwd)"
+SCRIPT_PATH="$1"
 
 # 复制集路径
-TARGET_USER=$1
-TARGET_PWD=$2
-REPLISET_INSTALL_PATH=$3
-PRIMARY_IP=$4
-PRIMARY_PORT=$5
-DB_NAME=$6
+TARGET_USER=$2
+TARGET_PWD=$3
+LOCAL_REPLISET_INSTALL_PATH=$4
+LOCAL_PRIMARY_IP=$5
+LOCAL_PRIMARY_PORT=$6
+LOCAL_DB_NAME=$7
 # 复制集名 config/数据集的rs_name必须唯一
-RS_NAME=$7
+LOCAL_RS_NAME=$8
 # keyfile路径
-KEYFILE_PATH=$8
+LOCAL_KEYFILE_PATH=$9
 # sharding角色 mongos填写:""
-SHARDING_CLUSTER_ROLE=$9
+LOCAL_SHARDING_CLUSTER_ROLE=$10
 # 是否mongos
-IS_MONGOS="$10"
+LOCAL_IS_MONGOS="$11"
 # 如果是mongos需要configDB
-MONGOS_CONFIG_ADDR="$11"
+LOCAL_MONGOS_CONFIG_ADDR="$12"
 
 if [ -z "${TARGET_USER}" ] || [ -z "${TARGET_PWD}" ]; then
     echo "TARGET_USER:${TARGET_USER} TARGET_PWD:${TARGET_PWD} lack of pwd info"
@@ -30,78 +30,78 @@ if [ -z "${TARGET_USER}" ] || [ -z "${TARGET_PWD}" ]; then
 fi
 
 # 校验参数0
-if [ -e "${REPLISET_INSTALL_PATH}" ]; then
-    echo "REPLISET_INSTALL_PATH:${REPLISET_INSTALL_PATH} exists"
+if [ -e "${LOCAL_REPLISET_INSTALL_PATH}" ]; then
+    echo "LOCAL_REPLISET_INSTALL_PATH:${LOCAL_REPLISET_INSTALL_PATH} exists"
 else
-    echo "REPLISET_INSTALL_PATH:${REPLISET_INSTALL_PATH} not exists will create"
-    mkdir -p ${REPLISET_INSTALL_PATH}
+    echo "LOCAL_REPLISET_INSTALL_PATH:${LOCAL_REPLISET_INSTALL_PATH} not exists will create"
+    mkdir -p ${LOCAL_REPLISET_INSTALL_PATH}
 fi
 
-if [ -z "${PRIMARY_IP}" ] || [ -z "${PRIMARY_PORT}" ]; then
-    echo "PRIMARY_IP:${PRIMARY_IP} PRIMARY_PORT:${PRIMARY_PORT} lack of primary info"
+if [ -z "${LOCAL_PRIMARY_IP}" ] || [ -z "${LOCAL_PRIMARY_PORT}" ]; then
+    echo "LOCAL_PRIMARY_IP:${LOCAL_PRIMARY_IP} LOCAL_PRIMARY_PORT:${LOCAL_PRIMARY_PORT} lack of primary info"
     exit 1
 fi
 
-if [ -z "${DB_NAME}" ]; then
-    echo "DB_NAME:${DB_NAME} is empty"
+if [ -z "${LOCAL_DB_NAME}" ]; then
+    echo "LOCAL_DB_NAME:${LOCAL_DB_NAME} is empty"
     exit 1
 fi
 
-if [ -z "${RS_NAME}" ]; then
-    echo "RS_NAME:${RS_NAME} is empty"
+if [ -z "${LOCAL_RS_NAME}" ]; then
+    echo "LOCAL_RS_NAME:${LOCAL_RS_NAME} is empty"
     exit 1
 fi
 
-if [ -e "${KEYFILE_PATH}" ]; then
-    echo "KEYFILE_PATH:${KEYFILE_PATH} is exists"
+if [ -e "${LOCAL_KEYFILE_PATH}" ]; then
+    echo "LOCAL_KEYFILE_PATH:${LOCAL_KEYFILE_PATH} is exists"
 else
-    echo "KEYFILE_PATH:${KEYFILE_PATH} is not exists"
+    echo "LOCAL_KEYFILE_PATH:${LOCAL_KEYFILE_PATH} is not exists"
     exit 1
 fi
 
 echo "TARGET_USER:${TARGET_USER}"
 echo "TARGET_PWD:${TARGET_PWD}"
-echo "REPLISET_INSTALL_PATH:${REPLISET_INSTALL_PATH}"
-echo "PRIMARY_IP:${PRIMARY_IP}"
-echo "PRIMARY_PORT:${PRIMARY_PORT}"
-echo "DB_NAME:${DB_NAME}"
-echo "RS_NAME:${RS_NAME}"
-echo "KEYFILE_PATH:${KEYFILE_PATH}"
-echo "SHARDING_CLUSTER_ROLE:${SHARDING_CLUSTER_ROLE}"
-echo "IS_MONGOS:${IS_MONGOS}"
-echo "MONGOS_CONFIG_ADDR:${MONGOS_CONFIG_ADDR}"
+echo "LOCAL_REPLISET_INSTALL_PATH:${LOCAL_REPLISET_INSTALL_PATH}"
+echo "LOCAL_PRIMARY_IP:${LOCAL_PRIMARY_IP}"
+echo "LOCAL_PRIMARY_PORT:${LOCAL_PRIMARY_PORT}"
+echo "LOCAL_DB_NAME:${LOCAL_DB_NAME}"
+echo "LOCAL_RS_NAME:${LOCAL_RS_NAME}"
+echo "LOCAL_KEYFILE_PATH:${LOCAL_KEYFILE_PATH}"
+echo "LOCAL_SHARDING_CLUSTER_ROLE:${LOCAL_SHARDING_CLUSTER_ROLE}"
+echo "LOCAL_IS_MONGOS:${LOCAL_IS_MONGOS}"
+echo "LOCAL_MONGOS_CONFIG_ADDR:${LOCAL_MONGOS_CONFIG_ADDR}"
 
 # 先启动并创建用户, 密码与授权
-sh ${SCRIPT_PATH}/create_mongodb_inst.sh ${REPLISET_INSTALL_PATH}/${DB_NAME} ${PRIMARY_PORT} "${RS_NAME}" ${KEYFILE_PATH} "${SHARDING_CLUSTER_ROLE}" "${IS_MONGOS}" "${MONGOS_CONFIG_ADDR}" "no_auth" || {
+sh ${SCRIPT_PATH}/create_mongodb_inst.sh ${LOCAL_REPLISET_INSTALL_PATH}/${LOCAL_DB_NAME} ${LOCAL_PRIMARY_PORT} "${LOCAL_RS_NAME}" ${LOCAL_KEYFILE_PATH} "${LOCAL_SHARDING_CLUSTER_ROLE}" "${LOCAL_IS_MONGOS}" "${LOCAL_MONGOS_CONFIG_ADDR}" "no_auth" || {
     echo "创建主节点db1实例失败！" >&2
     exit 1
 }
-echo "创建主节点 ${DB_NAME} 实例成功"
+echo "创建主节点 ${LOCAL_DB_NAME} 实例成功"
 
 # 必须先初始化复制集否则会报不是主节点的错
-mongosh --host 127.0.0.1:${PRIMARY_PORT} --eval "rs.initiate({_id: \"${RS_NAME}\", members: [{_id: 0, host: \"${PRIMARY_IP}:${PRIMARY_PORT}\", priority: 2}], settings: {heartbeatIntervalMillis: 2000, electionTimeoutMillis: 10000}})" || {
-    echo "错误：初始化复制集失败 DB_NAME:${DB_NAME}" >&2
+mongosh --host 127.0.0.1:${LOCAL_PRIMARY_PORT} --eval "rs.initiate({_id: \"${LOCAL_RS_NAME}\", members: [{_id: 0, host: \"${LOCAL_PRIMARY_IP}:${LOCAL_PRIMARY_PORT}\", priority: 2}], settings: {heartbeatIntervalMillis: 2000, electionTimeoutMillis: 10000}})" || {
+    echo "错误：初始化复制集失败 LOCAL_DB_NAME:${LOCAL_DB_NAME}" >&2
     exit 1
 }
 
 # 等待选举完成
-echo "wait ${DB_NAME} 选举完成..."
+echo "wait ${LOCAL_DB_NAME} 选举完成..."
 sleep 5
 
 echo "创建权限用户:${TARGET_USER}..."
 
 # 创建用户并赋予权限
-mongosh 127.0.0.1:${PRIMARY_PORT}/admin --eval "db.createUser({user: \"${TARGET_USER}\", pwd: \"${TARGET_PWD}\", roles:[{role: \"userAdminAnyDatabase\", db: \"admin\"}, {role: \"readWriteAnyDatabase\", db: \"admin\"}, {role: \"clusterAdmin\", db: \"admin\"}]})" || {
-    echo "错误：创建用户并赋予权限:${REPLISET_INSTALL_PATH}/db1！" >&2
+mongosh 127.0.0.1:${LOCAL_PRIMARY_PORT}/admin --eval "db.createUser({user: \"${TARGET_USER}\", pwd: \"${TARGET_PWD}\", roles:[{role: \"userAdminAnyDatabase\", db: \"admin\"}, {role: \"readWriteAnyDatabase\", db: \"admin\"}, {role: \"clusterAdmin\", db: \"admin\"}]})" || {
+    echo "错误：创建用户并赋予权限:${LOCAL_REPLISET_INSTALL_PATH}/db1！" >&2
     exit 1
 }
 
 echo "创建用户:${TARGET_USER} 并授权成功..."
 
 # 关闭mongo
-if [ -z "${IS_MONGOS}" ]; then
-    mongod -f ${REPLISET_INSTALL_PATH}/${DB_NAME}/mongod.conf --shutdown || {
-        echo "错误：关闭 MongoDB 失败，请检查配置或日志 MONGOD_CONF:${REPLISET_INSTALL_PATH}/${DB_NAME}/mongod.conf！" >&2
+if [ -z "${LOCAL_IS_MONGOS}" ]; then
+    mongod -f ${LOCAL_REPLISET_INSTALL_PATH}/${LOCAL_DB_NAME}/mongod.conf --shutdown || {
+        echo "错误：关闭 MongoDB 失败，请检查配置或日志 MONGOD_CONF:${LOCAL_REPLISET_INSTALL_PATH}/${LOCAL_DB_NAME}/mongod.conf！" >&2
         exit 1
     }
         

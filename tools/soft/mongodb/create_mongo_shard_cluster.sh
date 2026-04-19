@@ -259,7 +259,7 @@ echo "create_mongo_shard_cluster init configsvr nodes..."
 # 初始化Configsvr主节点
 if [ ${CONFIG_SVR_PRIMARY} = "127.0.0.1" ] || [ ${CONFIG_SVR_PRIMARY} = ${LOCAL_IP} ]; then
     echo "create_mongo_shard_cluster init local config primary DB_NAME:${DB_NAME}..."
-    . ${SCRIPT_PATH}/init_primary.sh ${TARGET_USER} ${TARGET_PWD} ${REPLISET_INSTALL_PATH} ${CONFIG_SVR_PRIMARY} ${CONFIG_SVR_PRIMARY_PORT} ${DB_NAME}_config_1 ${RS_NAME}_config ${KEYFILE_PATH} configsvr || {
+    sh ${SCRIPT_PATH}/init_primary.sh ${SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${REPLISET_INSTALL_PATH} ${CONFIG_SVR_PRIMARY} ${CONFIG_SVR_PRIMARY_PORT} ${DB_NAME}_config_1 ${RS_NAME}_config ${KEYFILE_PATH} configsvr || {
         echo "错误：${CONFIG_SVR_PRIMARY} init_primary fail ${SCRIPT_PATH}/init_primary.sh 失败" >&2
         exit 1
     }
@@ -268,7 +268,7 @@ if [ ${CONFIG_SVR_PRIMARY} = "127.0.0.1" ] || [ ${CONFIG_SVR_PRIMARY} = ${LOCAL_
 else
     echo "create_mongo_shard_cluster init remote ${CONFIG_SVR_PRIMARY} config primary..."
 
-    ssh root@${CONFIG_SVR_PRIMARY} "sh ${WORK_PATH}/init_primary.sh ${TARGET_USER} ${TARGET_PWD} ${REPLISET_INSTALL_PATH} ${CONFIG_SVR_PRIMARY} ${CONFIG_SVR_PRIMARY_PORT} ${DB_NAME}_config_1 ${RS_NAME}_config ${KEYFILE_PATH} configsvr" || {
+    ssh root@${CONFIG_SVR_PRIMARY} "sh ${WORK_PATH}/init_primary.sh ${WORK_PATH} ${TARGET_USER} ${TARGET_PWD} ${REPLISET_INSTALL_PATH} ${CONFIG_SVR_PRIMARY} ${CONFIG_SVR_PRIMARY_PORT} ${DB_NAME}_config_1 ${RS_NAME}_config ${KEYFILE_PATH} configsvr" || {
         echo "错误：${CONFIG_SVR_PRIMARY} init_primary fail ${WORK_PATH}/init_primary.sh 失败" >&2
         exit 1
     }
@@ -281,7 +281,7 @@ echo "create_mongo_shard_cluster init mongod nodes..."
 # 初始化数据主节点
 if [ ${MONGOD_SVR_PRIMARY} = "127.0.0.1" ] || [ ${MONGOD_SVR_PRIMARY} = ${LOCAL_IP} ]; then
     echo "create_mongo_shard_cluster init local mongod primary DB_NAME:${DB_NAME}..."
-    . ${SCRIPT_PATH}/init_primary.sh ${TARGET_USER} ${TARGET_PWD} ${REPLISET_INSTALL_PATH} ${MONGOD_SVR_PRIMARY} ${MONGOD_SVR_PRIMARY_PORT} ${DB_NAME}_mongod_1 ${RS_NAME}_mongod ${KEYFILE_PATH} shardsvr || {
+    sh ${SCRIPT_PATH}/init_primary.sh ${SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${REPLISET_INSTALL_PATH} ${MONGOD_SVR_PRIMARY} ${MONGOD_SVR_PRIMARY_PORT} ${DB_NAME}_mongod_1 ${RS_NAME}_mongod ${KEYFILE_PATH} shardsvr || {
         echo "错误：${MONGOD_SVR_PRIMARY} init_primary fail ${SCRIPT_PATH}/init_primary.sh 失败" >&2
         exit 1
     }
@@ -290,7 +290,7 @@ if [ ${MONGOD_SVR_PRIMARY} = "127.0.0.1" ] || [ ${MONGOD_SVR_PRIMARY} = ${LOCAL_
 else
     echo "create_mongo_shard_cluster init remote ${MONGOD_SVR_PRIMARY} mongod primary..."
 
-    ssh root@${MONGOD_SVR_PRIMARY} "sh ${WORK_PATH}/init_primary.sh ${TARGET_USER} ${TARGET_PWD} ${REPLISET_INSTALL_PATH} ${MONGOD_SVR_PRIMARY} ${MONGOD_SVR_PRIMARY_PORT} ${DB_NAME}_mongod_1 ${RS_NAME}_mongod ${KEYFILE_PATH} shardsvr" || {
+    ssh root@${MONGOD_SVR_PRIMARY} "sh ${WORK_PATH}/init_primary.sh ${WORK_PATH} ${TARGET_USER} ${TARGET_PWD} ${REPLISET_INSTALL_PATH} ${MONGOD_SVR_PRIMARY} ${MONGOD_SVR_PRIMARY_PORT} ${DB_NAME}_mongod_1 ${RS_NAME}_mongod ${KEYFILE_PATH} shardsvr" || {
         echo "错误：${MONGOD_SVR_PRIMARY} init_primary fail ${WORK_PATH}/init_primary.sh 失败" >&2
         exit 1
     }
@@ -319,14 +319,14 @@ start_nodes() {
 
         # 是不是本地地址
         if [ ${ip} = "127.0.0.1" ] || [ ${ip} = ${LOCAL_IP} ]; then
-            . ${SCRIPT_PATH}/create_mongodb_inst.sh ${REPLISET_INSTALL_PATH}/${FINAL_DB_NAME} ${node_port} "${RS_NAME}_${DB_TYPE}" ${KEYFILE_PATH} || {
+            sh ${SCRIPT_PATH}/create_mongodb_inst.sh ${SCRIPT_PATH} ${REPLISET_INSTALL_PATH}/${FINAL_DB_NAME} ${node_port} "${RS_NAME}_${DB_TYPE}" ${KEYFILE_PATH} || {
                 echo "创建db1实例失败！" >&2
                 return 1
             }  
             echo "启动mongodb节点 IP 地址: elem:${elem}, $ip, ${node_port} 成功."
 
         else
-            ssh root@${ip} "sh ${WORK_PATH}/create_mongodb_inst.sh ${REPLISET_INSTALL_PATH}/${FINAL_DB_NAME} ${node_port} \"${RS_NAME}_${DB_TYPE}\" ${KEYFILE_PATH}" || {
+            ssh root@${ip} "sh ${WORK_PATH}/create_mongodb_inst.sh ${WORK_PATH} ${REPLISET_INSTALL_PATH}/${FINAL_DB_NAME} ${node_port} \"${RS_NAME}_${DB_TYPE}\" ${KEYFILE_PATH}" || {
                 echo "错误：${ip} create_mongodb_inst fail ${WORK_PATH}/create_mongodb_inst.sh 失败" >&2
                 return 1
             }
@@ -464,14 +464,14 @@ for index in "${!MONGOS_SVR_ARRAY[@]}"; do
 
     # 是不是本地地址
     if [ ${ip} = "127.0.0.1" ] || [ ${ip} = ${LOCAL_IP} ]; then
-        . ${SCRIPT_PATH}/init_mongos.sh ${TARGET_USER} ${TARGET_PWD} ${REPLISET_INSTALL_PATH}/${FINAL_DB_NAME} ${ip} ${node_port} ${FINAL_DB_NAME} "${RS_NAME}" ${KEYFILE_PATH} ${MONGO_CONFIG_SVR_ARRAY_STR} || {
+        sh ${SCRIPT_PATH}/init_mongos.sh ${SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${REPLISET_INSTALL_PATH}/${FINAL_DB_NAME} ${ip} ${node_port} ${FINAL_DB_NAME} "${RS_NAME}" ${KEYFILE_PATH} ${MONGO_CONFIG_SVR_ARRAY_STR} || {
             echo "创建db1实例失败！" >&2
             return 1
         }  
         echo "初始化 mongos 节点 IP 地址: elem:${elem}, $ip, ${node_port} 成功."
 
     else
-        ssh root@${ip} "sh ${WORK_PATH}/init_mongos.sh ${TARGET_USER} \"${TARGET_PWD}\" ${REPLISET_INSTALL_PATH}/${FINAL_DB_NAME} ${ip} ${node_port} ${FINAL_DB_NAME} \"${RS_NAME}\" ${KEYFILE_PATH} ${MONGO_CONFIG_SVR_ARRAY_STR} || { return 1 }" || {
+        ssh root@${ip} "sh ${WORK_PATH}/init_mongos.sh ${WORK_PATH} ${TARGET_USER} \"${TARGET_PWD}\" ${REPLISET_INSTALL_PATH}/${FINAL_DB_NAME} ${ip} ${node_port} ${FINAL_DB_NAME} \"${RS_NAME}\" ${KEYFILE_PATH} ${MONGO_CONFIG_SVR_ARRAY_STR} || { return 1 }" || {
             echo "错误：${ip} init_mongos fail ${WORK_PATH}/init_mongos.sh 失败" >&2
             return 1
         }
@@ -499,14 +499,14 @@ for index in "${!MONGOS_SVR_ARRAY[@]}"; do
 
     # 是不是本地地址
     if [ ${ip} = "127.0.0.1" ] || [ ${ip} = ${LOCAL_IP} ]; then
-        . ${SCRIPT_PATH}/create_mongos_inst.sh ${REPLISET_INSTALL_PATH}/${FINAL_DB_NAME} ${node_port} "${RS_NAME}" ${KEYFILE_PATH} ${MONGO_CONFIG_SVR_ARRAY_STR} || {
+        sh ${SCRIPT_PATH}/create_mongos_inst.sh ${SCRIPT_PATH} ${REPLISET_INSTALL_PATH}/${FINAL_DB_NAME} ${node_port} "${RS_NAME}" ${KEYFILE_PATH} ${MONGO_CONFIG_SVR_ARRAY_STR} || {
             echo "创建mongos实例失败！" >&2
             return 1
         }  
         echo "启动 mongos 节点 IP 地址: elem:${elem}, $ip, ${node_port} 成功."
 
     else
-        ssh root@${ip} "sh ${WORK_PATH}/create_mongos_inst.sh ${REPLISET_INSTALL_PATH}/${FINAL_DB_NAME} ${node_port} \"${RS_NAME}\" ${KEYFILE_PATH} ${MONGO_CONFIG_SVR_ARRAY_STR} || { return 1 }" || {
+        ssh root@${ip} "sh ${WORK_PATH}/create_mongos_inst.sh  ${WORK_PATH} ${REPLISET_INSTALL_PATH}/${FINAL_DB_NAME} ${node_port} \"${RS_NAME}\" ${KEYFILE_PATH} ${MONGO_CONFIG_SVR_ARRAY_STR} || { return 1 }" || {
             echo "错误：${ip} init_mongos fail ${WORK_PATH}/init_mongos.sh 失败" >&2
             return 1
         }
