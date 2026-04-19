@@ -4,13 +4,13 @@
 # sh ./init_package.sh 压缩包绝对路径 目标机器工作路径 目标机器安装路径
 
 # 当前脚本路径
-SCRIPT_PATH="$(cd $(dirname $0); pwd)"
+local SCRIPT_PATH="$(cd $(dirname $0); pwd)"
 
 
 # 所有要安装的mongodb压缩文件, 以及脚本打包
-TGZ_FILE_PATH=${1}
-TARGET_MACHINE_WORK_PATH=${2}
-INSTALL_PATH=${3}
+local TGZ_FILE_PATH=${1}
+local TARGET_MACHINE_WORK_PATH=${2}
+local INSTALL_PATH=${3}
 
 if [ -e "${TGZ_FILE_PATH}" ]; then
     echo "TGZ_FILE_PATH:${TGZ_FILE_PATH} exist!!!"

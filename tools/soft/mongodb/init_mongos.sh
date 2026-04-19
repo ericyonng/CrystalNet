@@ -7,18 +7,18 @@
 SCRIPT_PATH="$(cd $(dirname $0); pwd)"
 
 # 复制集路径
-TARGET_USER=$1
-TARGET_PWD=$2
-REPLISET_INSTALL_PATH=$3
-PRIMARY_IP=$4
-PRIMARY_PORT=$5
-DB_NAME=$6
+local TARGET_USER=$1
+local TARGET_PWD=$2
+local REPLISET_INSTALL_PATH=$3
+local PRIMARY_IP=$4
+local PRIMARY_PORT=$5
+local DB_NAME=$6
 # 复制集名 config/数据集的rs_name必须唯一
-RS_NAME=$7
+local RS_NAME=$7
 # keyfile路径
-KEYFILE_PATH=$8
+local KEYFILE_PATH=$8
 # 如果是mongos需要configDB
-MONGOS_CONFIG_ADDR="$9"
+local MONGOS_CONFIG_ADDR="$9"
 
 if [ -z "${TARGET_USER}" ] || [ -z "${TARGET_PWD}" ]; then
     echo "TARGET_USER:${TARGET_USER} TARGET_PWD:${TARGET_PWD} lack of pwd info"

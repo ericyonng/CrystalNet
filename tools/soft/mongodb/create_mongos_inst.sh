@@ -4,21 +4,21 @@
 
 
 # 当前脚本路径
-SCRIPT_PATH="$(cd $(dirname $0); pwd)"
+local SCRIPT_PATH="$(cd $(dirname $0); pwd)"
 
 # 变量
 # 目标db目录
-TARGET_DB_PATH=$1
+local TARGET_DB_PATH=$1
 # 端口号
-TARGET_PORT=$2
+local TARGET_PORT=$2
 # 复制集名
-REPL_SET_NAME=$3
+local REPL_SET_NAME=$3
 # keyfile 绝对路径
-KEYFILE_PATH=$4
+local KEYFILE_PATH=$4
 # mongos configsvr地址
-MONGOS_CONFIG_ADDR=$5
+local MONGOS_CONFIG_ADDR=$5
 # 是否不需要启动验证
-IS_NO_AUTH=$6
+local IS_NO_AUTH=$6
 
 echo "TARGET_DB_PATH:${TARGET_DB_PATH}"
 echo "TARGET_PORT:${TARGET_PORT}"
@@ -51,7 +51,7 @@ else
 fi
 
 # 创建conf文件
-MONGOS_CONF=${TARGET_DB_PATH}/mongos.conf
+local MONGOS_CONF=${TARGET_DB_PATH}/mongos.conf
 sh ${SCRIPT_PATH}/create_mongos_conf.sh ${TARGET_DB_PATH} ${TARGET_PORT} ${REPL_SET_NAME} mongos.conf ${MONGOS_CONFIG_ADDR}
 
 # 拷贝keyfile,并设置文件掩码, 否则会启动失败
