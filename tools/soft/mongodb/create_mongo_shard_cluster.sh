@@ -205,7 +205,7 @@ for index in "${!NODE_CONFIG_ARR[@]}"; do
     
     if [ ${node_type} = "config" ]; then
         # 添加到config_svr数组
-        eval "$MONGO_CONFIG_SVR_ARRAY+=(\"\$elem\")"
+        MONGO_CONFIG_SVR_ARRAY+=("$elem")
 
         if [ -z "${CONFIG_SVR_PRIMARY}" ]; then
             CONFIG_SVR_PRIMARY=${ip}
@@ -214,7 +214,7 @@ for index in "${!NODE_CONFIG_ARR[@]}"; do
 
     elif [ ${node_type} = "mongod" ]; then
         # 添加到mongod_svr数组
-        eval "$MONGOD_SVR_ARRAY+=(\"\$elem\")"
+        MONGOD_SVR_ARRAY+=("$elem")
 
         if [ -z "${MONGOD_SVR_PRIMARY}" ]; then
             MONGOD_SVR_PRIMARY=${ip}
@@ -223,7 +223,7 @@ for index in "${!NODE_CONFIG_ARR[@]}"; do
 
     elif [ ${node_type} = "mongos" ]; then
         # 添加到mongos_svr数组
-        eval "$MONGOS_SVR_ARRAY+=(\"\$elem\")"
+        MONGOS_SVR_ARRAY+=("$elem")
 
         if [ -z "${MONGOS_SVR_PRIMARY}" ]; then
             MONGOS_SVR_PRIMARY=${ip}
@@ -342,12 +342,11 @@ start_nodes() {
             PRIMARY_PORT_TMP=${node_port}
         else
             elem="${nodes_arr[$index]}"
-            eval "$TMP_ADDRS+=(\"\$elem\")"
+            TMP_ADDRS+=("$elem")
         fi
     done
-    # 添加节点
     
-    # 添加从节点2
+    # 添加节点
     echo "start nodes primary add nodes..."
     for index in "${!TMP_ADDRS[@]}"; do
         elem="${TMP_ADDRS[$index]}"
