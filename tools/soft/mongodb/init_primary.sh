@@ -20,7 +20,7 @@ KEYFILE_PATH=$8
 # sharding角色 mongos填写:""
 SHARDING_CLUSTER_ROLE=$9
 # 是否mongos
-IS_MONGOS=$10
+IS_MONGOS="$10"
 # 如果是mongos需要configDB
 MONGOS_CONFIG_ADDR="$11"
 

@@ -205,7 +205,7 @@ for index in "${!NODE_CONFIG_ARR[@]}"; do
     
     if [ ${node_type} = "config" ]; then
         # 添加到config_svr数组
-        MONGO_CONFIG_SVR_ARRAY+=("$elem")
+        MONGO_CONFIG_SVR_ARRAY[$index]="$elem"
 
         if [ -z "${CONFIG_SVR_PRIMARY}" ]; then
             CONFIG_SVR_PRIMARY=${ip}
@@ -214,7 +214,7 @@ for index in "${!NODE_CONFIG_ARR[@]}"; do
 
     elif [ ${node_type} = "mongod" ]; then
         # 添加到mongod_svr数组
-        MONGOD_SVR_ARRAY+=("$elem")
+        MONGOD_SVR_ARRAY[$index]="$elem"
 
         if [ -z "${MONGOD_SVR_PRIMARY}" ]; then
             MONGOD_SVR_PRIMARY=${ip}
@@ -223,7 +223,7 @@ for index in "${!NODE_CONFIG_ARR[@]}"; do
 
     elif [ ${node_type} = "mongos" ]; then
         # 添加到mongos_svr数组
-        MONGOS_SVR_ARRAY+=("$elem")
+        MONGOS_SVR_ARRAY[$index]="$elem"
 
         if [ -z "${MONGOS_SVR_PRIMARY}" ]; then
             MONGOS_SVR_PRIMARY=${ip}
@@ -233,6 +233,16 @@ for index in "${!NODE_CONFIG_ARR[@]}"; do
         echo "bad node_type:${node_type}"
         exit 1
     fi
+done
+# ip列表打印
+for i in "${!MONGO_CONFIG_SVR_ARRAY[@]}"; do
+    echo "MONGO_CONFIG_SVR_ARRAY 索引 $i: ${MONGO_CONFIG_SVR_ARRAY[$i]}"
+done
+for i in "${!MONGOD_SVR_ARRAY[@]}"; do
+    echo "MONGOD_SVR_ARRAY 索引 $i: ${MONGOD_SVR_ARRAY[$i]}"
+done
+for i in "${!MONGOS_SVR_ARRAY[@]}"; do
+    echo "MONGOS_SVR_ARRAY 索引 $i: ${MONGOS_SVR_ARRAY[$i]}"
 done
 
 echo "CONFIG_SVR_PRIMARY:${CONFIG_SVR_PRIMARY}:${CONFIG_SVR_PRIMARY_PORT}"
