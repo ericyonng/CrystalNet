@@ -132,10 +132,10 @@ for index in "${!IP_LIST_ARRAY[@]}"; do
     # 本地机器, 则不需要远程拷贝
     if [ ${ip} = "127.0.0.1" ] || [ ${ip} = ${LOCAL_IP} ]; then
         echo "local init_package ..."
-        sh ${SCRIPT_PATH}/init_package.sh /root/build_mongo_temp/mongodb.tar.gz ${WORK_PATH} ${INSTALL_PATH}
+        . ${SCRIPT_PATH}/init_package.sh /root/build_mongo_temp/mongodb.tar.gz ${WORK_PATH} ${INSTALL_PATH}
 
         if [ -z "${is_ip_init_dict[$ip]}" ]; then
-            sh ${SCRIPT_PATH}/init_env.sh ${WORK_PATH} ${INSTALL_PATH} || {
+            . ${SCRIPT_PATH}/init_env.sh ${WORK_PATH} ${INSTALL_PATH} || {
                 echo "错误：本地:$ip ${TMP_DIR}/init_env.sh 失败" >&2
                 exit 1
             }

@@ -33,8 +33,8 @@ fi
 if [ -e "${REPLISET_INSTALL_PATH}" ]; then
     echo "REPLISET_INSTALL_PATH:${REPLISET_INSTALL_PATH} exists"
 else
-    echo "REPLISET_INSTALL_PATH:${REPLISET_INSTALL_PATH} not exists"
-    exit 1
+    echo "REPLISET_INSTALL_PATH:${REPLISET_INSTALL_PATH} not exists will create"
+    mkdir -p ${REPLISET_INSTALL_PATH}
 fi
 
 if [ -z "${PRIMARY_IP}" ] || [ -z "${PRIMARY_PORT}" ]; then
