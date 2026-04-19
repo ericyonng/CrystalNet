@@ -31,4 +31,6 @@ INSTALL_PATH=/root/mongo_install
 # 最终复制集工作目录
 REPLISET_INSTALL_PATH=/root/Mongo_${DB_NAME}_ReplisetWorkPlace/
 
-sh ${SCRIPT_PATH}/create_mongo_shard_cluster.sh ${IP_LIST_FILE} ${WORK_PATH} ${INSTALL_PATH} ${TARGET_USER} ${TARGET_PWD} ${REPLISET_INSTALL_PATH} ${DB_NAME} ${RS_NAME}
+echo "${IP_LIST_FILE}, ${TARGET_USER}, ${TARGET_PWD}, ${DB_NAME}, ${RS_NAME}, ${WORK_PATH}, ${INSTALL_PATH}, ${REPLISET_INSTALL_PATH}"
+
+. ${SCRIPT_PATH}/create_mongo_shard_cluster.sh ${IP_LIST_FILE} ${WORK_PATH} ${INSTALL_PATH} ${TARGET_USER} ${TARGET_PWD} ${REPLISET_INSTALL_PATH} ${DB_NAME} ${RS_NAME}
