@@ -53,8 +53,6 @@ struct KERNEL_EXPORT MemoryBlock
     UInt64 _realUseBytes;
     // 是否在分配器内
     bool _isInAlloctor;
-    // 分配的位置
-    const Byte8 *CurAllocPosition;
 };
 
 #undef WRITE_MEMORY_BLOCK
