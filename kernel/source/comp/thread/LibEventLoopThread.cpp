@@ -64,7 +64,7 @@ void LibEventLoopThread::Start()
         {
             CRYSTAL_TRACE("thread1 prepare loop fail.")
 
-            throw std::exception("thread poller prepare fail");
+            throw std::runtime_error("thread poller prepare fail");
             return;
         }
 

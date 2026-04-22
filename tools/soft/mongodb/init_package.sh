@@ -10,7 +10,7 @@ SCRIPT_PATH="$(cd $(dirname $0); pwd)"
 # 所有要安装的mongodb压缩文件, 以及脚本打包
 TGZ_FILE_PATH=${1}
 TARGET_MACHINE_WORK_PATH=${2}
-INSTALL_PATH=${3}
+LOCAL_INSTALL_PATH=${3}
 
 if [ -e "${TGZ_FILE_PATH}" ]; then
     echo "TGZ_FILE_PATH:${TGZ_FILE_PATH} exist!!!"
@@ -23,8 +23,8 @@ if [ -z "${TARGET_MACHINE_WORK_PATH}" ]; then
     echo "TARGET_MACHINE_WORK_PATH is empty please check!!!"
     exit 1
 fi
-if [ -z "${INSTALL_PATH}" ]; then
-    echo "INSTALL_PATH is empty please check!!!"
+if [ -z "${LOCAL_INSTALL_PATH}" ]; then
+    echo "LOCAL_INSTALL_PATH is empty please check!!!"
     exit 1
 fi
 
@@ -43,14 +43,14 @@ mkdir -p ${TARGET_MACHINE_WORK_PATH} || {
     exit 1
 }
 
-echo "创建目录: INSTALL_PATH:${INSTALL_PATH} ..."
-rm -rf ${INSTALL_PATH} || {
-    echo "错误： 移除 ${INSTALL_PATH} 失败" >&2
+echo "创建目录: LOCAL_INSTALL_PATH:${LOCAL_INSTALL_PATH} ..."
+rm -rf ${LOCAL_INSTALL_PATH} || {
+    echo "错误： 移除 ${LOCAL_INSTALL_PATH} 失败" >&2
     exit 1
 }
 
-mkdir -p ${INSTALL_PATH} || {
-    echo "错误： 创建 ${INSTALL_PATH} 失败" >&2
+mkdir -p ${LOCAL_INSTALL_PATH} || {
+    echo "错误： 创建 ${LOCAL_INSTALL_PATH} 失败" >&2
     exit 1
 }
 
@@ -66,4 +66,4 @@ tar -zxvf ${TARGET_MACHINE_WORK_PATH}/${TGZ_FILE_NAME} -C ${TARGET_MACHINE_WORK_
     exit 1
 }
 
-echo "init_package success TARGET_MACHINE_WORK_PATH:${TARGET_MACHINE_WORK_PATH}, TGZ_FILE_NAME:${TGZ_FILE_NAME}, INSTALL_PATH:${INSTALL_PATH}"
+echo "init_package success TARGET_MACHINE_WORK_PATH:${TARGET_MACHINE_WORK_PATH}, TGZ_FILE_NAME:${TGZ_FILE_NAME}, LOCAL_INSTALL_PATH:${LOCAL_INSTALL_PATH}"

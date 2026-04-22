@@ -168,7 +168,11 @@ TlsMemoryPool **TlsUtil::GetTlsMemoryPoolHostThreadLocalAddr()
 
 Poller *TlsUtil::GetPoller()
 {
-    DEF_STATIC_THREAD_LOCAL_DECLEAR Poller *s_Poller = GetDefTls()->_tlsComps->GetComp<Poller>();
+    DEF_STATIC_THREAD_LOCAL_DECLEAR Poller *s_Poller = NULL;
+    if(UNLIKELY(!s_Poller))
+    {
+        s_Poller = GetDefTls()->_tlsComps->GetComp<Poller>();
+    }
     return s_Poller;
 }
 

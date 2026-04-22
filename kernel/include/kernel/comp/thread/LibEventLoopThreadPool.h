@@ -123,7 +123,6 @@ private:
     Poller *_SelectPoller(bool priorityToUsingNewThread = false);
     
 private:
-    const Int32 _minNum;
     const Int32 _maxNum;
     // 只允许递增, 不可减少
     std::atomic<Int32> _workingNum;

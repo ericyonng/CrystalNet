@@ -35,8 +35,7 @@
 
 KERNEL_BEGIN
     LibEventLoopThreadPool::LibEventLoopThreadPool()
-    :_minNum(0)
-,_maxNum(2 * LibCpuInfo::GetInstance()->GetCpuCoreCnt())    // 默认是CPU核数的2倍
+    :_maxNum(2 * LibCpuInfo::GetInstance()->GetCpuCoreCnt())    // 默认是CPU核数的2倍
 ,_workingNum{0}
 ,_rrIndex{0}
 ,_start{false}
@@ -48,8 +47,7 @@ KERNEL_BEGIN
 }
 
 LibEventLoopThreadPool::LibEventLoopThreadPool(Int32 minNum, Int32 maxNum)
-    :_minNum(minNum < maxNum ? minNum : maxNum)
-,_maxNum(maxNum >= minNum ? maxNum : minNum)
+    :_maxNum(maxNum >= minNum ? maxNum : minNum)
 ,_workingNum(minNum < maxNum ? minNum : maxNum)
 ,_rrIndex{0}
 ,_start{false}

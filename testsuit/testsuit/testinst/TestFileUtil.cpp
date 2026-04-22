@@ -59,7 +59,8 @@ void TestFileUtil::Run()
         const KERNEL_NS::LibString utf8File = "./utf8Text3.txt";
         auto fp = KERNEL_NS::FileUtil::OpenFile(utf8File.c_str(), true);
 
-        auto writeBytes = KERNEL_NS::FileUtil::WriteFile(*fp, "hello world...");
+        // auto writeBytes = KERNEL_NS::FileUtil::WriteFile(*fp, "hello world...");
+        KERNEL_NS::FileUtil::WriteFile(*fp, "hello world...");
         KERNEL_NS::FileUtil::ResetFileCursor(*fp);
         UInt64 utf8Count = 0;
         KERNEL_NS::LibString utf8Line;

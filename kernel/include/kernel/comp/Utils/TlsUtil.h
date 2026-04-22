@@ -118,7 +118,10 @@ ALWAYS_INLINE void TlsUtil::DestroyUtilTlsHandle()
 
 ALWAYS_INLINE TlsDefaultObj *TlsUtil::GetDefTls()
 {
-    DEF_STATIC_THREAD_LOCAL_DECLEAR TlsStack<TlsStackSize::SIZE_1MB> *s_TlsStack = GetTlsStack();
+    DEF_STATIC_THREAD_LOCAL_DECLEAR TlsStack<TlsStackSize::SIZE_1MB> *s_TlsStack = NULL;
+    if(UNLIKELY(!s_TlsStack))
+        s_TlsStack = GetTlsStack();
+    
     return s_TlsStack->GetDef();
 }
 

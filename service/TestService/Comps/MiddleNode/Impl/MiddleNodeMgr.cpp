@@ -106,8 +106,7 @@ void MiddleNodeMgr::_OnSendDataRequest(KERNEL_NS::LibPacket *&packet)
     {
         if(KERNEL_NS::SimpleBitmapUtil::IsSet(_packetIdBitmap, req->packetid()))
         {
-            if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
-                g_Log->Debug(LOGFMT_OBJ_TAG("packetid:%lld, has recieved"), req->packetid());
+            CLOG_DEBUG("packetid:%lld, has recieved", static_cast<Int64>(req->packetid()));
             break;
         }
 
@@ -172,8 +171,7 @@ void MiddleNodeMgr::_OnBroadcastSendDataConfirmResponse(KERNEL_NS::LibPacket *&p
     auto res = packet->GetCoder<BroadcastSendDataConfirmResponse>();
     if(res->packetid() != _waitConfirmId)
     {
-        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
-            g_Log->Debug(LOGFMT_OBJ_TAG("confirm response not waiting packet id:%lld, res packet id:%lld"), _waitConfirmId, res->packetid());
+        CLOG_DEBUG("confirm response not waiting packet id:%lld, res packet id:%lld", _waitConfirmId, static_cast<Int64>(res->packetid()));
         return;
     }
     

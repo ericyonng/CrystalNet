@@ -30,7 +30,7 @@
 
 namespace TestCoLockerNs
 {
-    static std::atomic<Int64> s_GenQps;
+    // static std::atomic<Int64> s_GenQps;
     static std::atomic<Int64> s_comsumeQps;
 
     class EventLoopStartupCounter : public KERNEL_NS::IThreadStartUp
@@ -43,14 +43,14 @@ namespace TestCoLockerNs
             auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
             timer->SetTimeOutHandler([](KERNEL_NS::LibTimer *t)
             {
-                auto gen = s_GenQps.exchange(0, std::memory_order_acq_rel);
-                auto comsume = s_comsumeQps.exchange(0, std::memory_order_acq_rel);
+                // auto gen = s_GenQps.exchange(0, std::memory_order_acq_rel);
+                // auto comsume = s_comsumeQps.exchange(0, std::memory_order_acq_rel);
                 // CLOG_INFO_GLOBAL(EventLoopStartupCounter, "gen:%lld, comsume:%lld", gen, comsume);
             });
             timer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(1));
         }
 
-        virtual void Release()
+        virtual void Release() override
         {
             delete this;
         }
@@ -68,7 +68,7 @@ namespace TestCoLockerNs
         virtual void Run()
         {
             // wait 这段代码在堆空间, 协程唤醒后执行不会在poller中执行
-            auto newCoLockerInfo = KERNEL_NS::CoLockerInfo::New_CoLockerInfo();
+            // auto newCoLockerInfo = KERNEL_NS::CoLockerInfo::New_CoLockerInfo();
             KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<>
             {
                 // 在poller退出的时候必须唤醒locker,避免locker无法被释放
