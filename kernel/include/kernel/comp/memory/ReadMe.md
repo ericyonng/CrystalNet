@@ -9,7 +9,9 @@
   3. gc规则：
 
      ```c++
-         /* gc重要标记
+     这个内存池的设计精髓在于尽量长的时间保留buffer不归还系统, 提高分配效率, 再者保证内存不膨胀, 保证内存不膨胀但又想尽量长时间的保留buffer，这是个矛盾点, 所以系统设计了不同内存块对应的buffer有不同的生命周期，当using block归零的时候，buffer的flag(64位整数)左移1位, 直到flag因为移位溢出归0的时候认为这个buffer可以被gc回收归还给系统，这样做让buffer尽可能的保持住，而且不同的block尺寸对应不同的移位周期，越大的bock size它的生命周期越短，整体上可以做到高效的分配, 高效的回收
+         
+     /* gc重要标记
          *  1. 初始值是1
             2. 调用Alloc 当 _usedBlockCnt 为 _blockCnt 时向左移位一次（表示缓存用光）
             3. 当 _notEnableGcFlag 为0时，表示下次当 _usedBlockCnt 为0时会把MemoryBuffer gc掉，也就是说，当缓存被用光64次后，缓存中没有对象时候就会被gc掉

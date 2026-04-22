@@ -119,9 +119,9 @@ Client:
       PacketSpeedLimitSwitch: false
     
     # 1表示等响应包回来继续发送, 其他是间隔发送
-    TestSendMode: 1 
+    TestSendMode: 0
     # 发送时间间隔
-    TestSendIntervalMs: 0 
+    TestSendIntervalMs: 50
     # 一次发送多少个包
     TestSendPackCountOnce: 1
     # 一次发送的包内容至少多少个字节(pb序列化会多增加数据量)

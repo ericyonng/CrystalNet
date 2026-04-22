@@ -62,7 +62,7 @@ int main(int argc, char const *argv[])
     logIniPath = programPath + "/ini/";
     KERNEL_NS::SystemUtil::GetProgramPath(true, programPath);
     g_LogYamlMemory = KERNEL_NS::YamlMemory::From(s_LogYamlContent);
-    Int32 err = KERNEL_NS::KernelUtil::Init(&logFactory, "LogCfg.ini", logIniPath.c_str(), g_LogYamlMemory);
+    Int32 err = KERNEL_NS::KernelUtil::Init(&logFactory, "Log.yaml", logIniPath.c_str(), g_LogYamlMemory);
     if(err != Status::Success)
     {
         CRYSTAL_TRACE("kernel init fail err:%d", err);
