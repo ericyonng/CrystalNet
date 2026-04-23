@@ -2,6 +2,12 @@
 # @author EricYonng<120453674@qq.com>
 # 创建mongo 分片集群
 # IP_LIST_FILE: ip 节点类型 端口: config 127.0.0.1 27010
+# INSTALL_PATH: 安装mongodb的程序目录
+# DATA_PATH: 安装mongodb的数据库目录
+# TARGET_USER: 用户名
+# TARGET_PWD: 密码
+# DB_NAME: db名
+# RS_NAME: 复制集名
 
 # 当前脚本路径
 SCRIPT_PATH="$(cd $(dirname $0); pwd)"
@@ -191,4 +197,6 @@ for index in "${!IP_LIST_ARRAY[@]}"; do
     fi
 done
 
-echo "create_mongo_shard_cluster init env success."
+TEST_MONGOD_PATH=$(whereis mongod)
+echo "create_mongo_shard_cluster init env success mongod path:${TEST_MONGOD_PATH}."
+
