@@ -119,3 +119,76 @@ sh ${SCRIPT_PATH}/pack_tar.sh ${TMP_DIR} ${SCRIPT_PATH} ${TGZ_FILE_NAME} || {
 }
 
 echo "pack TGZ_FILE_NAME:${TGZ_FILE_NAME} success."
+
+# 初始化环境: 安装mongodb软件, 并设置环境变量
+TARGET_SCRIPT_PATH=/root/mongodb_script
+NODE_CONFIG_ARR=()
+COUNT=0
+declare -A is_ip_init_dict
+for index in "${!IP_LIST_ARRAY[@]}"; do
+    # ip file 一行的数据: DATA ip
+    elem="${IP_LIST_ARRAY[$index]}"
+    echo "elem:${elem}"
+
+    # 过滤空行
+    if [ -z "${elem}" ] || [[ "$elem" =~ ^[[:space:]]*$ ]]; then
+        continue
+    fi
+    fields=($(echo "${elem}" | awk '{print $1, $2, $3}'))
+    ip="${fields[1]}"
+    node_port="${fields[2]}"
+    NODE_CONFIG_ARR[$COUNT]="${fields[0]} ${fields[1]} ${fields[2]}"
+    echo "第 $index 个 IP 地址: elem:${elem}, $ip, $node_port, $fields[0] COUNT:{$COUNT}, ${NODE_CONFIG_ARR[$COUNT]}"
+    COUNT=$(($COUNT + 1))
+
+    # 本地机器, 则不需要远程拷贝
+    if [ ${ip} = "127.0.0.1" ] || [ ${ip} = ${LOCAL_IP} ]; then
+        if [ -z "${is_ip_init_dict[$ip]}" ]; then
+            echo "local init_package ..."
+            . ${SCRIPT_PATH}/init_package.sh ${TMP_DIR}/${TGZ_FILE_NAME} ${TARGET_SCRIPT_PATH}
+
+            . ${TARGET_SCRIPT_PATH}/init_env.sh ${TARGET_SCRIPT_PATH} ${INSTALL_PATH} || {
+                echo "错误：本地:$ip ${TARGET_SCRIPT_PATH}/init_env.sh 失败" >&2
+                exit 1
+            }
+            is_ip_init_dict[$ip]=1
+        fi
+    else
+        if [ -z "${is_ip_init_dict[$ip]}" ]; then
+            echo "remote: ${ip}: 创建目录: TMP_DIR:${TMP_DIR} ..."
+            ssh root@${ip} "rm -rf ${TMP_DIR}" || {
+                echo "错误： 移除 ${TMP_DIR} 失败" >&2
+                exit 1
+            }
+            ssh root@${ip} "mkdir -p ${TMP_DIR}" || {
+                echo "错误：${ip} 创建 ${TMP_DIR} 失败" >&2
+                exit 1
+            }
+
+            echo "拷贝压缩文件 ${TMP_DIR}/${TGZ_FILE_NAME} =>  ${ip}:${TMP_DIR} ..."
+            scp -r ${TMP_DIR}/${TGZ_FILE_NAME} root@${ip}:${TMP_DIR} || {
+                echo "错误： scp 拷贝 ${TMP_DIR}/${TGZ_FILE_NAME} => ${ip}:${TMP_DIR} 失败" >&2
+                exit 1
+            }
+
+            echo "拷贝 init_package.sh =>  ${ip}:${TMP_DIR} ..."
+            scp -r ${SCRIPT_PATH}/init_package.sh root@${ip}:${TMP_DIR} || {
+                echo "错误： scp 拷贝 ${SCRIPT_PATH}/init_package.sh => ${ip}:${TMP_DIR} 失败" >&2
+                exit 1
+            }
+            echo "$ip 执行 init_package.sh => ..."
+            ssh root@${ip} "sh ${TMP_DIR}/init_package.sh ${TMP_DIR}/${TGZ_FILE_NAME} ${TARGET_SCRIPT_PATH}" || {
+                echo "错误：${ip} ${TMP_DIR}/init_package.sh 失败" >&2
+                exit 1
+            }
+            ssh root@${ip} "sh ${TARGET_SCRIPT_PATH}/init_env.sh ${TARGET_SCRIPT_PATH} ${INSTALL_PATH}" || {
+                echo "错误：${ip} ${TARGET_SCRIPT_PATH}/init_env.sh 失败" >&2
+                exit 1
+            }
+            is_ip_init_dict[$ip]=1
+            echo "$ip 执行 init_env.sh 成功"
+        fi
+    fi
+done
+
+echo "create_mongo_shard_cluster init env success."
