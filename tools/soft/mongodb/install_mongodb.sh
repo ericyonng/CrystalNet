@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @author EricYonng<120453674@qq.com>
-# source install_mongodb.sh 安装db程序的目标路径
+# . install_mongodb.sh 安装db程序的目标路径
 
 # 当前脚本路径
 INSTALL_SCRIPT_PATH="$(cd $(dirname $0); pwd)"

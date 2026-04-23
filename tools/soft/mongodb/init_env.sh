@@ -15,7 +15,7 @@ fi
 
 # 安装
 echo "执行 source ${ENV_MONGODB_SCRIPT_PATH}/install_mongodb.sh ${LOCAL_INSTALL_PATH}..."
-source ${ENV_MONGODB_SCRIPT_PATH}/install_mongodb.sh ${LOCAL_INSTALL_PATH} || {
+. ${ENV_MONGODB_SCRIPT_PATH}/install_mongodb.sh ${LOCAL_INSTALL_PATH} || {
     echo "错误： 执行 source ${ENV_MONGODB_SCRIPT_PATH}/install_mongodb.sh 失败" >&2
     exit 1
 }
