@@ -212,6 +212,9 @@ MONGOS_SVR_PRIMARY_PORT=""
 MONGOD_SVR_ARRAY=()
 MONGO_CONFIG_SVR_ARRAY=()
 MONGOS_SVR_ARRAY=()
+COUNT_CONFIG=0
+COUNT_MONGOD=0
+COUNT_MONGOS=0
 
 for index in "${!NODE_CONFIG_ARR[@]}"; do
     # ip file 一行的数据: DATA ip
@@ -225,7 +228,8 @@ for index in "${!NODE_CONFIG_ARR[@]}"; do
     
     if [ ${node_type} = "config" ]; then
         # 添加到config_svr数组
-        MONGO_CONFIG_SVR_ARRAY[$index]="$elem"
+        MONGO_CONFIG_SVR_ARRAY[$COUNT_CONFIG]="$elem"
+        COUNT_CONFIG=$(($COUNT_CONFIG + 1))
 
         if [ -z "${CONFIG_SVR_PRIMARY}" ]; then
             CONFIG_SVR_PRIMARY=${ip}
@@ -234,7 +238,8 @@ for index in "${!NODE_CONFIG_ARR[@]}"; do
 
     elif [ ${node_type} = "mongod" ]; then
         # 添加到mongod_svr数组
-        MONGOD_SVR_ARRAY[$index]="$elem"
+        MONGOD_SVR_ARRAY[$COUNT_MONGOD]="$elem"
+        COUNT_MONGOD=$(($COUNT_MONGOD + 1))
 
         if [ -z "${MONGOD_SVR_PRIMARY}" ]; then
             MONGOD_SVR_PRIMARY=${ip}
@@ -243,7 +248,8 @@ for index in "${!NODE_CONFIG_ARR[@]}"; do
 
     elif [ ${node_type} = "mongos" ]; then
         # 添加到mongos_svr数组
-        MONGOS_SVR_ARRAY[$index]="$elem"
+        MONGOS_SVR_ARRAY[$COUNT_MONGOS]="$elem"
+        COUNT_MONGOS=$(($COUNT_MONGOS + 1))
 
         if [ -z "${MONGOS_SVR_PRIMARY}" ]; then
             MONGOS_SVR_PRIMARY=${ip}
