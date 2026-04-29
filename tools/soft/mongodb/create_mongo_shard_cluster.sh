@@ -300,18 +300,31 @@ fi
 
 # 启动节点函数
 start_nodes() {
-    declare -n nodes_arr="$1"
+    local NODES_STR="$1"
+    local NODES_LEN=$2
+    local PRINT_STR=""
+    for ((i=1; i<=${NODES_LEN}; i++)); do
+        echo "当前: $i"
+        PRINT_STR="${PRINT_STR}$i"
+        if [ $i -ne ${NODES_LEN} ]; then
+            PRINT_STR="${PRINT_STR}, "
+        fi
+    done
+
+    echo "PRINT_STR:${PRINT_STR}"
+
+    local items=($(echo "${NODES_STR}" | awk -F';' '{print '${PRINT_STR}'}'))
     echo "start_nodes..."
 
     DB_INDEX=1
-    for index in "${!nodes_arr[@]}"; do
+    for index in "${!items[@]}"; do
         # ip file 一行的数据: DATA ip
-        elem="${nodes_arr[$index]}"
+        elem="${items[$index]}"
         fields=($(echo "${elem}" | awk '{print $1, $2, $3}'))
         node_type="${fields[0]}"
         ip="${fields[1]}"
         node_port="${fields[2]}"
-        echo "第 $index 个 IP 地址: elem:${elem}, $ip, ${node_type}, ${node_port}"
+        echo "第 $index 个 IP 地址: $ip, ${node_type}, ${node_port}"
         
         # db_name
         DB_INDEX=$(($DB_INDEX + $index))
@@ -338,7 +351,7 @@ start_nodes() {
     local PRIMARY_ADDR=""
     local PRIMARY_PORT_TMP=""
     local TMP_ADDRS=()
-    for index in "${!nodes_arr[@]}"; do
+    for index in "${!items[@]}"; do
         if [ $index -eq 0 ]; then
             # ip file 一行的数据: DATA ip
             elem="${nodes_arr[$index]}"

@@ -328,3 +328,152 @@ else
 fi
 
 echo "create_mongo_shard_cluster init primary node success."
+
+
+# 启动节点函数
+start_nodes() {
+    local NODES_STR="$1"
+    local NODES_LEN=$2
+    local SHARDING_ROLE="$3"
+    local PRINT_STR=""
+    for ((i=1; i<=${NODES_LEN}; i++)); do
+        echo "当前: $i"
+        PRINT_STR="${PRINT_STR}$i"
+        if [ $i -ne ${NODES_LEN} ]; then
+            PRINT_STR="${PRINT_STR}, "
+        fi
+    done
+
+    echo "PRINT_STR:${PRINT_STR}"
+
+    local items=($(echo "${NODES_STR}" | awk -F';' '{print '${PRINT_STR}'}'))
+    echo "start_nodes..."
+
+    DB_INDEX=1
+    for index in "${!items[@]}"; do
+        # ip file 一行的数据: DATA ip
+        elem="${items[$index]}"
+        fields=($(echo "${elem}" | awk '{print $1, $2, $3}'))
+        node_type="${fields[0]}"
+        ip="${fields[1]}"
+        node_port="${fields[2]}"
+        echo "第 $index 个 IP 地址: $ip, ${node_type}, ${node_port}"
+        
+        # db_name
+        DB_INDEX=$(($DB_INDEX + $index))
+        FINAL_DB_NAME=${DB_NAME}_${DB_TYPE}_${DB_INDEX}
+
+        # 是不是本地地址
+        if [ ${ip} = "127.0.0.1" ] || [ ${ip} = ${LOCAL_IP} ]; then
+            sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${DATA_PATH}/${FINAL_DB_NAME} ${node_port} "${RS_NAME}_${DB_TYPE}" ${TARGET_SCRIPT_PATH}/keyfile ${SHARDING_ROLE} || {
+                echo "创建db1实例失败！" >&2
+                return 1
+            }  
+            echo "启动mongodb节点 IP 地址: FINAL_DB_NAME:${FINAL_DB_NAME} elem:${elem}, $ip, ${node_port} 成功."
+
+        else
+            ssh root@${ip} "sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${DATA_PATH}/${FINAL_DB_NAME} ${node_port} \"${RS_NAME}_${DB_TYPE}\" ${TARGET_SCRIPT_PATH}/keyfile ${SHARDING_ROLE}" || {
+                echo "错误：${ip} create_mongodb_inst fail ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh 失败" >&2
+                return 1
+            }
+
+            echo "启动mongodb节点 IP 地址: FINAL_DB_NAME:${FINAL_DB_NAME} elem:${elem}, $ip, ${node_port} 成功."
+        fi
+    done
+
+    local PRIMARY_ADDR=""
+    local PRIMARY_PORT_TMP=""
+    local TMP_ADDRS=()
+    for index in "${!items[@]}"; do
+        if [ $index -eq 0 ]; then
+            # ip file 一行的数据: DATA ip
+            elem="${nodes_arr[$index]}"
+            fields=($(echo "${elem}" | awk '{print $1, $2, $3}'))
+            ip="${fields[1]}"
+            node_port="${fields[2]}"
+            echo "PRIMARY: 第 $index 个 IP 地址: elem:${elem}, $ip, ${node_type}, ${node_port}"
+        
+            PRIMARY_ADDR=${ip}
+            PRIMARY_PORT_TMP=${node_port}
+        else
+            elem="${nodes_arr[$index]}"
+            TMP_ADDRS+=("$elem")
+        fi
+    done
+    
+    # 添加节点
+    echo "start nodes primary add nodes..."
+    for index in "${!TMP_ADDRS[@]}"; do
+        elem="${TMP_ADDRS[$index]}"
+        fields=($(echo "${elem}" | awk '{print $1, $2, $3}'))
+        ip="${fields[1]}"
+        node_port="${fields[2]}"
+        echo "${PRIMARY_ADDR} add TMP_ADDRS node: ${ip}:${node_port}..."
+        local cnt=$(($index + 1))
+        
+        if [ ${PRIMARY_ADDR} = "127.0.0.1" ] || [ ${PRIMARY_ADDR} = ${LOCAL_IP} ]; then
+            echo "${PRIMARY_ADDR} excute mongsosh "
+            mongosh --host ${PRIMARY_ADDR}:${PRIMARY_PORT_TMP} -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.add({_id: ${cnt}, host: \"${ip}:${node_port}\", priority: 1, votes: 1})" || {
+                echo "错误：初始化复制集失败 添加节点失败:${ip}:${node_port}" >&2
+                exit 1
+            }
+        else
+            ssh root@${PRIMARY_ADDR} "mongosh --host ${PRIMARY_ADDR}:${PRIMARY_PORT_TMP} -u \"${TARGET_USER}\" -p \"${TARGET_PWD}\" --authenticationDatabase admin --eval \"rs.add({_id: ${cnt}, host: \\\"${ip}:${node_port}\\\", priority: 1, votes: 1})\"" || {
+                echo "错误：${PRIMARY_ADDR} add node fail ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh 失败" >&2
+                return 1
+            }
+        fi
+        echo "${PRIMARY_ADDR} add node: ${ip}:${node_port} success."
+    done
+
+    sleep 2
+    return 0
+}
+
+ARRAY_STR_TMP=""
+MAKE_ARRAY=()
+make_array_str(){
+    local spec="$1"
+    local arr_len=$2
+    local max_idx=$(($arr_len - 1))
+    for index in "${!MAKE_ARRAY[@]}"; do
+        local item="${MAKE_ARRAY[$index]}"
+        ARRAY_STR_TMP=${ARRAY_STR_TMP}$item
+        if [ $index -ne $max_idx ]; then
+            ARRAY_STR_TMP=${ARRAY_STR_TMP}$spec
+        fi
+    done
+
+    return 0
+}
+
+ARRAY_STR_TMP=""
+MAKE_ARRAY=MONGO_CONFIG_SVR_ARRAY
+make_array_str ';' ${#MAKE_ARRAY[@]} || {
+    echo "错误： make_array_str fail  失败" >&2
+    exit 1
+}
+
+# 启动配置服复制集
+echo "ARRAY_STR_TMP:${ARRAY_STR_TMP}" 
+start_nodes ARRAY_STR_TMP ${#MAKE_ARRAY[@]} configsvr  || {
+    echo "错误： start_nodes fail ARRAY_STR_TMP:${ARRAY_STR_TMP} 失败" >&2
+    exit 1
+}
+
+
+ARRAY_STR_TMP=""
+MAKE_ARRAY=MONGOD_SVR_ARRAY
+make_array_str ';' ${#MAKE_ARRAY[@]} || {
+    echo "错误： make_array_str fail  失败" >&2
+    exit 1
+}
+
+# 启动mongod复制集
+echo "ARRAY_STR_TMP:${ARRAY_STR_TMP}" 
+start_nodes ARRAY_STR_TMP ${#MAKE_ARRAY[@]} shardsvr || {
+    echo "错误： start_nodes fail ARRAY_STR_TMP:${ARRAY_STR_TMP} 失败" >&2
+    exit 1
+}
+
+echo "start nodes success."
