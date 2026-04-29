@@ -18,11 +18,11 @@ LOCAL_RS_NAME=$8
 # keyfile路径
 LOCAL_KEYFILE_PATH=$9
 # sharding角色 mongos填写:""
-LOCAL_SHARDING_CLUSTER_ROLE=$10
+LOCAL_SHARDING_CLUSTER_ROLE=${10}
 # 是否mongos
-LOCAL_IS_MONGOS="$11"
+LOCAL_IS_MONGOS="${11}"
 # 如果是mongos需要configDB
-LOCAL_MONGOS_CONFIG_ADDR="$12"
+LOCAL_MONGOS_CONFIG_ADDR="${12}"
 
 if [ -z "${TARGET_USER}" ] || [ -z "${TARGET_PWD}" ]; then
     echo "TARGET_USER:${TARGET_USER} TARGET_PWD:${TARGET_PWD} lack of pwd info"
