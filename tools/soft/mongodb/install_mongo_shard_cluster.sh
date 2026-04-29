@@ -200,3 +200,78 @@ done
 TEST_MONGOD_PATH=$(whereis mongod)
 echo "create_mongo_shard_cluster init env success mongod path:${TEST_MONGOD_PATH}."
 
+
+# 获取主节点ip
+CONFIG_SVR_PRIMARY=""
+CONFIG_SVR_PRIMARY_PORT=""
+MONGOD_SVR_PRIMARY=""
+MONGOD_SVR_PRIMARY_PORT=""
+MONGOS_SVR_PRIMARY=""
+MONGOS_SVR_PRIMARY_PORT=""
+
+MONGOD_SVR_ARRAY=()
+MONGO_CONFIG_SVR_ARRAY=()
+MONGOS_SVR_ARRAY=()
+
+for index in "${!NODE_CONFIG_ARR[@]}"; do
+    # ip file 一行的数据: DATA ip
+    elem="${IP_LIST_ARRAY[$index]}"
+    echo "NODE_CONFIG_ARR elem:${elem}"
+    fields=($(echo "${elem}" | awk '{print $1, $2, $3}'))
+    node_type="${fields[0]}"
+    ip="${fields[1]}"
+    node_port="${fields[2]}"
+    echo "第 $index 个 IP 地址: elem:${elem}, $ip, ${node_type}, $fields[0]"
+    
+    if [ ${node_type} = "config" ]; then
+        # 添加到config_svr数组
+        MONGO_CONFIG_SVR_ARRAY[$index]="$elem"
+
+        if [ -z "${CONFIG_SVR_PRIMARY}" ]; then
+            CONFIG_SVR_PRIMARY=${ip}
+            CONFIG_SVR_PRIMARY_PORT=${node_port}
+        fi
+
+    elif [ ${node_type} = "mongod" ]; then
+        # 添加到mongod_svr数组
+        MONGOD_SVR_ARRAY[$index]="$elem"
+
+        if [ -z "${MONGOD_SVR_PRIMARY}" ]; then
+            MONGOD_SVR_PRIMARY=${ip}
+            MONGOD_SVR_PRIMARY_PORT=${node_port}
+        fi
+
+    elif [ ${node_type} = "mongos" ]; then
+        # 添加到mongos_svr数组
+        MONGOS_SVR_ARRAY[$index]="$elem"
+
+        if [ -z "${MONGOS_SVR_PRIMARY}" ]; then
+            MONGOS_SVR_PRIMARY=${ip}
+            MONGOS_SVR_PRIMARY_PORT=${node_port}
+        fi
+    else
+        echo "bad node_type:${node_type}"
+        exit 1
+    fi
+done
+# ip列表打印
+for i in "${!MONGO_CONFIG_SVR_ARRAY[@]}"; do
+    echo "MONGO_CONFIG_SVR_ARRAY 索引 $i: ${MONGO_CONFIG_SVR_ARRAY[$i]}"
+done
+for i in "${!MONGOD_SVR_ARRAY[@]}"; do
+    echo "MONGOD_SVR_ARRAY 索引 $i: ${MONGOD_SVR_ARRAY[$i]}"
+done
+for i in "${!MONGOS_SVR_ARRAY[@]}"; do
+    echo "MONGOS_SVR_ARRAY 索引 $i: ${MONGOS_SVR_ARRAY[$i]}"
+done
+
+echo "CONFIG_SVR_PRIMARY:${CONFIG_SVR_PRIMARY}:${CONFIG_SVR_PRIMARY_PORT}"
+echo "MONGOD_SVR_PRIMARY:${MONGOD_SVR_PRIMARY}:${MONGOD_SVR_PRIMARY_PORT}"
+echo "MONGOS_SVR_PRIMARY:${MONGOS_SVR_PRIMARY}:${MONGOS_SVR_PRIMARY_PORT}"
+
+if [ -z "${CONFIG_SVR_PRIMARY}" ] || [ -z "${CONFIG_SVR_PRIMARY_PORT}" ] || [ -z "${MONGOD_SVR_PRIMARY}" ] || [ -z "${MONGOD_SVR_PRIMARY_PORT}" ] || [ -z "${MONGOS_SVR_PRIMARY}" ] || [ -z "${MONGOS_SVR_PRIMARY_PORT}" ]; then
+    echo "lack primary info "
+    exit 1
+fi
+
+echo "scan config, mongod, mongos ip list success."
