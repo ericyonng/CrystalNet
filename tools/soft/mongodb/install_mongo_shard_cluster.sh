@@ -430,48 +430,40 @@ start_nodes() {
     return 0
 }
 
-ARRAY_STR_TMP=""
-MAKE_ARRAY=()
-make_array_str(){
-    local spec="$1"
-    local arr_len=$2
-    local max_idx=$(($arr_len - 1))
-    for index in "${!MAKE_ARRAY[@]}"; do
-        local item="${MAKE_ARRAY[$index]}"
-        ARRAY_STR_TMP=${ARRAY_STR_TMP}$item
-        if [ $index -ne $max_idx ]; then
-            ARRAY_STR_TMP=${ARRAY_STR_TMP}$spec
-        fi
-    done
-
-    return 0
-}
 
 ARRAY_STR_TMP=""
-MAKE_ARRAY=MONGO_CONFIG_SVR_ARRAY
-make_array_str ';' ${#MAKE_ARRAY[@]} || {
-    echo "错误： make_array_str fail  失败" >&2
-    exit 1
-}
+MAX_INDEX=${#MONGO_CONFIG_SVR_ARRAY[@]}
+MAX_INDEX=$(($MAX_INDEX - 1))
+for index in "${!MONGO_CONFIG_SVR_ARRAY[@]}"; do
+    local item="${MONGO_CONFIG_SVR_ARRAY[$index]}"
+    ARRAY_STR_TMP=${ARRAY_STR_TMP}$item
+    if [ $index -ne $MAX_INDEX ]; then
+        ARRAY_STR_TMP=${ARRAY_STR_TMP}";"
+    fi
+done
 
 # 启动配置服复制集
 echo "ARRAY_STR_TMP:${ARRAY_STR_TMP}" 
-start_nodes ARRAY_STR_TMP ${#MAKE_ARRAY[@]} configsvr  || {
+start_nodes ARRAY_STR_TMP ${#MONGO_CONFIG_SVR_ARRAY[@]} configsvr  || {
     echo "错误： start_nodes fail ARRAY_STR_TMP:${ARRAY_STR_TMP} 失败" >&2
     exit 1
 }
 
 
 ARRAY_STR_TMP=""
-MAKE_ARRAY=MONGOD_SVR_ARRAY
-make_array_str ';' ${#MAKE_ARRAY[@]} || {
-    echo "错误： make_array_str fail  失败" >&2
-    exit 1
-}
+MAX_INDEX=${#MONGOD_SVR_ARRAY[@]}
+MAX_INDEX=$(($MAX_INDEX - 1))
+for index in "${!MONGOD_SVR_ARRAY[@]}"; do
+    local item="${MONGOD_SVR_ARRAY[$index]}"
+    ARRAY_STR_TMP=${ARRAY_STR_TMP}$item
+    if [ $index -ne $MAX_INDEX ]; then
+        ARRAY_STR_TMP=${ARRAY_STR_TMP}";"
+    fi
+done
 
 # 启动mongod复制集
 echo "ARRAY_STR_TMP:${ARRAY_STR_TMP}" 
-start_nodes ARRAY_STR_TMP ${#MAKE_ARRAY[@]} shardsvr || {
+start_nodes ARRAY_STR_TMP ${#MONGOD_SVR_ARRAY[@]} shardsvr || {
     echo "错误： start_nodes fail ARRAY_STR_TMP:${ARRAY_STR_TMP} 失败" >&2
     exit 1
 }
