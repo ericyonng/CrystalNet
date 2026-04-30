@@ -338,7 +338,7 @@ start_nodes() {
     local PRINT_STR=""
     for ((i=1; i<=${NODES_LEN}; i++)); do
         echo "当前: $i"
-        PRINT_STR="${PRINT_STR}$i"
+        PRINT_STR="${PRINT_STR}\$$i"
         if [ $i -ne ${NODES_LEN} ]; then
             PRINT_STR="${PRINT_STR}, "
         fi
@@ -435,7 +435,7 @@ ARRAY_STR_TMP=""
 MAX_INDEX=${#MONGO_CONFIG_SVR_ARRAY[@]}
 MAX_INDEX=$(($MAX_INDEX - 1))
 for index in "${!MONGO_CONFIG_SVR_ARRAY[@]}"; do
-    local item="${MONGO_CONFIG_SVR_ARRAY[$index]}"
+    item="${MONGO_CONFIG_SVR_ARRAY[$index]}"
     ARRAY_STR_TMP=${ARRAY_STR_TMP}$item
     if [ $index -ne $MAX_INDEX ]; then
         ARRAY_STR_TMP=${ARRAY_STR_TMP}";"
@@ -454,7 +454,7 @@ ARRAY_STR_TMP=""
 MAX_INDEX=${#MONGOD_SVR_ARRAY[@]}
 MAX_INDEX=$(($MAX_INDEX - 1))
 for index in "${!MONGOD_SVR_ARRAY[@]}"; do
-    local item="${MONGOD_SVR_ARRAY[$index]}"
+    item="${MONGOD_SVR_ARRAY[$index]}"
     ARRAY_STR_TMP=${ARRAY_STR_TMP}$item
     if [ $index -ne $MAX_INDEX ]; then
         ARRAY_STR_TMP=${ARRAY_STR_TMP}";"
