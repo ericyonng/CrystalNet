@@ -346,7 +346,7 @@ start_nodes() {
 
     echo "PRINT_STR:${PRINT_STR}"
 
-    local items=($(echo "${NODES_STR}" | awk -F';' '{print '${PRINT_STR}'}'))
+    local items=($(echo "${NODES_STR}" | awk -F';' "{print ${PRINT_STR}}"))
     echo "start_nodes..."
 
     DB_INDEX=1
