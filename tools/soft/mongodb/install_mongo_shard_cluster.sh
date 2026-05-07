@@ -444,7 +444,7 @@ done
 
 # 启动配置服复制集
 echo "ARRAY_STR_TMP:${ARRAY_STR_TMP}" 
-start_nodes ARRAY_STR_TMP ${#MONGO_CONFIG_SVR_ARRAY[@]} configsvr  || {
+start_nodes ${ARRAY_STR_TMP} ${#MONGO_CONFIG_SVR_ARRAY[@]} configsvr  || {
     echo "错误： start_nodes fail ARRAY_STR_TMP:${ARRAY_STR_TMP} 失败" >&2
     exit 1
 }
@@ -463,7 +463,7 @@ done
 
 # 启动mongod复制集
 echo "ARRAY_STR_TMP:${ARRAY_STR_TMP}" 
-start_nodes ARRAY_STR_TMP ${#MONGOD_SVR_ARRAY[@]} shardsvr || {
+start_nodes ${ARRAY_STR_TMP} ${#MONGOD_SVR_ARRAY[@]} shardsvr || {
     echo "错误： start_nodes fail ARRAY_STR_TMP:${ARRAY_STR_TMP} 失败" >&2
     exit 1
 }
