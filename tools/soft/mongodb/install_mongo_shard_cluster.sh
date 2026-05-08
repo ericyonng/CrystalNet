@@ -346,7 +346,7 @@ start_nodes() {
         echo "index:${index}:${start_nodes_items[$index]}"
     done
 
-    echo "start_nodes..."
+    echo "start_nodes START_INDEX:${START_INDEX}..."
 
     DB_INDEX=$(($START_INDEX + 1))
     for index in "${!start_nodes_items[@]}"; do
@@ -361,6 +361,7 @@ start_nodes() {
         # db_name
         DB_INDEX=$(($DB_INDEX + $index))
         FINAL_DB_NAME=${DB_NAME}_${DB_TYPE}_${DB_INDEX}
+        echo "index:$index, DB_INDEX:${DB_INDEX}"
 
         # 是不是本地地址
         if [ ${ip} = "127.0.0.1" ] || [ ${ip} = ${LOCAL_IP} ]; then
