@@ -410,7 +410,7 @@ start_nodes() {
         fields=($(echo "${elem}" | awk '{print $1, $2, $3}'))
         ip="${fields[1]}"
         node_port="${fields[2]}"
-        echo "${PRIMARY_ADDR} add TMP_ADDRS node: ${ip}:${node_port}..."
+        echo "${PRIMARY_ADDR}:${PRIMARY_PORT_TMP} add TMP_ADDRS node: ${ip}:${node_port}..."
         local cnt=$(($index + 1))
         
         if [ ${PRIMARY_ADDR} = "127.0.0.1" ] || [ ${PRIMARY_ADDR} = ${LOCAL_IP} ]; then
