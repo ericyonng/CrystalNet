@@ -346,9 +346,9 @@ start_nodes() {
 
     echo "PRINT_STR:${PRINT_STR}"
 
-
-    # 1. 按分号切割，存入 shell 数组 nodes
-    mapfile -t start_nodes_items < <(echo "$raw" | awk 'BEGIN{FS=";"} {for(i=1;i<=NF;i++) print $i}')
+    # 按分号分割 string，直接存入数组 start_nodes_items
+    local start_nodes_items=()
+    IFS=';' read -ra start_nodes_items <<< "${NODES_STR}"
 
     # 2. 遍历数组，提取 IP 和端口，创建节点
     echo "arr start_nodes_items:"
