@@ -333,18 +333,8 @@ echo "create_mongo_shard_cluster init primary node success."
 # 启动节点函数
 start_nodes() {
     local NODES_STR="$1"
-    local NODES_LEN=$2
+    local START_INDEX=$2
     local SHARDING_ROLE="$3"
-    local PRINT_STR=""
-    for ((i=1; i<=${NODES_LEN}; i++)); do
-        echo "当前: $i"
-        PRINT_STR="${PRINT_STR}\$$i"
-        if [ $i -ne ${NODES_LEN} ]; then
-            PRINT_STR="${PRINT_STR}, "
-        fi
-    done
-
-    echo "PRINT_STR:${PRINT_STR}"
 
     # 按分号分割 string，直接存入数组 start_nodes_items
     local start_nodes_items=()
@@ -358,15 +348,15 @@ start_nodes() {
 
     echo "start_nodes..."
 
-    DB_INDEX=1
+    DB_INDEX=$(($START_INDEX + $index))
     for index in "${!start_nodes_items[@]}"; do
         # ip file 一行的数据: DATA ip
         elem="${start_nodes_items[$index]}"
         fields=($(echo "${elem}" | awk '{print $1, $2, $3}'))
-        node_type="${fields[0]}"
+        DB_TYPE="${fields[0]}"
         ip="${fields[1]}"
         node_port="${fields[2]}"
-        echo "第 $index 个 IP 地址: $ip, ${node_type}, ${node_port}"
+        echo "第 $index 个 IP 地址: $ip, ${DB_TYPE}, ${node_port}"
         
         # db_name
         DB_INDEX=$(($DB_INDEX + $index))
@@ -453,7 +443,7 @@ done
 
 # 启动配置服复制集
 echo "ARRAY_STR_TMP:${ARRAY_STR_TMP}" 
-start_nodes "${ARRAY_STR_TMP}" ${#MONGO_CONFIG_SVR_ARRAY[@]} configsvr  || {
+start_nodes "${ARRAY_STR_TMP}" 1 configsvr  || {
     echo "错误： start_nodes fail ARRAY_STR_TMP:${ARRAY_STR_TMP} 失败" >&2
     exit 1
 }
@@ -472,7 +462,7 @@ done
 
 # 启动mongod复制集
 echo "ARRAY_STR_TMP:${ARRAY_STR_TMP}" 
-start_nodes "${ARRAY_STR_TMP}" ${#MONGOD_SVR_ARRAY[@]} shardsvr || {
+start_nodes "${ARRAY_STR_TMP}" ${#MONGO_CONFIG_SVR_ARRAY[@]} shardsvr || {
     echo "错误： start_nodes fail ARRAY_STR_TMP:${ARRAY_STR_TMP} 失败" >&2
     exit 1
 }
