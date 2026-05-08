@@ -348,7 +348,7 @@ start_nodes() {
 
     echo "start_nodes START_INDEX:${START_INDEX}..."
 
-    DB_INDEX=$(($START_INDEX + 1))
+    DB_INDEX=0
     for index in "${!start_nodes_items[@]}"; do
         # ip file 一行的数据: DATA ip
         elem="${start_nodes_items[$index]}"
@@ -359,7 +359,7 @@ start_nodes() {
         echo "第 $index 个 IP 地址: $ip, ${DB_TYPE}, ${node_port}"
         
         # db_name
-        DB_INDEX=$(($DB_INDEX + $index))
+        DB_INDEX=$(($START_INDEX + $index))
         FINAL_DB_NAME=${DB_NAME}_${DB_TYPE}_${DB_INDEX}
         echo "index:$index, DB_INDEX:${DB_INDEX}"
 
@@ -392,7 +392,7 @@ start_nodes() {
             fields=($(echo "${elem}" | awk '{print $1, $2, $3}'))
             ip="${fields[1]}"
             node_port="${fields[2]}"
-            echo "PRIMARY: 第 $index 个 IP 地址: elem:${elem}, $ip, ${node_type}, ${node_port}"
+            echo "PRIMARY: 第 $index 个 IP 地址: elem:${elem}, $ip, ${fields[0]}, ${node_port}"
         
             PRIMARY_ADDR=${ip}
             PRIMARY_PORT_TMP=${node_port}
