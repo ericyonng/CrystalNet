@@ -348,7 +348,7 @@ start_nodes() {
 
     echo "start_nodes..."
 
-    DB_INDEX=$(($START_INDEX + $index))
+    DB_INDEX=$(($START_INDEX + 1))
     for index in "${!start_nodes_items[@]}"; do
         # ip file 一行的数据: DATA ip
         elem="${start_nodes_items[$index]}"
@@ -445,7 +445,7 @@ done
 
 # 启动配置服复制集
 echo "ARRAY_STR_TMP:${ARRAY_STR_TMP}" 
-start_nodes "${ARRAY_STR_TMP}" 1 configsvr  || {
+start_nodes "${ARRAY_STR_TMP}" 0 configsvr  || {
     echo "错误： start_nodes fail ARRAY_STR_TMP:${ARRAY_STR_TMP} 失败" >&2
     exit 1
 }
