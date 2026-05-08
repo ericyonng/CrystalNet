@@ -346,7 +346,21 @@ start_nodes() {
 
     echo "PRINT_STR:${PRINT_STR}"
 
-    local items=($(echo "${NODES_STR}" | awk -F';' "{print ${PRINT_STR}}"))
+    local items=()
+    echo "${NODES_STR}" | awk '{
+        # 使用 split 函数，分隔符为分号，结果存入数组 arr
+        n = split($0, items, ";")
+        # 遍历数组并打印（也可以做其他处理）
+        for(i=1; i<=n; i++) {
+            print "items[" i "] = " items[i]
+        }
+    }'
+
+    echo "arr items:"
+    for index in "${!items[@]}"; do
+        echo "index:${index}:${items[$index]}"
+    done
+
     echo "start_nodes..."
 
     DB_INDEX=1
