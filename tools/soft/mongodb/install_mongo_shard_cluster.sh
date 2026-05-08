@@ -383,7 +383,8 @@ start_nodes() {
     local PRIMARY_ADDR=""
     local PRIMARY_PORT_TMP=""
     local TMP_ADDRS=()
-    for index in "${!items[@]}"; do
+    local TMP_INDEX=0
+    for index in "${!start_nodes_items[@]}"; do
         if [ $index -eq 0 ]; then
             # ip file 一行的数据: DATA ip
             elem="${nodes_arr[$index]}"
@@ -396,7 +397,8 @@ start_nodes() {
             PRIMARY_PORT_TMP=${node_port}
         else
             elem="${nodes_arr[$index]}"
-            TMP_ADDRS+=("$elem")
+            TMP_ADDRS[$TMP_INDEX]=("$elem")
+            TMP_INDEX=$(($TMP_INDEX + 1))
         fi
     done
     
