@@ -397,7 +397,7 @@ start_nodes() {
             PRIMARY_PORT_TMP=${node_port}
         else
             elem="${nodes_arr[$index]}"
-            TMP_ADDRS[$TMP_INDEX]=("$elem")
+            TMP_ADDRS[$TMP_INDEX]="$elem"
             TMP_INDEX=$(($TMP_INDEX + 1))
         fi
     done
