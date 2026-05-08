@@ -346,27 +346,27 @@ start_nodes() {
 
     echo "PRINT_STR:${PRINT_STR}"
 
-    items=()
+    start_nodes_items=()
     echo "${NODES_STR}" | awk '{
         # 使用 split 函数，分隔符为分号，结果存入数组 arr
-        n = split($0, items, ";")
+        n = split($0, start_nodes_items, ";")
         # 遍历数组并打印（也可以做其他处理）
         for(i=1; i<=n; i++) {
-            print "items[" i "] = " items[i]
+            print "start_nodes_items[" i "] = " start_nodes_items[i]
         }
     }'
 
-    echo "arr items:"
-    for index in "${!items[@]}"; do
-        echo "index:${index}:${items[$index]}"
+    echo "arr start_nodes_items:"
+    for index in "${!start_nodes_items[@]}"; do
+        echo "index:${index}:${start_nodes_items[$index]}"
     done
 
     echo "start_nodes..."
 
     DB_INDEX=1
-    for index in "${!items[@]}"; do
+    for index in "${!start_nodes_items[@]}"; do
         # ip file 一行的数据: DATA ip
-        elem="${items[$index]}"
+        elem="${start_nodes_items[$index]}"
         fields=($(echo "${elem}" | awk '{print $1, $2, $3}'))
         node_type="${fields[0]}"
         ip="${fields[1]}"
