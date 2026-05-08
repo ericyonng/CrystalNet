@@ -387,7 +387,7 @@ start_nodes() {
     for index in "${!start_nodes_items[@]}"; do
         if [ $index -eq 0 ]; then
             # ip file 一行的数据: DATA ip
-            elem="${nodes_arr[$index]}"
+            elem="${start_nodes_items[$index]}"
             fields=($(echo "${elem}" | awk '{print $1, $2, $3}'))
             ip="${fields[1]}"
             node_port="${fields[2]}"
@@ -396,7 +396,7 @@ start_nodes() {
             PRIMARY_ADDR=${ip}
             PRIMARY_PORT_TMP=${node_port}
         else
-            elem="${nodes_arr[$index]}"
+            elem="${start_nodes_items[$index]}"
             TMP_ADDRS[$TMP_INDEX]="$elem"
             TMP_INDEX=$(($TMP_INDEX + 1))
         fi
