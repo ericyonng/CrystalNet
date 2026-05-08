@@ -346,7 +346,7 @@ start_nodes() {
 
     echo "PRINT_STR:${PRINT_STR}"
 
-    local items=()
+    items=()
     echo "${NODES_STR}" | awk '{
         # 使用 split 函数，分隔符为分号，结果存入数组 arr
         n = split($0, items, ";")
