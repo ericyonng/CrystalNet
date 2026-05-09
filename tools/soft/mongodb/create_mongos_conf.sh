@@ -58,6 +58,6 @@ echo "processManagement:" >> ${MONGOS_CONF}
 echo "    fork: true" >> ${MONGOS_CONF}
 echo -e "\n" >> ${MONGOS_CONF}
 echo "sharding:" >> ${MONGOS_CONF}
-echo "    configDB: ${LOCAL_REPL_SET_NAME}/${LOCAL_CONFIG_SVR_ADDRS}" >> ${MONGOS_CONF}
+echo "    configDB: ${LOCAL_CONFIG_SVR_ADDRS}" >> ${MONGOS_CONF}
 
 echo "mongos conf:${MONGOS_CONF} create success..."
