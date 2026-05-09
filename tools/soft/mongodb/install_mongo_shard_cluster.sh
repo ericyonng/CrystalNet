@@ -288,7 +288,7 @@ echo "create_mongo_shard_cluster init configsvr nodes..."
 # 初始化Configsvr主节点
 if [ ${CONFIG_SVR_PRIMARY} = "127.0.0.1" ] || [ ${CONFIG_SVR_PRIMARY} = ${LOCAL_IP} ]; then
     echo "create_mongo_shard_cluster init local config primary DB_NAME:${DB_NAME}..."
-    sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} ${CONFIG_SVR_PRIMARY} ${CONFIG_SVR_PRIMARY_PORT} ${DB_NAME}_config_1 ${RS_NAME}_config ${TARGET_SCRIPT_PATH}/keyfile configsvr || {
+    sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} ${LOCAL_IP} ${CONFIG_SVR_PRIMARY_PORT} ${DB_NAME}_config_1 ${RS_NAME}_config ${TARGET_SCRIPT_PATH}/keyfile configsvr || {
         echo "错误：${CONFIG_SVR_PRIMARY} init_primary fail ${SCRIPT_PATH}/init_primary.sh 失败" >&2
         exit 1
     }
@@ -365,14 +365,14 @@ start_nodes() {
 
         # 是不是本地地址
         if [ ${ip} = "127.0.0.1" ] || [ ${ip} = ${LOCAL_IP} ]; then
-            sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${DATA_PATH}/${FINAL_DB_NAME} ${node_port} "${RS_NAME}_${DB_TYPE}" ${TARGET_SCRIPT_PATH}/keyfile ${SHARDING_ROLE} || {
+            sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${DATA_PATH}/${FINAL_DB_NAME} ${LOCAL_IP} ${node_port} "${RS_NAME}_${DB_TYPE}" ${TARGET_SCRIPT_PATH}/keyfile ${SHARDING_ROLE} || {
                 echo "创建db1实例失败！" >&2
                 return 1
             }  
             echo "启动mongodb节点 IP 地址: FINAL_DB_NAME:${FINAL_DB_NAME} elem:${elem}, $ip, ${node_port} 成功."
 
         else
-            ssh root@${ip} "sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${DATA_PATH}/${FINAL_DB_NAME} ${node_port} \"${RS_NAME}_${DB_TYPE}\" ${TARGET_SCRIPT_PATH}/keyfile ${SHARDING_ROLE}" || {
+            ssh root@${ip} "sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${DATA_PATH}/${FINAL_DB_NAME} ${ip} ${node_port} \"${RS_NAME}_${DB_TYPE}\" ${TARGET_SCRIPT_PATH}/keyfile ${SHARDING_ROLE}" || {
                 echo "错误：${ip} create_mongodb_inst fail ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh 失败" >&2
                 return 1
             }

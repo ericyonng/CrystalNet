@@ -4,14 +4,16 @@
 # 创建conf文件
 # 目标db目录
 LOCAL_TARGET_DB_PATH=$1
+# 指定机器ip
+LOCAL_HOST_IP=$2
 # 端口号
-LOCAL_TARGET_PORT=$2
+LOCAL_TARGET_PORT=$3
 # 复制集名
-LOCAL_REPL_SET_NAME=$3
+LOCAL_REPL_SET_NAME=$4
 # 配置文件名
-LOCAL_MONGOD_CONF_FILE_NAME=$4
+LOCAL_MONGOD_CONF_FILE_NAME=$5
 # mongodb缓存大小(GB)
-LOCAL_MONGOD_CACHE_SIZE=$5
+LOCAL_MONGOD_CACHE_SIZE=$6
 # 缺省默认1GB
 if [ -z "${LOCAL_MONGOD_CACHE_SIZE}" ]; then
     LOCAL_MONGOD_CACHE_SIZE=1
@@ -58,6 +60,7 @@ echo "    port: ${LOCAL_TARGET_PORT}" >> ${MONGOD_CONF}
 echo -e "\n" >> ${MONGOD_CONF}
 echo "replication:" >> ${MONGOD_CONF}
 echo "    replSetName: ${LOCAL_REPL_SET_NAME}" >> ${MONGOD_CONF}
+echo "    replSetHost: ${LOCAL_HOST_IP}" >> ${MONGOD_CONF}
 echo "    enableMajorityReadConcern: true" >> ${MONGOD_CONF}
 echo -e "\n" >> ${MONGOD_CONF}
 echo "processManagement:" >> ${MONGOD_CONF}
