@@ -61,11 +61,10 @@ chmod 600 ${TARGET_KEYFILE_PATH}
 
 echo "keyfile:${TARGET_KEYFILE_PATH}"
 
-# 启用认证
+# 启用认证（mongos不支持authorization选项，只需keyFile）
 if [ -z "${IS_NO_AUTH}" ]; then
     echo "enable security..."
     echo "security:" >> ${MONGOS_CONF}
-    echo "    authorization: enabled" >> ${MONGOS_CONF}
     echo "    keyFile: ${TARGET_KEYFILE_PATH}" >> ${MONGOS_CONF}
 else
     echo "disable security..."
