@@ -60,7 +60,6 @@ echo "    port: ${LOCAL_TARGET_PORT}" >> ${MONGOD_CONF}
 echo -e "\n" >> ${MONGOD_CONF}
 echo "replication:" >> ${MONGOD_CONF}
 echo "    replSetName: ${LOCAL_REPL_SET_NAME}" >> ${MONGOD_CONF}
-echo "    replSetHost: ${LOCAL_HOST_IP}" >> ${MONGOD_CONF}
 echo "    enableMajorityReadConcern: true" >> ${MONGOD_CONF}
 echo -e "\n" >> ${MONGOD_CONF}
 echo "processManagement:" >> ${MONGOD_CONF}
