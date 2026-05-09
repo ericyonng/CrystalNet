@@ -55,7 +55,7 @@ if [ -e "${LOCAL_TARGET_DB_PATH}" ]; then
     echo "exists dir:${LOCAL_TARGET_DB_PATH} ..."
 else
     echo "create dir:${LOCAL_TARGET_DB_PATH} ..."
-    mkdir ${LOCAL_TARGET_DB_PATH}
+    mkdir -p ${LOCAL_TARGET_DB_PATH}
 fi
 
 if [ -n = "${LOCAL_IS_MONGOS}" ]; then

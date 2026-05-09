@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 # @author EricYonng<120453674@qq.com>
 # 创建mongo 分片集群
+# 用法: sh install_mongo_shard_cluster.sh <iplist.txt> <用户名> <密码> <复制集名前缀> <软件包安装路径> <数据库数据路径> [数据库名] [分片配置]
+#
 # IP_LIST_FILE: ip 节点类型 端口: config 127.0.0.1 27010 / shard1 127.0.0.1 27011 / mongos 127.0.0.1 27017
-# INSTALL_PATH: 安装mongodb的程序目录
-# DATA_PATH: 安装mongodb的数据库目录
 # TARGET_USER: 用户名
 # TARGET_PWD: 密码
 # RS_NAME_PREFIX: 复制集名前缀, 如 rs, 则config复制集名为rs_config, shard1为rs_shard1
+# INSTALL_PATH: 安装mongodb的程序目录
+# DATA_PATH: 安装mongodb的数据库目录
 # DB_NAME: db名(可选, 默认admin)
 # SHARD_CONFIG: 分片配置(可选, 格式 dbname.collection:shardkey, 如 mydb.users:_id)
 
@@ -72,6 +74,7 @@ echo "MongoDB 分片集群自动搭建脚本"
 echo "=========================================="
 echo "IP_LIST_FILE    : ${IP_LIST_FILE}"
 echo "TARGET_USER     : ${TARGET_USER}"
+echo "TARGET_PWD      : ******"
 echo "RS_NAME_PREFIX  : ${RS_NAME_PREFIX}"
 echo "INSTALL_PATH    : ${INSTALL_PATH}"
 echo "DATA_PATH       : ${DATA_PATH}"
@@ -338,20 +341,27 @@ echo "========== 步骤1: 初始化 config 复制集 =========="
 CONFIG_PRIMARY_IP=$(echo "${CONFIG_SVR_ARRAY[0]}" | awk '{print $1}')
 CONFIG_PRIMARY_PORT=$(echo "${CONFIG_SVR_ARRAY[0]}" | awk '{print $2}')
 CONFIG_RS_NAME="${RS_NAME_PREFIX}_config"
-CONFIG_DB_NAME="${DB_NAME}_config_1"
+# 每个节点的数据子目录名: <DB_NAME>_config_<序号>
+CONFIG_PRIMARY_DB_SUBDIR="${DB_NAME}_config_1"
+# 完整数据目录: DATA_PATH/子目录名
+CONFIG_PRIMARY_DB_PATH="${DATA_PATH}/${CONFIG_PRIMARY_DB_SUBDIR}"
 
 echo "Config主节点: ${CONFIG_PRIMARY_IP}:${CONFIG_PRIMARY_PORT}, RS_NAME: ${CONFIG_RS_NAME}"
+echo "Config主节点数据目录: ${CONFIG_PRIMARY_DB_PATH}"
 
 # 1.1 初始化config主节点 (no_auth → rs.initiate → createUser → shutdown)
+# init_primary.sh 参数: SCRIPT_PATH TARGET_USER TARGET_PWD LOCAL_REPLISET_INSTALL_PATH LOCAL_PRIMARY_IP LOCAL_PRIMARY_PORT LOCAL_DB_NAME LOCAL_RS_NAME LOCAL_KEYFILE_PATH LOCAL_SHARDING_CLUSTER_ROLE [LOCAL_IS_MONGOS] [LOCAL_MONGOS_CONFIG_ADDR]
+# LOCAL_REPLISET_INSTALL_PATH: 数据目录的父路径(如 /root/mongo_data1)
+# LOCAL_DB_NAME: 子目录名(如 mydb_config_1), init_primary.sh内部会拼接为 LOCAL_REPLISET_INSTALL_PATH/LOCAL_DB_NAME
 if is_local_ip ${CONFIG_PRIMARY_IP}; then
-    sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} ${LOCAL_IP} ${CONFIG_PRIMARY_PORT} ${CONFIG_DB_NAME} ${CONFIG_RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile configsvr || {
+    sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} ${LOCAL_IP} ${CONFIG_PRIMARY_PORT} ${CONFIG_PRIMARY_DB_SUBDIR} ${CONFIG_RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile configsvr || {
         echo "错误：config主节点 init_primary 失败" >&2
         exit 1
     }
 else
     # 拷贝keyfile到远程
     scp -r ${KEYFILE_PATH} root@${CONFIG_PRIMARY_IP}:${TARGET_SCRIPT_PATH}/keyfile 2>/dev/null
-    ssh root@${CONFIG_PRIMARY_IP} "source ~/.bash_profile 2>/dev/null; sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} ${CONFIG_PRIMARY_IP} ${CONFIG_PRIMARY_PORT} ${CONFIG_DB_NAME} ${CONFIG_RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile configsvr" || {
+    ssh root@${CONFIG_PRIMARY_IP} "source ~/.bash_profile 2>/dev/null; sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} ${CONFIG_PRIMARY_IP} ${CONFIG_PRIMARY_PORT} ${CONFIG_PRIMARY_DB_SUBDIR} ${CONFIG_RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile configsvr" || {
         echo "错误：config主节点 ${CONFIG_PRIMARY_IP} init_primary 失败" >&2
         exit 1
     }
@@ -360,13 +370,15 @@ fi
 echo "Config主节点初始化(no_auth → createUser → shutdown) 成功."
 
 # 1.2 启动config主节点(带认证)
+# create_mongodb_inst.sh 参数: SCRIPT_PATH LOCAL_TARGET_DB_PATH LOCAL_TARGET_IP LOCAL_TARGET_PORT LOCAL_REPL_SET_NAME LOCAL_KEYFILE_PATH LOCAL_SHARDING_CLUSTER_ROLE [LOCAL_IS_MONGOS] [LOCAL_MONGOS_CONFIG_ADDR] [LOCAL_IS_NO_AUTH]
+# LOCAL_TARGET_DB_PATH: 完整数据目录路径
 if is_local_ip ${CONFIG_PRIMARY_IP}; then
-    sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${DATA_PATH}/${CONFIG_DB_NAME} ${LOCAL_IP} ${CONFIG_PRIMARY_PORT} "${CONFIG_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile configsvr || {
+    sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${CONFIG_PRIMARY_DB_PATH} ${LOCAL_IP} ${CONFIG_PRIMARY_PORT} "${CONFIG_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile configsvr || {
         echo "错误：config主节点带认证启动失败" >&2
         exit 1
     }
 else
-    ssh root@${CONFIG_PRIMARY_IP} "source ~/.bash_profile 2>/dev/null; sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${DATA_PATH}/${CONFIG_DB_NAME} ${CONFIG_PRIMARY_IP} ${CONFIG_PRIMARY_PORT} \"${CONFIG_RS_NAME}\" ${TARGET_SCRIPT_PATH}/keyfile configsvr" || {
+    ssh root@${CONFIG_PRIMARY_IP} "source ~/.bash_profile 2>/dev/null; sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${CONFIG_PRIMARY_DB_PATH} ${CONFIG_PRIMARY_IP} ${CONFIG_PRIMARY_PORT} \"${CONFIG_RS_NAME}\" ${TARGET_SCRIPT_PATH}/keyfile configsvr" || {
         echo "错误：config主节点 ${CONFIG_PRIMARY_IP} 带认证启动失败" >&2
         exit 1
     }
@@ -385,18 +397,19 @@ for i in "${!CONFIG_SVR_ARRAY[@]}"; do
     item="${CONFIG_SVR_ARRAY[$i]}"
     ip=$(echo "${item}" | awk '{print $1}')
     node_port=$(echo "${item}" | awk '{print $2}')
-    node_db_name="${DB_NAME}_config_$(($i + 1))"
+    node_db_subdir="${DB_NAME}_config_$(($i + 1))"
+    node_db_path="${DATA_PATH}/${node_db_subdir}"
 
-    echo "启动config从节点 [$i]: ${ip}:${node_port}..."
+    echo "启动config从节点 [$i]: ${ip}:${node_port}, 数据目录: ${node_db_path}..."
 
     # 启动从节点(带认证, 不需要no_auth)
     if is_local_ip ${ip}; then
-        sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${DATA_PATH}/${node_db_name} ${LOCAL_IP} ${node_port} "${CONFIG_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile configsvr || {
+        sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${node_db_path} ${LOCAL_IP} ${node_port} "${CONFIG_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile configsvr || {
             echo "错误：config从节点 ${ip}:${node_port} 启动失败" >&2
             exit 1
         }
     else
-        ssh root@${ip} "source ~/.bash_profile 2>/dev/null; sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${DATA_PATH}/${node_db_name} ${ip} ${node_port} \"${CONFIG_RS_NAME}\" ${TARGET_SCRIPT_PATH}/keyfile configsvr" || {
+        ssh root@${ip} "source ~/.bash_profile 2>/dev/null; sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${node_db_path} ${ip} ${node_port} \"${CONFIG_RS_NAME}\" ${TARGET_SCRIPT_PATH}/keyfile configsvr" || {
             echo "错误：config从节点 ${ip}:${node_port} 启动失败" >&2
             exit 1
         }
@@ -468,19 +481,21 @@ for shard_name in "${SHARD_NAME_LIST[@]}"; do
     primary_node="${shard_nodes[0]}"
     primary_ip=$(echo "${primary_node}" | awk '{print $1}')
     primary_port=$(echo "${primary_node}" | awk '{print $2}')
-    primary_db_name="${DB_NAME}_${shard_name}_1"
+    primary_db_subdir="${DB_NAME}_${shard_name}_1"
+    primary_db_path="${DATA_PATH}/${primary_db_subdir}"
 
     echo "Shard ${shard_name} 主节点: ${primary_ip}:${primary_port}, RS_NAME: ${SHARD_RS_NAME}"
+    echo "Shard ${shard_name} 主节点数据目录: ${primary_db_path}"
 
     # 2.1 初始化shard主节点 (no_auth → rs.initiate → createUser → shutdown)
     if is_local_ip ${primary_ip}; then
-        sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} ${LOCAL_IP} ${primary_port} ${primary_db_name} ${SHARD_RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile shardsvr || {
+        sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} ${LOCAL_IP} ${primary_port} ${primary_db_subdir} ${SHARD_RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile shardsvr || {
             echo "错误：shard ${shard_name} 主节点 init_primary 失败" >&2
             exit 1
         }
     else
         scp -r ${KEYFILE_PATH} root@${primary_ip}:${TARGET_SCRIPT_PATH}/keyfile 2>/dev/null
-        ssh root@${primary_ip} "source ~/.bash_profile 2>/dev/null; sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} ${primary_ip} ${primary_port} ${primary_db_name} ${SHARD_RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile shardsvr" || {
+        ssh root@${primary_ip} "source ~/.bash_profile 2>/dev/null; sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} ${primary_ip} ${primary_port} ${primary_db_subdir} ${SHARD_RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile shardsvr" || {
             echo "错误：shard ${shard_name} 主节点 ${primary_ip} init_primary 失败" >&2
             exit 1
         }
@@ -490,12 +505,12 @@ for shard_name in "${SHARD_NAME_LIST[@]}"; do
 
     # 2.2 启动shard主节点(带认证)
     if is_local_ip ${primary_ip}; then
-        sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${DATA_PATH}/${primary_db_name} ${LOCAL_IP} ${primary_port} "${SHARD_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile shardsvr || {
+        sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${primary_db_path} ${LOCAL_IP} ${primary_port} "${SHARD_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile shardsvr || {
             echo "错误：shard ${shard_name} 主节点带认证启动失败" >&2
             exit 1
         }
     else
-        ssh root@${primary_ip} "source ~/.bash_profile 2>/dev/null; sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${DATA_PATH}/${primary_db_name} ${primary_ip} ${primary_port} \"${SHARD_RS_NAME}\" ${TARGET_SCRIPT_PATH}/keyfile shardsvr" || {
+        ssh root@${primary_ip} "source ~/.bash_profile 2>/dev/null; sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${primary_db_path} ${primary_ip} ${primary_port} \"${SHARD_RS_NAME}\" ${TARGET_SCRIPT_PATH}/keyfile shardsvr" || {
             echo "错误：shard ${shard_name} 主节点 ${primary_ip} 带认证启动失败" >&2
             exit 1
         }
@@ -514,17 +529,18 @@ for shard_name in "${SHARD_NAME_LIST[@]}"; do
         node="${shard_nodes[$j]}"
         ip=$(echo "${node}" | awk '{print $1}')
         node_port=$(echo "${node}" | awk '{print $2}')
-        node_db_name="${DB_NAME}_${shard_name}_$(($j + 1))"
+        node_db_subdir="${DB_NAME}_${shard_name}_$(($j + 1))"
+        node_db_path="${DATA_PATH}/${node_db_subdir}"
 
-        echo "启动shard ${shard_name} 从节点 [$j]: ${ip}:${node_port}..."
+        echo "启动shard ${shard_name} 从节点 [$j]: ${ip}:${node_port}, 数据目录: ${node_db_path}..."
 
         if is_local_ip ${ip}; then
-            sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${DATA_PATH}/${node_db_name} ${LOCAL_IP} ${node_port} "${SHARD_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile shardsvr || {
+            sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${node_db_path} ${LOCAL_IP} ${node_port} "${SHARD_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile shardsvr || {
                 echo "错误：shard ${shard_name} 从节点 ${ip}:${node_port} 启动失败" >&2
                 exit 1
             }
         else
-            ssh root@${ip} "source ~/.bash_profile 2>/dev/null; sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${DATA_PATH}/${node_db_name} ${ip} ${node_port} \"${SHARD_RS_NAME}\" ${TARGET_SCRIPT_PATH}/keyfile shardsvr" || {
+            ssh root@${ip} "source ~/.bash_profile 2>/dev/null; sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${node_db_path} ${ip} ${node_port} \"${SHARD_RS_NAME}\" ${TARGET_SCRIPT_PATH}/keyfile shardsvr" || {
                 echo "错误：shard ${shard_name} 从节点 ${ip}:${node_port} 启动失败" >&2
                 exit 1
             }
@@ -604,22 +620,25 @@ done
 echo "ConfigSvr 地址串: ${CONFIG_SVR_ADDR_STR}"
 
 # 3.1 初始化每个mongos节点 (no_auth → createUser → shutdown)
+# init_mongos.sh 参数: SCRIPT_PATH TARGET_USER TARGET_PWD LOCAL_REPLISET_INSTALL_PATH LOCAL_PRIMARY_IP LOCAL_PRIMARY_PORT LOCAL_DB_NAME LOCAL_RS_NAME LOCAL_KEYFILE_PATH LOCAL_MONGOS_CONFIG_ADDR
+# 注意: init_mongos.sh 内部调用 create_mongos_inst.sh, 拼接 LOCAL_REPLISET_INSTALL_PATH/LOCAL_DB_NAME 作为数据目录
 for i in "${!MONGOS_SVR_ARRAY[@]}"; do
     item="${MONGOS_SVR_ARRAY[$i]}"
     ip=$(echo "${item}" | awk '{print $1}')
     node_port=$(echo "${item}" | awk '{print $2}')
-    mongos_db_name="${DB_NAME}_mongos_$(($i + 1))"
+    mongos_db_subdir="${DB_NAME}_mongos_$(($i + 1))"
+    mongos_db_path="${DATA_PATH}/${mongos_db_subdir}"
 
-    echo "初始化mongos节点 [$i]: ${ip}:${node_port}..."
+    echo "初始化mongos节点 [$i]: ${ip}:${node_port}, 数据目录: ${mongos_db_path}..."
 
     if is_local_ip ${ip}; then
-        sh ${TARGET_SCRIPT_PATH}/init_mongos.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH}/${mongos_db_name} ${LOCAL_IP} ${node_port} ${mongos_db_name} "${CONFIG_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile "${CONFIG_SVR_ADDR_STR}" || {
+        sh ${TARGET_SCRIPT_PATH}/init_mongos.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} ${LOCAL_IP} ${node_port} ${mongos_db_subdir} "${CONFIG_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile "${CONFIG_SVR_ADDR_STR}" || {
             echo "错误：mongos节点 ${ip}:${node_port} init_mongos 失败" >&2
             exit 1
         }
     else
         scp -r ${KEYFILE_PATH} root@${ip}:${TARGET_SCRIPT_PATH}/keyfile 2>/dev/null
-        ssh root@${ip} "source ~/.bash_profile 2>/dev/null; sh ${TARGET_SCRIPT_PATH}/init_mongos.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} \"${TARGET_PWD}\" ${DATA_PATH}/${mongos_db_name} ${ip} ${node_port} ${mongos_db_name} \"${CONFIG_RS_NAME}\" ${TARGET_SCRIPT_PATH}/keyfile \"${CONFIG_SVR_ADDR_STR}\"" || {
+        ssh root@${ip} "source ~/.bash_profile 2>/dev/null; sh ${TARGET_SCRIPT_PATH}/init_mongos.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} \"${TARGET_PWD}\" ${DATA_PATH} ${ip} ${node_port} ${mongos_db_subdir} \"${CONFIG_RS_NAME}\" ${TARGET_SCRIPT_PATH}/keyfile \"${CONFIG_SVR_ADDR_STR}\"" || {
             echo "错误：mongos节点 ${ip}:${node_port} init_mongos 失败" >&2
             exit 1
         }
@@ -629,21 +648,23 @@ for i in "${!MONGOS_SVR_ARRAY[@]}"; do
 done
 
 # 3.2 启动mongos节点(带认证)
+# create_mongos_inst.sh 参数: SCRIPT_PATH TARGET_DB_PATH TARGET_PORT REPL_SET_NAME KEYFILE_PATH MONGOS_CONFIG_ADDR [IS_NO_AUTH]
 for i in "${!MONGOS_SVR_ARRAY[@]}"; do
     item="${MONGOS_SVR_ARRAY[$i]}"
     ip=$(echo "${item}" | awk '{print $1}')
     node_port=$(echo "${item}" | awk '{print $2}')
-    mongos_db_name="${DB_NAME}_mongos_$(($i + 1))"
+    mongos_db_subdir="${DB_NAME}_mongos_$(($i + 1))"
+    mongos_db_path="${DATA_PATH}/${mongos_db_subdir}"
 
     echo "启动mongos节点(带认证) [$i]: ${ip}:${node_port}..."
 
     if is_local_ip ${ip}; then
-        sh ${TARGET_SCRIPT_PATH}/create_mongos_inst.sh ${TARGET_SCRIPT_PATH} ${DATA_PATH}/${mongos_db_name} ${node_port} "${CONFIG_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile "${CONFIG_SVR_ADDR_STR}" || {
+        sh ${TARGET_SCRIPT_PATH}/create_mongos_inst.sh ${TARGET_SCRIPT_PATH} ${mongos_db_path} ${node_port} "${CONFIG_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile "${CONFIG_SVR_ADDR_STR}" || {
             echo "错误：mongos节点 ${ip}:${node_port} 带认证启动失败" >&2
             exit 1
         }
     else
-        ssh root@${ip} "source ~/.bash_profile 2>/dev/null; sh ${TARGET_SCRIPT_PATH}/create_mongos_inst.sh ${TARGET_SCRIPT_PATH} ${DATA_PATH}/${mongos_db_name} ${node_port} \"${CONFIG_RS_NAME}\" ${TARGET_SCRIPT_PATH}/keyfile \"${CONFIG_SVR_ADDR_STR}\"" || {
+        ssh root@${ip} "source ~/.bash_profile 2>/dev/null; sh ${TARGET_SCRIPT_PATH}/create_mongos_inst.sh ${TARGET_SCRIPT_PATH} ${mongos_db_path} ${node_port} \"${CONFIG_RS_NAME}\" ${TARGET_SCRIPT_PATH}/keyfile \"${CONFIG_SVR_ADDR_STR}\"" || {
             echo "错误：mongos节点 ${ip}:${node_port} 带认证启动失败" >&2
             exit 1
         }

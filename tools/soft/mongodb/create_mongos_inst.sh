@@ -47,7 +47,7 @@ if [ -e "${TARGET_DB_PATH}" ]; then
     echo "exists dir:${TARGET_DB_PATH} ..."
 else
     echo "create dir:${TARGET_DB_PATH} ..."
-    mkdir ${TARGET_DB_PATH}
+    mkdir -p ${TARGET_DB_PATH}
 fi
 
 # 创建conf文件
