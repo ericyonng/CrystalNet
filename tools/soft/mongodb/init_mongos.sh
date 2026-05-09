@@ -76,15 +76,9 @@ echo "创建mongos ${LOCAL_DB_NAME} 实例成功"
 # 等待mongos完全启动
 sleep 3
 
-echo "创建权限用户:${TARGET_USER}..."
-
-# 创建用户并赋予权限（利用localhost exception：通过127.0.0.1连接可在认证模式下创建第一个用户）
-mongosh 127.0.0.1:${LOCAL_PRIMARY_PORT}/admin --eval "db.createUser({user: \"${TARGET_USER}\", pwd: \"${TARGET_PWD}\", roles:[{role: \"userAdminAnyDatabase\", db: \"admin\"}, {role: \"readWriteAnyDatabase\", db: \"admin\"}, {role: \"clusterAdmin\", db: \"admin\"}]})" || {
-    echo "错误：创建用户并赋予权限:${LOCAL_REPLISET_INSTALL_PATH}/${LOCAL_DB_NAME}！" >&2
-    exit 1
-}
-
-echo "创建用户:${TARGET_USER} 并授权成功..."
+# mongos 不需要单独创建用户，用户数据存储在 config server 上（步骤1已创建）
+# localhost exception 对 mongos 无效，mongos 启用 keyFile 后必须先认证才能操作
+# 而 config server 上已有 admin 用户，mongos 可直接复用
 
 # 关闭mongos（步骤3.2会以带认证模式重新启动）
 PID_LIST="$(ps -aux | grep 'mongos' | grep -v grep | grep -v init_mongos | awk '{print $2}')"
