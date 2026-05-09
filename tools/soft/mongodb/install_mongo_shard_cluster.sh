@@ -310,7 +310,7 @@ echo "create_mongo_shard_cluster init mongod nodes..."
 # 初始化数据主节点
 if [ ${MONGOD_SVR_PRIMARY} = "127.0.0.1" ] || [ ${MONGOD_SVR_PRIMARY} = ${LOCAL_IP} ]; then
     echo "create_mongo_shard_cluster init local mongod primary DB_NAME:${DB_NAME}..."
-    sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} ${MONGOD_SVR_PRIMARY} ${MONGOD_SVR_PRIMARY_PORT} ${DB_NAME}_mongod_1 ${RS_NAME}_mongod ${TARGET_SCRIPT_PATH}/keyfile shardsvr || {
+    sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} ${LOCAL_IP} ${MONGOD_SVR_PRIMARY_PORT} ${DB_NAME}_mongod_1 ${RS_NAME}_mongod ${TARGET_SCRIPT_PATH}/keyfile shardsvr || {
         echo "错误：${MONGOD_SVR_PRIMARY} init_primary fail ${SCRIPT_PATH}/init_primary.sh 失败" >&2
         exit 1
     }
@@ -411,6 +411,10 @@ start_nodes() {
         elem="${TMP_ADDRS[$index]}"
         fields=($(echo "${elem}" | awk '{print $1, $2, $3}'))
         ip="${fields[1]}"
+        if [ $ip = "127.0.0.1" ] || [ $ip = ${LOCAL_IP} ]; then
+            ip=${LOCAL_IP}
+        fi
+
         node_port="${fields[2]}"
         echo "${PRIMARY_ADDR}:${PRIMARY_PORT_TMP} add TMP_ADDRS node: ${ip}:${node_port}..."
         local cnt=$(($index + 1))
@@ -422,13 +426,45 @@ start_nodes() {
                 exit 1
             }
         else
-            ssh root@${PRIMARY_ADDR} "mongosh --host ${PRIMARY_ADDR}:${PRIMARY_PORT_TMP} -u \"${TARGET_USER}\" -p \"${TARGET_PWD}\" --authenticationDatabase admin --eval \"rs.add({_id: ${cnt}, host: \\\"${ip}:${node_port}\\\", priority: 1, votes: 1})\"" || {
+            ssh root@${PRIMARY_ADDR} "mongosh --host 127.0.0.1:${PRIMARY_PORT_TMP} -u \"${TARGET_USER}\" -p \"${TARGET_PWD}\" --authenticationDatabase admin --eval \"rs.add({_id: ${cnt}, host: \\\"${ip}:${node_port}\\\", priority: 1, votes: 1})\"" || {
                 echo "错误：${PRIMARY_ADDR} add node fail ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh 失败" >&2
                 return 1
             }
         fi
         echo "${PRIMARY_ADDR} add node: ${ip}:${node_port} success."
+        sleep 2
     done
+
+    if [ ${PRIMARY_ADDR} = "127.0.0.1" ] || [ ${PRIMARY_ADDR} = ${LOCAL_IP} ]; then
+        echo "${PRIMARY_ADDR} excute mongsosh "
+        echo "复制集配置:"
+        mongosh --host 127.0.0.1:${PRIMARY_PORT_TMP} -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.conf()"|| {
+            echo "错误：复制集配置失败 添加节点失败:${PRIMARY_ADDR}:${PRIMARY_PORT_TMP}" >&2
+            exit 1
+        }
+
+    else
+        ssh root@${PRIMARY_ADDR} "mongosh --host 127.0.0.1:${PRIMARY_PORT_TMP} -u \"${TARGET_USER}\" -p \"${TARGET_PWD}\" --authenticationDatabase admin --eval \"rs.conf()\"" || {
+            echo "错误：复制集配置失败 添加节点失败:${PRIMARY_ADDR}:${PRIMARY_PORT_TMP}" >&2
+            return 1
+        }
+    fi
+
+    if [ ${PRIMARY_ADDR} = "127.0.0.1" ] || [ ${PRIMARY_ADDR} = ${LOCAL_IP} ]; then
+        echo "${PRIMARY_ADDR} excute mongsosh "
+        echo "复制集配置:"
+        mongosh --host 127.0.0.1:${PRIMARY_PORT_TMP} -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.status()"|| {
+            echo "错误：复制集状态失败 添加节点失败:${PRIMARY_ADDR}:${PRIMARY_PORT_TMP}" >&2
+            exit 1
+        }
+
+    else
+        ssh root@${PRIMARY_ADDR} "mongosh --host 127.0.0.1:${PRIMARY_PORT_TMP} -u \"${TARGET_USER}\" -p \"${TARGET_PWD}\" --authenticationDatabase admin --eval \"rs.status()\"" || {
+            echo "错误：复制集状态失败 添加节点失败:${PRIMARY_ADDR}:${PRIMARY_PORT_TMP}" >&2
+            return 1
+        }
+    fi
+
 
     sleep 2
     return 0
@@ -468,7 +504,7 @@ done
 # 启动mongod复制集
 echo "ARRAY_STR_TMP:${ARRAY_STR_TMP}" 
 IDX_ARR=$((${#MONGO_CONFIG_SVR_ARRAY[@]} + 1))
-start_nodes "${ARRAY_STR_TMP}" ${IDX_ARR} shardsvr || {
+start_nodes "${ARRAY_STR_TMP}" 1 shardsvr || {
     echo "错误： start_nodes fail ARRAY_STR_TMP:${ARRAY_STR_TMP} 失败" >&2
     exit 1
 }
