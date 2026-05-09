@@ -24,7 +24,7 @@ LOCAL_IS_MONGOS=$8
 # mongos configsvr地址
 LOCAL_MONGOS_CONFIG_ADDR=$9
 # 是否不需要启动验证
-LOCAL_IS_NO_AUTH=$10
+LOCAL_IS_NO_AUTH=${10}
 
 echo "LOCAL_TARGET_DB_PATH:${LOCAL_TARGET_DB_PATH}"
 echo "LOCAL_TARGET_PORT:${LOCAL_TARGET_PORT}"
@@ -58,7 +58,7 @@ else
     mkdir -p ${LOCAL_TARGET_DB_PATH}
 fi
 
-if [ -n = "${LOCAL_IS_MONGOS}" ]; then
+if [ -n "${LOCAL_IS_MONGOS}" ]; then
     # 创建conf文件
     MONGOS_CONF=${LOCAL_TARGET_DB_PATH}/mongos.conf
     sh ${SCRIPT_PATH}/create_mongos_conf.sh ${LOCAL_TARGET_DB_PATH} ${LOCAL_TARGET_PORT} ${LOCAL_REPL_SET_NAME} mongos.conf ${LOCAL_MONGOS_CONFIG_ADDR}
