@@ -379,6 +379,8 @@ start_nodes() {
 
             echo "启动mongodb节点 IP 地址: FINAL_DB_NAME:${FINAL_DB_NAME} elem:${elem}, $ip, ${node_port} 成功."
         fi
+
+        sleep 5
     done
 
     local PRIMARY_ADDR=""
