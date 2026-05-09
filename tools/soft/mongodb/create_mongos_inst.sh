@@ -51,7 +51,7 @@ else
 fi
 
 # 创建conf文件
-local MONGOS_CONF=${TARGET_DB_PATH}/mongos.conf
+MONGOS_CONF=${TARGET_DB_PATH}/mongos.conf
 sh ${SCRIPT_PATH}/create_mongos_conf.sh ${TARGET_DB_PATH} ${TARGET_PORT} ${REPL_SET_NAME} mongos.conf ${MONGOS_CONFIG_ADDR}
 
 # 拷贝keyfile,并设置文件掩码, 否则会启动失败
