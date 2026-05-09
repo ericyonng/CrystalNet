@@ -65,28 +65,29 @@ echo "LOCAL_RS_NAME:${LOCAL_RS_NAME}"
 echo "LOCAL_KEYFILE_PATH:${LOCAL_KEYFILE_PATH}"
 echo "LOCAL_MONGOS_CONFIG_ADDR:${LOCAL_MONGOS_CONFIG_ADDR}"
 
-# 先启动并创建用户, 密码与授权
-sh ${SCRIPT_PATH}/create_mongos_inst.sh ${SCRIPT_PATH} ${LOCAL_REPLISET_INSTALL_PATH}/${LOCAL_DB_NAME} ${LOCAL_PRIMARY_PORT} "${LOCAL_RS_NAME}" ${LOCAL_KEYFILE_PATH} "${LOCAL_MONGOS_CONFIG_ADDR}" "no_auth" || {
-    echo "创建主节点db1实例失败！" >&2
+# mongos 不能以 no_auth 模式启动，因为 config server 已经启用了认证
+# 必须带 keyFile 启动，利用 keyFile 内部认证连接 config server
+sh ${SCRIPT_PATH}/create_mongos_inst.sh ${SCRIPT_PATH} ${LOCAL_REPLISET_INSTALL_PATH}/${LOCAL_DB_NAME} ${LOCAL_PRIMARY_PORT} "${LOCAL_RS_NAME}" ${LOCAL_KEYFILE_PATH} "${LOCAL_MONGOS_CONFIG_ADDR}" || {
+    echo "创建mongos实例失败！" >&2
     exit 1
 }
 echo "创建mongos ${LOCAL_DB_NAME} 实例成功"
 
+# 等待mongos完全启动
+sleep 3
 
 echo "创建权限用户:${TARGET_USER}..."
 
-# 创建用户并赋予权限
-mongosh ${LOCAL_PRIMARY_IP}:${LOCAL_PRIMARY_PORT}/admin --eval "db.createUser({user: \"${TARGET_USER}\", pwd: \"${TARGET_PWD}\", roles:[{role: \"userAdminAnyDatabase\", db: \"admin\"}, {role: \"readWriteAnyDatabase\", db: \"admin\"}, {role: \"clusterAdmin\", db: \"admin\"}]})" || {
-    echo "错误：创建用户并赋予权限:${LOCAL_REPLISET_INSTALL_PATH}/db1！" >&2
+# 创建用户并赋予权限（利用localhost exception：通过127.0.0.1连接可在认证模式下创建第一个用户）
+mongosh 127.0.0.1:${LOCAL_PRIMARY_PORT}/admin --eval "db.createUser({user: \"${TARGET_USER}\", pwd: \"${TARGET_PWD}\", roles:[{role: \"userAdminAnyDatabase\", db: \"admin\"}, {role: \"readWriteAnyDatabase\", db: \"admin\"}, {role: \"clusterAdmin\", db: \"admin\"}]})" || {
+    echo "错误：创建用户并赋予权限:${LOCAL_REPLISET_INSTALL_PATH}/${LOCAL_DB_NAME}！" >&2
     exit 1
 }
 
 echo "创建用户:${TARGET_USER} 并授权成功..."
 
-# 关闭mongo
-
-# 关闭所有 mongos 进程的完整脚本
-PID_LIST="$(ps -aux | grep mongos | sed '/grep/d' | sed '/init_primary/d' | sed 's/^[^ ]* //' | sed 's/^ *//' | sed 's/ .*$//')"
+# 关闭mongos（步骤3.2会以带认证模式重新启动）
+PID_LIST="$(ps -aux | grep 'mongos' | grep -v grep | grep -v init_mongos | awk '{print $2}')"
 
 for pid in $PID_LIST
 do
