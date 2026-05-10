@@ -421,9 +421,10 @@ for shard_name in "${SHARD_NAME_LIST[@]}"; do
     primary_mongod_conf_path=$(get_conf_path_by_port "${primary_ip}" "${primary_port}" "mongod")
 
     echo "  将 ${shard_name} 主节点降级: rs.stepDown()..."
-    mongosh_exec_on_nearest "${primary_ip}" "${primary_port}" "rs.stepDown(120)" 2>/dev/null || {
-        echo "  警告: rs.stepDown 失败(可能已经是从节点或不影响关闭), 继续关闭..."
-    }
+    # rs.stepDown() 成功后主节点会断开所有连接, mongosh 退出码非0, 这是正常行为
+    # 从节点已关闭时 stepDown 无法选举新主节点也会失败, 使用 force:true 允许强制降级
+    # 两种情况都不影响后续关闭流程, 统一忽略错误
+    mongosh_exec_on_nearest "${primary_ip}" "${primary_port}" "rs.stepDown(120, 30, {force: true})" 2>/dev/null || true
 
     sleep 5
 
@@ -535,9 +536,10 @@ CONFIG_PRIMARY_PORT=$(echo "${CONFIG_SVR_ARRAY[0]}" | awk '{print $2}')
 CONFIG_PRIMARY_MONGOD_CONF=$(get_conf_path_by_port "${CONFIG_PRIMARY_IP}" "${CONFIG_PRIMARY_PORT}" "mongod")
 
 echo "将 config 主节点降级: rs.stepDown()..."
-mongosh_exec_on_nearest "${CONFIG_PRIMARY_IP}" "${CONFIG_PRIMARY_PORT}" "rs.stepDown(120)" 2>/dev/null || {
-    echo "警告: rs.stepDown 失败(可能已经是从节点或不影响关闭), 继续关闭..."
-}
+# rs.stepDown() 成功后主节点会断开所有连接, mongosh 退出码非0, 这是正常行为
+# 从节点已关闭时 stepDown 无法选举新主节点也会失败, 使用 force:true 允许强制降级
+# 两种情况都不影响后续关闭流程, 统一忽略错误
+mongosh_exec_on_nearest "${CONFIG_PRIMARY_IP}" "${CONFIG_PRIMARY_PORT}" "rs.stepDown(120, 30, {force: true})" 2>/dev/null || true
 
 sleep 5
 
