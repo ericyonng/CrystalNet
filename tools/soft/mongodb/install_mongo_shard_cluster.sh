@@ -550,12 +550,12 @@ for shard_name in "${SHARD_NAME_LIST[@]}"; do
         register_host_port=$(format_host_port ${ip} ${node_port})
         echo "从主节点添加shard ${shard_name} 从节点: ${register_host_port}..."
         if is_local_host "${primary_ip}" "${LOCAL_IP_LIST}"; then
-            mongosh --host $(format_host_port $(get_local_ip_by_type "${primary_ip}" "${LOCAL_IP_LIST}") ${primary_port}) -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.add({_id: ${member_id}, host: \"${register_host_port}\", priority: 1, votes: 1})" || {
+            mongosh --host $(format_host_port $(get_local_ip_by_type "${primary_ip}" "${LOCAL_IP_LIST}") ${primary_port}) -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.add({_id: ${j}, host: \"${register_host_port}\", priority: 1, votes: 1})" || {
                 echo "错误：添加shard ${shard_name} 从节点 ${register_host_port} 失败" >&2
                 exit 1
             }
         else
-            ssh root@${primary_ip} "source ~/.bash_profile 2>/dev/null; mongosh --host $(format_host_port ${primary_ip} ${primary_port}) -u \"${TARGET_USER}\" -p \"${TARGET_PWD}\" --authenticationDatabase admin --eval \"rs.add({_id: ${member_id}, host: \\\"${register_host_port}\\\", priority: 1, votes: 1})\"" || {
+            ssh root@${primary_ip} "source ~/.bash_profile 2>/dev/null; mongosh --host $(format_host_port ${primary_ip} ${primary_port}) -u \"${TARGET_USER}\" -p \"${TARGET_PWD}\" --authenticationDatabase admin --eval \"rs.add({_id: ${j}, host: \\\"${register_host_port}\\\", priority: 1, votes: 1})\"" || {
                 echo "错误：添加shard ${shard_name} 从节点 ${register_host_port} 失败" >&2
                 exit 1
             }
