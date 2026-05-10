@@ -375,6 +375,10 @@ get_local_ip_by_type() {
         fi
     fi
 }
+
+# 判断是否为私网 IPv4 地址 (RFC1918 + CGNAT)
+# 返回: 0=私网, 1=非私网
+is_private_ipv4() {
     local ip="$1"
     # 10.0.0.0/8
     if [[ "${ip}" == 10.* ]]; then
