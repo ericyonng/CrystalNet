@@ -194,7 +194,10 @@ exec_on_host() {
 }
 
 ##############################
-# 辅助函数: 通过 ps 获取指定端口的 mongod/mongos 进程的 -f conf 路径
+# 辅助函数: 通过监听端口获取对应 mongod/mongos 进程的 -f conf 路径
+# mongod/mongos 启动命令为 "mongod -f xxx.conf" 或 "mongos -f xxx.conf",
+# 进程命令行中不包含端口号, 因此需先通过 netstat/ss 找到监听该端口的PID,
+# 再从 /proc/<PID>/cmdline 提取 -f 参数值
 # $1: ip, $2: port, $3: 进程类型(mongod/mongos)
 # 输出: conf文件绝对路径, 如果找不到则为空
 ##############################
@@ -204,9 +207,40 @@ get_conf_path_by_port() {
     local proc_type=$3
 
     if is_local_host "${ip}" "${LOCAL_IP_LIST}"; then
-        ps -aux | grep "${proc_type}" | grep "${port}" | sed '/grep/d' | grep -oP '(?<=-f\s)\S+' | head -1
+        # 通过 ss 找到监听该端口的进程PID, 再从 /proc/PID/cmdline 提取 -f 参数
+        local pid=$(ss -tlnp "sport = :${port}" 2>/dev/null | grep -oP 'pid=\K[0-9]+' | head -1)
+        if [ -n "${pid}" ] && [ -r "/proc/${pid}/cmdline" ]; then
+            tr '\0' ' ' < "/proc/${pid}/cmdline" | grep -oP '(?<=-f\s)\S+' | head -1
+        else
+            # ss 不可用时回退: 遍历所有 proc_type 进程, 检查其监听端口
+            for p in $(ps -aux | grep "${proc_type}" | sed '/grep/d' | awk '{print $2}'); do
+                if [ -r "/proc/${p}/cmdline" ]; then
+                    local listen_ports=$(ss -tlnp "pid = ${p}" 2>/dev/null | grep -oP 'pid=\K[0-9]+|:\K[0-9]+' | grep -v "${p}")
+                    if echo "${listen_ports}" | grep -qw "${port}"; then
+                        tr '\0' ' ' < "/proc/${p}/cmdline" | grep -oP '(?<=-f\s)\S+' | head -1
+                        return
+                    fi
+                fi
+            done
+        fi
     else
-        ssh root@${ip} "source ~/.bash_profile 2>/dev/null; ps -aux | grep '${proc_type}' | grep '${port}' | sed '/grep/d' | grep -oP '(?<=-f\s)\S+' | head -1"
+        ssh root@${ip} "source ~/.bash_profile 2>/dev/null; pid=\$(ss -tlnp 'sport = :${port}' 2>/dev/null | grep -oP 'pid=\K[0-9]+' | head -1); if [ -n \"\$pid\" ] && [ -r \"/proc/\$pid/cmdline\" ]; then tr '\0' ' ' < \"/proc/\$pid/cmdline\" | grep -oP '(?<=-f\s)\S+' | head -1; else for p in \$(ps -aux | grep '${proc_type}' | sed '/grep/d' | awk '{print \$2}'); do if [ -r \"/proc/\$p/cmdline\" ]; then listen_ports=\$(ss -tlnp 'pid = \$p' 2>/dev/null | grep -oP 'pid=\K[0-9]+|:\K[0-9]+' | grep -v \"\$p\"); if echo \"\$listen_ports\" | grep -qw '${port}'; then tr '\0' ' ' < \"/proc/\$p/cmdline\" | grep -oP '(?<=-f\s)\S+' | head -1; exit 0; fi; fi; done; fi"
+    fi
+}
+
+##############################
+# 辅助函数: 通过监听端口获取对应进程的PID
+# $1: ip, $2: port
+# 输出: PID, 如果找不到则为空
+##############################
+get_pid_by_port() {
+    local ip=$1
+    local port=$2
+
+    if is_local_host "${ip}" "${LOCAL_IP_LIST}"; then
+        ss -tlnp "sport = :${port}" 2>/dev/null | grep -oP 'pid=\K[0-9]+' | head -1
+    else
+        ssh root@${ip} "source ~/.bash_profile 2>/dev/null; ss -tlnp 'sport = :${port}' 2>/dev/null | grep -oP 'pid=\K[0-9]+' | head -1"
     fi
 }
 
@@ -262,11 +296,18 @@ for i in "${!MONGOS_SVR_ARRAY[@]}"; do
     ip=$(echo "${item}" | awk '{print $1}')
     node_port=$(echo "${item}" | awk '{print $2}')
 
+    # mongos 通过 -f conf 启动, ps中不包含端口号, 需先获取conf路径再通过conf匹配进程
+    mongos_conf_path=$(get_conf_path_by_port "${ip}" "${node_port}" "mongos")
+
     echo "关闭 mongos 节点 [$i]: $(format_host_port ${ip} ${node_port})..."
 
     if is_local_host "${ip}" "${LOCAL_IP_LIST}"; then
         # 本机: mongos 不支持 --shutdown, 必须通过 SIGTERM/SIGINT 关闭
-        PID_LIST="$(ps -aux | grep "mongos" | grep "${node_port}" | sed '/grep/d' | awk '{print $2}')"
+        if [ -n "${mongos_conf_path}" ]; then
+            PID_LIST="$(ps -aux | grep "mongos" | grep "${mongos_conf_path}" | sed '/grep/d' | awk '{print $2}')"
+        else
+            PID_LIST="$(ps -aux | grep "mongos" | sed '/grep/d' | awk '{print $2}')"
+        fi
         if [ -z "${PID_LIST}" ]; then
             echo "mongos $(format_host_port ${ip} ${node_port}) 未在运行, 跳过"
             continue
@@ -290,7 +331,11 @@ for i in "${!MONGOS_SVR_ARRAY[@]}"; do
         echo "mongos $(format_host_port ${ip} ${node_port}) 已关闭"
     else
         # 远程: 通过SSH关闭
-        ssh root@${ip} "source ~/.bash_profile 2>/dev/null; PID_LIST=\$(ps -aux | grep 'mongos' | grep '${node_port}' | sed '/grep/d' | awk '{print \$2}'); if [ -z \"\$PID_LIST\" ]; then echo 'mongos ${node_port} not running, skip'; exit 0; fi; for pid in \${PID_LIST}; do kill -2 \$pid; echo \"SIGINT(2) -> mongos pid:\$pid\"; done; for pid in \${PID_LIST}; do wait_count=0; while [ -n \"\$(ps -p \$pid -o pid= 2>/dev/null)\" ] && [ \$wait_count -lt 30 ]; do sleep 1; wait_count=\$((wait_count+1)); done; if [ -n \"\$(ps -p \$pid -o pid= 2>/dev/null)\" ]; then echo 'force kill mongos'; kill -9 \$pid 2>/dev/null; fi; done; echo 'mongos closed'"
+        if [ -n "${mongos_conf_path}" ]; then
+            ssh root@${ip} "source ~/.bash_profile 2>/dev/null; PID_LIST=\$(ps -aux | grep 'mongos' | grep '${mongos_conf_path}' | sed '/grep/d' | awk '{print \$2}'); if [ -z \"\$PID_LIST\" ]; then echo 'mongos $(format_host_port ${ip} ${node_port}) not running, skip'; exit 0; fi; for pid in \${PID_LIST}; do kill -2 \$pid; echo \"SIGINT(2) -> mongos pid:\$pid\"; done; for pid in \${PID_LIST}; do wait_count=0; while [ -n \"\$(ps -p \$pid -o pid= 2>/dev/null)\" ] && [ \$wait_count -lt 30 ]; do sleep 1; wait_count=\$((wait_count+1)); done; if [ -n \"\$(ps -p \$pid -o pid= 2>/dev/null)\" ]; then echo 'force kill mongos'; kill -9 \$pid 2>/dev/null; fi; done; echo 'mongos closed'"
+        else
+            ssh root@${ip} "source ~/.bash_profile 2>/dev/null; PID_LIST=\$(ps -aux | grep 'mongos' | sed '/grep/d' | awk '{print \$2}'); if [ -z \"\$PID_LIST\" ]; then echo 'mongos $(format_host_port ${ip} ${node_port}) not running, skip'; exit 0; fi; for pid in \${PID_LIST}; do kill -2 \$pid; echo \"SIGINT(2) -> mongos pid:\$pid\"; done; for pid in \${PID_LIST}; do wait_count=0; while [ -n \"\$(ps -p \$pid -o pid= 2>/dev/null)\" ] && [ \$wait_count -lt 30 ]; do sleep 1; wait_count=\$((wait_count+1)); done; if [ -n \"\$(ps -p \$pid -o pid= 2>/dev/null)\" ]; then echo 'force kill mongos'; kill -9 \$pid 2>/dev/null; fi; done; echo 'mongos closed'"
+        fi
     fi
 
     sleep 2
@@ -334,7 +379,7 @@ for shard_name in "${SHARD_NAME_LIST[@]}"; do
             if [ -n "${mongod_conf_path}" ] && [ -f "${mongod_conf_path}" ]; then
                 mongod -f ${mongod_conf_path} --shutdown 2>/dev/null || {
                     echo "  警告: mongod --shutdown 失败, 尝试 SIGTERM..."
-                    PID="$(ps -aux | grep "mongod" | grep "${node_port}" | sed '/grep/d' | awk '{print $2}' | head -1)"
+                    PID=$(get_pid_by_port "${ip}" "${node_port}")
                     if [ -n "${PID}" ]; then
                         kill -2 ${PID}
                         sleep 3
@@ -345,7 +390,7 @@ for shard_name in "${SHARD_NAME_LIST[@]}"; do
                 }
             else
                 echo "  未检测到conf文件, 使用SIGTERM关闭..."
-                PID="$(ps -aux | grep "mongod" | grep "${node_port}" | sed '/grep/d' | awk '{print $2}' | head -1)"
+                PID=$(get_pid_by_port "${ip}" "${node_port}")
                 if [ -n "${PID}" ]; then
                     kill -2 ${PID}
                     sleep 3
@@ -358,10 +403,10 @@ for shard_name in "${SHARD_NAME_LIST[@]}"; do
             fi
         else
             if [ -n "${mongod_conf_path}" ]; then
-                ssh root@${ip} "source ~/.bash_profile 2>/dev/null; mongod -f ${mongod_conf_path} --shutdown 2>/dev/null || { echo 'warn: mongod --shutdown fail, try SIGTERM...'; PID=\$(ps -aux | grep 'mongod' | grep '${node_port}' | sed '/grep/d' | awk '{print \$2}' | head -1); if [ -n \"\$PID\" ]; then kill -2 \$PID; sleep 3; if [ -n \"\$(ps -p \$PID -o pid= 2>/dev/null)\" ]; then kill -9 \$PID 2>/dev/null; fi; fi; }"
+                ssh root@${ip} "source ~/.bash_profile 2>/dev/null; mongod -f ${mongod_conf_path} --shutdown 2>/dev/null || { echo 'warn: mongod --shutdown fail, try SIGTERM...'; PID=\$(ss -tlnp 'sport = :${node_port}' 2>/dev/null | grep -oP 'pid=\K[0-9]+' | head -1); if [ -n \"\$PID\" ]; then kill -2 \$PID; sleep 3; if [ -n \"\$(ps -p \$PID -o pid= 2>/dev/null)\" ]; then kill -9 \$PID 2>/dev/null; fi; fi; }"
             else
                 echo "  未检测到conf文件, 使用SIGTERM关闭..."
-                ssh root@${ip} "source ~/.bash_profile 2>/dev/null; PID=\$(ps -aux | grep 'mongod' | grep '${node_port}' | sed '/grep/d' | awk '{print \$2}' | head -1); if [ -n \"\$PID\" ]; then kill -2 \$PID; sleep 3; if [ -n \"\$(ps -p \$PID -o pid= 2>/dev/null)\" ]; then kill -9 \$PID 2>/dev/null; fi; else echo '进程未运行, 跳过'; fi"
+                ssh root@${ip} "source ~/.bash_profile 2>/dev/null; PID=\$(ss -tlnp 'sport = :${node_port}' 2>/dev/null | grep -oP 'pid=\K[0-9]+' | head -1); if [ -n \"\$PID\" ]; then kill -2 \$PID; sleep 3; if [ -n \"\$(ps -p \$PID -o pid= 2>/dev/null)\" ]; then kill -9 \$PID 2>/dev/null; fi; else echo '进程未运行, 跳过'; fi"
             fi
         fi
 
@@ -387,7 +432,7 @@ for shard_name in "${SHARD_NAME_LIST[@]}"; do
         if [ -n "${primary_mongod_conf_path}" ] && [ -f "${primary_mongod_conf_path}" ]; then
             mongod -f ${primary_mongod_conf_path} --shutdown 2>/dev/null || {
                 echo "  警告: mongod --shutdown 失败, 尝试 SIGTERM..."
-                PID="$(ps -aux | grep "mongod" | grep "${primary_port}" | sed '/grep/d' | awk '{print $2}' | head -1)"
+                PID=$(get_pid_by_port "${primary_ip}" "${primary_port}")
                 if [ -n "${PID}" ]; then
                     kill -2 ${PID}
                     sleep 3
@@ -398,7 +443,7 @@ for shard_name in "${SHARD_NAME_LIST[@]}"; do
             }
         else
             echo "  未检测到conf文件, 使用SIGTERM关闭..."
-            PID="$(ps -aux | grep "mongod" | grep "${primary_port}" | sed '/grep/d' | awk '{print $2}' | head -1)"
+            PID=$(get_pid_by_port "${primary_ip}" "${primary_port}")
             if [ -n "${PID}" ]; then
                 kill -2 ${PID}
                 sleep 3
@@ -411,10 +456,10 @@ for shard_name in "${SHARD_NAME_LIST[@]}"; do
         fi
     else
         if [ -n "${primary_mongod_conf_path}" ]; then
-            ssh root@${primary_ip} "source ~/.bash_profile 2>/dev/null; mongod -f ${primary_mongod_conf_path} --shutdown 2>/dev/null || { echo 'warn: mongod --shutdown fail, try SIGTERM...'; PID=\$(ps -aux | grep 'mongod' | grep '${primary_port}' | sed '/grep/d' | awk '{print \$2}' | head -1); if [ -n \"\$PID\" ]; then kill -2 \$PID; sleep 3; if [ -n \"\$(ps -p \$PID -o pid= 2>/dev/null)\" ]; then kill -9 \$PID 2>/dev/null; fi; fi; }"
+            ssh root@${primary_ip} "source ~/.bash_profile 2>/dev/null; mongod -f ${primary_mongod_conf_path} --shutdown 2>/dev/null || { echo 'warn: mongod --shutdown fail, try SIGTERM...'; PID=\$(ss -tlnp 'sport = :${primary_port}' 2>/dev/null | grep -oP 'pid=\K[0-9]+' | head -1); if [ -n \"\$PID\" ]; then kill -2 \$PID; sleep 3; if [ -n \"\$(ps -p \$PID -o pid= 2>/dev/null)\" ]; then kill -9 \$PID 2>/dev/null; fi; fi; }"
         else
             echo "  未检测到conf文件, 使用SIGTERM关闭..."
-            ssh root@${primary_ip} "source ~/.bash_profile 2>/dev/null; PID=\$(ps -aux | grep 'mongod' | grep '${primary_port}' | sed '/grep/d' | awk '{print \$2}' | head -1); if [ -n \"\$PID\" ]; then kill -2 \$PID; sleep 3; if [ -n \"\$(ps -p \$PID -o pid= 2>/dev/null)\" ]; then kill -9 \$PID 2>/dev/null; fi; else echo '进程未运行, 跳过'; fi"
+            ssh root@${primary_ip} "source ~/.bash_profile 2>/dev/null; PID=\$(ss -tlnp 'sport = :${primary_port}' 2>/dev/null | grep -oP 'pid=\K[0-9]+' | head -1); if [ -n \"\$PID\" ]; then kill -2 \$PID; sleep 3; if [ -n \"\$(ps -p \$PID -o pid= 2>/dev/null)\" ]; then kill -9 \$PID 2>/dev/null; fi; else echo '进程未运行, 跳过'; fi"
         fi
     fi
 
@@ -449,7 +494,7 @@ for i in "${!CONFIG_SVR_ARRAY[@]}"; do
         if [ -n "${mongod_conf_path}" ] && [ -f "${mongod_conf_path}" ]; then
             mongod -f ${mongod_conf_path} --shutdown 2>/dev/null || {
                 echo "  警告: mongod --shutdown 失败, 尝试 SIGTERM..."
-                PID="$(ps -aux | grep "mongod" | grep "${node_port}" | sed '/grep/d' | awk '{print $2}' | head -1)"
+                PID=$(get_pid_by_port "${ip}" "${node_port}")
                 if [ -n "${PID}" ]; then
                     kill -2 ${PID}
                     sleep 3
@@ -460,7 +505,7 @@ for i in "${!CONFIG_SVR_ARRAY[@]}"; do
             }
         else
             echo "  未检测到conf文件, 使用SIGTERM关闭..."
-            PID="$(ps -aux | grep "mongod" | grep "${node_port}" | sed '/grep/d' | awk '{print $2}' | head -1)"
+            PID=$(get_pid_by_port "${ip}" "${node_port}")
             if [ -n "${PID}" ]; then
                 kill -2 ${PID}
                 sleep 3
@@ -473,10 +518,10 @@ for i in "${!CONFIG_SVR_ARRAY[@]}"; do
         fi
     else
         if [ -n "${mongod_conf_path}" ]; then
-            ssh root@${ip} "source ~/.bash_profile 2>/dev/null; mongod -f ${mongod_conf_path} --shutdown 2>/dev/null || { echo 'warn: mongod --shutdown fail, try SIGTERM...'; PID=\$(ps -aux | grep 'mongod' | grep '${node_port}' | sed '/grep/d' | awk '{print \$2}' | head -1); if [ -n \"\$PID\" ]; then kill -2 \$PID; sleep 3; if [ -n \"\$(ps -p \$PID -o pid= 2>/dev/null)\" ]; then kill -9 \$PID 2>/dev/null; fi; fi; }"
+            ssh root@${ip} "source ~/.bash_profile 2>/dev/null; mongod -f ${mongod_conf_path} --shutdown 2>/dev/null || { echo 'warn: mongod --shutdown fail, try SIGTERM...'; PID=\$(ss -tlnp 'sport = :${node_port}' 2>/dev/null | grep -oP 'pid=\K[0-9]+' | head -1); if [ -n \"\$PID\" ]; then kill -2 \$PID; sleep 3; if [ -n \"\$(ps -p \$PID -o pid= 2>/dev/null)\" ]; then kill -9 \$PID 2>/dev/null; fi; fi; }"
         else
             echo "  未检测到conf文件, 使用SIGTERM关闭..."
-            ssh root@${ip} "source ~/.bash_profile 2>/dev/null; PID=\$(ps -aux | grep 'mongod' | grep '${node_port}' | sed '/grep/d' | awk '{print \$2}' | head -1); if [ -n \"\$PID\" ]; then kill -2 \$PID; sleep 3; if [ -n \"\$(ps -p \$PID -o pid= 2>/dev/null)\" ]; then kill -9 \$PID 2>/dev/null; fi; else echo '进程未运行, 跳过'; fi"
+            ssh root@${ip} "source ~/.bash_profile 2>/dev/null; PID=\$(ss -tlnp 'sport = :${node_port}' 2>/dev/null | grep -oP 'pid=\K[0-9]+' | head -1); if [ -n \"\$PID\" ]; then kill -2 \$PID; sleep 3; if [ -n \"\$(ps -p \$PID -o pid= 2>/dev/null)\" ]; then kill -9 \$PID 2>/dev/null; fi; else echo '进程未运行, 跳过'; fi"
         fi
     fi
 
@@ -501,7 +546,7 @@ if is_local_host "${CONFIG_PRIMARY_IP}" "${LOCAL_IP_LIST}"; then
     if [ -n "${CONFIG_PRIMARY_MONGOD_CONF}" ] && [ -f "${CONFIG_PRIMARY_MONGOD_CONF}" ]; then
         mongod -f ${CONFIG_PRIMARY_MONGOD_CONF} --shutdown 2>/dev/null || {
             echo "  警告: mongod --shutdown 失败, 尝试 SIGTERM..."
-            PID="$(ps -aux | grep "mongod" | grep "${CONFIG_PRIMARY_PORT}" | sed '/grep/d' | awk '{print $2}' | head -1)"
+            PID=$(get_pid_by_port "${CONFIG_PRIMARY_IP}" "${CONFIG_PRIMARY_PORT}")
             if [ -n "${PID}" ]; then
                 kill -2 ${PID}
                 sleep 3
@@ -512,7 +557,7 @@ if is_local_host "${CONFIG_PRIMARY_IP}" "${LOCAL_IP_LIST}"; then
         }
     else
         echo "  未检测到conf文件, 使用SIGTERM关闭..."
-        PID="$(ps -aux | grep "mongod" | grep "${CONFIG_PRIMARY_PORT}" | sed '/grep/d' | awk '{print $2}' | head -1)"
+        PID=$(get_pid_by_port "${CONFIG_PRIMARY_IP}" "${CONFIG_PRIMARY_PORT}")
         if [ -n "${PID}" ]; then
             kill -2 ${PID}
             sleep 3
@@ -525,10 +570,10 @@ if is_local_host "${CONFIG_PRIMARY_IP}" "${LOCAL_IP_LIST}"; then
     fi
 else
     if [ -n "${CONFIG_PRIMARY_MONGOD_CONF}" ]; then
-        ssh root@${CONFIG_PRIMARY_IP} "source ~/.bash_profile 2>/dev/null; mongod -f ${CONFIG_PRIMARY_MONGOD_CONF} --shutdown 2>/dev/null || { echo 'warn: mongod --shutdown fail, try SIGTERM...'; PID=\$(ps -aux | grep 'mongod' | grep '${CONFIG_PRIMARY_PORT}' | sed '/grep/d' | awk '{print \$2}' | head -1); if [ -n \"\$PID\" ]; then kill -2 \$PID; sleep 3; if [ -n \"\$(ps -p \$PID -o pid= 2>/dev/null)\" ]; then kill -9 \$PID 2>/dev/null; fi; fi; }"
+        ssh root@${CONFIG_PRIMARY_IP} "source ~/.bash_profile 2>/dev/null; mongod -f ${CONFIG_PRIMARY_MONGOD_CONF} --shutdown 2>/dev/null || { echo 'warn: mongod --shutdown fail, try SIGTERM...'; PID=\$(ss -tlnp 'sport = :${CONFIG_PRIMARY_PORT}' 2>/dev/null | grep -oP 'pid=\K[0-9]+' | head -1); if [ -n \"\$PID\" ]; then kill -2 \$PID; sleep 3; if [ -n \"\$(ps -p \$PID -o pid= 2>/dev/null)\" ]; then kill -9 \$PID 2>/dev/null; fi; fi; }"
     else
         echo "  未检测到conf文件, 使用SIGTERM关闭..."
-        ssh root@${CONFIG_PRIMARY_IP} "source ~/.bash_profile 2>/dev/null; PID=\$(ps -aux | grep 'mongod' | grep '${CONFIG_PRIMARY_PORT}' | sed '/grep/d' | awk '{print \$2}' | head -1); if [ -n \"\$PID\" ]; then kill -2 \$PID; sleep 3; if [ -n \"\$(ps -p \$PID -o pid= 2>/dev/null)\" ]; then kill -9 \$PID 2>/dev/null; fi; else echo '进程未运行, 跳过'; fi"
+        ssh root@${CONFIG_PRIMARY_IP} "source ~/.bash_profile 2>/dev/null; PID=\$(ss -tlnp 'sport = :${CONFIG_PRIMARY_PORT}' 2>/dev/null | grep -oP 'pid=\K[0-9]+' | head -1); if [ -n \"\$PID\" ]; then kill -2 \$PID; sleep 3; if [ -n \"\$(ps -p \$PID -o pid= 2>/dev/null)\" ]; then kill -9 \$PID 2>/dev/null; fi; else echo '进程未运行, 跳过'; fi"
     fi
 fi
 
