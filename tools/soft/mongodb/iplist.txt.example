@@ -1,5 +1,12 @@
 # MongoDB 分片集群节点列表
-# 格式: 类型 IP地址/域名 端口
+# 格式: 类型 复制集前缀 IP地址/域名 端口
+#
+# 字段说明:
+#   类型       - 节点类型: config / shard1 / shard2 / ... / shardN / mongos
+#   复制集前缀  - 复制集名前缀, 最终复制集名 = 前缀_类型 (如 testsuit_rs_config, testsuit_rs_shard1)
+#                mongos 无复制集, 但也需填写(与集群保持一致即可, 不影响功能)
+#   IP地址     - 支持 IPv4 / IPv6 / 域名
+#   端口       - 节点端口号
 #
 # 支持的类型:
 #   config  - 配置服务器节点(必须3个节点组成复制集)
@@ -8,28 +15,70 @@
 #   shardN  - 分片N的数据节点(shard后跟数字, 数字递增)
 #   mongos  - 路由节点(至少1个)
 #
+# 支持的地址格式:
+#   IPv4   - 192.168.1.1
+#   IPv6   - 2001:db8::1 (不需要加方括号, 脚本会自动处理)
+#   域名   - mongo1.example.com
+#
 # 注意:
 #   1. 同一类型的多个节点组成一个复制集, 节点数量由同类型行数决定
 #   2. 以#开头的行和空行会被跳过
 #   3. 每个分片(shard1, shard2, ...)是独立的复制集
+#   4. IPv6 地址不需要加方括号, 直接填写原始地址即可
+#   5. 同一复制集内可以混合使用 IPv4 和 IPv6 节点
+#   6. 同一类型组内的复制集前缀必须一致
 #
-# 示例: 2个分片, 每个分片3节点, 3个config, 2个mongos
+# ============================================================
+# 示例1: IPv4 环境 - 2个分片, 每个分片3节点, 3个config, 2个mongos
+# ============================================================
 
-# config配置服务器 (3节点复制集)
-config 192.168.1.1 27010
-config 192.168.1.2 27010
-config 192.168.1.3 27010
+# config配置服务器 (3节点复制集, 复制集名: testsuit_rs_config)
+config testsuit_rs 192.168.1.1 27010
+config testsuit_rs 192.168.1.2 27010
+config testsuit_rs 192.168.1.3 27010
 
-# shard1 分片1 (3节点复制集)
-shard1 192.168.1.1 27011
-shard1 192.168.1.2 27011
-shard1 192.168.1.3 27011
+# shard1 分片1 (3节点复制集, 复制集名: testsuit_rs_shard1)
+shard1 testsuit_rs 192.168.1.1 27011
+shard1 testsuit_rs 192.168.1.2 27011
+shard1 testsuit_rs 192.168.1.3 27011
 
-# shard2 分片2 (3节点复制集)
-shard2 192.168.1.4 27011
-shard2 192.168.1.5 27011
-shard2 192.168.1.6 27011
+# shard2 分片2 (3节点复制集, 复制集名: testsuit_rs_shard2)
+shard2 testsuit_rs 192.168.1.4 27011
+shard2 testsuit_rs 192.168.1.5 27011
+shard2 testsuit_rs 192.168.1.6 27011
 
 # mongos路由 (2节点)
-mongos 192.168.1.1 27017
-mongos 192.168.1.2 27017
+mongos testsuit_rs 192.168.1.1 27017
+mongos testsuit_rs 192.168.1.2 27017
+
+# ============================================================
+# 示例2: IPv6 环境 - 2个分片, 每个分片3节点, 3个config, 2个mongos
+# ============================================================
+# config testsuit_rs 2001:db8::1 27010
+# config testsuit_rs 2001:db8::2 27010
+# config testsuit_rs 2001:db8::3 27010
+#
+# shard1 testsuit_rs 2001:db8::1 27011
+# shard1 testsuit_rs 2001:db8::2 27011
+# shard1 testsuit_rs 2001:db8::3 27011
+#
+# shard2 testsuit_rs 2001:db8::4 27011
+# shard2 testsuit_rs 2001:db8::5 27011
+# shard2 testsuit_rs 2001:db8::6 27011
+#
+# mongos testsuit_rs 2001:db8::1 27017
+# mongos testsuit_rs 2001:db8::2 27017
+
+# ============================================================
+# 示例3: 域名环境
+# ============================================================
+# config testsuit_rs config1.example.com 27010
+# config testsuit_rs config2.example.com 27010
+# config testsuit_rs config3.example.com 27010
+#
+# shard1 testsuit_rs shard1-1.example.com 27011
+# shard1 testsuit_rs shard1-2.example.com 27011
+# shard1 testsuit_rs shard1-3.example.com 27011
+#
+# mongos testsuit_rs mongos1.example.com 27017
+# mongos testsuit_rs mongos2.example.com 27017

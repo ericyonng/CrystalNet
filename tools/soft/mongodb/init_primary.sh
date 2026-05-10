@@ -6,6 +6,10 @@
 # 当前脚本路径
 SCRIPT_PATH="$1"
 
+# 加载公共函数(用于 format_host_port 等地址工具)
+. ${SCRIPT_PATH}/common/common_define.sh
+. ${SCRIPT_PATH}/common/funcs.sh
+
 # 复制集路径
 TARGET_USER=$2
 TARGET_PWD=$3
@@ -79,7 +83,8 @@ sh ${SCRIPT_PATH}/create_mongodb_inst.sh ${SCRIPT_PATH} ${LOCAL_REPLISET_INSTALL
 echo "创建主节点 ${LOCAL_DB_NAME} 实例成功"
 
 # 必须先初始化复制集否则会报不是主节点的错
-mongosh --host ${LOCAL_PRIMARY_IP}:${LOCAL_PRIMARY_PORT} --eval "rs.initiate({_id: \"${LOCAL_RS_NAME}\", members: [{_id: 0, host: \"${LOCAL_PRIMARY_IP}:${LOCAL_PRIMARY_PORT}\", priority: 2}], settings: {heartbeatIntervalMillis: 2000, electionTimeoutMillis: 10000}})" || {
+LOCAL_PRIMARY_HOST_PORT=$(format_host_port ${LOCAL_PRIMARY_IP} ${LOCAL_PRIMARY_PORT})
+mongosh --host ${LOCAL_PRIMARY_HOST_PORT} --eval "rs.initiate({_id: \"${LOCAL_RS_NAME}\", members: [{_id: 0, host: \"${LOCAL_PRIMARY_HOST_PORT}\", priority: 2}], settings: {heartbeatIntervalMillis: 2000, electionTimeoutMillis: 10000}})" || {
     echo "错误：初始化复制集失败 LOCAL_DB_NAME:${LOCAL_DB_NAME}" >&2
     exit 1
 }
@@ -91,7 +96,7 @@ sleep 5
 echo "创建权限用户:${TARGET_USER}..."
 
 # 创建用户并赋予权限
-mongosh ${LOCAL_PRIMARY_IP}:${LOCAL_PRIMARY_PORT}/admin --eval "db.createUser({user: \"${TARGET_USER}\", pwd: \"${TARGET_PWD}\", roles:[{role: \"userAdminAnyDatabase\", db: \"admin\"}, {role: \"readWriteAnyDatabase\", db: \"admin\"}, {role: \"clusterAdmin\", db: \"admin\"}]})" || {
+mongosh ${LOCAL_PRIMARY_HOST_PORT}/admin --eval "db.createUser({user: \"${TARGET_USER}\", pwd: \"${TARGET_PWD}\", roles:[{role: \"userAdminAnyDatabase\", db: \"admin\"}, {role: \"readWriteAnyDatabase\", db: \"admin\"}, {role: \"clusterAdmin\", db: \"admin\"}]})" || {
     echo "错误：创建用户并赋予权限:${LOCAL_REPLISET_INSTALL_PATH}/db1！" >&2
     exit 1
 }

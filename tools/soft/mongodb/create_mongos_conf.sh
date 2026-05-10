@@ -51,7 +51,7 @@ echo "    path: ${LOCAL_TARGET_DB_PATH}/mongos.log" >> ${MONGOS_CONF}
 echo "    logAppend: true" >> ${MONGOS_CONF}
 echo -e "\n" >> ${MONGOS_CONF}
 echo "net:" >> ${MONGOS_CONF}
-echo "    bindIp: 0.0.0.0" >> ${MONGOS_CONF}
+echo "    bindIp: \"::,0.0.0.0\"" >> ${MONGOS_CONF}
 echo "    port: ${LOCAL_TARGET_PORT}" >> ${MONGOS_CONF}
 echo -e "\n" >> ${MONGOS_CONF}
 echo "processManagement:" >> ${MONGOS_CONF}

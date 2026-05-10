@@ -55,7 +55,7 @@ echo "        engineConfig:" >> ${MONGOD_CONF}
 echo "            cacheSizeGB: ${LOCAL_MONGOD_CACHE_SIZE}" >> ${MONGOD_CONF}
 echo -e "\n" >> ${MONGOD_CONF}
 echo "net:" >> ${MONGOD_CONF}
-echo "    bindIp: 0.0.0.0" >> ${MONGOD_CONF}
+echo "    bindIp: \"::,0.0.0.0\"" >> ${MONGOD_CONF}
 echo "    port: ${LOCAL_TARGET_PORT}" >> ${MONGOD_CONF}
 echo -e "\n" >> ${MONGOD_CONF}
 echo "replication:" >> ${MONGOD_CONF}

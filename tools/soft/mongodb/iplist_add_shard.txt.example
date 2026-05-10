@@ -1,23 +1,57 @@
 # MongoDB 分片集群 - 新增分片节点列表
 # 用法: 配合 addShard.sh 使用, 仅需填写新增的 shard 节点
-# 格式: 类型 IP地址/域名 端口
+# 格式: 类型 复制集前缀 IP地址/域名 端口
+#
+# 字段说明:
+#   类型       - 只需填写 shard 类型(shardN), 不需要填写 config 和 mongos
+#   复制集前缀  - 复制集名前缀, 必须与已有集群一致
+#   IP地址     - 支持 IPv4 / IPv6 / 域名
+#   端口       - 节点端口号
+#
+# 支持的地址格式:
+#   IPv4   - 192.168.1.1
+#   IPv6   - 2001:db8::1 (不需要加方括号, 脚本会自动处理)
+#   域名   - mongo1.example.com
 #
 # 注意:
 #   1. 只需填写 shard 类型节点, 不需要填写 config 和 mongos
 #   2. shard 编号必须与已有集群中的分片编号不同(如已有shard1, 则新增shard2)
 #   3. 每个分片建议至少3个节点组成复制集
 #   4. 以#开头的行和空行会被跳过
+#   5. IPv6 地址不需要加方括号, 直接填写原始地址即可
+#   6. mongos_ip 参数同样支持 IPv4/IPv6/域名
+#   7. 同一类型组内的复制集前缀必须一致
 #
-# 示例: 已有 shard1, 新增 shard2 (3节点复制集)
-# sh addShard.sh iplist_add_shard.txt <mongos_ip> <mongos_port> admin eric123 TestSuit /root/mongo_install /root/mongo_data /root/mongodb_script/keyfile mydb
-# 如: sh addShard.sh iplist_add_shard.txt 101.32.15.49 27016 admin eric123 TestSuit /root/mongo_install /root/mongo_data /root/mongodb_script/keyfile mydb
+# ============================================================
+# 示例1: IPv4 环境 - 已有 shard1, 新增 shard2 (3节点复制集)
+# ============================================================
+# sh addShard.sh iplist_add_shard.txt <mongos_ip> <mongos_port> admin eric123 /root/mongo_install /root/mongo_data /root/mongodb_script/keyfile mydb
+# 如: sh addShard.sh iplist_add_shard.txt 101.32.15.49 27016 admin eric123 /root/mongo_install /root/mongo_data /root/mongodb_script/keyfile mydb
 
-# shard2 分片2 (3节点复制集)
-shard2 192.168.1.4 27011
-shard2 192.168.1.5 27011
-shard2 192.168.1.6 27011
+# shard2 分片2 (3节点复制集, 复制集名: testsuit_rs_shard2)
+shard2 testsuit_rs 192.168.1.4 27011
+shard2 testsuit_rs 192.168.1.5 27011
+shard2 testsuit_rs 192.168.1.6 27011
 
 # shard3 分片3 (3节点复制集) - 也可以同时添加多个分片
-# shard3 192.168.1.7 27011
-# shard3 192.168.1.8 27011
-# shard3 192.168.1.9 27011
+# shard3 testsuit_rs 192.168.1.7 27011
+# shard3 testsuit_rs 192.168.1.8 27011
+# shard3 testsuit_rs 192.168.1.9 27011
+
+# ============================================================
+# 示例2: IPv6 环境 - 已有 shard1, 新增 shard2
+# ============================================================
+# sh addShard.sh iplist_add_shard.txt 2001:db8::1 27016 admin eric123 /root/mongo_install /root/mongo_data /root/mongodb_script/keyfile mydb
+#
+# shard2 testsuit_rs 2001:db8::4 27011
+# shard2 testsuit_rs 2001:db8::5 27011
+# shard2 testsuit_rs 2001:db8::6 27011
+
+# ============================================================
+# 示例3: 域名环境 - 已有 shard1, 新增 shard2
+# ============================================================
+# sh addShard.sh iplist_add_shard.txt mongos1.example.com 27016 admin eric123 /root/mongo_install /root/mongo_data /root/mongodb_script/keyfile mydb
+#
+# shard2 testsuit_rs shard2-1.example.com 27011
+# shard2 testsuit_rs shard2-2.example.com 27011
+# shard2 testsuit_rs shard2-3.example.com 27011

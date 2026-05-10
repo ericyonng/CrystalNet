@@ -4,3 +4,4 @@
 #!/usr/bin/env bash
 
 GET_PUBLIC_IP_HOST_ADDR=https://ifconfig.me
+GET_PUBLIC_IP_HOST_ADDR_V6=https://api6.ipify.org
