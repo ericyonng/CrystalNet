@@ -142,6 +142,8 @@
 
 - 支持CoLocker, 跨线程协程同步, 测试用例见TestColocker.cpp
 
+- 根据iplist.txt文件一键部署mongodb分片集群, 见mongodb部署指南.md: tools\soft\mongodb\MongoDB部署指南.md, 脚本:install_mongo_shard_cluster.sh
+
   
   
   
