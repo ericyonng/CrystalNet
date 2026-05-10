@@ -242,6 +242,77 @@ get_local_ip_list() {
     echo "${ip_list}" | tr -s ' ' | sed 's/^ *//;s/ *$//'
 }
 
+# 获取本机最优IP: 优先公网IPv4 > 公网IPv6 > 内网IPv4 > 内网IPv6 > 127.0.0.1
+# $1: local_ip_list (由 get_local_ip_list 获取)
+get_local_ip() {
+    local ip_list="$1"
+
+    local public_ipv4=""
+    local public_ipv6=""
+    local private_ipv4=""
+    local private_ipv6=""
+
+    for ip in ${ip_list}; do
+        if [ "${ip}" = "127.0.0.1" ] || [ "${ip}" = "::1" ]; then
+            continue
+        fi
+        # 公网IP判断: RFC1918私网范围之外的IPv4视为公网
+        if is_ipv6 "${ip}"; then
+            if [ -z "${public_ipv6}" ]; then
+                public_ipv6="${ip}"
+            fi
+        else
+            # 判断是否为私网IPv4
+            if is_private_ipv4 "${ip}"; then
+                if [ -z "${private_ipv4}" ]; then
+                    private_ipv4="${ip}"
+                fi
+            else
+                if [ -z "${public_ipv4}" ]; then
+                    public_ipv4="${ip}"
+                fi
+            fi
+        fi
+    done
+
+    # 优先级: 公网IPv4 > 公网IPv6 > 内网IPv4 > 内网IPv6 > 127.0.0.1
+    if [ -n "${public_ipv4}" ]; then
+        echo "${public_ipv4}"
+    elif [ -n "${public_ipv6}" ]; then
+        echo "${public_ipv6}"
+    elif [ -n "${private_ipv4}" ]; then
+        echo "${private_ipv4}"
+    elif [ -n "${private_ipv6}" ]; then
+        echo "${private_ipv6}"
+    else
+        echo "127.0.0.1"
+    fi
+}
+
+# 判断是否为私网IPv4地址 (RFC1918)
+# 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
+# 返回: 0=私网, 1=非私网
+is_private_ipv4() {
+    local ip="$1"
+    # 10.0.0.0/8
+    if [[ "${ip}" == 10.* ]]; then
+        return 0
+    fi
+    # 172.16.0.0/12: 172.16.x.x ~ 172.31.x.x
+    if [[ "${ip}" == 172.1[6-9].* ]] || [[ "${ip}" == 172.2[0-9].* ]] || [[ "${ip}" == 172.3[0-1].* ]]; then
+        return 0
+    fi
+    # 192.168.0.0/16
+    if [[ "${ip}" == 192.168.* ]]; then
+        return 0
+    fi
+    # 100.64.0.0/10 (CGNAT, 常见于云厂商内网)
+    if [[ "${ip}" == 100.6[4-9].* ]] || [[ "${ip}" == 100.[7-9]?.* ]] || [[ "${ip}" == 100.1[0-1]?.* ]] || [[ "${ip}" == 100.12[0-7].* ]]; then
+        return 0
+    fi
+    return 1
+}
+
 # 判断是否 loopback 地址
 # 返回: 0=loopback, 1=非loopback
 is_loopback() {

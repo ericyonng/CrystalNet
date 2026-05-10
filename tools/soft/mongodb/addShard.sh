@@ -128,14 +128,8 @@ else
     echo "无法连接外网 LOCAL_IP_LIST:${LOCAL_IP_LIST}"
 fi
 
-# LOCAL_IP: 从 LOCAL_IP_LIST 中取一个非 loopback 的本机IP(用于子脚本参数)
-LOCAL_IP="127.0.0.1"
-for _ip in ${LOCAL_IP_LIST}; do
-    if [ "${_ip}" != "127.0.0.1" ] && [ "${_ip}" != "::1" ]; then
-        LOCAL_IP=${_ip}
-        break
-    fi
-done
+# LOCAL_IP: 从 LOCAL_IP_LIST 中选最优IP(优先公网IP), 用于子脚本参数
+LOCAL_IP=$(get_local_ip "${LOCAL_IP_LIST}")
 echo "LOCAL_IP(用于子脚本): ${LOCAL_IP}"
 
 # 读取iplist
