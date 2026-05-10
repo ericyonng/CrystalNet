@@ -80,6 +80,11 @@ fi
 LOCAL_IP=$(get_local_ip "${LOCAL_IP_LIST}")
 echo "LOCAL_IP(用于子脚本): ${LOCAL_IP}"
 
+# LOCAL_IPV4 / LOCAL_IPV6: 本机最优IPv4和IPv6地址, 根据iplist中的IP类型选择使用
+LOCAL_IPV4=$(get_local_ipv4 "${LOCAL_IP_LIST}")
+LOCAL_IPV6=$(get_local_ipv6 "${LOCAL_IP_LIST}")
+echo "LOCAL_IPV4: ${LOCAL_IPV4}, LOCAL_IPV6: ${LOCAL_IPV6}"
+
 # 读取iplist
 IP_LIST_ARRAY=()
 read_file_to_array ${IP_LIST_FILE} IP_LIST_ARRAY || {
@@ -279,7 +284,7 @@ mongosh_exec_on_nearest() {
     local eval_expr="$3"
 
     if is_local_host "${target_host}" "${LOCAL_IP_LIST}"; then
-        mongosh_eval_auth "${LOCAL_IP}" "${target_port}" "${eval_expr}"
+        mongosh_eval_auth "$(get_local_ip_by_type "${target_host}" "${LOCAL_IP_LIST}")" "${target_port}" "${eval_expr}"
     else
         mongosh_eval_auth_remote "${target_host}" "${target_host}" "${target_port}" "${eval_expr}"
     fi

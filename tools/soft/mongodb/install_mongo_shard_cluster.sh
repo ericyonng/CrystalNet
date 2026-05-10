@@ -94,6 +94,11 @@ fi
 LOCAL_IP=$(get_local_ip "${LOCAL_IP_LIST}")
 echo "LOCAL_IP(用于子脚本): ${LOCAL_IP}"
 
+# LOCAL_IPV4 / LOCAL_IPV6: 本机最优IPv4和IPv6地址, 根据iplist中的IP类型选择使用
+LOCAL_IPV4=$(get_local_ipv4 "${LOCAL_IP_LIST}")
+LOCAL_IPV6=$(get_local_ipv6 "${LOCAL_IP_LIST}")
+echo "LOCAL_IPV4: ${LOCAL_IPV4}, LOCAL_IPV6: ${LOCAL_IPV6}"
+
 # 读取iplist
 IP_LIST_ARRAY=()
 read_file_to_array ${IP_LIST_FILE} IP_LIST_ARRAY || {
@@ -347,7 +352,7 @@ echo "Config主节点数据目录: ${CONFIG_PRIMARY_DB_PATH}"
 # LOCAL_REPLISET_INSTALL_PATH: 数据目录的父路径(如 /root/mongo_data1)
 # LOCAL_DB_NAME: 子目录名(如 mydb_config_1), init_primary.sh内部会拼接为 LOCAL_REPLISET_INSTALL_PATH/LOCAL_DB_NAME
 if is_local_host "${CONFIG_PRIMARY_IP}" "${LOCAL_IP_LIST}"; then
-    sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} ${LOCAL_IP} ${CONFIG_PRIMARY_PORT} ${CONFIG_PRIMARY_DB_SUBDIR} ${CONFIG_RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile configsvr || {
+    sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} $(get_local_ip_by_type "${CONFIG_PRIMARY_IP}" "${LOCAL_IP_LIST}") ${CONFIG_PRIMARY_PORT} ${CONFIG_PRIMARY_DB_SUBDIR} ${CONFIG_RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile configsvr || {
         echo "错误：config主节点 init_primary 失败" >&2
         exit 1
     }
@@ -366,7 +371,7 @@ echo "Config主节点初始化(no_auth → createUser → shutdown) 成功."
 # create_mongodb_inst.sh 参数: SCRIPT_PATH LOCAL_TARGET_DB_PATH LOCAL_TARGET_IP LOCAL_TARGET_PORT LOCAL_REPL_SET_NAME LOCAL_KEYFILE_PATH LOCAL_SHARDING_CLUSTER_ROLE [LOCAL_IS_MONGOS] [LOCAL_MONGOS_CONFIG_ADDR] [LOCAL_IS_NO_AUTH]
 # LOCAL_TARGET_DB_PATH: 完整数据目录路径
 if is_local_host "${CONFIG_PRIMARY_IP}" "${LOCAL_IP_LIST}"; then
-    sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${CONFIG_PRIMARY_DB_PATH} ${LOCAL_IP} ${CONFIG_PRIMARY_PORT} "${CONFIG_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile configsvr || {
+    sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${CONFIG_PRIMARY_DB_PATH} $(get_local_ip_by_type "${CONFIG_PRIMARY_IP}" "${LOCAL_IP_LIST}") ${CONFIG_PRIMARY_PORT} "${CONFIG_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile configsvr || {
         echo "错误：config主节点带认证启动失败" >&2
         exit 1
     }
@@ -397,7 +402,7 @@ for i in "${!CONFIG_SVR_ARRAY[@]}"; do
 
     # 启动从节点(带认证, 不需要no_auth)
     if is_local_host "${ip}" "${LOCAL_IP_LIST}"; then
-        sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${node_db_path} ${LOCAL_IP} ${node_port} "${CONFIG_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile configsvr || {
+        sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${node_db_path} $(get_local_ip_by_type "${ip}" "${LOCAL_IP_LIST}") ${node_port} "${CONFIG_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile configsvr || {
             echo "错误：config从节点 $(format_host_port ${ip} ${node_port}) 启动失败" >&2
             exit 1
         }
@@ -411,12 +416,12 @@ for i in "${!CONFIG_SVR_ARRAY[@]}"; do
     sleep 3
 
     # 从主节点添加该从节点到复制集
-    local_ip=$(get_reachable_host "${ip}" "${LOCAL_IP}")
+    local_ip=$(get_reachable_host "${ip}" "$(get_local_ip_by_type "${ip}" "${LOCAL_IP_LIST}")")
 
     local_host_port=$(format_host_port ${local_ip} ${node_port})
     echo "从主节点添加config从节点: ${local_host_port}..."
     if is_local_host "${CONFIG_PRIMARY_IP}" "${LOCAL_IP_LIST}"; then
-        mongosh --host $(format_host_port ${LOCAL_IP} ${CONFIG_PRIMARY_PORT}) -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.add({_id: ${i}, host: \"${local_host_port}\", priority: 1, votes: 1})" || {
+        mongosh --host $(format_host_port $(get_local_ip_by_type "${CONFIG_PRIMARY_IP}" "${LOCAL_IP_LIST}") ${CONFIG_PRIMARY_PORT}) -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.add({_id: ${i}, host: \"${local_host_port}\", priority: 1, votes: 1})" || {
             echo "错误：添加config从节点 ${local_host_port} 失败" >&2
             exit 1
         }
@@ -434,7 +439,7 @@ done
 # 验证config复制集状态
 echo "验证config复制集状态..."
 if is_local_host "${CONFIG_PRIMARY_IP}" "${LOCAL_IP_LIST}"; then
-    mongosh --host $(format_host_port ${LOCAL_IP} ${CONFIG_PRIMARY_PORT}) -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.status()" || {
+    mongosh --host $(format_host_port $(get_local_ip_by_type "${CONFIG_PRIMARY_IP}" "${LOCAL_IP_LIST}") ${CONFIG_PRIMARY_PORT}) -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.status()" || {
         echo "警告：config复制集状态查询失败" >&2
     }
 else
@@ -480,7 +485,7 @@ for shard_name in "${SHARD_NAME_LIST[@]}"; do
 
     # 2.1 初始化shard主节点 (no_auth → rs.initiate → createUser → shutdown)
     if is_local_host "${primary_ip}" "${LOCAL_IP_LIST}"; then
-        sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} ${LOCAL_IP} ${primary_port} ${primary_db_subdir} ${SHARD_RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile shardsvr || {
+        sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} $(get_local_ip_by_type "${primary_ip}" "${LOCAL_IP_LIST}") ${primary_port} ${primary_db_subdir} ${SHARD_RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile shardsvr || {
             echo "错误：shard ${shard_name} 主节点 init_primary 失败" >&2
             exit 1
         }
@@ -496,7 +501,7 @@ for shard_name in "${SHARD_NAME_LIST[@]}"; do
 
     # 2.2 启动shard主节点(带认证)
     if is_local_host "${primary_ip}" "${LOCAL_IP_LIST}"; then
-        sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${primary_db_path} ${LOCAL_IP} ${primary_port} "${SHARD_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile shardsvr || {
+        sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${primary_db_path} $(get_local_ip_by_type "${primary_ip}" "${LOCAL_IP_LIST}") ${primary_port} "${SHARD_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile shardsvr || {
             echo "错误：shard ${shard_name} 主节点带认证启动失败" >&2
             exit 1
         }
@@ -526,7 +531,7 @@ for shard_name in "${SHARD_NAME_LIST[@]}"; do
         echo "启动shard ${shard_name} 从节点 [$j]: $(format_host_port ${ip} ${node_port}), 数据目录: ${node_db_path}..."
 
         if is_local_host "${ip}" "${LOCAL_IP_LIST}"; then
-            sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${node_db_path} ${LOCAL_IP} ${node_port} "${SHARD_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile shardsvr || {
+            sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${node_db_path} $(get_local_ip_by_type "${ip}" "${LOCAL_IP_LIST}") ${node_port} "${SHARD_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile shardsvr || {
                 echo "错误：shard ${shard_name} 从节点 $(format_host_port ${ip} ${node_port}) 启动失败" >&2
                 exit 1
             }
@@ -540,13 +545,13 @@ for shard_name in "${SHARD_NAME_LIST[@]}"; do
         sleep 3
 
         # 从主节点添加该从节点到复制集
-        local_ip=$(get_reachable_host "${ip}" "${LOCAL_IP}")
+        local_ip=$(get_reachable_host "${ip}" "$(get_local_ip_by_type "${ip}" "${LOCAL_IP_LIST}")")
 
         member_id=$j
         local_host_port=$(format_host_port ${local_ip} ${node_port})
         echo "从主节点添加shard ${shard_name} 从节点: ${local_host_port}..."
         if is_local_host "${primary_ip}" "${LOCAL_IP_LIST}"; then
-            mongosh --host $(format_host_port ${LOCAL_IP} ${primary_port}) -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.add({_id: ${member_id}, host: \"${local_host_port}\", priority: 1, votes: 1})" || {
+            mongosh --host $(format_host_port $(get_local_ip_by_type "${primary_ip}" "${LOCAL_IP_LIST}") ${primary_port}) -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.add({_id: ${member_id}, host: \"${local_host_port}\", priority: 1, votes: 1})" || {
                 echo "错误：添加shard ${shard_name} 从节点 ${local_host_port} 失败" >&2
                 exit 1
             }
@@ -568,7 +573,7 @@ for shard_name in "${SHARD_NAME_LIST[@]}"; do
         node="${shard_nodes[$j]}"
         ip=$(echo "${node}" | awk '{print $1}')
         node_port=$(echo "${node}" | awk '{print $2}')
-        ip=$(get_reachable_host "${ip}" "${LOCAL_IP}")
+        ip=$(get_reachable_host "${ip}" "$(get_local_ip_by_type "${ip}" "${LOCAL_IP_LIST}")")
         shard_addr_str="${shard_addr_str}$(format_host_port ${ip} ${node_port})"
         if [ $j -ne $max_idx ]; then
             shard_addr_str="${shard_addr_str},"
@@ -595,7 +600,7 @@ for i in "${!CONFIG_SVR_ARRAY[@]}"; do
     item="${CONFIG_SVR_ARRAY[$i]}"
     ip=$(echo "${item}" | awk '{print $1}')
     node_port=$(echo "${item}" | awk '{print $2}')
-    ip=$(get_reachable_host "${ip}" "${LOCAL_IP}")
+    ip=$(get_reachable_host "${ip}" "$(get_local_ip_by_type "${ip}" "${LOCAL_IP_LIST}")")
     CONFIG_SVR_ADDR_STR="${CONFIG_SVR_ADDR_STR}$(format_host_port ${ip} ${node_port})"
     if [ $i -ne $max_config_idx ]; then
         CONFIG_SVR_ADDR_STR="${CONFIG_SVR_ADDR_STR},"
@@ -617,7 +622,7 @@ for i in "${!MONGOS_SVR_ARRAY[@]}"; do
     echo "初始化mongos节点 [$i]: $(format_host_port ${ip} ${node_port}), 数据目录: ${mongos_db_path}..."
 
     if is_local_host "${ip}" "${LOCAL_IP_LIST}"; then
-        sh ${TARGET_SCRIPT_PATH}/init_mongos.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} ${LOCAL_IP} ${node_port} ${mongos_db_subdir} "${CONFIG_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile "${CONFIG_SVR_ADDR_STR}" || {
+        sh ${TARGET_SCRIPT_PATH}/init_mongos.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} $(get_local_ip_by_type "${ip}" "${LOCAL_IP_LIST}") ${node_port} ${mongos_db_subdir} "${CONFIG_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile "${CONFIG_SVR_ADDR_STR}" || {
             echo "错误：mongos节点 $(format_host_port ${ip} ${node_port}) init_mongos 失败" >&2
             exit 1
         }
@@ -671,7 +676,7 @@ echo "========== 步骤4: mongos 添加分片 =========="
 MONGOS_PRIMARY_IP=$(echo "${MONGOS_SVR_ARRAY[0]}" | awk '{print $1}')
 MONGOS_PRIMARY_PORT=$(echo "${MONGOS_SVR_ARRAY[0]}" | awk '{print $2}')
 
-MONGOS_PRIMARY_IP=$(get_reachable_host "${MONGOS_PRIMARY_IP}" "${LOCAL_IP}")
+MONGOS_PRIMARY_IP=$(get_reachable_host "${MONGOS_PRIMARY_IP}" "$(get_local_ip_by_type "${MONGOS_PRIMARY_IP}" "${LOCAL_IP_LIST}")")
 
 MONGOS_PRIMARY_HOST_PORT=$(format_host_port ${MONGOS_PRIMARY_IP} ${MONGOS_PRIMARY_PORT})
 echo "使用mongos节点 ${MONGOS_PRIMARY_HOST_PORT} 执行addShard..."

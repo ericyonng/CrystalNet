@@ -152,6 +152,14 @@ read_file_to_array() {
 # 地址工具函数 (IPv4/IPv6/域名 统一支持)
 ##############################
 
+# 判断是否为 IPv4 地址
+# IPv4 为点分十进制格式, 如 192.168.1.1
+# 返回: 0=true, 1=false
+is_ipv4() {
+    local host="$1"
+    [[ "${host}" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]
+}
+
 # 判断是否为 IPv6 地址
 # IPv6 地址含冒号且不含点号(排除域名), 如 2001:db8::1
 # 返回: 0=true, 1=false
@@ -185,7 +193,7 @@ resolve_host() {
     local host="$1"
 
     # 已经是 IP 地址, 直接返回
-    if [[ "${host}" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]] || is_ipv6 "${host}"; then
+    if is_ipv4 "${host}" || is_ipv6 "${host}"; then
         echo "${host}"
         return 0
     fi
@@ -289,10 +297,84 @@ get_local_ip() {
     fi
 }
 
-# 判断是否为私网IPv4地址 (RFC1918)
-# 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
-# 返回: 0=私网, 1=非私网
-is_private_ipv4() {
+# 获取本机最优IPv4地址
+# $1: local_ip_list
+get_local_ipv4() {
+    local ip_list="$1"
+    local public_ipv4=""
+    local private_ipv4=""
+
+    for ip in ${ip_list}; do
+        if [ "${ip}" = "127.0.0.1" ] || [ "${ip}" = "::1" ]; then
+            continue
+        fi
+        if ! is_ipv6 "${ip}"; then
+            if is_private_ipv4 "${ip}"; then
+                [ -z "${private_ipv4}" ] && private_ipv4="${ip}"
+            else
+                [ -z "${public_ipv4}" ] && public_ipv4="${ip}"
+            fi
+        fi
+    done
+
+    [ -n "${public_ipv4}" ] && echo "${public_ipv4}" && return
+    [ -n "${private_ipv4}" ] && echo "${private_ipv4}" && return
+    echo "127.0.0.1"
+}
+
+# 获取本机最优IPv6地址
+# $1: local_ip_list
+get_local_ipv6() {
+    local ip_list="$1"
+    local public_ipv6=""
+    local private_ipv6=""
+
+    for ip in ${ip_list}; do
+        if [ "${ip}" = "127.0.0.1" ] || [ "${ip}" = "::1" ]; then
+            continue
+        fi
+        if is_ipv6 "${ip}"; then
+            # 简单判断: 以 fe80: 开头的为 link-local(私网), 其余视为公网
+            if [[ "${ip}" == fe80:* ]]; then
+                [ -z "${private_ipv6}" ] && private_ipv6="${ip}"
+            else
+                [ -z "${public_ipv6}" ] && public_ipv6="${ip}"
+            fi
+        fi
+    done
+
+    [ -n "${public_ipv6}" ] && echo "${public_ipv6}" && return
+    [ -n "${private_ipv6}" ] && echo "${private_ipv6}" && return
+    echo "::1"
+}
+
+# 根据给定 host 的类型, 返回本机同类型的最优IP
+# 如果 ref_host 是 IPv6, 返回本机最优 IPv6; 如果是 IPv4, 返回本机最优 IPv4
+# 如果是域名, 先 DNS 解析再根据解析结果的类型决定
+# $1: ref_host (参考IP或域名, 用于判断类型), $2: local_ip_list
+get_local_ip_by_type() {
+    local ref_host="$1"
+    local ip_list="$2"
+
+    if is_ipv6 "${ref_host}"; then
+        get_local_ipv6 "${ip_list}"
+    elif is_ipv4 "${ref_host}"; then
+        get_local_ipv4 "${ip_list}"
+    else
+        # 域名: 先 DNS 解析, 根据解析结果的IP类型决定
+        local resolved=$(resolve_host "${ref_host}" | awk '{print $1}')
+        if [ -n "${resolved}" ]; then
+            if is_ipv6 "${resolved}"; then
+                get_local_ipv6 "${ip_list}"
+            else
+                get_local_ipv4 "${ip_list}"
+            fi
+        else
+            # DNS 解析失败, fallback 到 IPv4 (域名通常解析到 IPv4)
+            get_local_ipv4 "${ip_list}"
+        fi
+    fi
+}
     local ip="$1"
     # 10.0.0.0/8
     if [[ "${ip}" == 10.* ]]; then

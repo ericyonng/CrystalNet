@@ -132,6 +132,11 @@ fi
 LOCAL_IP=$(get_local_ip "${LOCAL_IP_LIST}")
 echo "LOCAL_IP(用于子脚本): ${LOCAL_IP}"
 
+# LOCAL_IPV4 / LOCAL_IPV6: 本机最优IPv4和IPv6地址, 根据iplist中的IP类型选择使用
+LOCAL_IPV4=$(get_local_ipv4 "${LOCAL_IP_LIST}")
+LOCAL_IPV6=$(get_local_ipv6 "${LOCAL_IP_LIST}")
+echo "LOCAL_IPV4: ${LOCAL_IPV4}, LOCAL_IPV6: ${LOCAL_IPV6}"
+
 # 读取iplist
 IP_LIST_ARRAY=()
 read_file_to_array ${IP_LIST_FILE} IP_LIST_ARRAY || {
@@ -440,7 +445,7 @@ for shard_name in "${SHARD_NAME_LIST[@]}"; do
 
     # 1.1 初始化shard主节点 (no_auth → rs.initiate → createUser → shutdown)
     if is_local_host "${primary_ip}" "${LOCAL_IP_LIST}"; then
-        sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} ${LOCAL_IP} ${primary_port} ${primary_db_subdir} ${SHARD_RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile shardsvr || {
+        sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} $(get_local_ip_by_type "${primary_ip}" "${LOCAL_IP_LIST}") ${primary_port} ${primary_db_subdir} ${SHARD_RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile shardsvr || {
             echo "错误：shard ${shard_name} 主节点 init_primary 失败" >&2
             exit 1
         }
@@ -456,7 +461,7 @@ for shard_name in "${SHARD_NAME_LIST[@]}"; do
 
     # 1.2 启动shard主节点(带认证)
     if is_local_host "${primary_ip}" "${LOCAL_IP_LIST}"; then
-        sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${primary_db_path} ${LOCAL_IP} ${primary_port} "${SHARD_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile shardsvr || {
+        sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${primary_db_path} $(get_local_ip_by_type "${primary_ip}" "${LOCAL_IP_LIST}") ${primary_port} "${SHARD_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile shardsvr || {
             echo "错误：shard ${shard_name} 主节点带认证启动失败" >&2
             exit 1
         }
@@ -486,7 +491,7 @@ for shard_name in "${SHARD_NAME_LIST[@]}"; do
         echo "启动shard ${shard_name} 从节点 [$j]: $(format_host_port ${ip} ${node_port}), 数据目录: ${node_db_path}..."
 
         if is_local_host "${ip}" "${LOCAL_IP_LIST}"; then
-            sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${node_db_path} ${LOCAL_IP} ${node_port} "${SHARD_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile shardsvr || {
+            sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${node_db_path} $(get_local_ip_by_type "${ip}" "${LOCAL_IP_LIST}") ${node_port} "${SHARD_RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile shardsvr || {
                 echo "错误：shard ${shard_name} 从节点 $(format_host_port ${ip} ${node_port}) 启动失败" >&2
                 exit 1
             }
@@ -500,13 +505,13 @@ for shard_name in "${SHARD_NAME_LIST[@]}"; do
         sleep 3
 
         # 从主节点添加该从节点到复制集
-        local_ip=$(get_reachable_host "${ip}" "${LOCAL_IP}")
+        local_ip=$(get_reachable_host "${ip}" "$(get_local_ip_by_type "${ip}" "${LOCAL_IP_LIST}")")
 
         member_id=$j
         local_host_port=$(format_host_port ${local_ip} ${node_port})
         echo "从主节点添加shard ${shard_name} 从节点: ${local_host_port}..."
         if is_local_host "${primary_ip}" "${LOCAL_IP_LIST}"; then
-            mongosh --host $(format_host_port ${LOCAL_IP} ${primary_port}) -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.add({_id: ${member_id}, host: \"${local_host_port}\", priority: 1, votes: 1})" || {
+            mongosh --host $(format_host_port $(get_local_ip_by_type "${primary_ip}" "${LOCAL_IP_LIST}") ${primary_port}) -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.add({_id: ${member_id}, host: \"${local_host_port}\", priority: 1, votes: 1})" || {
                 echo "错误：添加shard ${shard_name} 从节点 ${local_host_port} 失败" >&2
                 exit 1
             }
@@ -528,7 +533,7 @@ for shard_name in "${SHARD_NAME_LIST[@]}"; do
         node="${shard_nodes[$j]}"
         ip=$(echo "${node}" | awk '{print $1}')
         node_port=$(echo "${node}" | awk '{print $2}')
-        ip=$(get_reachable_host "${ip}" "${LOCAL_IP}")
+        ip=$(get_reachable_host "${ip}" "$(get_local_ip_by_type "${ip}" "${LOCAL_IP_LIST}")")
         shard_addr_str="${shard_addr_str}$(format_host_port ${ip} ${node_port})"
         if [ $j -ne $max_idx ]; then
             shard_addr_str="${shard_addr_str},"
