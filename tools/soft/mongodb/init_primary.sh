@@ -27,6 +27,9 @@ LOCAL_SHARDING_CLUSTER_ROLE=${10}
 LOCAL_IS_MONGOS="${11}"
 # 如果是mongos需要configDB
 LOCAL_MONGOS_CONFIG_ADDR="${12}"
+# 注册到复制集的host(域名或IP), 用于rs.initiate中members的host字段
+# 如果不传则默认使用LOCAL_PRIMARY_IP(兼容旧调用方式)
+LOCAL_REGISTER_HOST="${13:-${LOCAL_PRIMARY_IP}}"
 
 if [ -z "${TARGET_USER}" ] || [ -z "${TARGET_PWD}" ]; then
     echo "TARGET_USER:${TARGET_USER} TARGET_PWD:${TARGET_PWD} lack of pwd info"
@@ -84,7 +87,8 @@ echo "创建主节点 ${LOCAL_DB_NAME} 实例成功"
 
 # 必须先初始化复制集否则会报不是主节点的错
 LOCAL_PRIMARY_HOST_PORT=$(format_host_port ${LOCAL_PRIMARY_IP} ${LOCAL_PRIMARY_PORT})
-mongosh --host ${LOCAL_PRIMARY_HOST_PORT} --eval "rs.initiate({_id: \"${LOCAL_RS_NAME}\", members: [{_id: 0, host: \"${LOCAL_PRIMARY_HOST_PORT}\", priority: 2}], settings: {heartbeatIntervalMillis: 2000, electionTimeoutMillis: 10000}})" || {
+LOCAL_REGISTER_HOST_PORT=$(format_host_port ${LOCAL_REGISTER_HOST} ${LOCAL_PRIMARY_PORT})
+mongosh --host ${LOCAL_PRIMARY_HOST_PORT} --eval "rs.initiate({_id: \"${LOCAL_RS_NAME}\", members: [{_id: 0, host: \"${LOCAL_REGISTER_HOST_PORT}\", priority: 2}], settings: {heartbeatIntervalMillis: 2000, electionTimeoutMillis: 10000}})" || {
     echo "错误：初始化复制集失败 LOCAL_DB_NAME:${LOCAL_DB_NAME}" >&2
     exit 1
 }

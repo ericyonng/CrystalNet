@@ -444,14 +444,15 @@ for shard_name in "${SHARD_NAME_LIST[@]}"; do
     echo "Shard ${shard_name} 主节点数据目录: ${primary_db_path}"
 
     # 1.1 初始化shard主节点 (no_auth → rs.initiate → createUser → shutdown)
+    # LOCAL_REGISTER_HOST 使用 iplist 中的原始 IP/域名, 保证复制集成员注册地址一致
     if is_local_host "${primary_ip}" "${LOCAL_IP_LIST}"; then
-        sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} $(get_local_ip_by_type "${primary_ip}" "${LOCAL_IP_LIST}") ${primary_port} ${primary_db_subdir} ${SHARD_RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile shardsvr || {
+        sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} $(get_local_ip_by_type "${primary_ip}" "${LOCAL_IP_LIST}") ${primary_port} ${primary_db_subdir} ${SHARD_RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile shardsvr "" "" "${primary_ip}" || {
             echo "错误：shard ${shard_name} 主节点 init_primary 失败" >&2
             exit 1
         }
     else
         scp_to_host ${primary_ip} ${KEYFILE_PATH} ${TARGET_SCRIPT_PATH}/keyfile 2>/dev/null
-        ssh root@${primary_ip} "source ~/.bash_profile 2>/dev/null; sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} ${primary_ip} ${primary_port} ${primary_db_subdir} ${SHARD_RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile shardsvr" || {
+        ssh root@${primary_ip} "source ~/.bash_profile 2>/dev/null; sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${DATA_PATH} ${primary_ip} ${primary_port} ${primary_db_subdir} ${SHARD_RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile shardsvr \"\" \"\" \"${primary_ip}\"" || {
             echo "错误：shard ${shard_name} 主节点 ${primary_ip} init_primary 失败" >&2
             exit 1
         }
@@ -505,35 +506,33 @@ for shard_name in "${SHARD_NAME_LIST[@]}"; do
         sleep 3
 
         # 从主节点添加该从节点到复制集
-        local_ip=$(get_reachable_host "${ip}" "$(get_local_ip_by_type "${ip}" "${LOCAL_IP_LIST}")")
-
-        member_id=$j
-        local_host_port=$(format_host_port ${local_ip} ${node_port})
-        echo "从主节点添加shard ${shard_name} 从节点: ${local_host_port}..."
+        # rs.add 中 host 使用 iplist 中的原始 IP/域名, 保证复制集成员注册地址一致
+        register_host_port=$(format_host_port ${ip} ${node_port})
+        echo "从主节点添加shard ${shard_name} 从节点: ${register_host_port}..."
         if is_local_host "${primary_ip}" "${LOCAL_IP_LIST}"; then
-            mongosh --host $(format_host_port $(get_local_ip_by_type "${primary_ip}" "${LOCAL_IP_LIST}") ${primary_port}) -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.add({_id: ${member_id}, host: \"${local_host_port}\", priority: 1, votes: 1})" || {
-                echo "错误：添加shard ${shard_name} 从节点 ${local_host_port} 失败" >&2
+            mongosh --host $(format_host_port $(get_local_ip_by_type "${primary_ip}" "${LOCAL_IP_LIST}") ${primary_port}) -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.add({_id: ${member_id}, host: \"${register_host_port}\", priority: 1, votes: 1})" || {
+                echo "错误：添加shard ${shard_name} 从节点 ${register_host_port} 失败" >&2
                 exit 1
             }
         else
-            ssh root@${primary_ip} "source ~/.bash_profile 2>/dev/null; mongosh --host $(format_host_port ${primary_ip} ${primary_port}) -u \"${TARGET_USER}\" -p \"${TARGET_PWD}\" --authenticationDatabase admin --eval \"rs.add({_id: ${member_id}, host: \\\"${local_host_port}\\\", priority: 1, votes: 1})\"" || {
-                echo "错误：添加shard ${shard_name} 从节点 ${local_host_port} 失败" >&2
+            ssh root@${primary_ip} "source ~/.bash_profile 2>/dev/null; mongosh --host $(format_host_port ${primary_ip} ${primary_port}) -u \"${TARGET_USER}\" -p \"${TARGET_PWD}\" --authenticationDatabase admin --eval \"rs.add({_id: ${member_id}, host: \\\"${register_host_port}\\\", priority: 1, votes: 1})\"" || {
+                echo "错误：添加shard ${shard_name} 从节点 ${register_host_port} 失败" >&2
                 exit 1
             }
         fi
 
-        echo "Shard ${shard_name} 从节点 ${local_host_port} 添加成功."
+        echo "Shard ${shard_name} 从节点 ${register_host_port} 添加成功."
         sleep 2
     done
 
-    # 构建该分片的地址串: rs_shard1/[ip1]:port1,[ip2]:port2,...
+    # 构建该分片的地址串: rs_shard1/[host1]:port1,[host2]:port2,...
+    # 使用 iplist 中的原始 IP/域名, 保证与复制集成员注册地址一致
     shard_addr_str="${SHARD_RS_NAME}/"
     max_idx=$((${#shard_nodes[@]} - 1))
     for j in "${!shard_nodes[@]}"; do
         node="${shard_nodes[$j]}"
         ip=$(echo "${node}" | awk '{print $1}')
         node_port=$(echo "${node}" | awk '{print $2}')
-        ip=$(get_reachable_host "${ip}" "$(get_local_ip_by_type "${ip}" "${LOCAL_IP_LIST}")")
         shard_addr_str="${shard_addr_str}$(format_host_port ${ip} ${node_port})"
         if [ $j -ne $max_idx ]; then
             shard_addr_str="${shard_addr_str},"
