@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # @author EricYonng<120453674@qq.com>
 # 创建mongo 分片集群
-# 用法: sh install_mongo_shard_cluster.sh <iplist.txt> <用户名> <密码> <复制集名前缀> <软件包安装路径> <数据库数据路径> [数据库名] [分片配置]
+# 用法: sh install_mongo_shard_cluster.sh <iplist.txt> <用户名> <密码> <复制集名前缀> <软件包安装路径> <数据库数据路径> [数据库名]
 #
 # IP_LIST_FILE: ip 节点类型 端口: config 127.0.0.1 27010 / shard1 127.0.0.1 27011 / mongos 127.0.0.1 27017
 # TARGET_USER: 用户名
@@ -10,7 +10,6 @@
 # INSTALL_PATH: 安装mongodb的程序目录
 # DATA_PATH: 安装mongodb的数据库目录
 # DB_NAME: db名(可选, 默认admin)
-# SHARD_CONFIG: 分片配置(可选, 格式 dbname.collection:shardkey, 如 mydb.users:_id)
 
 # 当前脚本路径
 SCRIPT_PATH="$(cd $(dirname $0); pwd)"
@@ -29,8 +28,6 @@ INSTALL_PATH=$5
 DATA_PATH=$6
 # 数据库名(可选, 默认admin)
 DB_NAME=${7:-admin}
-# 分片配置(可选, 格式 dbname.collection:shardkey)
-SHARD_CONFIG=$8
 
 ##############################
 # 参数校验
@@ -79,7 +76,6 @@ echo "RS_NAME_PREFIX  : ${RS_NAME_PREFIX}"
 echo "INSTALL_PATH    : ${INSTALL_PATH}"
 echo "DATA_PATH       : ${DATA_PATH}"
 echo "DB_NAME         : ${DB_NAME}"
-echo "SHARD_CONFIG    : ${SHARD_CONFIG}"
 echo "=========================================="
 
 ##############################
@@ -717,59 +713,27 @@ done
 echo "所有分片添加完成."
 
 ##############################
-# 步骤5: 启用分片和设置分片键
+# 步骤5: 启用数据库分片
 ##############################
 echo ""
-echo "========== 步骤5: 启用分片和设置分片键 =========="
+echo "========== 步骤5: 启用数据库分片 =========="
 
-if [ -n "${SHARD_CONFIG}" ]; then
-    # 解析分片配置: dbname.collection:shardkey
-    SHARD_DB_NAME=$(echo "${SHARD_CONFIG}" | cut -d'.' -f1)
-    SHARD_COLLECTION=$(echo "${SHARD_CONFIG}" | cut -d'.' -f2 | cut -d':' -f1)
-    SHARD_KEY=$(echo "${SHARD_CONFIG}" | cut -d':' -f2)
+echo "启用数据库分片: sh.enableSharding(\"${DB_NAME}\")..."
 
-    if [ -z "${SHARD_DB_NAME}" ] || [ -z "${SHARD_COLLECTION}" ] || [ -z "${SHARD_KEY}" ]; then
-        echo "错误：分片配置格式不正确: ${SHARD_CONFIG}, 正确格式: dbname.collection:shardkey" >&2
+if is_local_ip $(echo "${MONGOS_SVR_ARRAY[0]}" | awk '{print $1}'); then
+    mongosh --host ${MONGOS_PRIMARY_IP}:${MONGOS_PRIMARY_PORT} -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "sh.enableSharding(\"${DB_NAME}\")" || {
+        echo "错误：启用数据库分片 ${DB_NAME} 失败" >&2
         exit 1
-    fi
-
-    echo "启用数据库分片: sh.enableSharding(\"${SHARD_DB_NAME}\")..."
-
-    if is_local_ip $(echo "${MONGOS_SVR_ARRAY[0]}" | awk '{print $1}'); then
-        mongosh --host ${MONGOS_PRIMARY_IP}:${MONGOS_PRIMARY_PORT} -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "sh.enableSharding(\"${SHARD_DB_NAME}\")" || {
-            echo "错误：启用数据库分片 ${SHARD_DB_NAME} 失败" >&2
-            exit 1
-        }
-    else
-        ssh root@$(echo "${MONGOS_SVR_ARRAY[0]}" | awk '{print $1}') "source ~/.bash_profile 2>/dev/null; mongosh --host ${MONGOS_PRIMARY_IP}:${MONGOS_PRIMARY_PORT} -u \"${TARGET_USER}\" -p \"${TARGET_PWD}\" --authenticationDatabase admin --eval \"sh.enableSharding(\\\"${SHARD_DB_NAME}\\\")\"" || {
-            echo "错误：启用数据库分片 ${SHARD_DB_NAME} 失败" >&2
-            exit 1
-        }
-    fi
-
-    echo "数据库 ${SHARD_DB_NAME} 分片已启用."
-
-    sleep 2
-
-    echo "设置分片键: sh.shardCollection(\"${SHARD_DB_NAME}.${SHARD_COLLECTION}\", {${SHARD_KEY}: 1})..."
-
-    if is_local_ip $(echo "${MONGOS_SVR_ARRAY[0]}" | awk '{print $1}'); then
-        mongosh --host ${MONGOS_PRIMARY_IP}:${MONGOS_PRIMARY_PORT} -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "sh.shardCollection(\"${SHARD_DB_NAME}.${SHARD_COLLECTION}\", {${SHARD_KEY}: 1})" || {
-            echo "错误：设置分片键 ${SHARD_DB_NAME}.${SHARD_COLLECTION} 失败" >&2
-            exit 1
-        }
-    else
-        ssh root@$(echo "${MONGOS_SVR_ARRAY[0]}" | awk '{print $1}') "source ~/.bash_profile 2>/dev/null; mongosh --host ${MONGOS_PRIMARY_IP}:${MONGOS_PRIMARY_PORT} -u \"${TARGET_USER}\" -p \"${TARGET_PWD}\" --authenticationDatabase admin --eval \"sh.shardCollection(\\\"${SHARD_DB_NAME}.${SHARD_COLLECTION}\\\", {${SHARD_KEY}: 1})\"" || {
-            echo "错误：设置分片键 ${SHARD_DB_NAME}.${SHARD_COLLECTION} 失败" >&2
-            exit 1
-        }
-    fi
-
-    echo "分片键设置成功: ${SHARD_DB_NAME}.${SHARD_COLLECTION} -> {${SHARD_KEY}: 1}"
+    }
 else
-    echo "未指定分片配置(SHARD_CONFIG), 跳过enableSharding和shardCollection."
-    echo "如需启用, 请使用格式: dbname.collection:shardkey"
+    ssh root@$(echo "${MONGOS_SVR_ARRAY[0]}" | awk '{print $1}') "source ~/.bash_profile 2>/dev/null; mongosh --host ${MONGOS_PRIMARY_IP}:${MONGOS_PRIMARY_PORT} -u \"${TARGET_USER}\" -p \"${TARGET_PWD}\" --authenticationDatabase admin --eval \"sh.enableSharding(\\\"${DB_NAME}\\\")\"" || {
+        echo "错误：启用数据库分片 ${DB_NAME} 失败" >&2
+        exit 1
+    }
 fi
+
+echo "数据库 ${DB_NAME} 分片已启用."
+echo "提示: 分片键(shardCollection)属于业务逻辑, 请在业务初始化时通过 mongosh 手动设置."
 
 ##############################
 # 完成

@@ -1,0 +1,23 @@
+# MongoDB 分片集群 - 新增分片节点列表
+# 用法: 配合 addShard.sh 使用, 仅需填写新增的 shard 节点
+# 格式: 类型 IP地址/域名 端口
+#
+# 注意:
+#   1. 只需填写 shard 类型节点, 不需要填写 config 和 mongos
+#   2. shard 编号必须与已有集群中的分片编号不同(如已有shard1, 则新增shard2)
+#   3. 每个分片建议至少3个节点组成复制集
+#   4. 以#开头的行和空行会被跳过
+#
+# 示例: 已有 shard1, 新增 shard2 (3节点复制集)
+# sh addShard.sh iplist_add_shard.txt <mongos_ip> <mongos_port> admin eric123 TestSuit /root/mongo_install /root/mongo_data /root/mongodb_script/keyfile mydb
+# 如: sh addShard.sh iplist_add_shard.txt 101.32.15.49 27016 admin eric123 TestSuit /root/mongo_install /root/mongo_data /root/mongodb_script/keyfile mydb
+
+# shard2 分片2 (3节点复制集)
+shard2 192.168.1.4 27011
+shard2 192.168.1.5 27011
+shard2 192.168.1.6 27011
+
+# shard3 分片3 (3节点复制集) - 也可以同时添加多个分片
+# shard3 192.168.1.7 27011
+# shard3 192.168.1.8 27011
+# shard3 192.168.1.9 27011
