@@ -338,7 +338,7 @@ source ~/.bash_profile 2>/dev/null
 echo "=================================="
 
 ##############################
-# 辅助函数: 启动 mongod/mongos 节点
+# 辅助函数: 启动 mongod 节点
 ##############################
 start_mongod_node() {
     local ip=$1
@@ -355,10 +355,11 @@ start_mongod_node() {
         fi
         
         # 启动 mongod
-        mongod -f "${conf_path}" || {
+        mongod -f "${conf_path}"
+        if [ $? -ne 0 ]; then
             echo "错误：mongod 启动失败" >&2
             return 1
-        }
+        fi
     else
         # 远程启动
         if ssh root@${ip} "source ~/.bash_profile 2>/dev/null; ss -tlnp 'sport = :${port}' 2>/dev/null | grep -q ':${port}'"; then
@@ -366,15 +367,19 @@ start_mongod_node() {
             return 0
         fi
         
-        ssh root@${ip} "source ~/.bash_profile 2>/dev/null; mongod -f '${conf_path}'" || {
+        ssh root@${ip} "source ~/.bash_profile 2>/dev/null; mongod -f '${conf_path}'"
+        if [ $? -ne 0 ]; then
             echo "错误：远程 ${ip} mongod 启动失败" >&2
             return 1
-        }
+        fi
     fi
     
     return 0
 }
 
+##############################
+# 辅助函数: 启动 mongos 节点
+##############################
 start_mongos_node() {
     local ip=$1
     local port=$2
@@ -390,10 +395,11 @@ start_mongos_node() {
         fi
         
         # 启动 mongos
-        mongos -f "${conf_path}" || {
+        mongos -f "${conf_path}"
+        if [ $? -ne 0 ]; then
             echo "错误：mongos 启动失败" >&2
             return 1
-        }
+        fi
     else
         # 远程启动
         if ssh root@${ip} "source ~/.bash_profile 2>/dev/null; ss -tlnp 'sport = :${port}' 2>/dev/null | grep -q ':${port}'"; then
@@ -401,7 +407,8 @@ start_mongos_node() {
             return 0
         fi
         
-        ssh root@${ip} "source ~/.bash_profile 2>/dev/null; mongos -f '${conf_path}'" || {
+        ssh root@${ip} "source ~/.bash_profile 2>/dev/null; mongos -f '${conf_path}'"
+        if [ $? -ne 0 ]; then
             echo "错误：远程 ${ip} mongos 启动失败" >&2
             return 1
         fi
