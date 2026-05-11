@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # @author EricYonng<120453674@qq.com>
 # 向已有MongoDB复制集扩展节点
-# 用法: sh add_replica_node.sh <iplist.txt> <用户名> <密码> <软件包安装路径> <数据库数据路径> <keyfile绝对路径> <mongod主节点地址> <mongod主节点端口>
+# 用法: sh add_replica_node.sh <iplist.txt> <用户名> <密码> <软件包安装路径> <数据库数据路径> <keyfile绝对路径> <mongod主节点地址> <mongod主节点端口> <数据库名>
 #
 # iplist.txt 格式: 类型 复制集前缀 IP 端口
 #   支持的类型: shard1, shard2, ..., config
@@ -17,6 +17,7 @@
 # KEYFILE_PATH: 已有复制集的keyfile绝对路径
 # MONGOD_PRIMARY_ADDR: 复制集主节点地址（IP/域名）
 # MONGOD_PRIMARY_PORT: 复制集主节点端口
+# DB_NAME: 数据库名称（用于目录命名，如 mydb_shard1_4）
 
 # 当前脚本路径
 SCRIPT_PATH="$(cd $(dirname $0); pwd)"
@@ -30,6 +31,7 @@ DATA_PATH=$5
 KEYFILE_PATH=$6
 MONGOD_PRIMARY_ADDR=$7
 MONGOD_PRIMARY_PORT=$8
+DB_NAME=$9
 
 ##############################
 # 参数校验
@@ -79,6 +81,11 @@ if [ -z "${MONGOD_PRIMARY_PORT}" ]; then
     exit 1
 fi
 
+if [ -z "${DB_NAME}" ]; then
+    echo "错误：DB_NAME 为空"
+    exit 1
+fi
+
 # 加载公共函数库
 . ${SCRIPT_PATH}/common/common_define.sh
 . ${SCRIPT_PATH}/common/funcs.sh
@@ -94,6 +101,7 @@ echo "DATA_PATH          : ${DATA_PATH}"
 echo "KEYFILE_PATH       : ${KEYFILE_PATH}"
 echo "MONGOD_PRIMARY_ADDR: ${MONGOD_PRIMARY_ADDR}"
 echo "MONGOD_PRIMARY_PORT: ${MONGOD_PRIMARY_PORT}"
+echo "DB_NAME            : ${DB_NAME}"
 echo "=========================================="
 
 ##############################
@@ -182,6 +190,7 @@ echo ""
 echo "========== 扩展信息 =========="
 echo "复制集名称: ${RS_NAME}"
 echo "节点角色: ${NODE_ROLE}"
+echo "数据库名称: ${DB_NAME}"
 echo "新节点数量: ${#NEW_NODE_ARRAY[@]}"
 for i in "${!NEW_NODE_ARRAY[@]}"; do
     echo "  [${i}] ${NEW_NODE_ARRAY[$i]}"
@@ -468,12 +477,14 @@ for item in "${NEW_NODE_ARRAY[@]}"; do
     ip=$(echo "${item}" | awk '{print $1}')
     node_port=$(echo "${item}" | awk '{print $2}')
     node_id=$((MEMBER_COUNT + NODE_INDEX))
-    node_db_subdir="${RS_NAME}_${NODE_INDEX}"
+    # 计算新节点编号：从已有成员数量 + 1 开始，保证连续性
+    node_db_num=$((MEMBER_COUNT + NODE_INDEX + 1))
+    node_db_subdir="${DB_NAME}_${NODE_TYPE}_${node_db_num}"
     # 移除 DATA_PATH 末尾的斜杠，避免路径中出现双斜杠
     DATA_PATH_CLEAN=${DATA_PATH%/}
     node_db_path="${DATA_PATH_CLEAN}/${node_db_subdir}"
 
-    echo "启动新节点 [$NODE_INDEX]: $(format_host_port ${ip} ${node_port}), _id: ${node_id}, 数据目录: ${node_db_path}..."
+    echo "启动新节点 [${node_db_num}]: $(format_host_port ${ip} ${node_port}), _id: ${node_id}, 数据目录: ${node_db_path}..."
 
     # 确保 keyfile 存在于目标机器的 TARGET_SCRIPT_PATH 目录
     if is_local_host "${ip}" "${LOCAL_IP_LIST}"; then
