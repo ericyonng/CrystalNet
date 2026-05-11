@@ -125,6 +125,33 @@ else
         echo "    clusterRole: ${LOCAL_SHARDING_CLUSTER_ROLE}" >> ${MONGOD_CONF}
     fi
 
+    # 检查端口是否被占用，如果被占用则关闭已有进程
+    echo "检查端口 ${LOCAL_TARGET_PORT} 是否被占用..."
+    PORT_PID=$(lsof -ti:${LOCAL_TARGET_PORT} 2>/dev/null || echo "")
+    if [ -n "${PORT_PID}" ]; then
+        echo "警告: 端口 ${LOCAL_TARGET_PORT} 被进程 ${PORT_PID} 占用"
+        echo "尝试关闭进程 ${PORT_PID}..."
+        kill -15 ${PORT_PID} 2>/dev/null
+        sleep 2
+        # 检查是否已关闭
+        PORT_PID=$(lsof -ti:${LOCAL_TARGET_PORT} 2>/dev/null || echo "")
+        if [ -n "${PORT_PID}" ]; then
+            echo "强制关闭进程 ${PORT_PID}..."
+            kill -9 ${PORT_PID} 2>/dev/null
+            sleep 1
+        fi
+        # 再检查一次
+        PORT_PID=$(lsof -ti:${LOCAL_TARGET_PORT} 2>/dev/null || echo "")
+        if [ -n "${PORT_PID}" ]; then
+            echo "错误: 无法关闭占用端口 ${LOCAL_TARGET_PORT} 的进程 ${PORT_PID}" >&2
+            echo "请手动处理后重试" >&2
+            exit 1
+        fi
+        echo "端口 ${LOCAL_TARGET_PORT} 已释放"
+    else
+        echo "端口 ${LOCAL_TARGET_PORT} 可用"
+    fi
+
     # 显示最终的 mongod.conf 内容
     echo "========== mongod.conf 内容 =========="
     cat ${MONGOD_CONF}

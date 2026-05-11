@@ -222,12 +222,26 @@ exec_on_host() {
 # 判断目标机器是否已安装 mongodb (使用通用检测方式: which mongod 或常见安装路径)
 is_mongo_installed() {
     local ip=$1
+    # 移除 INSTALL_PATH 末尾的斜杠
+    local INSTALL_PATH_CLEAN=${INSTALL_PATH%/}
     # 优先使用 which mongod 检测，其次检查用户传入的 INSTALL_PATH
-    local check_cmd="(which mongod &>/dev/null && [ -x \"\$(which mongod)\") || ([ -d '${INSTALL_PATH}' ] && [ -x '${INSTALL_PATH}/mongodb-linux-x86_64-rhel88-8.0.6/bin/mongod' ]))"
+    # 分两步检测避免 bash -c 中的命令替换问题
     if is_local_host "${ip}" "${LOCAL_IP_LIST}"; then
-        bash -c "${check_cmd}"
+        if which mongod &>/dev/null && [ -x "$(which mongod)" ]; then
+            return 0
+        fi
+        if [ -d "${INSTALL_PATH_CLEAN}" ] && [ -x "${INSTALL_PATH_CLEAN}/mongodb-linux-x86_64-rhel88-8.0.6/bin/mongod" ]; then
+            return 0
+        fi
+        return 1
     else
-        ssh root@${ip} "${check_cmd}"
+        if ssh root@${ip} "which mongod &>/dev/null && [ -x \"\$(which mongod)\""; then
+            return 0
+        fi
+        if ssh root@${ip} "[ -d '${INSTALL_PATH_CLEAN}' ] && [ -x '${INSTALL_PATH_CLEAN}/mongodb-linux-x86_64-rhel88-8.0.6/bin/mongod' ]"; then
+            return 0
+        fi
+        return 1
     fi
 }
 
