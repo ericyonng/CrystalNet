@@ -14,7 +14,16 @@
   - [5.3 新增分片内部流程详解](#53-新增分片内部流程详解)
 - [6. 安全关闭集群](#6-安全关闭集群)
 - [7. 常用运维命令](#7-常用运维命令)
-- [8. 注意事项](#8-注意事项)
+- [8. 新增副本节点](#8-新增副本节点)
+  - [8.1 准备 iplist_add_replica.txt](#81-准备-iplist_add_replicatxt)
+  - [8.2 执行新增副本节点](#82-执行新增副本节点)
+  - [8.3 新增副本节点内部流程](#83-新增副本节点内部流程)
+- [9. 启动集群](#9-启动集群)
+  - [9.1 start_iplist.txt 配置说明](#91-start_iplisttxt-配置说明)
+  - [9.2 启动集群命令](#92-启动集群命令)
+  - [9.3 启动内部流程](#93-启动内部流程)
+  - [9.4 脚本特性](#94-脚本特性)
+- [10. 注意事项](#10-注意事项)
 
 ---
 
@@ -140,7 +149,7 @@ mongos testsuit_rs 192.168.1.1 27017
 mongos testsuit_rs 192.168.1.2 27017
 ```
 
-> 完整示例参考 `iplist.txt.example`
+> 完整示例参考 `iplist_add_shard.txt.example`
 
 ---
 
@@ -455,7 +464,190 @@ sh.status()
 
 ---
 
-## 8. 注意事项
+## 8. 新增副本节点
+
+当某个 shard 分片需要扩容时，使用 `add_replica_node.sh` 向已有复制集添加新节点。
+
+### 8.1 准备 iplist_add_replica.txt
+
+**只需填写新增的节点**：
+
+```bash
+# 向 shard1 复制集新增节点 (3节点)
+shard1 testsuit_rs 192.168.1.10 27011
+shard1 testsuit_rs 192.168.1.11 27011
+shard1 testsuit_rs 192.168.1.12 27011
+```
+
+> 完整示例参考 `add_iplist.txt.example`
+
+**关键约束**：
+- shard 编号必须与目标复制集一致
+- 复制集前缀必须与目标复制集一致
+- keyfile 必须使用集群原有的 keyfile
+- 需要提供现有复制集主节点的地址和端口
+
+### 8.2 执行新增副本节点
+
+```bash
+sh add_replica_node.sh <iplist.txt> <用户名> <密码> <软件包安装路径> <数据库数据路径> <keyfile绝对路径> <mongod主节点地址> <mongod主节点端口> <数据库名>
+```
+
+| 参数 | 必填 | 说明 | 示例 |
+|------|------|------|------|
+| iplist.txt | 是 | 新增节点列表 | `iplist_add_replica.txt` |
+| 用户名 | 是 | 集群管理员用户名 | `admin` |
+| 密码 | 是 | 集群管理员密码 | `eric123` |
+| 软件包安装路径 | 是 | MongoDB 程序目录 | `/root/mongo_install` |
+| 数据库数据路径 | 是 | 数据目录父路径 | `/root/mongo_data` |
+| keyfile绝对路径 | 是 | 集群原有 keyfile 路径 | `/root/mongodb_script/keyfile` |
+| mongod主节点地址 | 是 | 目标复制集主节点 IP | `192.168.1.1` |
+| mongod主节点端口 | 是 | 目标复制集主节点端口 | `27011` |
+| 数据库名 | 是 | 用于目录命名 | `mydb` |
+
+**执行示例**：
+
+```bash
+sh add_replica_node.sh iplist_add_replica.txt admin eric123 /root/mongo_install /root/mongo_data /root/mongodb_script/keyfile 192.168.1.1 27011 mydb
+```
+
+### 8.3 新增副本节点内部流程
+
+#### 步骤1：检测软件包
+
+```
+→ 检测各节点是否已安装 MongoDB
+→ 如未安装，自动下载并安装 MongoDB 8.0.6
+```
+
+#### 步骤2：分发 keyfile
+
+```
+→ 将 keyfile 复制到新节点的数据库数据目录
+→ 设置 keyfile 权限为 600
+```
+
+#### 步骤3：启动新节点
+
+```
+→ 依次启动每个新节点 (带认证模式)
+→ mongod --dbpath <数据目录> --port <端口> --replSet <复制集名> --keyFile <keyfile>
+```
+
+#### 步骤4：加入复制集
+
+```
+→ 连接主节点执行 rs.add()
+→ rs.add("192.168.1.10:27011")
+→ rs.add("192.168.1.11:27011")
+→ ...
+```
+
+---
+
+## 9. 启动集群
+
+当集群需要重新启动时（如服务器重启后），使用 `start_mongo_shard_cluster.sh` 启动已存在的集群。
+
+### 9.1 start_iplist.txt 配置说明
+
+**格式**：`节点类型 复制集前缀 IP地址/域名 端口 配置文件绝对路径`
+
+| 字段 | 说明 | 示例 |
+|------|------|------|
+| 节点类型 | `config` / `shardN` / `mongos` | `config`, `shard1`, `mongos` |
+| 复制集前缀 | 最终复制集名 = `前缀_类型` | `testsuit_rs` → `testsuit_rs_config` |
+| IP地址 | IPv4 / IPv6 / 域名 | `192.168.1.1`, `mongo1.example.com` |
+| 端口 | 节点端口号 | `27010`, `27011`, `27017` |
+| **配置文件绝对路径** | **mongod.conf 或 mongos.conf 的完整路径** | `/root/mongo_data/mydb_config_1/mongod.conf` |
+
+> **注意**：第5字段（配置文件路径）是 `start_mongo_shard_cluster.sh` 特有的，用于指定各节点的配置文件位置。
+
+**示例**（1分片 + 3config + 3mongos）：
+
+```bash
+# config 配置服务器 (3节点复制集)
+config testsuit_rs 192.168.1.1 27010 /root/mongo_data/mydb_config_1/mongod.conf
+config testsuit_rs 192.168.1.2 27010 /root/mongo_data/mydb_config_2/mongod.conf
+config testsuit_rs 192.168.1.3 27010 /root/mongo_data/mydb_config_3/mongod.conf
+
+# shard1 分片1 (3节点复制集)
+shard1 testsuit_rs 192.168.1.1 27011 /root/mongo_data/mydb_shard1_1/mongod.conf
+shard1 testsuit_rs 192.168.1.2 27011 /root/mongo_data/mydb_shard1_2/mongod.conf
+shard1 testsuit_rs 192.168.1.3 27011 /root/mongo_data/mydb_shard1_3/mongod.conf
+
+# mongos 路由 (3节点)
+mongos testsuit_rs 192.168.1.1 27017 /root/mongo_data/mydb_mongos_1/mongos.conf
+mongos testsuit_rs 192.168.1.2 27017 /root/mongo_data/mydb_mongos_2/mongos.conf
+mongos testsuit_rs 192.168.1.3 27017 /root/mongo_data/mydb_mongos_3/mongos.conf
+```
+
+> 完整示例参考 `start_iplist.example`
+
+### 9.2 启动集群命令
+
+```bash
+sh start_mongo_shard_cluster.sh <start_iplist.txt> <用户名> <密码> <软件包安装路径>
+```
+
+| 参数 | 必填 | 说明 | 示例 |
+|------|------|------|------|
+| start_iplist.txt | 是 | 节点列表文件（含配置文件路径） | `start_iplist.txt` |
+| 用户名 | 是 | 管理员用户名 | `admin` |
+| 密码 | 是 | 管理员密码 | `eric123` |
+| 软件包安装路径 | 是 | MongoDB 程序目录 | `/root/mongo_install` |
+
+**执行示例**：
+
+```bash
+sh start_mongo_shard_cluster.sh start_iplist.txt admin eric123 /root/mongo_install
+```
+
+### 9.3 启动内部流程
+
+脚本自动执行以下步骤：
+
+#### 步骤1：软件检测
+
+```
+→ 检测各节点是否已安装 MongoDB
+→ 如未安装，自动下载并安装 MongoDB 8.0.6
+```
+
+#### 步骤2：启动 Config Server
+
+```
+→ 先启动 config 节点 (无启动顺序要求)
+→ mongod -f <配置文件>
+```
+
+#### 步骤3：启动 Shard 节点
+
+```
+→ 启动所有 shard 节点
+→ mongod -f <配置文件>
+→ 等待复制集选举完成
+```
+
+#### 步骤4：启动 mongos 路由
+
+```
+→ 最后启动 mongos 节点
+→ mongos -f <配置文件>
+```
+
+> **注意**：启动顺序与关闭顺序相反。先启动数据节点，最后启动路由节点。
+
+### 9.4 脚本特性
+
+- **进程检测**：已运行的节点会跳过，避免重复启动
+- **状态验证**：启动后自动验证各节点状态
+- **并发启动**：同类型节点可并发启动
+- **顺序启动**：config → shard → mongos
+
+---
+
+## 10. 注意事项
 
 ### keyfile
 

@@ -1,0 +1,55 @@
+# MongoDB 复制集 - 新增节点列表
+# 用法: 配合 add_replica_node.sh 使用, 用于向已有复制集添加新节点
+# 格式: 类型 复制集前缀 IP地址/域名 端口
+#
+# 字段说明:
+#   类型       - 填写 shard 类型(shardN) 或 config
+#   复制集前缀  - 复制集名前缀, 必须与目标复制集一致
+#   IP地址     - 支持 IPv4 / IPv6 / 域名
+#   端口       - 节点端口号
+#
+# 支持的地址格式:
+#   IPv4   - 192.168.1.10
+#   IPv6   - 2001:db8::10 (不需要加方括号)
+#   域名   - mongo-node10.example.com
+#
+# 注意:
+#   1. 只需填写要新增的节点, 不需要填写现有节点
+#   2. 类型和复制集前缀必须与目标复制集一致
+#   3. 需要提供目标复制集主节点的地址和端口
+#   4. 以#开头的行和空行会被跳过
+#   5. IPv6 地址不需要加方括号
+#   6. 新节点目录会自动命名为: {DB_NAME}_{类型}_{序号}
+#
+# ============================================================
+# 示例1: 向 shard1 复制集新增节点 (IPv4)
+# ============================================================
+# sh add_replica_node.sh add_iplist.txt admin eric123 /root/mongo_install /root/mongo_data /root/mongodb_script/keyfile 192.168.1.1 27011 mydb
+
+# 向 shard1 复制集新增 3 个节点
+shard1 testsuit_rs 192.168.1.10 27011
+shard1 testsuit_rs 192.168.1.11 27011
+shard1 testsuit_rs 192.168.1.12 27011
+
+# ============================================================
+# 示例2: 向 config 复制集新增节点
+# ============================================================
+# sh add_replica_node.sh add_iplist.txt admin eric123 /root/mongo_install /root/mongo_data /root/mongodb_script/keyfile 192.168.1.1 27010 mydb
+# config testsuit_rs 192.168.1.10 27010
+# config testsuit_rs 192.168.1.11 27010
+
+# ============================================================
+# 示例3: IPv6 环境
+# ============================================================
+# sh add_replica_node.sh add_iplist.txt admin eric123 /root/mongo_install /root/mongo_data /root/mongodb_script/keyfile 2001:db8::1 27011 mydb
+# shard1 testsuit_rs 2001:db8::10 27011
+# shard1 testsuit_rs 2001:db8::11 27011
+# shard1 testsuit_rs 2001:db8::12 27011
+
+# ============================================================
+# 示例4: 域名环境
+# ============================================================
+# sh add_replica_node.sh add_iplist.txt admin eric123 /root/mongo_install /root/mongo_data /root/mongodb_script/keyfile mongo-primary.example.com 27011 mydb
+# shard1 testsuit_rs shard1-node10.example.com 27011
+# shard1 testsuit_rs shard1-node11.example.com 27011
+# shard1 testsuit_rs shard1-node12.example.com 27011
