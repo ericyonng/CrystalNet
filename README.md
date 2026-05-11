@@ -154,9 +154,6 @@
 
 测试用例:CrystalNet\testsuit\testsuit\testinst\TestCoroutine.cpp
 
-Claude Code给的评价:
-
-![image-20260326144954396](./doc/CoTaskClaudeCode.log)
 
 # Log 使用
 
