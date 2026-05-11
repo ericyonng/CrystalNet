@@ -53,6 +53,12 @@ fi
 # 创建目录
 if [ -e "${LOCAL_TARGET_DB_PATH}" ]; then
     echo "exists dir:${LOCAL_TARGET_DB_PATH} ..."
+    # 检查目录是否包含数据文件（排除 mongod.conf 和 keyfile）
+    DATA_FILES=$(ls ${LOCAL_TARGET_DB_PATH}/ 2>/dev/null | grep -vE '^(mongod\.conf|mongod\.log|keyfile)$' | wc -l)
+    if [ "${DATA_FILES}" -gt 0 ]; then
+        echo "警告: 数据目录 ${LOCAL_TARGET_DB_PATH} 包含 ${DATA_FILES} 个数据文件"
+        echo "这些文件可能是之前 mongod 遗留的，将被复用"
+    fi
 else
     echo "create dir:${LOCAL_TARGET_DB_PATH} ..."
     mkdir -p ${LOCAL_TARGET_DB_PATH}
@@ -93,10 +99,14 @@ else
 
     # 拷贝keyfile,并设置文件掩码, 否则会启动失败
     TARGET_KEYFILE_PATH=${LOCAL_TARGET_DB_PATH}/keyfile
+    echo "准备复制 keyfile: ${LOCAL_KEYFILE_PATH} => ${TARGET_KEYFILE_PATH}"
+    if [ ! -f "${LOCAL_KEYFILE_PATH}" ]; then
+        echo "错误: 源 keyfile 不存在: ${LOCAL_KEYFILE_PATH}" >&2
+        exit 1
+    fi
     cp -rf ${LOCAL_KEYFILE_PATH} ${TARGET_KEYFILE_PATH}
     chmod 600 ${TARGET_KEYFILE_PATH}
-
-    echo "keyfile:${TARGET_KEYFILE_PATH}"
+    echo "keyfile 复制完成: ${TARGET_KEYFILE_PATH}, 权限: $(ls -la ${TARGET_KEYFILE_PATH} | awk '{print $1}')"
 
     # 启用认证
     if [ -z "${LOCAL_IS_NO_AUTH}" ]; then
@@ -115,12 +125,29 @@ else
         echo "    clusterRole: ${LOCAL_SHARDING_CLUSTER_ROLE}" >> ${MONGOD_CONF}
     fi
 
+    # 显示最终的 mongod.conf 内容
+    echo "========== mongod.conf 内容 =========="
+    cat ${MONGOD_CONF}
+    echo "======================================"
+
     # 启动mongodb 实例, 创建用户并赋予权限
-    mongod -f ${MONGOD_CONF} || {
-        echo "错误：启动 MongoDB 失败， LOCAL_SHARDING_CLUSTER_ROLE:${LOCAL_SHARDING_CLUSTER_ROLE} 请检查配置或日志 MONGOD_CONF:${MONGOD_CONF}！" >&2
+    echo "正在启动 mongod..."
+    mongod -f ${MONGOD_CONF}
+    MONGOD_EXIT_CODE=$?
+
+    if [ ${MONGOD_EXIT_CODE} -ne 0 ]; then
+        echo "错误：mongod 启动失败，退出码: ${MONGOD_EXIT_CODE}" >&2
+        echo "========== mongod.log 错误信息 ==========" >&2
+        if [ -f "${LOCAL_TARGET_DB_PATH}/mongod.log" ]; then
+            tail -50 "${LOCAL_TARGET_DB_PATH}/mongod.log" >&2
+        else
+            echo "mongod.log 文件不存在" >&2
+        fi
+        echo "=========================================" >&2
+        echo "MONGOD_CONF 内容:" >&2
         cat ${MONGOD_CONF} >&2
         exit 1
-    }
+    fi
 fi
 
 

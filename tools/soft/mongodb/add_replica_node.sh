@@ -219,14 +219,15 @@ exec_on_host() {
     fi
 }
 
-# 判断目标机器是否已安装 mongodb
+# 判断目标机器是否已安装 mongodb (使用通用检测方式: which mongod 或常见安装路径)
 is_mongo_installed() {
     local ip=$1
-    local check_cmd="[ -d '${INSTALL_PATH}' ] && [ -x '${INSTALL_PATH}/mongodb-linux-x86_64-rhel88-8.0.6/bin/mongod' ]"
+    # 优先使用 which mongod 检测，其次检查用户传入的 INSTALL_PATH
+    local check_cmd="(which mongod &>/dev/null && [ -x \"\$(which mongod)\") || ([ -d '${INSTALL_PATH}' ] && [ -x '${INSTALL_PATH}/mongodb-linux-x86_64-rhel88-8.0.6/bin/mongod' ]))"
     if is_local_host "${ip}" "${LOCAL_IP_LIST}"; then
-        bash -c "${check_cmd}" 2>/dev/null
+        bash -c "${check_cmd}"
     else
-        ssh root@${ip} "${check_cmd}" 2>/dev/null
+        ssh root@${ip} "${check_cmd}"
     fi
 }
 
@@ -352,10 +353,17 @@ for ip in "${!ALL_IPS[@]}"; do
             if is_mongo_installed ${ip}; then
                 echo "本地节点 ip:${ip} 已安装 mongodb, 跳过安装."
                 mkdir -p ${TARGET_SCRIPT_PATH}
+                # 检查源 keyfile 是否存在
+                if [ ! -f "${KEYFILE_PATH}" ]; then
+                    echo "错误: 源 keyfile 不存在: ${KEYFILE_PATH}" >&2
+                    exit 1
+                fi
                 cp -f ${KEYFILE_PATH} ${TARGET_SCRIPT_PATH}/keyfile || {
                     echo "错误：拷贝 keyfile 失败" >&2
                     exit 1
                 }
+                chmod 600 ${TARGET_SCRIPT_PATH}/keyfile
+                echo "本地 keyfile 已准备: ${TARGET_SCRIPT_PATH}/keyfile, 权限: $(ls -la ${TARGET_SCRIPT_PATH}/keyfile | awk '{print $1}')"
             else
                 echo "本地节点 ip:${ip} 未安装 mongodb, 执行 init_package 和 init_env..."
                 . ${SCRIPT_PATH}/init_package.sh ${TMP_DIR}/${TGZ_FILE_NAME} ${TARGET_SCRIPT_PATH}
@@ -363,6 +371,7 @@ for ip in "${!ALL_IPS[@]}"; do
                     echo "错误：本地:$ip init_env.sh 失败" >&2
                     exit 1
                 }
+                # init_env 之后 keyfile 应该已经存在
             fi
             is_ip_init_dict[$ip]=1
         fi
@@ -374,11 +383,18 @@ for ip in "${!ALL_IPS[@]}"; do
                     echo "错误：${ip} 创建 ${TARGET_SCRIPT_PATH} 失败" >&2
                     exit 1
                 }
+                # 检查源 keyfile 是否存在
+                if [ ! -f "${KEYFILE_PATH}" ]; then
+                    echo "错误: 源 keyfile 不存在: ${KEYFILE_PATH}" >&2
+                    exit 1
+                fi
                 echo "拷贝keyfile到 ${ip}..."
                 scp_to_host ${ip} ${KEYFILE_PATH} ${TARGET_SCRIPT_PATH}/keyfile || {
                     echo "错误：scp keyfile 到 ${ip} 失败" >&2
                     exit 1
                 }
+                ssh root@${ip} "chmod 600 ${TARGET_SCRIPT_PATH}/keyfile"
+                echo "远程 ${ip} keyfile 已准备: ${TARGET_SCRIPT_PATH}/keyfile"
             else
                 echo "远程节点 ip:${ip} 未安装 mongodb, 执行 init_package 和 init_env..."
                 echo "创建目录: TMP_DIR:${TMP_DIR} ..."
@@ -439,18 +455,58 @@ for item in "${NEW_NODE_ARRAY[@]}"; do
     node_port=$(echo "${item}" | awk '{print $2}')
     node_id=$((MEMBER_COUNT + NODE_INDEX))
     node_db_subdir="${RS_NAME}_${NODE_INDEX}"
-    node_db_path="${DATA_PATH}/${node_db_subdir}"
+    # 移除 DATA_PATH 末尾的斜杠，避免路径中出现双斜杠
+    DATA_PATH_CLEAN=${DATA_PATH%/}
+    node_db_path="${DATA_PATH_CLEAN}/${node_db_subdir}"
 
     echo "启动新节点 [$NODE_INDEX]: $(format_host_port ${ip} ${node_port}), _id: ${node_id}, 数据目录: ${node_db_path}..."
 
+    # 确保 keyfile 存在于目标机器的 TARGET_SCRIPT_PATH 目录
     if is_local_host "${ip}" "${LOCAL_IP_LIST}"; then
-        sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${node_db_path} $(get_local_ip_by_type "${ip}" "${LOCAL_IP_LIST}") ${node_port} "${RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile ${NODE_ROLE} || {
+        # 本地节点: 确保 keyfile 存在
+        if [ ! -f "${TARGET_SCRIPT_PATH}/keyfile" ]; then
+            echo "警告: 本地 keyfile 不存在, 尝试从源 keyfile 复制..."
+            mkdir -p ${TARGET_SCRIPT_PATH}
+            cp -f ${KEYFILE_PATH} ${TARGET_SCRIPT_PATH}/keyfile || {
+                echo "错误: 复制 keyfile ${KEYFILE_PATH} => ${TARGET_SCRIPT_PATH}/keyfile 失败" >&2
+                exit 1
+            }
+            chmod 600 ${TARGET_SCRIPT_PATH}/keyfile
+        fi
+        echo "本地 keyfile 检查完成: ${TARGET_SCRIPT_PATH}/keyfile"
+    else
+        # 远程节点: 确保 keyfile 存在
+        KEYFILE_EXISTS=$(ssh root@${ip} "[ -f '${TARGET_SCRIPT_PATH}/keyfile' ] && echo 'yes' || echo 'no'")
+        if [ "${KEYFILE_EXISTS}" != "yes" ]; then
+            echo "警告: 远程 ${ip} keyfile 不存在, 尝试从源 keyfile 复制..."
+            ssh root@${ip} "mkdir -p ${TARGET_SCRIPT_PATH}" || {
+                echo "错误: ${ip} 创建目录 ${TARGET_SCRIPT_PATH} 失败" >&2
+                exit 1
+            }
+            scp_to_host ${ip} ${KEYFILE_PATH} ${TARGET_SCRIPT_PATH}/keyfile || {
+                echo "错误: scp keyfile 到 ${ip} 失败" >&2
+                exit 1
+            }
+            ssh root@${ip} "chmod 600 ${TARGET_SCRIPT_PATH}/keyfile"
+        fi
+        echo "远程 ${ip} keyfile 检查完成: ${TARGET_SCRIPT_PATH}/keyfile"
+    fi
+
+    # 准备启动脚本参数
+    local_ip_for_bind=$(get_local_ip_by_type "${ip}" "${LOCAL_IP_LIST}")
+
+    if is_local_host "${ip}" "${LOCAL_IP_LIST}"; then
+        echo "执行本地启动: create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${node_db_path} ${local_ip_for_bind} ${node_port} ${RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile ${NODE_ROLE}"
+        sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${node_db_path} "${local_ip_for_bind}" ${node_port} "${RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile ${NODE_ROLE} || {
             echo "错误：新节点 $(format_host_port ${ip} ${node_port}) 启动失败" >&2
+            echo "请检查日志: ${node_db_path}/mongod.log" >&2
             exit 1
         }
     else
-        ssh root@${ip} "source ~/.bash_profile 2>/dev/null; sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${node_db_path} ${ip} ${node_port} \"${RS_NAME}\" ${TARGET_SCRIPT_PATH}/keyfile ${NODE_ROLE}" || {
+        echo "执行远程启动 ${ip}: create_mongodb_inst.sh ..."
+        ssh root@${ip} "source ~/.bash_profile 2>/dev/null; bash -u ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${node_db_path} ${ip} ${node_port} \"${RS_NAME}\" ${TARGET_SCRIPT_PATH}/keyfile ${NODE_ROLE} 2>&1" || {
             echo "错误：新节点 $(format_host_port ${ip} ${node_port}) 启动失败" >&2
+            echo "请检查日志: ${node_db_path}/mongod.log" >&2
             exit 1
         }
     fi
