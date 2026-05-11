@@ -1,0 +1,52 @@
+# MongoDB 分片集群启动配置文件
+# 格式: 节点类型 复制集前缀 IP 端口 配置文件绝对路径
+#
+# 节点类型:
+#   config  - 配置节点
+#   shard1, shard2, ... - 分片节点
+#   mongos - 路由节点
+#
+# 复制集前缀: 同一集群的所有节点使用相同的复制集前缀
+#
+# IP: 节点IP或主机名
+# 端口: mongod/mongos 监听端口
+# 配置文件绝对路径: mongod.conf 或 mongos.conf 的完整路径
+#
+# 注意: 配置文件必须存在于对应的机器上
+#       远程节点的配置文件路径应该是远程机器上的绝对路径
+#
+#=========================================
+
+# Config 配置节点 (3节点副本集)
+config testsuit_rs 127.0.0.1 27010 /root/mongo_data/mydb_config_1/mongod.conf
+config testsuit_rs 127.0.0.1 27020 /root/mongo_data/mydb_config_2/mongod.conf
+config testsuit_rs 127.0.0.1 27030 /root/mongo_data/mydb_config_3/mongod.conf
+
+# Shard1 分片节点 (3节点副本集)
+shard1 testsuit_rs 127.0.0.1 27011 /root/mongo_data/mydb_shard1_1/mongod.conf
+shard1 testsuit_rs 127.0.0.1 27012 /root/mongo_data/mydb_shard1_2/mongod.conf
+shard1 testsuit_rs 127.0.0.1 27013 /root/mongo_data/mydb_shard1_3/mongod.conf
+
+# Shard2 分片节点 (可选，3节点副本集)
+# shard2 testsuit_rs 127.0.0.1 27021 /root/mongo_data/mydb_shard2_1/mongod.conf
+# shard2 testsuit_rs 127.0.0.1 27022 /root/mongo_data/mydb_shard2_2/mongod.conf
+# shard2 testsuit_rs 127.0.0.1 27023 /root/mongo_data/mydb_shard2_3/mongod.conf
+
+# Mongos 路由节点 (建议至少2个实现高可用)
+mongos testsuit_rs 127.0.0.1 27017 /root/mongo_data/mydb_mongos_1/mongos.conf
+mongos testsuit_rs 127.0.0.1 27018 /root/mongo_data/mydb_mongos_2/mongos.conf
+
+#=========================================
+# 多机器部署示例:
+# 假设有三台机器: 192.168.1.10, 192.168.1.11, 192.168.1.12
+#
+# config testsuit_rs 192.168.1.10 27010 /root/mongo_data/mydb_config_1/mongod.conf
+# config testsuit_rs 192.168.1.11 27010 /root/mongo_data/mydb_config_2/mongod.conf
+# config testsuit_rs 192.168.1.12 27010 /root/mongo_data/mydb_config_3/mongod.conf
+#
+# shard1 testsuit_rs 192.168.1.10 27011 /root/mongo_data/mydb_shard1_1/mongod.conf
+# shard1 testsuit_rs 192.168.1.11 27011 /root/mongo_data/mydb_shard1_2/mongod.conf
+# shard1 testsuit_rs 192.168.1.12 27011 /root/mongo_data/mydb_shard1_3/mongod.conf
+#
+# mongos testsuit_rs 192.168.1.10 27017 /root/mongo_data/mydb_mongos_1/mongos.conf
+# mongos testsuit_rs 192.168.1.11 27017 /root/mongo_data/mydb_mongos_2/mongos.conf
