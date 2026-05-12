@@ -299,7 +299,7 @@ mongodb操作触发异常会抛异常, 所以需要catch
     
     
     
-    
+  
 * 写操作必须要开启大多数写成功才算成功， 必须写操作落盘到journal后才算成功：
       
 
@@ -318,9 +318,12 @@ mongodb操作触发异常会抛异常, 所以需要catch
   
 
 * 读操作可以设置从节点读取, nearest读取等
+  
   * ![image-20250518180853553](./img/readPreference配置.png)
 
 
 
 * 比较严格的读隔离级别，线性化读
   * ![image-20250518190650496](D:\workplace\Development\CrystalNet\CrystalNet\doc\mongodbimage\线性化读.png)
+
+* Bson上限一般不会触及, 如果突破应该采用拆分 + 引用解决，GridFS有性能开销, 分布式多文档事务也有锁开销等
