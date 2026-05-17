@@ -32,6 +32,8 @@
 #pragma once
 
 #include <OptionComp/storage/MongoDB/Interface/IMongoDbMgr.h>
+#include <mongocxx/instance.hpp>
+#include <mongocxx/pool.hpp>
 
 KERNEL_BEGIN
 
@@ -49,7 +51,14 @@ public:
     virtual void DefaultMaskReady(bool isReady) override {}
     virtual void OnRegisterComps() override;
 
-    void SetUri(mongocxx::uri &&uri) override;
+    void SetUri(const KERNEL_NS::LibString &uri) override;
+
+    // 默认如果不传入uri就是srv格式连接mongos(自动发现, 动态解析域名，支持断开重连新ip)
+    // 账号密码
+    virtual void SetAccountPwd(const KERNEL_NS::LibString &account, const KERNEL_NS::LibString &pwd) override;
+    // 设置srv连接的域名
+    virtual void SetSrvHostName(const KERNEL_NS::LibString &hostName) override;
+    
     #ifdef CRYSTAL_NET_CPP20
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, UInt64 keyValue) override;
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, KERNEL_NS::LibString keyValue) override;
@@ -61,10 +70,19 @@ protected:
     virtual Int32 _OnHostStart() override;
     virtual void _OnHostBeforeCompsWillClose() override;
     virtual void _OnHostClose() override;
+    void _Clear();
 
     // 连接mongo
-    mongocxx::uri _uri;
-    KERNEL_NS::LibString _uriString;
+    KERNEL_NS::LibString _uri;
+
+    // srv必要信息
+    KERNEL_NS::LibString _account;
+    KERNEL_NS::LibString _pwd;
+    KERNEL_NS::LibString _srvHostName;
+
+    // 初始化mongodb
+    static mongocxx::instance _instance;
+    mongocxx::pool *_connectionPool;
 };
 
 KERNEL_END

@@ -42,7 +42,547 @@
 #include <protocols/protocols.h>
 
 
+// ==================== 分片集群管理实现 ====================
+
+namespace
+{
+    // 分片集群管理函数 (使用 pool 连接池)
+    static bool CheckDatabaseSharded(mongocxx::pool &pool, const std::string &dbName);
+    static bool EnableDatabaseSharding(mongocxx::pool &pool, const std::string &dbName);
+    static bool CheckCollectionSharded(mongocxx::pool &pool, const std::string &dbName, const std::string &collName);
+    static bool ShardCollection(mongocxx::pool &pool, const std::string &dbName, const std::string &collName, Int32 numChunks = 1024);
+    static bool CheckIndexExists(mongocxx::collection &coll, const std::string &indexName);
+    static bool CreateIndex(mongocxx::collection &coll, const std::string &indexName, const std::vector<std::pair<std::string, Int32>> &fields, bool unique = false);
+
+    // ==================== 分布式锁实现 ====================
+    // 使用 MongoDB findAndModify 实现分布式锁，解决多进程并发初始化问题
+    
+    struct ShardingLock
+    {
+        std::string lockId;           // 锁 ID
+        std::string lockCollection;   // 锁目标 (dbName.collName 或 dbName)
+        bool acquired = false;        // 是否成功获取锁
+    };
+    
+    // 锁过期时间 (秒)，防止进程崩溃后锁不释放
+    static constexpr Int32 LOCK_EXPIRE_SECONDS = 30;
+    
+    // 尝试获取分布式锁 (使用 findOneAndUpdate + upsert 原子操作)
+    // 逻辑: 如果锁不存在则创建; 如果锁存在但已过期则更新; 如果锁存在且未过期则失败
+    static ShardingLock TryAcquireLock(mongocxx::client &client, const std::string &lockName, const std::string &ownerId)
+    {
+        ShardingLock lock;
+        lock.lockCollection = lockName;
+        lock.lockId = ownerId;
+        
+        try
+        {
+            auto locksDb = client["config"]["_sharding_locks"];
+            auto now = std::chrono::system_clock::now();
+            auto expireTime = bsoncxx::types::b_date(now + std::chrono::seconds(LOCK_EXPIRE_SECONDS));
+            
+            // 原子性获取锁的 filter:
+            // 1. expireAt 字段不存在 (锁不存在)
+            // 2. expireAt < now (锁已过期)
+            bsoncxx::builder::basic::document filterDoc;
+            filterDoc.append(bsoncxx::builder::basic::kvp("_id", lockName));
+            filterDoc.append(bsoncxx::builder::basic::kvp("$or", bsoncxx::builder::basic::make_array(
+                bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("expireAt", bsoncxx::builder::basic::make_document(
+                    bsoncxx::builder::basic::kvp("$exists", false)
+                ))),
+                bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("expireAt", bsoncxx::builder::basic::make_document(
+                    bsoncxx::builder::basic::kvp("$lt", bsoncxx::types::b_date(now))  // 已过期
+                )))
+            )));
+            
+            // 更新操作: 设置 owner 和新的过期时间
+            bsoncxx::builder::basic::document updateDoc;
+            updateDoc.append(bsoncxx::builder::basic::kvp("owner", ownerId));
+            updateDoc.append(bsoncxx::builder::basic::kvp("expireAt", expireTime));
+            
+            mongocxx::options::find_one_and_update options;
+            options.upsert(true);
+            options.return_document(mongocxx::options::return_document::k_after);
+            
+            auto result = locksDb.find_one_and_update(filterDoc.view(), updateDoc.view(), options);
+            
+            if (result)
+            {
+                auto doc = result->view();
+                auto ownerIter = doc.find("owner");
+                
+                // 如果 owner 是我们设置的，说明获取成功
+                if (ownerIter != doc.end())
+                {
+                    std::string setOwner = ownerIter->get_string().value.data();
+                    if (setOwner == ownerId)
+                    {
+                        lock.acquired = true;
+                        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "lock %s acquired by %s"), lockName.c_str(), ownerId.c_str());
+                        return lock;
+                    }
+                }
+                
+                // 能走到这里说明 owner 不是我们设置的（并发情况）
+                std::string currentOwner = (ownerIter != doc.end()) ? ownerIter->get_string().value.data() : "unknown";
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "lock %s already held by %s, waiting..."), 
+                            lockName.c_str(), currentOwner.c_str());
+            }
+            else
+            {
+                // result 为空表示没有匹配任何文档（理论上不应该发生，因为有 upsert:true）
+                lock.acquired = true;
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "lock %s acquired by %s (upserted)"), lockName.c_str(), ownerId.c_str());
+            }
+        }
+        catch (const mongocxx::exception &e)
+        {
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "TryAcquireLock failed:%s"), e.what());
+        }
+        
+        return lock;
+    }
+    
+    // 释放分布式锁
+    static void ReleaseLock(mongocxx::client &client, ShardingLock &lock)
+    {
+        if (!lock.acquired)
+            return;
+            
+        try
+        {
+            auto locksDb = client["config"]["_sharding_locks"];
+            auto filter = bsoncxx::builder::basic::make_document(
+                bsoncxx::builder::basic::kvp("_id", lock.lockCollection),
+                bsoncxx::builder::basic::kvp("owner", lock.lockId)  // 只删除自己拥有的锁
+            );
+            
+            locksDb.delete_one(filter.view());
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "lock %s released"), lock.lockCollection.c_str());
+        }
+        catch (const mongocxx::exception &e)
+        {
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "ReleaseLock failed:%s"), e.what());
+        }
+    }
+
+    // ==================== 分片集群管理实现 ====================
+
+    // 检查数据库是否已启用分片
+    static bool CheckDatabaseSharded(mongocxx::pool &pool, const std::string &dbName)
+    {
+        try
+        {
+            // 从连接池获取连接
+            auto client = pool.acquire();
+            
+            // 通过 config.databases 检查数据库是否已启用分片
+            auto configDb = (*client)["config"];
+            auto collections = configDb["databases"];
+            
+            auto filter = bsoncxx::builder::basic::make_document(
+                bsoncxx::builder::basic::kvp("_id", dbName)
+            );
+
+            auto result = collections.find_one(filter.view());
+            if (!result)
+            {
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "database %s not found in config.databases, need to enable sharding"), dbName.c_str());
+                return false;
+            }
+            
+            auto doc = result->view();
+            auto partitionedIter = doc.find("partitioned");
+            if (partitionedIter == doc.end())
+            {
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "database %s found but partitioned field missing, need to enable sharding"), dbName.c_str());
+            return false;
+        }
+        
+        bool partitioned = partitionedIter->get_bool();
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "database %s partitioned:%d"), dbName.c_str(), partitioned);
+        return partitioned;
+    }
+    catch (const mongocxx::exception &e)
+    {
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "CheckDatabaseSharded failed:%s"), e.what());
+        return false;
+    }
+}
+
+    // 启用数据库分片 (线程安全，支持多进程并发)
+    static bool EnableDatabaseSharding(mongocxx::pool &pool, const std::string &dbName)
+    {
+        // 生成唯一锁 ID (使用 UUID)
+        std::string lockOwner = KERNEL_NS::GuidUtil::GenStr().GetRaw();
+        std::string lockName = "db_sharding_" + dbName;
+        
+        try
+        {
+            // 先检查是否已启用
+            if (CheckDatabaseSharded(pool, dbName))
+            {
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "database %s already sharded, skip"), dbName.c_str());
+                return true;
+            }
+            
+            // 从连接池获取连接用于获取锁
+            auto client = pool.acquire();
+            
+            // 尝试获取分布式锁
+            ShardingLock lock = TryAcquireLock(*client, lockName, lockOwner);
+            if (!lock.acquired)
+            {
+                // 等待锁释放后再次检查状态
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "waiting for lock %s, will check sharding status after timeout"), lockName.c_str());
+                // 再次检查分片状态(锁可能已超时自动释放)
+                std::this_thread::sleep_for(std::chrono::seconds(LOCK_EXPIRE_SECONDS + 1));
+                return CheckDatabaseSharded(pool, dbName);
+            }
+            
+            // 获取锁成功，再次检查是否已被其他进程启用
+            if (CheckDatabaseSharded(pool, dbName))
+            {
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "database %s already sharded (checked after lock), skip"), dbName.c_str());
+                ReleaseLock(*client, lock);
+                return true;
+            }
+            
+            // 通过 admin 数据库执行 enableSharding 命令
+            auto adminDb = (*client)["admin"];
+            auto cmd = bsoncxx::builder::basic::make_document(
+                bsoncxx::builder::basic::kvp("enableSharding", dbName)
+            );
+            
+            auto result = adminDb.run_command(cmd.view());
+            auto resultView = result.view();
+            
+            // 释放锁
+            ReleaseLock(*client, lock);
+            
+            // 检查命令执行结果
+            auto okIter = resultView.find("ok");
+            if (okIter != resultView.end() && okIter->get_double() > 0)
+            {
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "enableSharding %s success"), dbName.c_str());
+                return true;
+            }
+            
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "enableSharding %s failed:%s"), dbName.c_str(), bsoncxx::to_json(resultView).c_str());
+            return false;
+        }
+        catch (const mongocxx::exception &e)
+        {
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "EnableDatabaseSharding failed:%s"), e.what());
+        return false;
+    }
+}
+
+    // 检查 collection 是否已设置分片键
+    static bool CheckCollectionSharded(mongocxx::pool &pool, const std::string &dbName, const std::string &collName)
+    {
+    try
+    {
+        // 从连接池获取连接
+        auto client = pool.acquire();
+        
+        // 通过 config.collections 检查 collection 是否已设置分片键
+        auto configDb = (*client)["config"];
+        auto collections = configDb["collections"];
+        
+        std::string fullNs = dbName + "." + collName;
+        auto filter = bsoncxx::builder::basic::make_document(
+            bsoncxx::builder::basic::kvp("_id", fullNs)
+        );
+        
+        auto result = collections.find_one(filter.view());
+        if (!result)
+        {
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "collection %s not found in config.collections, need to shard"), fullNs.c_str());
+            return false;
+        }
+        
+        auto doc = result->view();
+        auto keyIter = doc.find("key");
+        if (keyIter == doc.end())
+        {
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "collection %s found but key field missing, need to shard"), fullNs.c_str());
+            return false;
+        }
+        
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "collection %s already sharded with key:%s"), 
+                    fullNs.c_str(), bsoncxx::to_json(keyIter->get_document().view()).c_str());
+        return true;
+    }
+    catch (const mongocxx::exception &e)
+    {
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "CheckCollectionSharded failed:%s"), e.what());
+        return false;
+    }
+}
+
+// 创建分片键 (复合分片键, playerId hash分片 + CreateTime 范围分片, 线程安全)
+    static bool ShardCollection(mongocxx::pool &pool, const std::string &dbName, const std::string &collName, Int32 numChunks)
+    {
+        // 生成唯一锁 ID (使用 UUID)
+        std::string lockOwner = KERNEL_NS::GuidUtil::GenStr().GetRaw();
+        std::string fullNs = dbName + "." + collName;
+        std::string lockName = "coll_sharding_" + fullNs;
+        
+        try
+        {
+            // 先检查是否已设置分片键
+            if (CheckCollectionSharded(pool, dbName, collName))
+            {
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "collection %s.%s already sharded, skip"), dbName.c_str(), collName.c_str());
+                return true;
+            }
+            
+            // 确保数据库已启用分片
+            if (!EnableDatabaseSharding(pool, dbName))
+            {
+                g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "failed to enable sharding for database %s"), dbName.c_str());
+                return false;
+            }
+            
+            // 从连接池获取连接用于获取锁
+            auto client = pool.acquire();
+            
+            // 尝试获取分布式锁
+            ShardingLock lock = TryAcquireLock(*client, lockName, lockOwner);
+            if (!lock.acquired)
+            {
+                // 等待锁释放后再次检查状态
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "waiting for lock %s, will check sharding status after timeout"), lockName.c_str());
+                std::this_thread::sleep_for(std::chrono::seconds(LOCK_EXPIRE_SECONDS + 1));
+                return CheckCollectionSharded(pool, dbName, collName);
+            }
+            
+            // 获取锁成功，再次检查是否已被其他进程设置
+            if (CheckCollectionSharded(pool, dbName, collName))
+            {
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "collection %s.%s already sharded (checked after lock), skip"), dbName.c_str(), collName.c_str());
+                ReleaseLock(*client, lock);
+                return true;
+            }
+            
+            // 通过 admin 数据库执行 shardCollection 命令
+            // 复合分片键: playerId 使用 hash 分片, CreateTime 使用范围分片
+            auto adminDb = (*client)["admin"];
+            
+            auto cmd = bsoncxx::builder::basic::make_document(
+                bsoncxx::builder::basic::kvp("shardCollection", fullNs),
+                bsoncxx::builder::basic::kvp("key", bsoncxx::builder::basic::make_document(
+                    bsoncxx::builder::basic::kvp("playerId", "hashed")
+                )),
+                bsoncxx::builder::basic::kvp("numInitialChunks", numChunks)
+            );
+            
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "sharding collection %s with key:{playerId:'hashed', createTime:1}, numInitialChunks:%d"), 
+                        fullNs.c_str(), numChunks);
+            
+            auto result = adminDb.run_command(cmd.view());
+            auto resultView = result.view();
+            
+            // 释放锁
+            ReleaseLock(*client, lock);
+            
+            // 检查命令执行结果
+            auto okIter = resultView.find("ok");
+            if (okIter != resultView.end() && okIter->get_double() > 0)
+            {
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "shardCollection %s success"), fullNs.c_str());
+                return true;
+            }
+            
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "shardCollection %s failed:%s"), fullNs.c_str(), bsoncxx::to_json(resultView).c_str());
+            return false;
+        }
+    catch (const mongocxx::exception &e)
+    {
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "ShardCollection failed:%s"), e.what());
+        return false;
+    }
+}
+
+    // 检查索引是否存在
+    static bool CheckIndexExists(mongocxx::collection &coll, const std::string &indexName)
+    {
+    try
+    {
+        auto listIndex = coll.list_indexes();
+        for (auto &index : listIndex)
+        {
+            auto nameIter = index.find("name");
+            if (nameIter != index.end())
+            {
+                std::string name = nameIter->get_string().value.data();
+                if (name == indexName)
+                {
+                    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "index %s already exists"), indexName.c_str());
+                    return true;
+                }
+            }
+        }
+        
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "index %s not found"), indexName.c_str());
+        return false;
+    }
+    catch (const mongocxx::exception &e)
+    {
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "CheckIndexExists failed:%s"), e.what());
+        return false;
+    }
+}
+
+    // 创建索引 (支持复合索引)
+    static bool CreateIndex(mongocxx::collection &coll, const std::string &indexName, 
+                           const std::vector<std::pair<std::string, Int32>> &fields, bool unique)
+    {
+        try
+        {
+            // 先检查索引是否已存在
+            if (CheckIndexExists(coll, indexName))
+            {
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "index %s already exists, skip"), indexName.c_str());
+                return true;
+            }
+            
+            // 构建索引键文档
+            bsoncxx::builder::basic::document keyDoc;
+            for (const auto &field : fields)
+            {
+                keyDoc.append(bsoncxx::builder::basic::kvp(field.first, field.second));
+            }
+            
+            // 使用 mongocxx::options::index_options 构建索引选项
+            mongocxx::options::index options;
+            options.unique(unique);
+            options.name(indexName);
+            
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "creating index %s on fields:%s, unique:%d"), 
+                        indexName.c_str(), bsoncxx::to_json(keyDoc.view()).c_str(), unique);
+            
+            coll.create_index(keyDoc.view(), options);
+            
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "index %s created successfully"), indexName.c_str());
+            return true;
+        }
+        catch (const mongocxx::exception &e)
+        {
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "CreateIndex %s failed:%s"), indexName.c_str(), e.what());
+            return false;
+        }
+    }
+
+    // 分片集群管理测试 (使用 pool 连接池)
+    static void TestShardClusterManagement()
+    {
+    // mongocxx::instance instance;
+    
+    try
+    {
+        // 连接分片集群 (mongos 节点地址列表)
+        // 格式: mongodb://用户名:密码@host1:port1,host2:port2,.../?authSource=admin
+        // mongodb+srv://eric:pK38U~mTk%5E3@mongoscluster.ericyonng.com/
+        mongocxx::uri shardUri("mongodb://eric:pK38U~mTk%5E3@"
+            "mongos1.mongo.ericyonng.com:27016,"
+            "mongos2.mongo.ericyonng.com:27017,"
+            "mongos3.mongo.ericyonng.com:27018/"
+            "?authSource=admin&w=majority&journal=true&readConcernLevel=majority&maxPoolSize=100&connectTimeoutMS=10000&socketTimeoutMS=30000"
+            );
+        // std::string uriStr = "mongodb://testmongo:abc%5E159@127.0.0.1:28017,127.0.0.1:28018,127.0.0.1:28019/?authSource=admin&replicaSet=rs0&w=majority&journal=true&readConcernLevel=majority&maxPoolSize=100&connectTimeoutMS=10000&socketTimeoutMS=30000";
+        // mongocxx::uri uri(uriStr);
+        mongocxx::pool pool(shardUri);
+        
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "connected to shard cluster with pool"));
+        
+        // 测试数据库和集合名称
+        std::string dbName = "test_shard_db";
+        std::string collName = "test_shard_coll2";
+        
+        // 1. 启用数据库分片
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "===== Step 1: Enable database sharding ====="));
+        if (!EnableDatabaseSharding(pool, dbName))
+        {
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "failed to enable database sharding"));
+            return;
+        }
+        
+        // 2. 设置 collection 分片键
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "===== Step 2: Shard collection ====="));
+        if (!ShardCollection(pool, dbName, collName, 1024))
+        {
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "failed to shard collection"));
+            return;
+        }
+        
+        // 3. 创建索引
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "===== Step 3: Create indexes ====="));
+        // 从连接池获取连接用于创建索引
+        auto client = pool.acquire();
+        auto coll = (*client)[dbName][collName];
+        
+        // 创建索引: playerId (分片集群中不能对非分片键字段创建唯一索引，改为普通索引)
+        // std::vector<std::pair<std::string, Int32>> playerIdIndexFields = {{"playerId", 1}};
+        // if (!CreateIndex(coll, "idx_playerId", playerIdIndexFields, false))
+        // {
+        //     g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "failed to create playerId index"));
+        //     return;
+        // }
+        //
+        // // 创建普通索引: createTime
+        // std::vector<std::pair<std::string, Int32>> createTimeIndexFields = {{"createTime", 1}};
+        // if (!CreateIndex(coll, "idx_createTime", createTimeIndexFields, false))
+        // {
+        //     g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "failed to create createTime index"));
+        //     return;
+        // }
+        //
+        // // 创建复合索引: playerId + createTime
+        // std::vector<std::pair<std::string, Int32>> compoundIndexFields = {{"playerId", 1}, {"createTime", 1}};
+        // if (!CreateIndex(coll, "idx_playerId_createTime", compoundIndexFields, false))
+        // {
+        //     g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "failed to create compound index"));
+        //     return;
+        // }
+        
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "===== All shard cluster management operations completed successfully ====="));
+        
+        // 列出所有索引验证
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "===== Listing all indexes on collection %s.%s ====="), dbName.c_str(), collName.c_str());
+        auto listIndex = coll.list_indexes();
+        for (auto &index : listIndex)
+        {
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "index:%s"), bsoncxx::to_json(index).c_str());
+        }
+    }
+    catch (const mongocxx::exception &e)
+    {
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "TestShardClusterManagement failed:%s"), e.what());
+    }
+}
+}  // end anonymous namespace
+
+
 void TestMongo::Run()
+{
+    mongocxx::instance instance;
+
+    try
+    {
+        // 分片集群管理功能测试
+        TestShardClusterManagement();
+    }
+    catch (const mongocxx::exception &e)
+    {
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "An exception occurred:%s"), e.what());
+    }
+}
+
+
+
+static void Run2()
 {
     mongocxx::instance instance;
 
@@ -54,6 +594,9 @@ void TestMongo::Run()
         mongocxx::uri uri("mongodb://testmongo:abc%5E159%40@127.0.0.1:28017,127.0.0.1:28018,127.0.0.1:28019/?authSource=admin&replicaSet=rs0&w=majority&journal=true&readConcernLevel=majority");
         mongocxx::client client(uri);
         // End example code here
+
+        // 分片集群管理功能测试
+        TestShardClusterManagement();
 
         auto test2 = client["test2"];
         auto fruit = test2["fruit"];
@@ -70,7 +613,13 @@ void TestMongo::Run()
         }
 
         // 连接池
-        mongocxx::pool pool(uri);
+        mongocxx::uri shardUri("mongodb:://eric:pK38U~mTk%5E3@"
+        "mongos1.mongo.ericyonng.com:27016,"
+        "mongos2.mongo.ericyonng.com:27017,"
+        "mongos3.mongo.ericyonng.com:27018/"
+        "?authSource=admin&w=majority&journal=true&readConcernLevel=majority&maxPoolSize=100&connectTimeoutMS=10000&socketTimeoutMS=30000"
+        );
+        mongocxx::pool pool(shardUri);
 
         KERNEL_NS::LibThreadPool threadPool;
         threadPool.Init(0, 10);

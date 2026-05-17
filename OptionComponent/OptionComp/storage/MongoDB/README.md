@@ -32,8 +32,52 @@ driver api文档：https://mongocxx.org/api/mongocxx-4.1.0/
     通过DocDataBlock 来解析文档数据
 
   
+  
+  
+  
+  
 
+# CXX连mongodb分片集群, 建议使用mongodb+srv格式, 以便DNS动态解析地址
 
+例如: 连接字符串:
+
+```
+mongodb+srv://用户名:密码@mongoscluster.xxx.com/?authSource=admin&w=majority&journal=true&readConcernLevel=majority&maxPoolSize=100&connectTimeoutMS=10000&socketTimeoutMS=30000&retryWrites=true&retryReads=true
+```
+
+retryWrites: 断开连接时可重试, retryReads:断开连接时可以重读
+
+mongodb组件默认使用srv模式
+
+关于mongos自动发现，应该使用mongodb+srv格式, 自动发现mongos
+
+* 需要DNS解析配置
+
+* DNS需要配置多个mongos srv记录， 以及一条TXT记录
+
+  * ```
+    srv配置(dns添加多天srv记录，mongoscluster是自定义, 是TXT中的主机记录):
+    主机记录:
+    _mongodb._tcp.mongoscluster
+    记录类型:
+    SRV
+    记录值:
+    0 5 27018 mongos.xxx.com
+    mongos.xxx.com: mongos节点的域名
+    
+    dns添加一条TXT记录
+    TXT记录:
+    主机记录:mongoscluster
+    记录类型: TXT
+    记录值:authSource=admin
+    
+    compass连接填写:
+    mongodb+srv://用户名:密码@mongoscluster.xxx.com/?tls=false&authSource=admin
+    mongoscluster.xxx.com :srv域名
+    
+    ```
+
+    
 
 # 测试用例
 

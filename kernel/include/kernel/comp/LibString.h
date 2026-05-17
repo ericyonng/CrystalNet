@@ -739,6 +739,11 @@ public:
     // 移除bomb
     void remove_utf8_bomb();
 
+    operator std::string() const
+    {
+        return _raw;
+    }
+
 private:
     // 下一个utf8字符索引pos
     std::string::size_type _next_utf8_char_pos(std::string::size_type &beginBytePos) const;

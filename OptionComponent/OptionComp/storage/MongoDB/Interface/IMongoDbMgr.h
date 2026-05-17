@@ -33,8 +33,6 @@
 
 #include <kernel/comp/CompObject/CompObjectInc.h>
 
-#include <mongocxx/uri.hpp>
-
 
 KERNEL_BEGIN
 
@@ -45,7 +43,14 @@ class IMongoDbMgr : public CompHostObject
 public:
     IMongoDbMgr(UInt64 typeId): CompHostObject(typeId) {}
 
-    virtual  void SetUri(mongocxx::uri &&uri) = 0;
+    // 可以外部传入uri支持自行定制连接
+    virtual  void SetUri(const KERNEL_NS::LibString &uri) = 0;
+
+    // 默认如果不传入uri就是srv格式连接mongos(自动发现, 动态解析域名，支持断开重连新ip)
+    // 账号密码
+    virtual void SetAccountPwd(const KERNEL_NS::LibString &account, const KERNEL_NS::LibString &pwd) = 0;
+    // 设置srv连接的域名
+    virtual void SetSrvHostName(const KERNEL_NS::LibString &hostName) = 0;
 
 #ifdef CRYSTAL_NET_CPP20
     // 查
