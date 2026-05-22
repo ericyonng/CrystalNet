@@ -25,6 +25,7 @@
 // Description:
 
 #include <pch.h>
+#include <thread>
 #include <mongocxx/exception/exception.hpp>
 #include <kernel/comp/Utils/GuidUtil.h>
 #include <OptionComp/storage/MongoDB/Impl/MongodbConnection.h>
@@ -33,10 +34,11 @@
 #include <bsoncxx/json.hpp>
 #include <bsoncxx/builder/stream/document.hpp>
 
+#include "testsuit/testinst/TestMongo.h"
+
 
 KERNEL_BEGIN
-
-static constexpr Int32 MONGODB_LOCK_EXPIRE_SECONDS = 30;
+    static constexpr Int32 MONGODB_LOCK_EXPIRE_SECONDS = 30;
 
 MongodbConnection::MongodbConnection(mongocxx::pool::entry& entry)
     :_entry(entry)
@@ -49,7 +51,7 @@ MongodbConnection::~MongodbConnection()
     
 }
 
-KERNEL_NS::CoTask<bool> MongodbConnection::EnableDatabaseSharding(const KERNEL_NS::LibString &dbName)
+KERNEL_NS::CoTask<bool> MongodbConnection::EnableDatabaseSharding(KERNEL_NS::LibString dbName)
 {
     // 生成唯一锁 ID (使用 UUID)
     auto &&lockOwner = KERNEL_NS::GuidUtil::GenStr();
@@ -248,7 +250,7 @@ void MongodbConnection::ReleaseLock(KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS:
     }
 }
 
-bool MongodbConnection::ShardCollection(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collName, Int32 numChunks)
+KERNEL_NS::CoTask<bool> MongodbConnection::ShardCollection(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collName, std::vector<ShardKeyInfo> shardKeys, Int32 numChunks)
 {
     // 生成唯一锁 ID (使用 UUID)
     auto &&lockOwner = KERNEL_NS::GuidUtil::GenStr();
@@ -258,86 +260,115 @@ bool MongodbConnection::ShardCollection(const KERNEL_NS::LibString &dbName, cons
     try
     {
         // 先检查是否已设置分片键
-        if (CheckCollectionSharded(dbName, collName))
+        if (_CheckCollectionSharded(dbName, collName))
         {
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "collection %s.%s already sharded, skip"), dbName.c_str(), collName.c_str());
-            return true;
+            CLOG_DEBUG("collection %s.%s already sharded, skip", dbName.c_str(), collName.c_str());
+            co_return true;
         }
         
         // 确保数据库已启用分片
-        if (!EnableDatabaseSharding(dbName))
+        if (!co_await EnableDatabaseSharding(dbName))
         {
-            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "failed to enable sharding for database %s"), dbName.c_str());
-            return false;
+            CLOG_ERROR("failed to enable sharding for database %s, collName:%s", dbName.c_str(), collName.c_str());
+            co_return false;
         }
-        
-        // 从连接池获取连接用于获取锁
-        auto client = pool.acquire();
-        
-        // 尝试获取分布式锁
-        ShardingLock lock = TryAcquireLock(*client, lockName, lockOwner);
-        if (!lock.acquired)
+
+        for (Int32 idx = 0; idx < 3; ++idx)
         {
-            // 等待锁释放后再次检查状态
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "waiting for lock %s, will check sharding status after timeout"), lockName.c_str());
-            std::this_thread::sleep_for(std::chrono::seconds(LOCK_EXPIRE_SECONDS + 1));
-            return CheckCollectionSharded(pool, dbName, collName);
+            // 尝试获取分布式锁
+            auto lock = TryAcquireLock(lockName, lockOwner);
+            if (!lock->Acquired)
+            {
+                // 等待锁释放后再次检查状态
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "waiting for lock %s, will check sharding status after timeout"), lockName.c_str());
+                co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(MONGODB_LOCK_EXPIRE_SECONDS + 1));
+
+                if (_CheckCollectionSharded(dbName, lockName))
+                    co_return true;
+
+                continue;
+            }
+        
+            // 获取锁成功，再次检查是否已被其他进程设置
+            if (_CheckCollectionSharded(dbName, collName))
+            {
+                CLOG_DEBUG("collection %s.%s already sharded (checked after lock), skip", dbName.c_str(), collName.c_str());
+                ReleaseLock(lock);
+                co_return true;
+            }
+        
+            // 通过 admin 数据库执行 shardCollection 命令
+            // 复合分片键: playerId 使用 hash 分片, CreateTime 使用范围分片
+            auto adminDb = _entry["admin"];
+
+            auto builder = bsoncxx::builder::basic::document();
+            for (auto &shardKey : shardKeys)
+            {
+                switch (shardKey.ValueType)
+                {
+                    case ShardKeyType::HASHED:
+                    {
+                        builder.append(bsoncxx::builder::basic::kvp(shardKey.KeyName.GetRaw(), "hashed"));
+                        break;
+                    }
+                    case ShardKeyType::ASC:
+                    {
+                        builder.append(bsoncxx::builder::basic::kvp(shardKey.KeyName.GetRaw(), 1));
+                        break;
+                    }
+                    case ShardKeyType::DESC:
+                    {
+                        builder.append(bsoncxx::builder::basic::kvp(shardKey.KeyName.GetRaw(), -1));
+                        break;
+                    }
+                }
+            }
+            
+            auto cmd = bsoncxx::builder::basic::make_document(
+                bsoncxx::builder::basic::kvp("shardCollection", fullNs),
+                bsoncxx::builder::basic::kvp("key", builder.extract()),
+                bsoncxx::builder::basic::kvp("numInitialChunks", numChunks)
+            );
+
+            CLOG_INFO("sharding collection %s with key:%s, numInitialChunks:%d", fullNs.c_str(), bsoncxx::to_json(builder.view()).c_str(), numChunks);
+        
+            auto result = adminDb.run_command(cmd.view());
+            auto resultView = result.view();
+        
+            // 释放锁
+            ReleaseLock(lock);
+        
+            // 检查命令执行结果
+            auto okIter = resultView.find("ok");
+            if (okIter != resultView.end() && okIter->get_double() > 0)
+            {
+                CLOG_INFO("shardCollection %s success", fullNs.c_str());
+                co_return true;
+            }
+
+            CLOG_ERROR("shardCollection %s failed:%s", fullNs.c_str(), bsoncxx::to_json(resultView).c_str());
+            co_return false;
         }
-        
-        // 获取锁成功，再次检查是否已被其他进程设置
-        if (CheckCollectionSharded(pool, dbName, collName))
-        {
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "collection %s.%s already sharded (checked after lock), skip"), dbName.c_str(), collName.c_str());
-            ReleaseLock(*client, lock);
-            return true;
-        }
-        
-        // 通过 admin 数据库执行 shardCollection 命令
-        // 复合分片键: playerId 使用 hash 分片, CreateTime 使用范围分片
-        auto adminDb = (*client)["admin"];
-        
-        auto cmd = bsoncxx::builder::basic::make_document(
-            bsoncxx::builder::basic::kvp("shardCollection", fullNs),
-            bsoncxx::builder::basic::kvp("key", bsoncxx::builder::basic::make_document(
-                bsoncxx::builder::basic::kvp("playerId", "hashed")
-            )),
-            bsoncxx::builder::basic::kvp("numInitialChunks", numChunks)
-        );
-        
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "sharding collection %s with key:{playerId:'hashed', createTime:1}, numInitialChunks:%d"), 
-                    fullNs.c_str(), numChunks);
-        
-        auto result = adminDb.run_command(cmd.view());
-        auto resultView = result.view();
-        
-        // 释放锁
-        ReleaseLock(*client, lock);
-        
-        // 检查命令执行结果
-        auto okIter = resultView.find("ok");
-        if (okIter != resultView.end() && okIter->get_double() > 0)
-        {
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "shardCollection %s success"), fullNs.c_str());
-            return true;
-        }
-        
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "shardCollection %s failed:%s"), fullNs.c_str(), bsoncxx::to_json(resultView).c_str());
-        return false;
+
+        CLOG_ERROR("shardCollection try many times %s failed", fullNs.c_str());
+        co_return false;
     }
     catch (const mongocxx::exception &e)
     {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "ShardCollection failed:%s"), e.what());
-        return false;
+        CLOG_ERROR("ShardCollection failed:%s, dbName:%s, collName:%s, shardKeys:%s"
+            , e.code().message().c_str(), dbName.c_str(), collName.c_str(), KERNEL_NS::StringUtil::ToString(shardKeys, ',').c_str());
+        co_return false;
     }
     catch (const std::exception &e)
     {
-        
+        CLOG_ERROR("ShardCollection std exception failed:%s, dbName:%s, collName:%s, shardKeys:%s", e.what(), dbName.c_str(), collName.c_str(), KERNEL_NS::StringUtil::ToString(shardKeys, ',').c_str());
     }
     catch (...)
     {
-        
+        CLOG_ERROR("ShardCollection unknown failed:%s, dbName:%s, collName:%s, shardKeys:%s", dbName.c_str(), collName.c_str(), KERNEL_NS::StringUtil::ToString(shardKeys, ',').c_str());
     }
-    
+
+    co_return false;
 }
 
 bool MongodbConnection::_CheckDatabaseSharded(const KERNEL_NS::LibString &dbName)
@@ -390,5 +421,53 @@ bool MongodbConnection::_CheckDatabaseSharded(const KERNEL_NS::LibString &dbName
 
 
 
+// 检查 collection 是否已设置分片键
+bool MongodbConnection::_CheckCollectionSharded(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collName)
+{
+    try
+    {
+        // 通过 config.collections 检查 collection 是否已设置分片键
+        auto configDb = _entry["config"];
+        auto collections = configDb["collections"];
+        
+        auto &&fullNs = dbName + "." + collName;
+        auto filter = bsoncxx::builder::basic::make_document(
+            bsoncxx::builder::basic::kvp("_id", fullNs.GetRaw())
+        );
+        
+        auto result = collections.find_one(filter.view());
+        if (!result)
+        {
+            CLOG_DEBUG("collection %s not found in config.collections, need to shard", fullNs.c_str());
+            return false;
+        }
+        
+        auto doc = result->view();
+        auto keyIter = doc.find("key");
+        if (keyIter == doc.end())
+        {
+            CLOG_DEBUG("collection %s found but key field missing, need to shard", fullNs.c_str());
+            return false;
+        }
+
+        CLOG_DEBUG("collection %s already sharded with key:%s", fullNs.c_str(), bsoncxx::to_json(keyIter->get_document().view()).c_str());
+        return true;
+    }
+    catch (const mongocxx::exception &e)
+    {
+        CLOG_ERROR("CheckCollectionSharded failed:%s, dbName:%s, collName:%s", e.code().message().c_str(), dbName.c_str(), collName.c_str());
+        return false;
+    }
+    catch (const std::exception &e)
+    {
+        CLOG_ERROR("CheckCollectionSharded std exception::%s, dbName:%s, collName:%s", e.what(), dbName.c_str(), collName.c_str());
+        return false;
+    }
+    catch (...)
+    {
+        CLOG_ERROR("CheckCollectionSharded unknown exception, dbName:%s, collName:%s", dbName.c_str(), collName.c_str());
+        return false;
+    }
+}
 
 KERNEL_END

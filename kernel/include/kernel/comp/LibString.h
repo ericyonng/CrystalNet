@@ -180,6 +180,11 @@ public:
         return *this;
     }
 
+    LibString operator + (LibString &&other) const
+    {
+        return std::string(_raw).append(other._raw);
+    }
+
     LibString operator + (const LibString &other) const
     {
         return std::string(_raw).append(other._raw);

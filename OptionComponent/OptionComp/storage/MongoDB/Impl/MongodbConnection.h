@@ -36,6 +36,7 @@
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/SmartPtr.h>
 #include <kernel/comp/Coroutines/CoTask.h>
+#include <OptionComp/storage/MongoDB/Impl/ShardKeyInfo.h>
 
 KERNEL_BEGIN
 
@@ -50,21 +51,22 @@ public:
     ~MongodbConnection();
 
     // 数据库分片
-    KERNEL_NS::CoTask<bool> EnableDatabaseSharding(const KERNEL_NS::LibString &dbName);
+    KERNEL_NS::CoTask<bool> EnableDatabaseSharding(KERNEL_NS::LibString dbName);
 
     // 尝试获取分布式锁 (使用 findOneAndUpdate + upsert 原子操作)
     // 逻辑: 如果锁不存在则创建; 如果锁存在但已过期则更新; 如果锁存在且未过期则失败
     KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> TryAcquireLock(const KERNEL_NS::LibString &lockName, const KERNEL_NS::LibString &ownerId);
     
-    
     // 释放分布式锁
     void ReleaseLock(KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> &lock);
 
-    bool ShardCollection(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collName, Int32 numChunks = 1024);
+    // 设置分片键
+    KERNEL_NS::CoTask<bool> ShardCollection(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collName, std::vector<ShardKeyInfo> shardKeys, Int32 numChunks = 1024);
     
 private:
     bool _CheckDatabaseSharded(const KERNEL_NS::LibString &dbName);
-    
+    bool _CheckCollectionSharded(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collName);
+
 private:
     mongocxx::pool::entry& _entry;
 };

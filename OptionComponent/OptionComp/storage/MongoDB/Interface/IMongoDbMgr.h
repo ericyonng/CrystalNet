@@ -32,7 +32,7 @@
 #pragma once
 
 #include <kernel/comp/CompObject/CompObjectInc.h>
-
+#include <OptionComp/storage/MongoDB/Impl/ShardKeyInfo.h>
 
 KERNEL_BEGIN
 
@@ -51,6 +51,11 @@ public:
     virtual void SetAccountPwd(const KERNEL_NS::LibString &account, const KERNEL_NS::LibString &pwd) = 0;
     // 设置srv连接的域名
     virtual void SetSrvHostName(const KERNEL_NS::LibString &hostName) = 0;
+
+    // 设置数据库名
+    virtual void SetDbName(const KERNEL_NS::LibString &dbName) = 0;
+    // 给表设置分片键
+    virtual void SetShardKeyInfo(const KERNEL_NS::LibString &collectionName, const std::vector<ShardKeyInfo> &shardKeyInfos) = 0;
 
 #ifdef CRYSTAL_NET_CPP20
     // 查

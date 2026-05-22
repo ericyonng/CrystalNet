@@ -280,7 +280,7 @@ void LoginMgr::_Update(bool isNty)
     token.AppendData(imei.c_str(), static_cast<Int64>(imei.size()));
 
     auto addr = _userOwner->GetUserAddr();
-    token.AppendData(addr ? addr->_ip : _userOwner->GetUserBaseInfo()->lastloginip())
+    token.AppendData(addr ? addr->_ip.GetRaw() : _userOwner->GetUserBaseInfo()->lastloginip())
     .AppendFormat("%llu", _userOwner->GetUserId());
     token.AppendData(keyText);
 

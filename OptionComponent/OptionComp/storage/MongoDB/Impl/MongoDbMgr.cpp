@@ -109,7 +109,12 @@ Int32 MongoDbMgr::_OnHostInit()
     }
     catch (const mongocxx::exception &e)
     {
-        CLOG_ERROR("mongocxx exception: %s, uri:%s account:%s, pwd:%s, srvHostName:%s", e.what(), _uri.c_str(), _account.c_str(), _pwd.c_str(), _srvHostName.c_str());
+        CLOG_ERROR("init mongodb mongocxx exception: %s, uri:%s account:%s, pwd:%s, srvHostName:%s", e.code().message().c_str(), _uri.c_str(), _account.c_str(), _pwd.c_str(), _srvHostName.c_str());
+        return Status::ConfigError;
+    }
+    catch (const std::exception &e)
+    {
+        CLOG_ERROR("init mongodb std exception: %s, uri:%s account:%s, pwd:%s, srvHostName:%s", e.what(), _uri.c_str(), _account.c_str(), _pwd.c_str(), _srvHostName.c_str());
         return Status::ConfigError;
     }
     catch (...)
