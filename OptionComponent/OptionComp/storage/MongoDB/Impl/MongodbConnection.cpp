@@ -46,9 +46,15 @@ MongodbConnection::MongodbConnection(mongocxx::pool::entry& entry)
     
 }
 
-MongodbConnection::~MongodbConnection()
+KERNEL_NS::SmartPtr<MongodbConnection, KERNEL_NS::AutoDelMethods::CustomDelete> MongodbConnection::Create(mongocxx::pool::entry& entry)
 {
-    
+    KERNEL_NS::SmartPtr<MongodbConnection, KERNEL_NS::AutoDelMethods::CustomDelete> ptr = MongodbConnection::NewThreadLocal_MongodbConnection(entry);
+    ptr.SetClosureDelegate([](void *ptr)
+    {
+        MongodbConnection::DeleteThreadLocal_MongodbConnection(KernelCastTo<MongodbConnection>(ptr));
+    });
+
+    return ptr;
 }
 
 KERNEL_NS::CoTask<bool> MongodbConnection::EnableDatabaseSharding(KERNEL_NS::LibString dbName)
@@ -369,6 +375,113 @@ KERNEL_NS::CoTask<bool> MongodbConnection::ShardCollection(KERNEL_NS::LibString 
     }
 
     co_return false;
+}
+
+KERNEL_NS::CoTask<bool> MongodbConnection::CreateIndex(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collName, const KERNEL_NS::LibString &indexName, 
+                       const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &fields, bool unique)
+{
+    try
+    {
+        auto collection = (*_entry)[dbName.GetRaw()][collName.GetRaw()];
+        if(_CheckIndexExists(collection, indexName))
+        {
+            CLOG_DEBUG("index already exists %, db:%s, collection:%s", indexName.c_str(), dbName.c_str(), collName.c_str());
+            co_return true;
+        }
+
+        // 构建索引键文档
+        bsoncxx::builder::basic::document keyDoc;
+        for (const auto &field : fields)
+        {
+            keyDoc.append(bsoncxx::builder::basic::kvp(field.first.GetRaw(), field.second));
+        }
+            
+        // 使用 mongocxx::options::index_options 构建索引选项
+        mongocxx::options::index options;
+        options.unique(unique);
+        options.name(indexName.GetRaw());
+
+        CLOG_INFO("CreateIndex db:%s, collection:%s, creating index %s on fields:%s, unique:%d..."
+            , dbName.c_str(), collName.c_str(), indexName.c_str(), bsoncxx::to_json(keyDoc.view()).c_str(), unique);
+        
+        collection.create_index(keyDoc.view(), options);
+
+        CLOG_INFO("CreateIndex db:%s, collection:%s, index %s created successfully."
+            , dbName.c_str(), collName.c_str(), indexName.c_str());
+
+        co_return true;
+    }
+    catch (const mongocxx::exception &e)
+    {
+        KERNEL_NS::LibString fieldStr;
+        for(auto &field : fields)
+        {
+            fieldStr.AppendFormat("%s:%d, ", field.first.c_str(), field.second);
+        }
+        CLOG_ERROR("CreateIndex fail exception:%s, db:%s, collection:%s, indexName:%s, fields:%s, unique:%d"
+            , e.code().message().c_str(), dbName.c_str(), collName.c_str(), indexName.c_str(), fieldStr.c_str(), unique);
+    }
+    catch (const std::exception &e)
+    {
+        KERNEL_NS::LibString fieldStr;
+        for(auto &field : fields)
+        {
+            fieldStr.AppendFormat("%s:%d, ", field.first.c_str(), field.second);
+        }
+        CLOG_ERROR("CreateIndex fail std exception:%s, db:%s, collection:%s, indexName:%s, fields:%s, unique:%d"
+            , e.what(), dbName.c_str(), collName.c_str(), indexName.c_str(), fieldStr.c_str(), unique);
+    }
+    catch (...)
+    {
+        KERNEL_NS::LibString fieldStr;
+        for(auto &field : fields)
+        {
+            fieldStr.AppendFormat("%s:%d, ", field.first.c_str(), field.second);
+        }
+        CLOG_ERROR("CreateIndex fail unknown exception, db:%s, collection:%s, indexName:%s, fields:%s, unique:%d"
+            , dbName.c_str(), collName.c_str(), indexName.c_str(), fieldStr.c_str(), unique);
+    }
+
+    co_return false;
+}
+
+// 检查索引是否存在
+bool MongodbConnection::_CheckIndexExists(mongocxx::collection &coll, const KERNEL_NS::LibString &indexName)
+{
+    try
+    {
+        auto listIndex = coll.list_indexes();
+        for (auto &index : listIndex)
+        {
+            auto nameIter = index.find("name");
+            if (nameIter != index.end())
+            {
+                std::string name = nameIter->get_string().value.data();
+                if (indexName == name)
+                {
+                    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "index %s already exists"), indexName.c_str());
+                    return true;
+                }
+            }
+        }
+
+        CLOG_DEBUG("index %s not found", indexName.c_str());
+        return false;
+    }
+    catch (const mongocxx::exception &e)
+    {
+        CLOG_ERROR("CheckIndexExists failed:%s, indexName:%s", e.code().message().c_str(), indexName.c_str());
+    }
+    catch (const std::exception &e)
+    {
+        CLOG_ERROR("CheckIndexExists std exception failed:%s, indexName:%s", e.what(), indexName.c_str());
+    }
+    catch (...)
+    {
+        CLOG_ERROR("CheckIndexExists unknown, indexName:%s", indexName.c_str());
+    }
+
+    return false;
 }
 
 bool MongodbConnection::_CheckDatabaseSharded(const KERNEL_NS::LibString &dbName)

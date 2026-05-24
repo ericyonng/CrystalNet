@@ -86,7 +86,7 @@ public:
         req.ToString();
         res.ToString();
     }
-    CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> SendAsync(ReqType *req)
+    CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> SendAsync3(ReqType *req)
     {
         auto poller = co_await GetPoller();
         co_return co_await poller->template SendAsync<ResType, ReqType>(req);

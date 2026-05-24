@@ -60,6 +60,9 @@ LibThread::LibThread(IThreadStartUp *startUp)
 LibThread::~LibThread()
 {
     Close();
+
+    auto oldStartup = _threadStartUp.exchange(NULL);
+    CRYSTAL_RELEASE_SAFE(oldStartup);
 }
 
 void LibThread::Release()

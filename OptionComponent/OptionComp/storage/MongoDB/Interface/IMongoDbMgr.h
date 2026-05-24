@@ -52,10 +52,13 @@ public:
     // 设置srv连接的域名
     virtual void SetSrvHostName(const KERNEL_NS::LibString &hostName) = 0;
 
-    // 设置数据库名
+    // 设置数据库名(需要在WillStart之前设置)
     virtual void SetDbName(const KERNEL_NS::LibString &dbName) = 0;
-    // 给表设置分片键
+    virtual const KERNEL_NS::LibString &GetDbName() const = 0;
+    // 给表设置分片键(需要在WillStart之前设置)
     virtual void SetShardKeyInfo(const KERNEL_NS::LibString &collectionName, const std::vector<ShardKeyInfo> &shardKeyInfos) = 0;
+    // 设置索引(支持符合索引, 需要在WillStart之前设置)
+    virtual void CreateIndex(const KERNEL_NS::LibString &collectionName, const KERNEL_NS::LibString &indexName, const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &fields, bool unique = false) = 0;
 
 #ifdef CRYSTAL_NET_CPP20
     // 查
@@ -63,7 +66,11 @@ public:
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, KERNEL_NS::LibString keyValue) = 0;
 #endif
 
+    // 增(mongodb 只能Int64 Value)
+    virtual KERNEL_NS::CoTask<bool> AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, Int64 keyValue) = 0;
+    virtual KERNEL_NS::CoTask<bool> AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, KERNEL_NS::LibString keyValue) = 0;
     // 增, 删, 改, 查
+
 };
 
 KERNEL_END

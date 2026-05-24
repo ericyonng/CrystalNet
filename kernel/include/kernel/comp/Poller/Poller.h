@@ -54,6 +54,7 @@
 
 #include <kernel/comp/Poller/Channel.h>
 #include "kernel/comp/ConcurrentPriorityQueue/MPMCQueue.h"
+#include <kernel/comp/memory/CreateObjAdapter.h>
 
 #ifdef CRYSTAL_NET_CPP20
  #include <concepts>
@@ -350,9 +351,9 @@ public:
                 // 返回包
                 auto resEv = KERNEL_NS::ObjectPollerEvent<ResType>::New_ObjectPollerEvent(stub
                     , true, KERNEL_NS::TlsUtil::GetPoller(), srcChannel);
-                resEv->_obj = new ResType();
-                
-                *(resEv->_obj) = std::move(lamb());
+
+                resEv->_obj = CreateObjAdapter::Create<ResType>();
+                *(resEv->_obj) = lamb();
                 srcPoller->Push(resEv);
             });
         }
@@ -363,9 +364,9 @@ public:
                 // 返回包
                 auto resEv = KERNEL_NS::ObjectPollerEvent<ResType>::New_ObjectPollerEvent(stub
                     , true, KERNEL_NS::TlsUtil::GetPoller(), NULL);
-                resEv->_obj = new ResType();
-                            
-                *(resEv->_obj) = std::move(lamb());
+                resEv->_obj = CreateObjAdapter::Create<ResType>();
+
+                *(resEv->_obj) = lamb();
                 srcPoller->Push(resEv);
             });
         }

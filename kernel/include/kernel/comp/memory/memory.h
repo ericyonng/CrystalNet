@@ -44,6 +44,7 @@
 
 #pragma once
 
+#include <kernel/comp/memory/CreateObjAdapter.h>
 #include <kernel/comp/memory/ObjPoolMacro.h>
 
 #include <kernel/comp/memory/GarbageThread.h>

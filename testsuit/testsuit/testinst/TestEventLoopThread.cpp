@@ -133,7 +133,7 @@ void TestEventLoopThread::Run()
 
         // 发送请求消息
         auto req = new TestEventLoopDataReq();
-        auto res = co_await eventLoopThread->SendAsync<TestEventLoopDataRes, TestEventLoopDataReq>(req);
+        auto res = co_await eventLoopThread->SendAsync3<TestEventLoopDataRes, TestEventLoopDataReq>(req);
 
         auto push = new TestEventLoopDataPush();
         co_await eventLoopThread->SendAsync2<TestEventLoopDataPush>(push);

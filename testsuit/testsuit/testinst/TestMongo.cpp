@@ -408,32 +408,32 @@ namespace
     // 检查索引是否存在
     static bool CheckIndexExists(mongocxx::collection &coll, const std::string &indexName)
     {
-    try
-    {
-        auto listIndex = coll.list_indexes();
-        for (auto &index : listIndex)
+        try
         {
-            auto nameIter = index.find("name");
-            if (nameIter != index.end())
+            auto listIndex = coll.list_indexes();
+            for (auto &index : listIndex)
             {
-                std::string name = nameIter->get_string().value.data();
-                if (name == indexName)
+                auto nameIter = index.find("name");
+                if (nameIter != index.end())
                 {
-                    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "index %s already exists"), indexName.c_str());
-                    return true;
+                    std::string name = nameIter->get_string().value.data();
+                    if (name == indexName)
+                    {
+                        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "index %s already exists"), indexName.c_str());
+                        return true;
+                    }
                 }
             }
+            
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "index %s not found"), indexName.c_str());
+            return false;
         }
-        
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "index %s not found"), indexName.c_str());
-        return false;
+        catch (const mongocxx::exception &e)
+        {
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "CheckIndexExists failed:%s"), e.what());
+            return false;
+        }
     }
-    catch (const mongocxx::exception &e)
-    {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "CheckIndexExists failed:%s"), e.what());
-        return false;
-    }
-}
 
     // 创建索引 (支持复合索引)
     static bool CreateIndex(mongocxx::collection &coll, const std::string &indexName, 

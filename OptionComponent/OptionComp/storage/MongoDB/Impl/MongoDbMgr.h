@@ -34,6 +34,7 @@
 #include <OptionComp/storage/MongoDB/Interface/IMongoDbMgr.h>
 #include <mongocxx/instance.hpp>
 #include <mongocxx/pool.hpp>
+#include <OptionComp/storage/MongoDB/Impl/MongoIndexInfo.h>
 
 KERNEL_BEGIN
 
@@ -61,22 +62,34 @@ public:
 
     // 设置数据库名
     virtual void SetDbName(const KERNEL_NS::LibString &dbName) override;
+    virtual const KERNEL_NS::LibString &GetDbName() const override;
+
     // 给表设置分片键
     virtual void SetShardKeyInfo(const KERNEL_NS::LibString &collectionName, const std::vector<ShardKeyInfo> &shardKeyInfos) override;
+    virtual void CreateIndex(const KERNEL_NS::LibString &collectionName, const KERNEL_NS::LibString &indexName, const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &fields, bool unique = false) override;
 
     #ifdef CRYSTAL_NET_CPP20
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, UInt64 keyValue) override;
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, KERNEL_NS::LibString keyValue) override;
+
+    virtual KERNEL_NS::CoTask<bool> AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, Int64 keyValue) override;
+    virtual KERNEL_NS::CoTask<bool> AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, KERNEL_NS::LibString keyValue) override;
     #endif
-    
+
+    void DbReady(bool isReady);
+    void SetDbFailErr(Int32 err);
+
 protected:
     virtual Int32 _OnHostInit() override;
     virtual Int32 _OnCompsCreated() override;
+    virtual Int32 _OnHostWillStart() override;
+
     virtual Int32 _OnHostStart() override;
     virtual void _OnHostBeforeCompsWillClose() override;
     virtual void _OnHostClose() override;
     void _Clear();
 
+    friend class MongodbThreadStartup;
     // 连接mongo
     KERNEL_NS::LibString _uri;
 
@@ -89,10 +102,22 @@ protected:
     KERNEL_NS::LibString _dbName;
     // 表 => 分片键
     std::unordered_map<KERNEL_NS::LibString, std::vector<ShardKeyInfo>> _collectionRefShardKeyInfos;
+    // 表 => 索引信息(indexname => 索引信息)
+    std::unordered_map<KERNEL_NS::LibString, std::unordered_map<KERNEL_NS::LibString, MongoIndexInfo>> _collectionRefMongoIndexInfos;
 
     // 初始化mongodb
     static mongocxx::instance _instance;
     mongocxx::pool *_connectionPool;
+
+    // 线程
+    KERNEL_NS::LibEventLoopThread *_eventLoopThread;
+
+    // dbready
+    std::atomic_bool _isDbReady;
+    std::atomic<Int32> _dbFailErrCode;
+
+    // mongodb是不是started
+    std::atomic_bool _willStarted;
 };
 
 KERNEL_END

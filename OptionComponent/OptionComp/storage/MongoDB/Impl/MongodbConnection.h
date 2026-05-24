@@ -48,7 +48,8 @@ class MongodbConnection
 
 public:
     MongodbConnection(mongocxx::pool::entry& entry);
-    ~MongodbConnection();
+
+    static KERNEL_NS::SmartPtr<MongodbConnection, KERNEL_NS::AutoDelMethods::CustomDelete> Create(mongocxx::pool::entry& entry);
 
     // 数据库分片
     KERNEL_NS::CoTask<bool> EnableDatabaseSharding(KERNEL_NS::LibString dbName);
@@ -62,8 +63,12 @@ public:
 
     // 设置分片键
     KERNEL_NS::CoTask<bool> ShardCollection(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collName, std::vector<ShardKeyInfo> shardKeys, Int32 numChunks = 1024);
-    
+
+    // 设置索引
+    KERNEL_NS::CoTask<bool> CreateIndex(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collName, const KERNEL_NS::LibString &indexName, 
+                       const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &fields, bool unique);
 private:
+    bool _CheckIndexExists(mongocxx::collection &coll, const KERNEL_NS::LibString &indexName);
     bool _CheckDatabaseSharded(const KERNEL_NS::LibString &dbName);
     bool _CheckCollectionSharded(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collName);
 

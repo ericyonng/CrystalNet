@@ -304,12 +304,12 @@ void TestThread::Run()
 
         co_await GetStr();
 
-        // auto poolRes = co_await pool->SendAsync<KERNEL_NS::LibString>([]()->KERNEL_NS::LibString
-        // {
-        //     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestThread, "pool excute lambda and will return result thread id:%llu"), KERNEL_NS::SystemUtil::GetCurrentThreadId());
-        //
-        //     return KERNEL_NS::LibString().AppendFormat("pool excute result thread id:%llu", KERNEL_NS::SystemUtil::GetCurrentThreadId());
-        // });
+        auto poolRes = co_await pool->SendAsync<KERNEL_NS::LibString>([]()->KERNEL_NS::LibString
+        {
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestThread, "pool excute lambda and will return result thread id:%llu"), KERNEL_NS::SystemUtil::GetCurrentThreadId());
+        
+            return KERNEL_NS::LibString().AppendFormat("pool excute result thread id:%llu", KERNEL_NS::SystemUtil::GetCurrentThreadId());
+        });
 
         pool->Send([]()
         {
