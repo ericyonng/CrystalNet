@@ -52,13 +52,10 @@ public:
     // 设置srv连接的域名
     virtual void SetSrvHostName(const KERNEL_NS::LibString &hostName) = 0;
 
-    // 设置数据库名(需要在WillStart之前设置)
-    virtual void SetDbName(const KERNEL_NS::LibString &dbName) = 0;
-    virtual const KERNEL_NS::LibString &GetDbName() const = 0;
     // 给表设置分片键(需要在WillStart之前设置)
-    virtual void SetShardKeyInfo(const KERNEL_NS::LibString &collectionName, const std::vector<ShardKeyInfo> &shardKeyInfos) = 0;
+    virtual void SetShardKeyInfo(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const std::vector<ShardKeyInfo> &shardKeyInfos) = 0;
     // 设置索引(支持符合索引, 需要在WillStart之前设置)
-    virtual void CreateIndex(const KERNEL_NS::LibString &collectionName, const KERNEL_NS::LibString &indexName, const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &fields, bool unique = false) = 0;
+    virtual void CreateIndex(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const KERNEL_NS::LibString &indexName, const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &fields, bool unique = false) = 0;
 
 #ifdef CRYSTAL_NET_CPP20
     // 查

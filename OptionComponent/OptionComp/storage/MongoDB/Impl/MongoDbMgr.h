@@ -60,13 +60,9 @@ public:
     // 设置srv连接的域名
     virtual void SetSrvHostName(const KERNEL_NS::LibString &hostName) override;
 
-    // 设置数据库名
-    virtual void SetDbName(const KERNEL_NS::LibString &dbName) override;
-    virtual const KERNEL_NS::LibString &GetDbName() const override;
-
     // 给表设置分片键
-    virtual void SetShardKeyInfo(const KERNEL_NS::LibString &collectionName, const std::vector<ShardKeyInfo> &shardKeyInfos) override;
-    virtual void CreateIndex(const KERNEL_NS::LibString &collectionName, const KERNEL_NS::LibString &indexName, const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &fields, bool unique = false) override;
+    virtual void SetShardKeyInfo(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const std::vector<ShardKeyInfo> &shardKeyInfos) override;
+    virtual void CreateIndex(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const KERNEL_NS::LibString &indexName, const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &fields, bool unique = false) override;
 
     #ifdef CRYSTAL_NET_CPP20
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, UInt64 keyValue) override;
@@ -98,12 +94,10 @@ protected:
     KERNEL_NS::LibString _pwd;
     // mongodb + srv 连接域名
     KERNEL_NS::LibString _srvHostName;
-    // db名
-    KERNEL_NS::LibString _dbName;
-    // 表 => 分片键
-    std::unordered_map<KERNEL_NS::LibString, std::vector<ShardKeyInfo>> _collectionRefShardKeyInfos;
-    // 表 => 索引信息(indexname => 索引信息)
-    std::unordered_map<KERNEL_NS::LibString, std::unordered_map<KERNEL_NS::LibString, MongoIndexInfo>> _collectionRefMongoIndexInfos;
+    // db => 表 => 分片键
+    std::unordered_map<KERNEL_NS::LibString, std::unordered_map<KERNEL_NS::LibString, std::vector<ShardKeyInfo>>> _dbRefcollectionRefShardKeyInfos;
+    // db => 表 => 索引信息(indexname => 索引信息)
+    std::unordered_map<KERNEL_NS::LibString, std::unordered_map<KERNEL_NS::LibString, std::unordered_map<KERNEL_NS::LibString, MongoIndexInfo>>> _dbRefCollectionRefMongoIndexInfos;
 
     // 初始化mongodb
     static mongocxx::instance _instance;

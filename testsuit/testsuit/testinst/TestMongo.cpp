@@ -41,6 +41,9 @@
 
 #include <protocols/protocols.h>
 
+#include "OptionComp/storage/MongoDB/Impl/MongoDbMgrFactory.h"
+#include "OptionComp/storage/MongoDB/Interface/IMongoDbMgr.h"
+
 
 // ==================== 分片集群管理实现 ====================
 
@@ -484,13 +487,8 @@ namespace
     {
         // 连接分片集群 (mongos 节点地址列表)
         // 格式: mongodb://用户名:密码@host1:port1,host2:port2,.../?authSource=admin
-        // mongodb+srv://eric:pK38U~mTk%5E3@mongoscluster.ericyonng.com/
-        mongocxx::uri shardUri("mongodb://eric:pK38U~mTk%5E3@"
-            "mongos1.mongo.ericyonng.com:27016,"
-            "mongos2.mongo.ericyonng.com:27017,"
-            "mongos3.mongo.ericyonng.com:27018/"
-            "?authSource=admin&w=majority&journal=true&readConcernLevel=majority&maxPoolSize=100&connectTimeoutMS=10000&socketTimeoutMS=30000"
-            );
+        // mongodb+srv://xxx:xxx@mongoscluster.ericyonng.com/
+        mongocxx::uri shardUri;
         // std::string uriStr = "mongodb://testmongo:abc%5E159@127.0.0.1:28017,127.0.0.1:28018,127.0.0.1:28019/?authSource=admin&replicaSet=rs0&w=majority&journal=true&readConcernLevel=majority&maxPoolSize=100&connectTimeoutMS=10000&socketTimeoutMS=30000";
         // mongocxx::uri uri(uriStr);
         mongocxx::pool pool(shardUri);
@@ -565,14 +563,62 @@ namespace
 }  // end anonymous namespace
 
 
+class TestMongoHost : public KERNEL_NS::CompHostObject
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, TestMongoHost);
+
+public:
+    TestMongoHost()
+        :CompHostObject(KERNEL_NS::RttiUtil::GetTypeId<TestMongoHost>())
+    {
+        
+    }
+    virtual void Release()
+    {
+        TestMongoHost::Delete_TestMongoHost(this); 
+    }
+    
+
+private:
+    virtual void OnRegisterComps() override
+    {
+        RegisterComp<KERNEL_NS::MongoDbMgrFactory>();
+    }
+
+    virtual Int32 _OnCompsCreated() override
+    {
+        auto mongoDbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
+        mongoDbMgr->SetSrvHostName("xxx");
+        mongoDbMgr->SetAccountPwd("eric", "1111");
+
+        std::vector<KERNEL_NS::ShardKeyInfo> shardKeys;
+        KERNEL_NS::ShardKeyInfo info;
+        info.KeyName = "player_id";
+        info.ValueType = KERNEL_NS::ShardKeyType::HASHED;
+        shardKeys.push_back(info);
+        mongoDbMgr->SetShardKeyInfo("testsuit2", "player", shardKeys);
+
+        return Status::Success;
+    }
+};
+
 void TestMongo::Run()
 {
-    mongocxx::instance instance;
+    // mongocxx::instance instance;
 
     try
     {
+        auto testObj = TestMongoHost::New_TestMongoHost();
+        testObj->Init();
+        testObj->Start();
+
+        getchar();
+
+        testObj->WillClose();
+        testObj->Close();
+        
         // 分片集群管理功能测试
-        TestShardClusterManagement();
+        //TestShardClusterManagement();
     }
     catch (const mongocxx::exception &e)
     {
@@ -613,12 +659,7 @@ static void Run2()
         }
 
         // 连接池
-        mongocxx::uri shardUri("mongodb:://eric:pK38U~mTk%5E3@"
-        "mongos1.mongo.ericyonng.com:27016,"
-        "mongos2.mongo.ericyonng.com:27017,"
-        "mongos3.mongo.ericyonng.com:27018/"
-        "?authSource=admin&w=majority&journal=true&readConcernLevel=majority&maxPoolSize=100&connectTimeoutMS=10000&socketTimeoutMS=30000"
-        );
+        mongocxx::uri shardUri;
         mongocxx::pool pool(shardUri);
 
         KERNEL_NS::LibThreadPool threadPool;

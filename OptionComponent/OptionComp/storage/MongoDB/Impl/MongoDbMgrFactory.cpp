@@ -44,7 +44,8 @@ void MongoDbMgrFactory::Release()
 
 CompObject *MongoDbMgrFactory::Create() const
 {
-    return MongoDbMgr::NewByAdapter_MongoDbMgr(_buildType.V);
+    CREATE_CRYSTAL_COMP(comp, MongoDbMgr);
+    return comp;
 }
 
 

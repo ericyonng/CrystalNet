@@ -530,6 +530,8 @@ bool MongodbConnection::_CheckDatabaseSharded(const KERNEL_NS::LibString &dbName
         CLOG_ERROR("CheckDatabaseSharded failed: db:%s", dbName.c_str());
         return false;
     }
+
+    return false;
 }
 
 

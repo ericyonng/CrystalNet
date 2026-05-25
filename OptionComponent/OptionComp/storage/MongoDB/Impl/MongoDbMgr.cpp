@@ -61,75 +61,85 @@ public:
                 CLOG_INFO("waiting mongodb mgr will started");
             }
 
-            // 数据库设置分片
-            auto &dbName = _mongodbMgr->GetDbName();
-            CLOG_INFO("enable db:%s sharding...", dbName.c_str());
-            {
-                auto entry = _mongodbMgr->_connectionPool->acquire();
-                auto connection = MongodbConnection::Create(entry);
-                auto isSuc = co_await connection->EnableDatabaseSharding(dbName);
-                if (!isSuc)
-                {
-                    CLOG_ERROR("mongodb EnableDatabaseSharding fail");
-                    _mongodbMgr->SetDbFailErr(Status::Failed);
-                    co_return;
-                }
-            }
-            CLOG_INFO("enable db:%s sharding success.", dbName.c_str());
-
             // 设置分片键
-            CLOG_INFO("db:%s ShardCollection...", dbName.c_str());
-            auto shardKeyDict = _mongodbMgr->_collectionRefShardKeyInfos;
-            for(auto iter : shardKeyDict)
+            CLOG_INFO("ShardCollection...");
+            auto dbShardKeyInfos = _mongodbMgr->_dbRefcollectionRefShardKeyInfos;
+            for(auto iter : dbShardKeyInfos)
             {
-                auto &collectionName = iter.first;
-                auto &shardKeys = iter.second;
-
-                auto entry = _mongodbMgr->_connectionPool->acquire();
-                auto connection = MongodbConnection::Create(entry);
-                auto isSuc = co_await connection->ShardCollection(dbName, collectionName, shardKeys);
-                if(!isSuc)
+                auto &dbName = iter.first;
+                // 数据库设置分片
+                CLOG_INFO("enable %s sharding...", dbName.c_str());
                 {
-                    CLOG_ERROR("mongodb ShardCollection fail dbname:%s collectionName:%s, shard keys:%s", dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(shardKeys, ',').c_str());
-                    _mongodbMgr->SetDbFailErr(Status::Failed);
-                    co_return;
-                }
-            }
-            CLOG_INFO("db:%s ShardCollection success.", dbName.c_str());
-
-            auto collectionRefMongoIndexInfos = _mongodbMgr->_collectionRefMongoIndexInfos;
-            CLOG_INFO("db:%s CreateIndex collection count:%d...", dbName.c_str(), static_cast<Int32>(collectionRefMongoIndexInfos.size()));
-
-            for(auto iter : collectionRefMongoIndexInfos)
-            {
-                auto &collectionName = iter.first;
-                auto &indexNameRefInfos = iter.second;
-                for(auto iterInfo : indexNameRefInfos)
-                {
-                    auto &indexName = iterInfo.first;
-                    auto &mongoIndexInfo = iterInfo.second;
-
                     auto entry = _mongodbMgr->_connectionPool->acquire();
                     auto connection = MongodbConnection::Create(entry);
-
-                    auto isSuc = co_await connection->CreateIndex(dbName, collectionName, indexName, mongoIndexInfo.Fields, mongoIndexInfo.Unique);
+                    auto isSuc = co_await connection->EnableDatabaseSharding(dbName);
+                    if (!isSuc)
+                    {
+                        CLOG_ERROR("mongodb EnableDatabaseSharding fail");
+                        _mongodbMgr->SetDbFailErr(Status::Failed);
+                        co_return;
+                    }
+                }
+                CLOG_INFO("enable db:%s sharding success.", dbName.c_str());
+                
+                auto &collectionShardKeys = iter.second;
+                for (auto iterCollection : collectionShardKeys)
+                {
+                    auto &collectionName = iterCollection.first;
+                    auto &shardKeys = iterCollection.second;
+                    auto entry = _mongodbMgr->_connectionPool->acquire();
+                    auto connection = MongodbConnection::Create(entry);
+                    auto isSuc = co_await connection->ShardCollection(dbName, collectionName, shardKeys);
                     if(!isSuc)
                     {
-                        KERNEL_NS::LibString fieldStr;
-                        for(auto &field : mongoIndexInfo.Fields)
-                        {
-                            fieldStr.AppendFormat("%s:%d, ", field.first.c_str(), field.second);
-                        }
-                        CLOG_ERROR("mongodb CreateIndex fail db name:%s, collection:%s, indexName:%s, fields:%s, unique:%d"
-                            , dbName.c_str(), collectionName.c_str(), indexName.c_str(), fieldStr.c_str(), mongoIndexInfo.Unique);
+                        CLOG_ERROR("mongodb ShardCollection fail dbname:%s collectionName:%s, shard keys:%s", dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(shardKeys, ',').c_str());
                         _mongodbMgr->SetDbFailErr(Status::Failed);
                         co_return;
                     }
                 }
             }
-            CLOG_INFO("db:%s CreateIndex success.", dbName.c_str());
+            CLOG_INFO("ShardCollection success.");
 
-            CLOG_INFO("db:%s ready...", dbName.c_str());
+            auto dbRefCollectionRefIndexInfos = _mongodbMgr->_dbRefCollectionRefMongoIndexInfos;
+            CLOG_INFO("CreateIndex collection count:%d...", static_cast<Int32>(dbRefCollectionRefIndexInfos.size()));
+
+            for(auto iter : dbRefCollectionRefIndexInfos)
+            {
+                auto &dbName = iter.first;
+                auto &collectionRefIndexNameRefInfos = iter.second;
+                for(auto iterInfo : collectionRefIndexNameRefInfos)
+                {
+                    auto &collectionName = iterInfo.first;
+                    auto &indexNameRefIndexInfo = iterInfo.second;
+
+                    for (auto iterIndex : indexNameRefIndexInfo)
+                    {
+                        auto &indexName = iterIndex.first;
+                        auto &indexInfo = iterIndex.second;
+                        
+                        auto entry = _mongodbMgr->_connectionPool->acquire();
+                        auto connection = MongodbConnection::Create(entry);
+
+                        auto isSuc = co_await connection->CreateIndex(dbName, collectionName, indexName, indexInfo.Fields, indexInfo.Unique);
+                        if(!isSuc)
+                        {
+                            KERNEL_NS::LibString fieldStr;
+                            for(auto &field : indexInfo.Fields)
+                            {
+                                fieldStr.AppendFormat("%s:%d, ", field.first.c_str(), field.second);
+                            }
+                            CLOG_ERROR("mongodb CreateIndex fail db name:%s, collection:%s, indexName:%s, fields:%s, unique:%d"
+                                , dbName.c_str(), collectionName.c_str(), indexName.c_str(), fieldStr.c_str(), indexInfo.Unique);
+                            _mongodbMgr->SetDbFailErr(Status::Failed);
+                            co_return;
+                        }
+                    }
+
+                }
+            }
+            CLOG_INFO("CreateIndex success.");
+
+            CLOG_INFO("mongodb ready...");
             _mongodbMgr->DbReady(true);
 
             // 等待任务过来(增删改查) TODO:
@@ -180,7 +190,7 @@ void MongoDbMgr::SetAccountPwd(const KERNEL_NS::LibString &account, const KERNEL
     _account = account;
 
     // 转义
-    _pwd = pwd.escape("", '%');
+    _pwd = pwd;
 }
 
 void MongoDbMgr::SetSrvHostName(const KERNEL_NS::LibString &hostName)
@@ -188,30 +198,32 @@ void MongoDbMgr::SetSrvHostName(const KERNEL_NS::LibString &hostName)
     _srvHostName = hostName;
 }
 
-void MongoDbMgr::SetDbName(const KERNEL_NS::LibString &dbName)
+void MongoDbMgr::SetShardKeyInfo(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const std::vector<ShardKeyInfo> &shardKeyInfos)
 {
-    _dbName = dbName;
+    auto iterDb = _dbRefcollectionRefShardKeyInfos.find(dbName);
+    if (iterDb == _dbRefcollectionRefShardKeyInfos.end())
+        iterDb = _dbRefcollectionRefShardKeyInfos.insert(std::make_pair(dbName, std::unordered_map<KERNEL_NS::LibString, std::vector<ShardKeyInfo>>())).first;
+
+    auto &collectionRefShardKeyInfos = iterDb->second;
+    auto iterCollection = collectionRefShardKeyInfos.find(collectionName);
+    if (iterCollection == collectionRefShardKeyInfos.end())
+        iterCollection = collectionRefShardKeyInfos.insert(std::make_pair(collectionName, std::vector<ShardKeyInfo>())).first;
+    iterCollection->second = shardKeyInfos;
+
+    CLOG_INFO("SetShardKeyInfo db:%s collection:%s, shard key:%s", dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(shardKeyInfos, ',').c_str());
 }
 
-const KERNEL_NS::LibString &MongoDbMgr::GetDbName() const
+void MongoDbMgr::CreateIndex(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const KERNEL_NS::LibString &indexName, const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &fields, bool unique)
 {
-    return _dbName;
-}
+    auto iterDb = _dbRefCollectionRefMongoIndexInfos.find(dbName);
+    if (iterDb == _dbRefCollectionRefMongoIndexInfos.end())
+        iterDb = _dbRefCollectionRefMongoIndexInfos.insert(std::make_pair(dbName, std::unordered_map<KERNEL_NS::LibString, std::unordered_map<KERNEL_NS::LibString, MongoIndexInfo>>())).first;
 
-
-void MongoDbMgr::SetShardKeyInfo(const KERNEL_NS::LibString &collectionName, const std::vector<ShardKeyInfo> &shardKeyInfos)
-{
-    _collectionRefShardKeyInfos[collectionName] = shardKeyInfos;
-
-    CLOG_INFO("SetShardKeyInfo db:%s collection:%s, shard key:%s", _dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(shardKeyInfos, ',').c_str());
-}
-
-void MongoDbMgr::CreateIndex(const KERNEL_NS::LibString &collectionName, const KERNEL_NS::LibString &indexName, const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &fields, bool unique)
-{
-    auto iter = _collectionRefMongoIndexInfos.find(collectionName);
-    if(iter == _collectionRefMongoIndexInfos.end())
+    auto &collectionRefMongoIndexInfos = iterDb->second;
+    auto iter = collectionRefMongoIndexInfos.find(collectionName);
+    if(iter == collectionRefMongoIndexInfos.end())
     {
-        iter = _collectionRefMongoIndexInfos.insert(std::make_pair(collectionName, std::unordered_map<KERNEL_NS::LibString, MongoIndexInfo>())).first;
+        iter = collectionRefMongoIndexInfos.insert(std::make_pair(collectionName, std::unordered_map<KERNEL_NS::LibString, MongoIndexInfo>())).first;
     }
 
     auto &indexNameRefInfo = iter->second;
@@ -231,7 +243,7 @@ void MongoDbMgr::CreateIndex(const KERNEL_NS::LibString &collectionName, const K
     {
         fieldsStr.AppendFormat("%s:%d, ", field.first.c_str(), field.second);
     }
-    CLOG_INFO("create index collectionName:%s, indexName:%s fields:%s", collectionName.c_str(), indexName.c_str(), fieldsStr.c_str());
+    CLOG_INFO("create index dbName:%s, collectionName:%s, indexName:%s fields:%s", dbName.c_str(), collectionName.c_str(), indexName.c_str(), fieldsStr.c_str());
 }
 
 
@@ -333,12 +345,6 @@ Int32 MongoDbMgr::_OnHostInit()
 {
     try
     {
-        if(_dbName.empty())
-        {
-            CLOG_ERROR("db name is not set");
-            return Status::ConfigError;
-        }
-
         // 外部没有指定uri则使用srv的设置, 如果还是没有则报错
         if(_uri.empty())
         {
@@ -348,7 +354,7 @@ Int32 MongoDbMgr::_OnHostInit()
                 return Status::ConfigError;
             }
 
-            _uri.AppendFormat("mongodb+srv://%s:%s@%s/?authSource=admin&w=majority&journal=true&readConcernLevel=majority&maxPoolSize=100&connectTimeoutMS=10000&socketTimeoutMS=30000&retryWrites=true&retryReads=true", _account.c_str(), _pwd.c_str(), _srvHostName.c_str());
+            _uri.AppendFormat("mongodb+srv://%s:%s@%s/?authSource=admin&w=majority&journal=true&readConcernLevel=majority&maxPoolSize=100&connectTimeoutMS=180000&socketTimeoutMS=30000&retryWrites=true&retryReads=true&tls=false", _account.c_str(), _pwd.c_str(), _srvHostName.c_str());
         }
 
         auto uri = mongocxx::uri(_uri.GetRaw());
@@ -391,7 +397,7 @@ Int32 MongoDbMgr::_OnHostWillStart()
         // 是否准备就绪
         if(_isDbReady.load(std::memory_order_acquire))
         {
-            CLOG_INFO("db:%s, is ready.", _dbName.c_str());
+            CLOG_INFO("mongodb is ready.");
             break;
         }
 
@@ -404,7 +410,7 @@ Int32 MongoDbMgr::_OnHostWillStart()
         }
 
         KERNEL_NS::SystemUtil::ThreadSleep(1000);
-        CLOG_INFO("waiting mongodb:%s, ready...", _dbName.c_str());
+        CLOG_INFO("waiting mongodb, ready...");
     }
     return Status::Success;
 }
