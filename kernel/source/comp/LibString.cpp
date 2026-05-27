@@ -49,7 +49,7 @@ bool LibString::IsUtf8() const
 	UInt64 loop = 0;
 	while(count > 0)
 	{
-		U8 ctrl = _raw[loop];
+		U8 ctrl = (*this)[loop];
 
 		auto bytesNum = StringUtil::CalcUtf8CharBytes(ctrl);
 		if(bytesNum == 0)
@@ -62,7 +62,7 @@ bool LibString::IsUtf8() const
 		// 校验除控制位以外的数据位开头必须是10
 		for(UInt64 idx = 0; idx < bytesNum; ++idx)
 		{
-			U8 data = _raw[loop + idx];
+			U8 data = (*this)[loop + idx];
 			if(((data >> 6) ^ 0x02) != 0)
 				return false;
 		}
@@ -76,23 +76,21 @@ bool LibString::IsUtf8() const
 
 LibString &LibString::operator *= (size_t right)
 {
-	if (_raw.empty() || right == 1)
+	if (empty() || right == 1)
 		return *this;
 		
 	if (right == 0)
 	{
-		_raw.clear();
+		clear();
 		return *this;
 	}
 
 	_ThisType unitStr(*this);
-	auto &unitRaw = unitStr._raw;
+	const _Elem *unitStrBuf = unitStr.data();
+	typename LibString::size_type unitStrSize = unitStr.size();
 
-	const _Elem *unitStrBuf = unitRaw.data();
-	typename LibString::size_type unitStrSize = unitRaw.size();
-
-	_raw.resize(unitStrSize * right);
-	_Elem *buf = const_cast<_Elem *>(_raw.data());
+	resize(unitStrSize * right);
+	_Elem *buf = const_cast<_Elem *>(data());
 	for (size_type i = 1; i < right; ++i)
 		::memcpy(buf + i * unitStrSize, unitStrBuf, unitStrSize * sizeof(_Elem));
 
@@ -101,7 +99,7 @@ LibString &LibString::operator *= (size_t right)
 
 void LibString::ToHexString(LibString &target) const
 {
-	const Int64 bufferSize = static_cast<Int64>(_raw.size());
+	const Int64 bufferSize = static_cast<Int64>(size());
 	if(bufferSize == 0)
 		return;
 
@@ -112,7 +110,7 @@ void LibString::ToHexString(LibString &target) const
 	info.reserve(bufferSize * 2);
 	for(Int64 i = 0; i < bufferSize; ++i)
 	{
-		auto &ch = _raw[i];
+		auto &ch = (*this)[i];
 		cache[0] = ChToHexChars[U8(ch) >> 4];
 		cache[1] = ChToHexChars[ch & 0X0F];
 		cache[2] = 0;
@@ -125,7 +123,7 @@ void LibString::ToHexString(LibString &target) const
 
 void LibString::ToHexView(LibString &target) const
 {
-	const Int64 bufferSize = static_cast<Int64>(_raw.size());
+	const Int64 bufferSize = static_cast<Int64>(size());
 	if(bufferSize == 0)
 		return;
 
@@ -138,7 +136,7 @@ void LibString::ToHexView(LibString &target) const
 	for (Int64 i = 0; i < bufferSize; ++i)
 	{
 		cacheLen = ::sprintf(cache, "%02x%s"
-			, static_cast<U8>(_raw[i]), ((i + 1) % 16 == 0) ? "\n" : " ");
+			, static_cast<U8>((*this)[i]), ((i + 1) % 16 == 0) ? "\n" : " ");
 
 		cache[cacheLen] = 0;
 		targetRaw.append(cache, cacheLen);
@@ -153,7 +151,7 @@ bool LibString::FromHexString(const LibString &hexString)
 
 	static const Byte8 *ChHexToDecimalValues = InitHexToDecimalValues();
 
-	_raw.reserve(_raw.size() + hexLen / 2);
+	reserve(size() + hexLen / 2);
 	for(UInt64 idx = 0; idx < hexLen; idx += 2)
 	{
 		const Int32 hiIdx = static_cast<Int32>(hexString[idx]);
@@ -161,7 +159,7 @@ bool LibString::FromHexString(const LibString &hexString)
 		auto &hi = ChHexToDecimalValues[hiIdx];
 		auto &lo = ChHexToDecimalValues[loIdx];
 		U8 decimalNumber = (hi << 4) | lo;
-		_raw.append(reinterpret_cast<Byte8 *>(&decimalNumber), 1);
+		append(reinterpret_cast<Byte8 *>(&decimalNumber), 1);
 	}
 
 	return true;
@@ -169,42 +167,42 @@ bool LibString::FromHexString(const LibString &hexString)
 
 void LibString::CompressString()
 {
-	const auto strSize = _raw.size();
+	const auto strSize = size();
 	if(strSize == 0)
 		return;
 
-	auto len = strlen(_raw.c_str());
+	auto len = strlen(c_str());
 	if(strSize > len)
 	{
-		_raw.erase(len + 1, strSize - len - 1);
+		erase(len + 1, strSize - len - 1);
 	}
 }
 
 const LibString &LibString::RemoveZeroTail()
 {
-	const Int64 bufferSize = static_cast<Int64>(_raw.size());
+	const Int64 bufferSize = static_cast<Int64>(size());
 	if(bufferSize == 0)
 		return *this;
 
-	auto pos = _raw.find_first_of((const char)(0), 0);
-	if(pos == std::string::npos)
+	auto pos = find_first_of((const char)(0), 0);
+	if(pos == _Base::npos)
 		return *this;
 
-	_raw.erase(pos, bufferSize - pos);
+	erase(pos, bufferSize - pos);
 	return *this;
 }     
 
 const LibString &LibString::RemoveHeadZero()
 {
-	const Int64 bufferSize = static_cast<Int64>(_raw.size());
+	const Int64 bufferSize = static_cast<Int64>(size());
 	if(bufferSize == 0)
 		return *this;
 
-	auto pos = _raw.find_first_not_of((const char)(0), 0);
-	if(pos == std::string::npos)
+	auto pos = find_first_not_of((const char)(0), 0);
+	if(pos == _Base::npos)
 		return *this;
 
-	_raw.erase(0, pos);
+	erase(0, pos);
 	return *this;
 }
 
@@ -216,7 +214,7 @@ LibString &LibString::AppendFormat(const Byte8 *fmt, ...)
 
 	// try detach detach format require buffers and resize it.
 	va_list va;
-	const size_type oldSize = _raw.size();
+	const size_type oldSize = size();
 	va_start(va, fmt);
 	Int32 len =::vsnprintf(nullptr, 0, fmt, va);
 	va_end(va);
@@ -224,9 +222,9 @@ LibString &LibString::AppendFormat(const Byte8 *fmt, ...)
 		return *this;
 
 	// exec format.
-	_raw.resize(oldSize + len);
+	resize(oldSize + len);
 	va_start(va, fmt);
-	len = ::vsnprintf(const_cast<Byte8 *>(_raw.data() + oldSize),
+	len = ::vsnprintf(const_cast<Byte8 *>(data() + oldSize),
 						len + 1,
 						fmt,
 						va);
@@ -251,10 +249,10 @@ LibString::_ThisType &LibString::findreplace(const _Elem &dest, const _Elem &wit
 	Int32 founded = 0;
 	for (size_type i = 0; i < this->size(); ++i)
 	{
-		if (_raw[i] == dest)
+		if ((*this)[i] == dest)
 		{
 			++founded;
-			_raw.replace(i, 1, 1, with);
+			replace(i, 1, 1, with);
 
 			if((count > 0) && (founded >= count))
 				break;
@@ -270,13 +268,11 @@ LibString::_ThisType &LibString::findreplace(const _ThisType &dest, const _ThisT
 		return *this;
 
 	size_type found = 0;
-	const std::string &destRaw = dest._raw;
-	const std::string &withRaw = with._raw;
 	Int32 foundCount = 0;
-	while ((found = _raw.find(destRaw, found)) != std::string::npos)
+	while ((found = find(dest, found)) != _Base::npos)
 	{
-		_raw.replace(found, destRaw.size(), withRaw);
-		found += withRaw.size();
+		replace(found, dest.size(), with);
+		found += with.size();
 		++foundCount;
 		if((count > 0) && (foundCount >= count))
 			break; 
@@ -287,9 +283,8 @@ LibString::_ThisType &LibString::findreplace(const _ThisType &dest, const _ThisT
 
 LibString::_ThisType &LibString::findFirstAppendFormat(const _ThisType &dest, const Byte8 *fmt, ...)
 {
-	auto &destRaw = dest._raw;
-	auto pos = _raw.find(destRaw);
-	if(pos == std::string::npos)
+	auto pos = find(dest);
+	if(pos == _Base::npos)
 		return *this;
 
 	// try detach detach format require buffers and resize it.
@@ -318,13 +313,13 @@ LibString::_ThisType &LibString::findFirstAppendFormat(const _ThisType &dest, co
 		return *this;
 	}
 
-	if(pos + 1 == _raw.size())
+	if(pos + 1 == size())
 	{
-		_raw.append(cache);
+		append(cache);
 	}
 	else
 	{
-		_raw.insert(pos + 1, cache);
+		insert(pos + 1, cache);
 	}
 
 	return *this;
@@ -332,23 +327,22 @@ LibString::_ThisType &LibString::findFirstAppendFormat(const _ThisType &dest, co
 
 LibString::_ThisType &LibString::EraseAnyOf(const _ThisType &dest)
 {
-	auto &destRaw = dest.GetRaw();
-	const UInt64 len = destRaw.length();
+	const UInt64 len = dest.length();
 	UInt64 curPos = 0;
 	for (UInt64 idx = 0; idx < len; ++idx)
 	{
 		do 
 		{
-			curPos = _raw.find(destRaw[idx]);
-			if (curPos != std::string::npos)
-				_raw.erase(curPos, 1);
-		} while (curPos != std::string::npos);
+			curPos = find(dest[idx]);
+			if (curPos != _Base::npos)
+				erase(curPos, 1);
+		} while (curPos != _Base::npos);
 	}
 
 	return *this;
 }
 
-LibString::_These LibString::Split(const LibString &sep, std::string::size_type max_split, bool onlyLikely, bool enableEmptyPart) const
+LibString::_These LibString::Split(const LibString &sep, _Base::size_type max_split, bool onlyLikely, bool enableEmptyPart) const
 {
 	_These substrs;
 	if(sep.empty() || max_split == 0 || this->empty())
@@ -361,26 +355,25 @@ LibString::_These LibString::Split(const LibString &sep, std::string::size_type 
 
 	size_type idx = 0;
 	UInt32 splitTimes = 0;
-	const std::string &sepRaw = sep._raw;
-	const UInt64 stepSize = onlyLikely ? 1 : sepRaw.size();
+	const UInt64 stepSize = onlyLikely ? 1 : sep.size();
 	for(; splitTimes < static_cast<UInt32>(max_split); ++splitTimes)
 	{
-		size_type findIdx = std::string::npos;
+		size_type findIdx = _Base::npos;
 		if(onlyLikely)
 		{
-			for(size_t i = 0; i < sepRaw.size(); i++)
+			for(size_t i = 0; i < sep.size(); i++)
 			{
-				findIdx = _raw.find(sepRaw[i], idx);
-				if(findIdx != std::string::npos)
+				findIdx = find(sep[i], idx);
+				if(findIdx != _Base::npos)
 					break;
 			}
 		}
 		else
 		{
-			findIdx = _raw.find(sepRaw, idx);
+			findIdx = find(sep, idx);
 		}
 
-		if(findIdx == std::string::npos)
+		if(findIdx == _Base::npos)
 			break;
 		
 		if (findIdx == idx)
@@ -398,21 +391,21 @@ LibString::_These LibString::Split(const LibString &sep, std::string::size_type 
 			continue;
 		}
 
-		substrs.push_back(_raw.substr(idx, findIdx - idx));
+		substrs.push_back(substr(idx, findIdx - idx));
 
 		if((idx = findIdx + stepSize) == this->size())
 		{
 			if(enableEmptyPart)
-			substrs.push_back(_ThisType());
+				substrs.push_back(_ThisType());
 
 			break;
 		}
 	}
 
 	// 还有剩余
-	if(idx != _raw.size())
+	if(idx != size())
 	{
-		const auto &subStr = _raw.substr(idx);
+		const auto &subStr = substr(idx);
 		if(!subStr.empty() || enableEmptyPart)
 			substrs.push_back(subStr);
 	}
@@ -435,22 +428,22 @@ LibString::_These LibString::Split(const _These &seps, size_type max_split, bool
 	std::set<size_type> minIdx;
 	for(; splitTimes < static_cast<UInt32>(max_split); ++splitTimes)
 	{
-		size_type findIdx = std::string::npos;
+		size_type findIdx = _Base::npos;
 		minIdx.clear();
 		for(size_t i = 0; i < seps.size(); i++)
 		{
-			findIdx = _raw.find(seps[i]._raw, idx);
-			if(findIdx != std::string::npos)
+			findIdx = find(seps[i], idx);
+			if(findIdx != _Base::npos)
 				minIdx.insert(findIdx);
 		}
 
 		if(!minIdx.empty())
 			findIdx = *minIdx.begin();
 
-		if(findIdx == std::string::npos)
+		if(findIdx == _Base::npos)
 			break;
 
-		substrs.push_back(_raw.substr(idx, findIdx - idx));
+		substrs.push_back(substr(idx, findIdx - idx));
 		if((idx = findIdx + 1) == this->size())
 		{
 			if(enableEmptyPart)
@@ -459,9 +452,9 @@ LibString::_These LibString::Split(const _These &seps, size_type max_split, bool
 		}
 	}
 
-	if(idx != this->size())
+	if(idx != size())
 	{
-		const auto &subStr = _raw.substr(idx);
+		const auto &subStr = substr(idx);
 		if(!subStr.empty() || enableEmptyPart)
 			substrs.push_back(subStr);
 	}
@@ -474,20 +467,18 @@ LibString &LibString::lstrip(const LibString &chars)
 	_ThisType willStripChars = chars;
 	if (chars.empty())
 	{
-		willStripChars._raw.append(reinterpret_cast<const _Elem *>(" \t\v\r\n\f"));
+		willStripChars.append(reinterpret_cast<const _Elem *>(" \t\v\r\n\f"));
 	}
 
-	std::string &thisRaw = _raw;
 	size_type stripTo = 0;
-	std::string &willStripRaw = willStripChars._raw;
-	const size_type thisSize = static_cast<size_type>(thisRaw.size());
+	const size_type thisSize = size();
 	for (size_type i = 0; i < thisSize; ++i)
 	{
 		bool found = false;
-		const _Elem &now = thisRaw[i];
-		for (size_type j = 0; j < willStripRaw.size(); ++j)
+		const _Elem &now = (*this)[i];
+		for (size_type j = 0; j < willStripChars.size(); ++j)
 		{
-			if (now == willStripRaw[j])
+			if (now == willStripChars[j])
 			{
 				found = true;
 				break;
@@ -501,7 +492,7 @@ LibString &LibString::lstrip(const LibString &chars)
 	}
 
 	if (stripTo != 0)
-		thisRaw.erase(0, stripTo);
+		erase(0, stripTo);
 
 	return *this;
 }
@@ -513,16 +504,15 @@ LibString &LibString::lstripString(const LibString &str)
 		return *this;
 	}
 
-	std::string &thisRaw = _raw;
 	size_type stripTo = 0;
-	const size_type thisSize = static_cast<size_type>(thisRaw.size());
-	const size_type sliceSize = static_cast<size_type>(str.size());
+	const size_type thisSize = size();
+	const size_type sliceSize = str.size();
 	for (size_type i = 0; i < thisSize; i += 1)
 	{
 		if(sliceSize > (thisSize - i))
 			break;
 
-		auto pos = thisRaw.find(str._raw, i);
+		auto pos = find(str, i);
 		if(pos == i)
 		{
 			stripTo = pos + sliceSize;
@@ -535,7 +525,7 @@ LibString &LibString::lstripString(const LibString &str)
 	}
 
 	if (stripTo != 0)
-		thisRaw.erase(0, stripTo);
+		erase(0, stripTo);
 
 	return *this;
 }
@@ -544,21 +534,19 @@ LibString &LibString::rstrip(const LibString &chars)
 {
 	_ThisType willStripChars = chars;
 	if (chars.empty())
-		willStripChars._raw.append(reinterpret_cast<const _Elem *>(" \t\v\r\n\f"));
+		willStripChars.append(reinterpret_cast<const _Elem *>(" \t\v\r\n\f"));
 
-	std::string &thisRaw = _raw;
-	std::string &willStripRaw = willStripChars._raw;
-	const Int64 willStripRawSize = static_cast<Int64>(willStripRaw.size());
-	const Int64 thisSize = static_cast<Int64>(thisRaw.size());
+	const Int64 willStripRawSize = static_cast<Int64>(willStripChars.size());
+	const Int64 thisSize = static_cast<Int64>(size());
 
 	Int64 stripFrom = thisSize;
 	for (Int64 i = thisSize - 1; i >= 0; --i)
 	{
 		bool found = false;
-		const _Elem &now = thisRaw[i];
+		const _Elem &now = (*this)[i];
 		for (Int64 j = 0; j < willStripRawSize; ++j)
 		{
-			if (now == willStripRaw[j])
+			if (now == willStripChars[j])
 			{
 				found = true;
 				break;
@@ -572,7 +560,7 @@ LibString &LibString::rstrip(const LibString &chars)
 	}
 
 	if (stripFrom != thisSize)
-		thisRaw.erase(stripFrom);
+		erase(stripFrom);
 
 	return *this;
 }
@@ -583,9 +571,8 @@ LibString &LibString::rstripString(const LibString &str)
 	{
 		return *this;
 	}
-
-	std::string &thisRaw = _raw;
-	const Int64 thisSize = static_cast<Int64>(thisRaw.size());
+	
+	const Int64 thisSize = static_cast<Int64>(size());
 	Int64 stripTo = thisSize;
 	const Int64 sliceSize = static_cast<Int64>(str.size());
 	for (Int64 i = thisSize - 1; i >= 0; i -= 1)
@@ -593,7 +580,7 @@ LibString &LibString::rstripString(const LibString &str)
 		if(sliceSize > i + 1)
 			break;
 
-		auto pos = thisRaw.rfind(str._raw, i);
+		auto pos = rfind(str, i);
 		if(pos == static_cast<size_type>((i + 1) - sliceSize))
 		{
 			stripTo = static_cast<Int64>(pos);
@@ -606,58 +593,58 @@ LibString &LibString::rstripString(const LibString &str)
 	}
 
 	if (stripTo != thisSize)
-		thisRaw.erase(stripTo);
+		erase(stripTo);
 
 	return *this;
 }
 
 LibString LibString::DragAfter(const LibString &start) const
 {
-	auto pos =  _raw.find(start._raw);
-	if(pos == std::string::npos)
+	auto pos =  find(start);
+	if(pos == _Base::npos)
 		return LibString();
 	
-	return _raw.substr(pos + start._raw.size());
+	return substr(pos + start.size());
 }
 
 LibString LibString::DragAfter(const LibString &start, size_t &startPos, size_t &endPos) const
 {
-	auto pos =  _raw.find(start._raw);
-	if(pos == std::string::npos)
+	auto pos =  find(start);
+	if(pos == _Base::npos)
 		return LibString();
 
-	endPos = pos + start._raw.size() - 1;
+	endPos = pos + start.size() - 1;
 	startPos = pos;
-	const auto &subStr = _raw.substr(pos + start._raw.size());
+	const auto &subStr = substr(pos + start.size());
 	endPos += subStr.size();
 	return subStr;
 }
 
 LibString LibString::DragBefore(const LibString &start) const
 {
-	auto pos =  _raw.find(start._raw);
-	if(pos == std::string::npos)
+	auto pos =  find(start);
+	if(pos == _Base::npos)
 		return LibString();
 
-	return _raw.substr(0, pos);
+	return substr(0, pos);
 }
 
 LibString LibString::lsub(const LibString &flagStr) const
 {
-	auto pos = _raw.find(flagStr.GetRaw(), 0);
-	if(pos == std::string::npos)
+	auto pos = find(flagStr, 0);
+	if(pos == _Base::npos)
 		return LibString();
 
-	return _raw.substr(pos + flagStr.size());
+	return substr(pos + flagStr.size());
 }
 
 LibString LibString::rsub(const LibString &flagStr) const
 {
-	auto pos = _raw.rfind(flagStr.GetRaw());
-	if(pos == std::string::npos)
+	auto pos = rfind(flagStr);
+	if(pos == _Base::npos)
 		return LibString();
 
-	return _raw.substr(0, pos);
+	return substr(0, pos);
 }
 
 bool LibString::isalpha(const LibString &s)
@@ -665,11 +652,10 @@ bool LibString::isalpha(const LibString &s)
 	if(s.empty())
 		return false;
 
-	const std::string &sRaw = s._raw;
-	const size_type sSize = sRaw.size();
+	const size_type sSize = s.size();
 	for(size_t i = 0; i < sSize; i++)
 	{
-		if(!isalpha(sRaw[i]))
+		if(!isalpha(s[i]))
 			return false;
 	}
 
@@ -682,13 +668,12 @@ bool LibString::islower(const LibString &s)
 		return false;
 
 	bool foundLower = false;
-	const std::string &sRaw = s._raw;
-	const size_type sSize = sRaw.size();
+	const size_type sSize = s.size();
 	for(size_type i = 0; i < sSize; i++)
 	{
-		if(isupper(sRaw[i]))
+		if(isupper(s[i]))
 			return false;
-		else if(islower(sRaw[i]))
+		else if(islower(s[i]))
 			foundLower = true;
 	}
 
@@ -701,13 +686,12 @@ bool LibString::isupper(const LibString &s)
 		return false;
 
 	bool foundUpper = false;
-	const std::string &sRaw = s._raw;
-	const size_type sSize = sRaw.size();
+	const size_type sSize = s.size();
 	for(size_type i = 0; i < sSize; i++)
 	{
-		if(islower(sRaw[i]))
+		if(islower(s[i]))
 			return false;
-		else if(isupper(sRaw[i]))
+		else if(isupper(s[i]))
 			foundUpper = true;
 	}
 
@@ -719,11 +703,10 @@ bool LibString::isdigit(const LibString &s)
 	if(s.empty())
 		return false;
 
-	const std::string &sRaw = s._raw;
-	const size_type sSize = sRaw.size();
+	const size_type sSize = s.size();
 	for(size_type i = 0; i < sSize; ++i)
 	{
-		if(!isdigit(sRaw[i]))
+		if(!isdigit(s[i]))
 			return false;
 	}
 
@@ -735,11 +718,10 @@ bool LibString::isspace(const LibString &s)
 	if(s.empty())
 		return false;
 
-	const std::string &sRaw = s._raw;
-	const size_type sSize = sRaw.size();
+	const size_type sSize = s.size();
 	for(size_type i = 0; i < sSize; i++)
 	{
-		if(!isspace(sRaw[i]))
+		if(!isspace(s[i]))
 			return false;
 	}
 
@@ -752,8 +734,7 @@ bool LibString::IsStartsWith(const LibString &s) const
 	if (s.empty())
 		return true;
 
-	const std::string &sRaw = s._raw;
-	return (_raw.size() >= sRaw.size() && memcmp(sRaw.data(), _raw.data(), sRaw.size() * sizeof(_Elem)) == 0);
+	return (size() >= s.size() && memcmp(s.data(), data(), s.size() * sizeof(_Elem)) == 0);
 }
 
 bool LibString::IsEndsWith(const LibString &s) const
@@ -761,43 +742,41 @@ bool LibString::IsEndsWith(const LibString &s) const
 	if (s.empty())
 		return true;
 
-	const std::string &sRaw = s._raw;
-	return (_raw.size() >= sRaw.size() && 
-		memcmp(sRaw.data(), _raw.data() + (_raw.size() - sRaw.size()) * sizeof(_Elem), sRaw.size() * sizeof(_Elem)) == 0);
+	return (size() >= s.size() && 
+		memcmp(s.data(), data() + (size() - s.size()) * sizeof(_Elem), s.size() * sizeof(_Elem)) == 0);
 }
 
 LibString LibString::StartCut(const LibString &startStr) const
 {
-    auto pos = _raw.find(startStr._raw, 0);
-    if(pos == std::string::npos)
+    auto pos = find(startStr, 0);
+    if(pos == _Base::npos)
         return "";
 
-    return _raw.substr(pos + startStr._raw.size());
+    return substr(pos + startStr.size());
 }
 
 LibString LibString::EndCut(const LibString &endStr) const
 {
-    auto pos = _raw.find(endStr._raw, 0);
-    if(pos == std::string::npos)
+    auto pos = find(endStr, 0);
+    if(pos == _Base::npos)
         return "";
 
-    return _raw.substr(0, pos);
+    return substr(0, pos);
 }
 
 LibString LibString::tolower() const
 {
-	const _Elem *buf = _raw.data();
+	const _Elem *buf = data();
 	const size_type size = this->size();
 
 	_ThisType lower;
-	std::string &lowerRaw = lower._raw;
-	lowerRaw.resize(size);
+	lower.resize(size);
 	for (size_type i = 0; i < size; ++i)
 	{
 		if (buf[i] >= 0x41 && buf[i] <= 0x5A)
-			lowerRaw[i] = buf[i] + 0x20;
+			lower[i] = buf[i] + 0x20;
 		else
-			lowerRaw[i] = buf[i];
+			lower[i] = buf[i];
 	}
 
 	return lower;
@@ -809,13 +788,12 @@ LibString LibString::toupper() const
 	const size_type size = this->size();
 
 	_ThisType upper;
-	std::string &upperRaw = upper._raw;
-	upperRaw.resize(size);
+	upper.resize(size);
 	for (size_type i = 0; i < size; ++i)
 		if (buf[i] >= 0x61 && buf[i] <= 0x7a)
-			upperRaw[i] = buf[i] - 0x20;
+			upper[i] = buf[i] - 0x20;
 		else
-			upperRaw[i] = buf[i];
+			upper[i] = buf[i];
 
 	return upper;
 }
@@ -827,12 +805,10 @@ LibString LibString::FirstCharToUpper() const
 	if(size == 0)
 		return *this;
 
-	_ThisType upper;
-	std::string &upperRaw = upper._raw;
-	upper = *this;
+	_ThisType upper = *this;
 
 	if (buf[0] >= 0x61 && buf[0] <= 0x7a)
-		upperRaw[0] = buf[0] - 0x20;
+		upper[0] = buf[0] - 0x20;
 
 	return upper;
 }
@@ -844,12 +820,10 @@ LibString LibString::FirstCharToLower() const
 	if(size == 0)
 		return *this;
 
-	_ThisType lower;
-	std::string &lowerRaw = lower._raw;
-	lower = *this;
+	_ThisType lower = *this;
 
 	if (buf[0] >= 0x41 && buf[0] <= 0x5A)
-		lowerRaw[0] = buf[0] + 0x20;
+		lower[0] = buf[0] + 0x20;
 
 	return lower; 
 }
@@ -860,14 +834,12 @@ LibString::_ThisType &LibString::escape(const _ThisType &willbeEscapeChars, cons
 		return *this;
 
 	const long len = static_cast<long>(this->size());
-	std::string &thisRaw = _raw;
-	const std::string &willbeEscapeRaw = willbeEscapeChars._raw;
 	for (long i = len - 1; i >= 0; --i)
 	{
-		const _Elem &ch = thisRaw[i];
+		const _Elem &ch = (*this)[i];
 		if (ch == escapeChar ||
-			willbeEscapeRaw.find(ch) != std::string::npos)
-			thisRaw.insert(i, 1, escapeChar);
+			willbeEscapeChars.find(ch) != _Base::npos)
+			insert(i, 1, escapeChar);
 	}
 
 	return *this;
@@ -875,27 +847,26 @@ LibString::_ThisType &LibString::escape(const _ThisType &willbeEscapeChars, cons
 
 LibString::_ThisType &LibString::unescape(const _Elem &escapeChar)
 {
-	if (_raw.empty())
+	if (empty())
 		return *this;
 
-	std::string &thisRaw = _raw;
-	const Int64 len = static_cast<Int64>(thisRaw.size());
+	const Int64 len = static_cast<Int64>(size());
 	for (Int64 i = len - 1; i >= 0; --i)
 	{
-		const _Elem &ch = thisRaw[i];
+		const _Elem &ch = (*this)[i];
 		if (ch == escapeChar)
 		{
-			if (i > 0 && thisRaw[i - 1] == escapeChar)
-				thisRaw.erase(i--, 1);
+			if (i > 0 && (*this)[i - 1] == escapeChar)
+				erase(i--, 1);
 			else
-				thisRaw.erase(i, 1);
+				erase(i, 1);
 		}
 	}
 
 	return *this;
 }
 
-LibString::_ThisType LibString::substr_with_utf8(std::string::size_type pos, std::string::size_type n) const
+LibString::_ThisType LibString::substr_with_utf8(_Base::size_type pos, _Base::size_type n) const
 {
 	size_type utf8Len = this->length_with_utf8();
 	if (pos >= utf8Len || n == 0)
@@ -908,7 +879,7 @@ LibString::_ThisType LibString::substr_with_utf8(std::string::size_type pos, std
 
 	_ThisType str1 = *substrs.rbegin();
 	utf8Len = str1.length_with_utf8();
-	pos = (n == std::string::npos || n > utf8Len) ? utf8Len : n;
+	pos = (n == LibString::_Base::npos || n > utf8Len) ? utf8Len : n;
 
 	substrs.clear();
 	str1.split_utf8_string(pos, substrs);
@@ -928,7 +899,7 @@ void LibString::split_utf8_string(size_type charIndex, _These &strs) const
 	}
 
 	size_type utf8Count = _ThisType::length_with_utf8();
-	if (UNLIKELY(utf8Count == std::string::npos))
+	if (UNLIKELY(utf8Count == _Base::npos))
 	{
 		strs.push_back(*this);
 		return;
@@ -950,17 +921,17 @@ void LibString::split_utf8_string(size_type charIndex, _These &strs) const
 		++charPos;
 	}
 
-	strs.push_back(_raw.substr(0, bytePos));
-	strs.push_back(_raw.substr(bytePos));
+	strs.push_back(substr(0, bytePos));
+	strs.push_back(substr(bytePos));
 }
 
-void LibString::scatter_utf8_string(_These &chars, std::string::size_type scatterCount) const
+void LibString::scatter_utf8_string(_These &chars, _Base::size_type scatterCount) const
 {
 	chars.clear();
 
 	if (scatterCount == 0)
-		scatterCount = std::string::npos;
-	else if (scatterCount != std::string::npos)
+		scatterCount = _Base::npos;
+	else if (scatterCount != _Base::npos)
 		scatterCount -= 1;
 
 	if (scatterCount == 0)
@@ -972,13 +943,13 @@ void LibString::scatter_utf8_string(_These &chars, std::string::size_type scatte
 	size_type curPos = 0;
 	size_type prevPos = 0;
 	size_type curScatterCount = 0;
-	while ((curPos = this->_next_utf8_char_pos(prevPos)) != std::string::npos)
+	while ((curPos = this->_next_utf8_char_pos(prevPos)) != _Base::npos)
 	{
-		chars.push_back(_raw.substr(prevPos, curPos - prevPos));
+		chars.push_back(substr(prevPos, curPos - prevPos));
 
-		if (scatterCount != std::string::npos && ++curScatterCount >= scatterCount)
+		if (scatterCount != _Base::npos && ++curScatterCount >= scatterCount)
 		{
-			chars.push_back(_raw.substr(curPos));
+			chars.push_back(substr(curPos));
 			break;
 		}
 
@@ -987,19 +958,19 @@ void LibString::scatter_utf8_string(_These &chars, std::string::size_type scatte
 }
 
 // 下一个utf8字符索引pos
-std::string::size_type LibString::_next_utf8_char_pos(std::string::size_type &beginBytePos) const
+LibString::_Base::size_type LibString::_next_utf8_char_pos(_Base::size_type &beginBytePos) const
 {
 	if (beginBytePos == 0 && this->has_utf8_bomb())
 		beginBytePos += 3;
 
-	if (beginBytePos == std::string::npos || beginBytePos >= _raw.size())
-		return std::string::npos;
+	if (beginBytePos == _Base::npos || beginBytePos >= size())
+		return _Base::npos;
 
-	size_type waitCheckCount = std::string::npos;
+	size_type waitCheckCount = _Base::npos;
 
 	// 0xxx xxxx
 	// Encoding len: 1 byte.
-	U8 ch = static_cast<U8>(_raw.at(beginBytePos));
+	U8 ch = static_cast<U8>(at(beginBytePos));
 	if ((ch & 0x80) == 0x00)
 		waitCheckCount = 0;
 	// 110x xxxx
@@ -1023,19 +994,19 @@ std::string::size_type LibString::_next_utf8_char_pos(std::string::size_type &be
 	else if ((ch & 0xfe) == 0xfc)
 		waitCheckCount = 5;
 
-	if (waitCheckCount == std::string::npos)
-		return std::string::npos;
+	if (waitCheckCount == _Base::npos)
+		return _Base::npos;
 
 	size_type curPos = beginBytePos + 1;
 	size_type endPos = curPos + waitCheckCount;
-	if (endPos > _raw.size())
-		return std::string::npos;
+	if (endPos > size())
+		return _Base::npos;
 
 	for (; curPos != endPos; ++curPos)
 	{
-		ch = static_cast<U8>(_raw.at(curPos));
+		ch = static_cast<U8>(at(curPos));
 		if ((ch & 0xc0) != 0x80)
-			return std::string::npos;
+			return _Base::npos;
 	}
 
 	return endPos;
@@ -1092,9 +1063,3 @@ LibString &KernelAppendFormat(LibString &o, const Byte8 *fmt, ...)
 }
 
 KERNEL_END
-
-std::string &operator <<(std::string &o, const KERNEL_NS::LibString &str)
-{
-    o += str.GetRaw();
-    return o;
-}
