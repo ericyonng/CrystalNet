@@ -493,7 +493,7 @@ bool MongodbConnection::_CheckDatabaseSharded(const KERNEL_NS::LibString &dbName
         auto collections = configDb["databases"];
             
         auto filter = bsoncxx::builder::basic::make_document(
-            bsoncxx::builder::basic::kvp("_id", dbName.GetRaw())
+            bsoncxx::builder::basic::kvp("_id", dbName)
         );
 
         auto result = collections.find_one(filter.view());
@@ -502,33 +502,31 @@ bool MongodbConnection::_CheckDatabaseSharded(const KERNEL_NS::LibString &dbName
             CLOG_DEBUG("database %s not found in config.databases, need to enable sharding", dbName.c_str());
             return false;
         }
-            
-        auto doc = result->view();
-        auto partitionedIter = doc.find("partitioned");
-        if (partitionedIter == doc.end())
-        {
-            CLOG_DEBUG("database %s found but partitioned field missing, need to enable sharding", dbName.c_str());
-            return false;
-        }
-        
-        bool partitioned = partitionedIter->get_bool();
-        CLOG_INFO("database %s partitioned:%d", dbName.c_str(), partitioned);
-        return partitioned;
+
+        // 8.0 partitioned 字段被废弃
+        // auto doc = result->view();
+        // auto partitionedIter = doc.find("partitioned");
+        // if (partitionedIter == doc.end())
+        // {
+        //     CLOG_DEBUG("database %s found but partitioned field missing, need to enable sharding", dbName.c_str());
+        //     return false;
+        // }
+        //
+        // bool partitioned = partitionedIter->get_bool();
+        CLOG_DEBUG("database %s partitioned", dbName.c_str());
+        return true;
     }
     catch (const mongocxx::exception &e)
     {
         CLOG_ERROR("CheckDatabaseSharded failed:%s, db:%s", e.code().message().c_str(), dbName.c_str());
-        return false;
     }
     catch (const std::exception &e)
     {
         CLOG_ERROR("CheckDatabaseSharded failed std exception:%s, db:%s", e.what(), dbName.c_str());
-        return false;
     }
     catch (...)
     {
         CLOG_ERROR("CheckDatabaseSharded failed: db:%s", dbName.c_str());
-        return false;
     }
 
     return false;
