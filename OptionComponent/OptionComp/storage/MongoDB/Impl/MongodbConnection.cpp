@@ -124,7 +124,7 @@ KERNEL_NS::CoTask<bool> MongodbConnection::EnableDatabaseSharding(KERNEL_NS::Lib
     }
     catch (const mongocxx::exception &e)
     {
-        CLOG_ERROR("EnableDatabaseSharding failed:%s, dbName:%s", e.code().message().c_str(), dbName.c_str());
+        CLOG_ERROR("EnableDatabaseSharding failed:%s, dbName:%s", e.what(), dbName.c_str());
         co_return false;
     }
     catch (const std::exception &e)
@@ -212,7 +212,7 @@ KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> Mongo
     }
     catch (const mongocxx::exception &e)
     {
-        CLOG_ERROR("TryAcquireLock failed:%s, lockName:%s, ownerId:%s", e.code().message().c_str(), lockName.c_str(), ownerId.c_str());
+        CLOG_ERROR("TryAcquireLock failed:%s, lockName:%s, ownerId:%s", e.what(), lockName.c_str(), ownerId.c_str());
     }
     catch (const std::exception &e)
     {
@@ -244,7 +244,7 @@ void MongodbConnection::ReleaseLock(KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS:
     }
     catch (const mongocxx::exception &e)
     {
-        CLOG_ERROR("ReleaseLock failed:%s, lock collection:%s, lockId:%s", e.code().message().c_str(), lock->LockCollection.c_str(), lock->LockId.c_str());
+        CLOG_ERROR("ReleaseLock failed:%s, lock collection:%s, lockId:%s", e.what(), lock->LockCollection.c_str(), lock->LockId.c_str());
     }
     catch (const std::exception &e)
     {
@@ -308,6 +308,7 @@ KERNEL_NS::CoTask<bool> MongodbConnection::ShardCollection(KERNEL_NS::LibString 
             auto adminDb = _entry["admin"];
 
             auto builder = bsoncxx::builder::basic::document();
+            bool isUnique = shardKeys.empty() ? false : true;
             for (auto &shardKey : shardKeys)
             {
                 switch (shardKey.ValueType)
@@ -328,31 +329,67 @@ KERNEL_NS::CoTask<bool> MongodbConnection::ShardCollection(KERNEL_NS::LibString 
                         break;
                     }
                 }
+
+                if (!shardKey.IsUnique)
+                {
+                    isUnique = false;
+                }
             }
-            
-            auto cmd = bsoncxx::builder::basic::make_document(
+
+            if (isUnique)
+            {
+                auto cmd = bsoncxx::builder::basic::make_document(
+                bsoncxx::builder::basic::kvp("shardCollection", fullNs),
+                bsoncxx::builder::basic::kvp("key", builder.extract()),
+                bsoncxx::builder::basic::kvp("unique", true),
+                bsoncxx::builder::basic::kvp("numInitialChunks", numChunks)
+                );
+
+                CLOG_INFO("sharding collection %s with key:%s, numInitialChunks:%d unique:true", fullNs.c_str(), bsoncxx::to_json(builder.view()).c_str(), numChunks);
+        
+                auto result = adminDb.run_command(cmd.view());
+                auto resultView = result.view();
+        
+                // 释放锁
+                ReleaseLock(lock);
+        
+                // 检查命令执行结果
+                auto okIter = resultView.find("ok");
+                if (okIter != resultView.end() && okIter->get_double() > 0)
+                {
+                    CLOG_INFO("shardCollection %s success", fullNs.c_str());
+                    co_return true;
+                }
+
+                CLOG_ERROR("shardCollection %s failed:%s", fullNs.c_str(), bsoncxx::to_json(resultView).c_str());
+            }
+            else
+            {
+                auto cmd = bsoncxx::builder::basic::make_document(
                 bsoncxx::builder::basic::kvp("shardCollection", fullNs),
                 bsoncxx::builder::basic::kvp("key", builder.extract()),
                 bsoncxx::builder::basic::kvp("numInitialChunks", numChunks)
-            );
+                );
 
-            CLOG_INFO("sharding collection %s with key:%s, numInitialChunks:%d", fullNs.c_str(), bsoncxx::to_json(builder.view()).c_str(), numChunks);
+                CLOG_INFO("sharding collection %s with key:%s, numInitialChunks:%d", fullNs.c_str(), bsoncxx::to_json(builder.view()).c_str(), numChunks);
         
-            auto result = adminDb.run_command(cmd.view());
-            auto resultView = result.view();
+                auto result = adminDb.run_command(cmd.view());
+                auto resultView = result.view();
         
-            // 释放锁
-            ReleaseLock(lock);
+                // 释放锁
+                ReleaseLock(lock);
         
-            // 检查命令执行结果
-            auto okIter = resultView.find("ok");
-            if (okIter != resultView.end() && okIter->get_double() > 0)
-            {
-                CLOG_INFO("shardCollection %s success", fullNs.c_str());
-                co_return true;
+                // 检查命令执行结果
+                auto okIter = resultView.find("ok");
+                if (okIter != resultView.end() && okIter->get_double() > 0)
+                {
+                    CLOG_INFO("shardCollection %s success", fullNs.c_str());
+                    co_return true;
+                }
+
+                CLOG_ERROR("shardCollection %s failed:%s", fullNs.c_str(), bsoncxx::to_json(resultView).c_str());
             }
-
-            CLOG_ERROR("shardCollection %s failed:%s", fullNs.c_str(), bsoncxx::to_json(resultView).c_str());
+           
             co_return false;
         }
 
@@ -362,8 +399,7 @@ KERNEL_NS::CoTask<bool> MongodbConnection::ShardCollection(KERNEL_NS::LibString 
     catch (const mongocxx::exception &e)
     {
         CLOG_ERROR("ShardCollection failed:%s, dbName:%s, collName:%s, shardKeys:%s"
-            , e.code().message().c_str(), dbName.c_str(), collName.c_str(), KERNEL_NS::StringUtil::ToString(shardKeys, ',').c_str());
-        co_return false;
+            , e.what(), dbName.c_str(), collName.c_str(), KERNEL_NS::StringUtil::ToString(shardKeys, ',').c_str());
     }
     catch (const std::exception &e)
     {
@@ -419,7 +455,7 @@ KERNEL_NS::CoTask<bool> MongodbConnection::CreateIndex(const KERNEL_NS::LibStrin
             fieldStr.AppendFormat("%s:%d, ", field.first.c_str(), field.second);
         }
         CLOG_ERROR("CreateIndex fail exception:%s, db:%s, collection:%s, indexName:%s, fields:%s, unique:%d"
-            , e.code().message().c_str(), dbName.c_str(), collName.c_str(), indexName.c_str(), fieldStr.c_str(), unique);
+            , e.what(), dbName.c_str(), collName.c_str(), indexName.c_str(), fieldStr.c_str(), unique);
     }
     catch (const std::exception &e)
     {
@@ -459,7 +495,7 @@ bool MongodbConnection::_CheckIndexExists(mongocxx::collection &coll, const KERN
                 std::string name = nameIter->get_string().value.data();
                 if (indexName == name)
                 {
-                    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "index %s already exists"), indexName.c_str());
+                    CLOG_DEBUG("index %s already exists", indexName.c_str());
                     return true;
                 }
             }
@@ -470,7 +506,7 @@ bool MongodbConnection::_CheckIndexExists(mongocxx::collection &coll, const KERN
     }
     catch (const mongocxx::exception &e)
     {
-        CLOG_ERROR("CheckIndexExists failed:%s, indexName:%s", e.code().message().c_str(), indexName.c_str());
+        CLOG_ERROR("CheckIndexExists failed:%s, indexName:%s", e.what(), indexName.c_str());
     }
     catch (const std::exception &e)
     {
@@ -518,7 +554,7 @@ bool MongodbConnection::_CheckDatabaseSharded(const KERNEL_NS::LibString &dbName
     }
     catch (const mongocxx::exception &e)
     {
-        CLOG_ERROR("CheckDatabaseSharded failed:%s, db:%s", e.code().message().c_str(), dbName.c_str());
+        CLOG_ERROR("CheckDatabaseSharded failed:%s, db:%s", e.what(), dbName.c_str());
     }
     catch (const std::exception &e)
     {
@@ -568,7 +604,7 @@ bool MongodbConnection::_CheckCollectionSharded(const KERNEL_NS::LibString &dbNa
     }
     catch (const mongocxx::exception &e)
     {
-        CLOG_ERROR("CheckCollectionSharded failed:%s, dbName:%s, collName:%s", e.code().message().c_str(), dbName.c_str(), collName.c_str());
+        CLOG_ERROR("CheckCollectionSharded failed:%s, dbName:%s, collName:%s", e.what(), dbName.c_str(), collName.c_str());
         return false;
     }
     catch (const std::exception &e)

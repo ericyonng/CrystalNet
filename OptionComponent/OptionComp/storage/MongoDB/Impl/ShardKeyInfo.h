@@ -51,11 +51,14 @@ struct ShardKeyInfo
 {
     KERNEL_NS::LibString KeyName;
 
-    ShardKeyType::ENUMS ValueType;
+    ShardKeyType::ENUMS ValueType = ShardKeyType::ASC;
+
+    // 是否需要唯一索引(hashed不能设置唯一索引, 会失败, 只有范围类型的分片键才可以做唯一索引，例如ASC)
+    bool IsUnique = false;
 
     KERNEL_NS::LibString ToString() const
     {
-        return KERNEL_NS::LibString().AppendFormat("%s, %d", KeyName.c_str(), ValueType);
+        return KERNEL_NS::LibString().AppendFormat("%s, %d, %d", KeyName.c_str(), ValueType, IsUnique);
     }
 };
 

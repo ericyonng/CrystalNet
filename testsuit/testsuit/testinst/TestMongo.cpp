@@ -194,17 +194,21 @@ namespace
                 return false;
             }
             
-            auto doc = result->view();
-            auto partitionedIter = doc.find("partitioned");
-            if (partitionedIter == doc.end())
-            {
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "database %s found but partitioned field missing, need to enable sharding"), dbName.c_str());
-            return false;
-        }
+
+            return true;
+
+            // partitioned 8.0已废弃
+            // auto doc = result->view();
+            // auto partitionedIter = doc.find("partitioned");
+            // if (partitionedIter == doc.end())
+            // {
+            // g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "database %s found but partitioned field missing, need to enable sharding"), dbName.c_str());
+            // return false;
+            // }
         
-        bool partitioned = partitionedIter->get_bool();
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "database %s partitioned:%d"), dbName.c_str(), partitioned);
-        return partitioned;
+        // bool partitioned = partitionedIter->get_bool();
+        // g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "database %s partitioned:%d"), dbName.c_str(), partitioned);
+        // return partitioned;
     }
     catch (const mongocxx::exception &e)
     {
@@ -595,11 +599,39 @@ private:
         KERNEL_NS::ShardKeyInfo info;
         info.KeyName = "player_id";
         info.ValueType = KERNEL_NS::ShardKeyType::HASHED;
+        // hashed不能做唯一索引否则会失败
+        // info.IsUnique = true;
         shardKeys.push_back(info);
         mongoDbMgr->SetShardKeyInfo("testsuit2", "player", shardKeys);
+        shardKeys.clear();
+        info.KeyName = "player_id";
+        info.ValueType = KERNEL_NS::ShardKeyType::HASHED;
+        // hashed不能做唯一索引否则会失败
+        // info.IsUnique = true;
+        shardKeys.push_back(info);
+        mongoDbMgr->SetShardKeyInfo("testsuit7", "player", shardKeys);
+
+        mongoDbMgr->CreateIndex("testsuit7", "player", "idx_player_id", {{"player_id", 1}}, true);
 
         return Status::Success;
     }
+
+    virtual Int32 _OnHostStart() override
+    {
+        // 添加数据
+        KERNEL_NS::RunRightNow([this]()->KERNEL_NS::CoTask<>
+        {
+            auto mongodbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
+            auto ret = co_await mongodbMgr->AddData("testsuit6", "player", "player_id", 157);
+            CLOG_INFO("add data:%d", ret);
+
+            ret = co_await mongodbMgr->AddData("testsuit7", "player", "player_id", "helloworld");
+            CLOG_INFO("add data:%d", ret);
+        });
+
+        return Status::Success;
+    };
+
 };
 
 void TestMongo::Run()
@@ -612,7 +644,9 @@ void TestMongo::Run()
         testObj->Init();
         testObj->Start();
 
-        getchar();
+        auto poller = KERNEL_NS::TlsUtil::GetPoller();
+        poller->PrepareLoop();
+        poller->EventLoop();
 
         testObj->WillClose();
         testObj->Close();

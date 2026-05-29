@@ -154,6 +154,16 @@ private:
     MongoDbMgr *_mongodbMgr;
 };
 
+static ALWAYS_INLINE mongocxx::write_concern _MakeMongoMajorityWriteConcern()
+{
+    mongocxx::write_concern concern;
+    // 大多数节点成功后成功
+    concern.acknowledge_level(mongocxx::write_concern::level::k_majority);
+    // 写操作落盘后成功
+    concern.journal(true);
+    return concern;
+}
+
 MongoDbMgr::MongoDbMgr()
  :IMongoDbMgr(KERNEL_NS::RttiUtil::GetTypeId<MongoDbMgr>())
 ,_connectionPool(NULL)
@@ -271,30 +281,26 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
             auto collection = db[collectionName.GetRaw()];
                     
             // 设置表的大多数写成功, 且journal写完成功才算成功
-            mongocxx::write_concern concern;
-            // 大多数节点成功后成功
-            concern.acknowledge_level(mongocxx::write_concern::level::k_majority);
-            // 写操作落盘后成功
-            concern.journal(true);
+            auto concern = _MakeMongoMajorityWriteConcern();
             collection.write_concern(concern);
 
             auto ret = collection.insert_one(bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp(keyName.GetRaw(), keyValue)));
             if(!ret)
             {
-                CLOG_ERROR("Failed to insert data into collection, dbName:%s, collectionName:%s, keyName:%s, keyValue:%llu", dbName.GetRaw().c_str(), collectionName.GetRaw().c_str()
+                CLOG_ERROR("Failed to insert data into collection, dbName:%s, collectionName:%s, keyName:%s, keyValue:%lld", dbName.GetRaw().c_str(), collectionName.GetRaw().c_str()
                     , keyName.GetRaw().c_str(), keyValue);
                 return res;
             }
 
             auto &&id = ret->inserted_id().get_oid().value.to_string();
-            CLOG_DEBUG("insert one success, dbName:%s, collectionName:%s, keyName:%s, keyValue:%llu, mongodb _id:%s", dbName.GetRaw().c_str(), collectionName.GetRaw().c_str()
+            CLOG_DEBUG("insert one success, dbName:%s, collectionName:%s, keyName:%s, keyValue:%lld, mongodb _id:%s", dbName.GetRaw().c_str(), collectionName.GetRaw().c_str()
                     , keyName.GetRaw().c_str(), keyValue, id.c_str());
             res.IsSuccess = true;
         }
         catch (const mongocxx::exception &e)
         {
             CLOG_ERROR("AddData mongodb mongocxx exception: %s, dbName:%s collectionName:%s, keyName:%s, keyValue:%lld"
-                , e.code().message().c_str(), dbName.c_str(), collectionName.c_str(), keyName.c_str(), keyValue);
+                , e.what(), dbName.c_str(), collectionName.c_str(), keyName.c_str(), keyValue);
             return res;
         }
         catch (const std::exception &e)
@@ -324,9 +330,65 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
     co_return true;
 }
 
-KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, KERNEL_NS::LibString keyValue)
+KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString keyName, KERNEL_NS::LibString keyValue)
 {
-    co_return false;
+    auto isSuc = co_await _eventLoopThread->SendAsync<MongoAsyncRes>([this, dbName, collectionName, keyName, keyValue]()->MongoAsyncRes
+    {
+        MongoAsyncRes res;
+        try
+        {
+            auto client = _connectionPool->acquire();
+            auto db = client[dbName];
+            auto collection = db[collectionName];
+                    
+            // 设置表的大多数写成功, 且journal写完成功才算成功
+            auto &&concern = _MakeMongoMajorityWriteConcern();
+            collection.write_concern(concern);
+
+            auto ret = collection.insert_one(bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp(keyName.GetRaw(), keyValue.GetRaw())));
+            if(!ret)
+            {
+                CLOG_ERROR("Failed to insert data into collection, dbName:%s, collectionName:%s, keyName:%s, keyValue:%s", dbName.c_str(), collectionName.c_str()
+                    , keyName.c_str(), keyValue.c_str());
+                return res;
+            }
+
+            auto &&id = ret->inserted_id().get_oid().value.to_string();
+            CLOG_DEBUG("insert one success, dbName:%s, collectionName:%s, keyName:%s, keyValue:%s, mongodb _id:%s", dbName.c_str(), collectionName.c_str()
+                    , keyName.c_str(), keyValue.c_str(), id.c_str());
+            res.IsSuccess = true;
+        }
+        catch (const mongocxx::exception &e)
+        {
+            CLOG_ERROR("AddData mongodb mongocxx exception: %s, dbName:%s collectionName:%s, keyName:%s, keyValue:%s"
+                , e.what(), dbName.c_str(), collectionName.c_str(), keyName.c_str(), keyValue.c_str());
+            return res;
+        }
+        catch (const std::exception &e)
+        {
+            CLOG_ERROR("AddData mongodb std exception: %s, dbName:%s collectionName:%s, keyName:%s, keyValue:%s"
+                , e.what(), dbName.c_str(), collectionName.c_str(), keyName.c_str(), keyValue.c_str());
+            return res;
+        }
+        catch (...)
+        {
+            CLOG_ERROR("AddData mongodb unknown exception: %s, dbName:%s collectionName:%s, keyName:%s, keyValue:%s"
+                , dbName.c_str(), collectionName.c_str(), keyName.c_str(), keyValue.c_str());
+            
+            return res;
+        }
+
+        return res;
+    });
+
+    if(!isSuc->IsSuccess)
+    {
+        CLOG_ERROR("AddData fail, db:%s, collection:%s, key:%s, value:%lld", dbName.c_str(), collectionName.c_str(), keyName.c_str(), keyValue);
+        co_return false;
+    }
+
+    CLOG_DEBUG("AddData success, db:%s, collection:%s, key:%s, value:%lld", dbName.c_str(), collectionName.c_str(), keyName.c_str(), keyValue);
+    co_return true;
 }
 
 #endif
@@ -365,7 +427,7 @@ Int32 MongoDbMgr::_OnHostInit()
     }
     catch (const mongocxx::exception &e)
     {
-        CLOG_ERROR("init mongodb mongocxx exception: %s, uri:%s account:%s, pwd:%s, srvHostName:%s", e.code().message().c_str(), _uri.c_str(), _account.c_str(), _pwd.c_str(), _srvHostName.c_str());
+        CLOG_ERROR("init mongodb mongocxx exception: %s, uri:%s account:%s, pwd:%s, srvHostName:%s", e.what(), _uri.c_str(), _account.c_str(), _pwd.c_str(), _srvHostName.c_str());
         return Status::ConfigError;
     }
     catch (const std::exception &e)

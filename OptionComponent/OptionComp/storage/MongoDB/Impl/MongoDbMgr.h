@@ -85,6 +85,8 @@ protected:
     virtual void _OnHostClose() override;
     void _Clear();
 
+    
+
     friend class MongodbThreadStartup;
     // 连接mongo
     KERNEL_NS::LibString _uri;
