@@ -61,15 +61,18 @@ public:
     virtual void SetSrvHostName(const KERNEL_NS::LibString &hostName) override;
 
     // 给表设置分片键
-    virtual void SetShardKeyInfo(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const std::vector<ShardKeyInfo> &shardKeyInfos) override;
-    virtual void CreateIndex(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const KERNEL_NS::LibString &indexName, const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &fields, bool unique = false) override;
+    virtual bool SetShardKeyInfo(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const std::vector<ShardKeyInfo> &shardKeyInfos) override;
+    virtual bool CreateIndex(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const KERNEL_NS::LibString &indexName, const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &fields, bool unique = false) override;
 
     #ifdef CRYSTAL_NET_CPP20
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, UInt64 keyValue) override;
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, KERNEL_NS::LibString keyValue) override;
 
-    virtual KERNEL_NS::CoTask<bool> AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, Int64 keyValue) override;
-    virtual KERNEL_NS::CoTask<bool> AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, KERNEL_NS::LibString keyValue) override;
+    virtual KERNEL_NS::CoTask<bool> AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString *jsonString) override;
+
+    virtual KERNEL_NS::CoTask<bool> DelData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString keyName, Int64 keyValue) override;
+    virtual KERNEL_NS::CoTask<bool> DelData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString keyName, KERNEL_NS::LibString keyValue) override;
+
     #endif
 
     void DbReady(bool isReady);
@@ -100,6 +103,9 @@ protected:
     std::unordered_map<KERNEL_NS::LibString, std::unordered_map<KERNEL_NS::LibString, std::vector<ShardKeyInfo>>> _dbRefcollectionRefShardKeyInfos;
     // db => 表 => 索引信息(indexname => 索引信息)
     std::unordered_map<KERNEL_NS::LibString, std::unordered_map<KERNEL_NS::LibString, std::unordered_map<KERNEL_NS::LibString, MongoIndexInfo>>> _dbRefCollectionRefMongoIndexInfos;
+    // 不可添加分片键, 索引信息
+    std::atomic_bool _cantAddSchemaInfo;
+    SpinLock _schemaLock;
 
     // 初始化mongodb
     static mongocxx::instance _instance;

@@ -41,6 +41,16 @@ struct MongoIndexInfo
     KERNEL_NS::LibString IndexName;
     std::vector<std::pair<KERNEL_NS::LibString, Int32>> Fields;
     bool Unique = false;
+
+    LibString ToString() const
+    {
+        KERNEL_NS::LibString fieldStr;
+        for(auto &field : Fields)
+        {
+            fieldStr.AppendFormat("%s, ", field.first.c_str());
+        }
+        return LibString().AppendFormat("IndexName:%s, fields:%s, Unique:%d", IndexName.c_str(), fieldStr.c_str(), Unique);
+    }
 };
 
 KERNEL_END

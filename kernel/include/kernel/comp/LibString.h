@@ -153,6 +153,15 @@ public:
     {
     }
 
+    // 重载 operator new - 控制 LibString 对象本身的内存分配
+    static void* operator new(size_t size);
+    
+    static void* operator new[](size_t size);
+    
+    // 重载 operator delete - 控制 LibString 对象本身的内存释放
+    static void operator delete(void* ptr) noexcept;
+    static void operator delete[](void* ptr) noexcept;
+
     // 运算符
     LibString &operator = (const Byte8 *other)
     {

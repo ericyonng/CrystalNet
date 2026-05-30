@@ -1062,4 +1062,26 @@ LibString &KernelAppendFormat(LibString &o, const Byte8 *fmt, ...)
     return o;
 }
 
+// 重载 operator new - 控制 LibString 对象本身的内存分配
+void* LibString::operator new(size_t size)
+{
+    return  KERNEL_ALLOC_MEMORY_TL(size);
+}
+    
+void* LibString::operator new[](size_t size)
+{
+    return KERNEL_ALLOC_MEMORY_TL(size);
+}
+    
+// 重载 operator delete - 控制 LibString 对象本身的内存释放
+void LibString::operator delete(void* ptr)
+{
+    KERNEL_FREE_MEMORY_TL(ptr);
+}
+
+void LibString::operator delete[](void* ptr)
+{
+    KERNEL_FREE_MEMORY_TL(ptr);
+}
+
 KERNEL_END

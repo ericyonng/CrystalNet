@@ -609,9 +609,9 @@ private:
         // hashed不能做唯一索引否则会失败
         // info.IsUnique = true;
         shardKeys.push_back(info);
-        mongoDbMgr->SetShardKeyInfo("testsuit7", "player", shardKeys);
+        mongoDbMgr->SetShardKeyInfo("testsuit8", "player", shardKeys);
 
-        mongoDbMgr->CreateIndex("testsuit7", "player", "idx_player_id", {{"player_id", 1}}, true);
+        mongoDbMgr->CreateIndex("testsuit8", "player", "idx_player_id", {{"player_id", 1}}, true);
 
         return Status::Success;
     }
@@ -622,10 +622,27 @@ private:
         KERNEL_NS::RunRightNow([this]()->KERNEL_NS::CoTask<>
         {
             auto mongodbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
-            auto ret = co_await mongodbMgr->AddData("testsuit6", "player", "player_id", 157);
+
+            auto ret = co_await mongodbMgr->DelData("testsuit6", "player", "player_id", 88888);
+            CLOG_INFO("DelData:%d", ret);
+
+            nlohmann::json json1;
+            json1["player_id"] = 88888;
+            KERNEL_NS::LibString *str1 = new KERNEL_NS::LibString(json1.dump());
+            
+            ret = co_await mongodbMgr->AddData("testsuit6", "player", str1);
             CLOG_INFO("add data:%d", ret);
 
-            ret = co_await mongodbMgr->AddData("testsuit7", "player", "player_id", "helloworld");
+            // 移除数据
+            ret = co_await mongodbMgr->DelData("testsuit8", "player", "player_id", "DAsssS");
+            CLOG_INFO("DelData:%d", ret);
+            
+            nlohmann::json json;
+            json["player_id"] = "DAsssS";
+            json["age"] = 500;
+            json["bignum"] = 5000000000000000LLU;
+            KERNEL_NS::LibString *str = new KERNEL_NS::LibString(json.dump());
+            ret = co_await mongodbMgr->AddData("testsuit8", "player", str);
             CLOG_INFO("add data:%d", ret);
         });
 
