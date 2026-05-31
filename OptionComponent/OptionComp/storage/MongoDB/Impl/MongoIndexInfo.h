@@ -39,6 +39,7 @@ KERNEL_BEGIN
 struct MongoIndexInfo
 {
     KERNEL_NS::LibString IndexName;
+    // fieldname, asc:1,desc:-1,hashed:-2
     std::vector<std::pair<KERNEL_NS::LibString, Int32>> Fields;
     bool Unique = false;
 
@@ -47,7 +48,7 @@ struct MongoIndexInfo
         KERNEL_NS::LibString fieldStr;
         for(auto &field : Fields)
         {
-            fieldStr.AppendFormat("%s, ", field.first.c_str());
+            fieldStr.AppendFormat("%s:%d, ", field.first.c_str(), field.second);
         }
         return LibString().AppendFormat("IndexName:%s, fields:%s, Unique:%d", IndexName.c_str(), fieldStr.c_str(), Unique);
     }

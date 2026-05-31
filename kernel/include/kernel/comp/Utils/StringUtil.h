@@ -107,6 +107,9 @@ public:
 
 	static LibString ToString(const std::vector<LibString> &contents, const LibString &sep);
 	static void ToString(const std::vector<LibString> &contents, const LibString &sep, LibString &target);
+    // 自定义转换
+    template<typename T, typename LambdaType>
+    static LibString ToString(const std::vector<T> &contents, const LibString &sep, LambdaType &&lamb);
 	template<typename T>
 	static LibString ToString(const std::vector<T> &contents, const LibString &sep);
 	template<typename T>
@@ -403,6 +406,19 @@ ALWAYS_INLINE LibString StringUtil::ToString(const std::vector<T> &contents, con
 		strs.push_back(KERNEL_NS::LibString() << elem);
 	
 	return StringUtil::ToString(strs, sep);
+}
+
+template<typename T, typename LambdaType>
+ALWAYS_INLINE LibString StringUtil::ToString(const std::vector<T> &contents, const LibString &sep, LambdaType &&lamb)
+{
+    std::vector<LibString> strs;
+    for(auto &elem : contents)
+    {
+        auto &&transfer = lamb(elem);
+        strs.push_back(KERNEL_NS::LibString() << transfer);
+    }
+
+    return StringUtil::ToString(strs, sep);
 }
 
 template<typename T>

@@ -70,6 +70,107 @@ public:
             _mongodbMgr->_schemaLock.Lock();
             auto dbShardKeyInfos = _mongodbMgr->_dbRefcollectionRefShardKeyInfos;
             auto dbRefCollectionRefIndexInfos = _mongodbMgr->_dbRefCollectionRefMongoIndexInfos;
+            auto allForcosDbs = _mongodbMgr->_focusDbs;
+
+            // 拉取所有库, 所有表的索引, 提取唯一索引
+            CLOG_INFO("load all db unique index...");
+
+            for(auto &dbName : allForcosDbs)
+            {
+                CLOG_INFO("load %s collections...", dbName.c_str());
+
+                auto entry = _mongodbMgr->_connectionPool->acquire();
+                auto db = entry[dbName];
+                auto &&collectionNames = db.list_collection_names();
+                for(auto &colName :collectionNames)
+                {
+                    auto collection = db[colName];
+                    auto listIndex = collection.list_indexes();
+                    for(auto &index : listIndex)
+                    {
+                        bool isUnique = false;
+                        
+                        auto indexName = index["name"];
+                        KERNEL_NS::LibString indexFinalName;
+                        if(indexName && (indexName.type() == bsoncxx::type::k_string))
+                        {
+                            // 获取indexName
+                            indexFinalName = indexName.get_string().value.data();
+
+                            // _id_默认是唯一的
+                            if(indexFinalName == "_id_")
+                            {
+                                isUnique = true;
+                                // _id默认是唯一的
+                                auto indexKey = index["key"];
+                                if(indexKey && indexKey.type() == bsoncxx::type::k_document)
+                                {
+                                    auto indexKeyDoc = indexKey.get_document();
+                                    auto iterView = indexKeyDoc.view().find("_id");
+                                    if(iterView != indexKeyDoc.view().end() && iterView->type() == bsoncxx::type::k_int32)
+                                    {
+                                        auto sortValue = iterView->get_int32().value;
+                                        CLOG_INFO("load %s:%s index:%s isUnique:%d...", dbName.c_str(), colName.c_str(), indexFinalName.c_str(), isUnique);
+
+                                        _mongodbMgr->_DoAddIndex(dbName, colName, "_id_", {std::make_pair("_id", sortValue)}, true);
+                                        continue;
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // _id默认是唯一的
+                        auto indexKey = index["key"];
+                        std::vector<std::pair<KERNEL_NS::LibString, Int32>> fields;
+                        if(indexKey && indexKey.type() == bsoncxx::type::k_document)
+                        {
+                            auto indexKeyDoc = indexKey.get_document();
+                            auto viewIndexKey = indexKeyDoc.view();
+                            for(auto iter : viewIndexKey)
+                            {
+                                auto viewIterKey = iter.key();
+                                auto keyValueIter = iter.get_value();
+                                if((keyValueIter.type() == bsoncxx::type::k_string) && (keyValueIter.get_string().value == "hashed"))
+                                {
+                                    fields.push_back(std::make_pair(KERNEL_NS::LibString(viewIterKey.data()), -2));
+                                }
+                                else if(keyValueIter.type() == bsoncxx::type::k_int32)
+                                {
+                                    fields.push_back(std::make_pair(KERNEL_NS::LibString(viewIterKey.data()), keyValueIter.get_int32().value));
+                                }
+                            }
+                            
+                            auto iterIdView = indexKeyDoc.view().find("_id");
+                            if(iterIdView != indexKeyDoc.view().end() && iterIdView->type() == bsoncxx::type::k_int32)
+                            {
+                                auto sortValue = iterIdView->get_int32().value;
+                                isUnique = true;
+
+                                if(!indexFinalName.empty())
+                                {
+                                    CLOG_INFO("load %s:%s indexFinalName:%s isUnique:%d...", dbName.c_str(), colName.c_str(), indexFinalName.c_str(), isUnique);
+
+                                    _mongodbMgr->_DoAddIndex(dbName, colName, indexFinalName, {std::make_pair("_id", sortValue)}, true);
+                                    continue;
+                                }
+                            }
+                        }
+                        
+                        auto checkUnique = index["unique"];
+                        if(checkUnique && checkUnique.type() == bsoncxx::type::k_bool)
+                        {
+                            isUnique = checkUnique.get_bool().value;
+                            if(isUnique)
+                            {
+                                _mongodbMgr->_DoAddIndex(dbName, colName, indexFinalName, fields, true);
+                            }
+                        }
+                        
+                        CLOG_INFO("load %s:%s index:%s isUnique:%d...", dbName.c_str(), colName.c_str(), indexFinalName.c_str(), isUnique);
+                    }
+                }
+            }
+            CLOG_INFO("load all db unique index finish.");
             _mongodbMgr->_schemaLock.Unlock();
             
             for(auto iter : dbShardKeyInfos)
@@ -94,13 +195,13 @@ public:
                 for (auto iterCollection : collectionShardKeys)
                 {
                     auto &collectionName = iterCollection.first;
-                    auto &shardKeys = iterCollection.second;
+                    auto &shardKeyGroup = iterCollection.second;
                     auto entry = _mongodbMgr->_connectionPool->acquire();
                     auto connection = MongodbConnection::Create(entry);
-                    auto isSuc = co_await connection->ShardCollection(dbName, collectionName, shardKeys);
+                    auto isSuc = co_await connection->ShardCollection(dbName, collectionName, shardKeyGroup);
                     if(!isSuc)
                     {
-                        CLOG_ERROR("mongodb ShardCollection fail dbname:%s collectionName:%s, shard keys:%s", dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(shardKeys, ',').c_str());
+                        CLOG_ERROR("mongodb ShardCollection fail dbname:%s collectionName:%s, shard keys:%s", dbName.c_str(), collectionName.c_str(), shardKeyGroup.ToString().c_str());
                         _mongodbMgr->SetDbFailErr(Status::Failed);
                         co_return;
                     }
@@ -213,7 +314,7 @@ void MongoDbMgr::SetSrvHostName(const KERNEL_NS::LibString &hostName)
     _srvHostName = hostName;
 }
 
-bool MongoDbMgr::SetShardKeyInfo(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const std::vector<ShardKeyInfo> &shardKeyInfos)
+bool MongoDbMgr::SetShardKeyInfo(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const std::vector<ShardKeyInfo> &shardKeyInfos, bool isUnique)
 {
     if(_cantAddSchemaInfo.load(std::memory_order_acquire))
     {
@@ -224,17 +325,21 @@ bool MongoDbMgr::SetShardKeyInfo(const KERNEL_NS::LibString &dbName, const KERNE
     _schemaLock.Lock();
     auto iterDb = _dbRefcollectionRefShardKeyInfos.find(dbName);
     if (iterDb == _dbRefcollectionRefShardKeyInfos.end())
-        iterDb = _dbRefcollectionRefShardKeyInfos.insert(std::make_pair(dbName, std::unordered_map<KERNEL_NS::LibString, std::vector<ShardKeyInfo>>())).first;
+        iterDb = _dbRefcollectionRefShardKeyInfos.insert(std::make_pair(dbName, std::unordered_map<KERNEL_NS::LibString, ShardKeyInfoGroup>())).first;
 
     auto &collectionRefShardKeyInfos = iterDb->second;
     auto iterCollection = collectionRefShardKeyInfos.find(collectionName);
     if (iterCollection == collectionRefShardKeyInfos.end())
-        iterCollection = collectionRefShardKeyInfos.insert(std::make_pair(collectionName, std::vector<ShardKeyInfo>())).first;
-    iterCollection->second = shardKeyInfos;
+        iterCollection = collectionRefShardKeyInfos.insert(std::make_pair(collectionName, ShardKeyInfoGroup())).first;
+    iterCollection->second.ShardKeyInfos = shardKeyInfos;
+    iterCollection->second.IsUnique = isUnique;
+    auto &shardKeyGroup = iterCollection->second;
     _schemaLock.Unlock();
     
-    CLOG_INFO("SetShardKeyInfo db:%s collection:%s, shard key:%s", dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(shardKeyInfos, ',').c_str());
+    CLOG_INFO("SetShardKeyInfo db:%s collection:%s, shard key:%s", dbName.c_str(), collectionName.c_str(), shardKeyGroup.ToString().c_str());
 
+    // 自动关注
+    FocusDb(dbName);
     return true;
 }
 
@@ -252,30 +357,9 @@ bool MongoDbMgr::CreateIndex(const KERNEL_NS::LibString &dbName, const KERNEL_NS
         
         return false;
     }
-    
-    auto iterDb = _dbRefCollectionRefMongoIndexInfos.find(dbName);
-    if (iterDb == _dbRefCollectionRefMongoIndexInfos.end())
-        iterDb = _dbRefCollectionRefMongoIndexInfos.insert(std::make_pair(dbName, std::unordered_map<KERNEL_NS::LibString, std::unordered_map<KERNEL_NS::LibString, MongoIndexInfo>>())).first;
-
-    auto &collectionRefMongoIndexInfos = iterDb->second;
-    auto iter = collectionRefMongoIndexInfos.find(collectionName);
-    if(iter == collectionRefMongoIndexInfos.end())
-    {
-        iter = collectionRefMongoIndexInfos.insert(std::make_pair(collectionName, std::unordered_map<KERNEL_NS::LibString, MongoIndexInfo>())).first;
-    }
 
     _schemaLock.Lock();
-    auto &indexNameRefInfo = iter->second;
-    auto iterInfo = indexNameRefInfo.find(indexName);
-    if(iterInfo == indexNameRefInfo.end())
-    {
-        iterInfo = indexNameRefInfo.insert(std::make_pair(indexName, MongoIndexInfo())).first;
-    }
-
-    auto &mongoIndexInfo = iterInfo->second;
-    mongoIndexInfo.IndexName = indexName;
-    mongoIndexInfo.Fields = fields;
-    mongoIndexInfo.Unique = unique;
+    _DoAddIndex(dbName, collectionName, indexName, fields, unique);
     _schemaLock.Unlock();
 
     {
@@ -287,9 +371,59 @@ bool MongoDbMgr::CreateIndex(const KERNEL_NS::LibString &dbName, const KERNEL_NS
         CLOG_INFO("create index dbName:%s, collectionName:%s, indexName:%s fields:%s", dbName.c_str(), collectionName.c_str(), indexName.c_str(), fieldsStr.c_str());
     }
 
+    // 自动关注
+    FocusDb(dbName);
     return true;
 }
 
+void MongoDbMgr::_DoAddIndex(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const KERNEL_NS::LibString &indexName, const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &fields, bool unique)
+{
+    auto iterDb = _dbRefCollectionRefMongoIndexInfos.find(dbName);
+    if (iterDb == _dbRefCollectionRefMongoIndexInfos.end())
+        iterDb = _dbRefCollectionRefMongoIndexInfos.insert(std::make_pair(dbName, std::unordered_map<KERNEL_NS::LibString, std::unordered_map<KERNEL_NS::LibString, MongoIndexInfo>>())).first;
+
+    auto &collectionRefMongoIndexInfos = iterDb->second;
+    auto iter = collectionRefMongoIndexInfos.find(collectionName);
+    if(iter == collectionRefMongoIndexInfos.end())
+    {
+        iter = collectionRefMongoIndexInfos.insert(std::make_pair(collectionName, std::unordered_map<KERNEL_NS::LibString, MongoIndexInfo>())).first;
+    }
+
+    auto &indexNameRefInfo = iter->second;
+    auto iterInfo = indexNameRefInfo.find(indexName);
+    if(iterInfo == indexNameRefInfo.end())
+    {
+        iterInfo = indexNameRefInfo.insert(std::make_pair(indexName, MongoIndexInfo())).first;
+    }
+
+    auto &mongoIndexInfo = iterInfo->second;
+    mongoIndexInfo.IndexName = indexName;
+    mongoIndexInfo.Fields = fields;
+    mongoIndexInfo.Unique = unique;
+    CLOG_INFO("add index info db:%s, collection:%s, indexName:%s, fields:%s, unique:%d", dbName.c_str(), collectionName.c_str(), indexName.c_str(), KERNEL_NS::StringUtil::ToString(mongoIndexInfo.Fields, ',', [](const std::pair<KERNEL_NS::LibString, Int32> &elem) ->KERNEL_NS::LibString
+    {
+        return KERNEL_NS::LibString().AppendFormat("%s:%d", elem.first.c_str(), elem.second);
+    }).c_str(), unique);
+}
+
+
+bool MongoDbMgr::FocusDb(const KERNEL_NS::LibString &dbName)
+{
+    if(_cantAddSchemaInfo.load(std::memory_order_acquire))
+    {
+        CLOG_ERROR("cant ForcusDb db name:%s", dbName.c_str());
+        
+        return false;
+    }
+    
+    _schemaLock.Lock();
+    _focusDbs.insert(dbName);
+    _schemaLock.Unlock();
+
+    CLOG_INFO("FocusDb :%s", dbName.c_str());
+
+    return true;
+}
 
 #ifdef CRYSTAL_NET_CPP20
 
@@ -305,6 +439,13 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::Query(KERNEL_NS::LibString dbName, KERNEL_NS
 
 KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString *jsonString)
 {
+    if(_focusDbs.find(dbName) == _focusDbs.end())
+    {
+        CLOG_ERROR("AddData fail, db:%s, not focus before will started, collection:%s, jsonString:%p", dbName.c_str(), collectionName.c_str(), jsonString);
+        jsonString->Release();
+        co_return false;
+    }
+    
     auto isSuc = co_await _eventLoopThread->SendAsync<MongoAsyncRes>([this, dbName, collectionName, jsonString]()->MongoAsyncRes
     {
         MongoAsyncRes res;
@@ -322,65 +463,17 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
 
             auto &&bsonDoc = bsoncxx::from_json(*jsonStringPtr);
 
-            // 分片键的唯一键检查
+            // 唯一键检查
+            if(!_CheckHasUniqueKey(dbName, collectionName, [&bsonDoc](const KERNEL_NS::LibString &idxName, const KERNEL_NS::LibString &field) -> bool
             {
-                auto iterDb = _dbRefcollectionRefShardKeyInfos.find(dbName);
-                if(iterDb != _dbRefcollectionRefShardKeyInfos.end())
-                {
-                    auto &collectionRefShadKeyInfos = iterDb->second;
-                    auto iterCollection = collectionRefShadKeyInfos.find(collectionName);
-                    if(iterCollection != collectionRefShadKeyInfos.end())
-                    {
-                        auto &shardKeyInfos = iterCollection->second;
-                        for(auto &shardKeyInfo : shardKeyInfos)
-                        {
-                            if(!shardKeyInfo.IsUnique)
-                                continue;
-
-                            auto iterKey = bsonDoc.find(shardKeyInfo.KeyName);
-                            if(iterKey == bsonDoc.end())
-                            {
-                                CLOG_ERROR("Failed to insert data into collection of:lack unique shard key:%s dbName:%s, collectionName:%s, jsonStringPtr:%s"
-                                    , shardKeyInfo.ToString().c_str(), dbName.c_str(), collectionName.c_str(), jsonStringPtr->c_str());
-                                                            
-                                return res;
-                            }
-                        }
-                    }
-                }
-            }
-
-            // 索引的唯一键检查
+                auto iterKey = bsonDoc.find(field);
+                return iterKey != bsonDoc.end();
+            }))
             {
-                auto iterDb = _dbRefCollectionRefMongoIndexInfos.find(dbName);
-                if(iterDb != _dbRefCollectionRefMongoIndexInfos.end())
-                {
-                    auto &collectionRefIndexInfos = iterDb->second;
-                    auto iterCollection = collectionRefIndexInfos.find(collectionName);
-                    if(iterCollection != collectionRefIndexInfos.end())
-                    {
-                        auto &indexNameRefIndexInfo = iterCollection->second;
-                        for(auto iterIndex : indexNameRefIndexInfo)
-                        {
-                            auto &indexInfo = iterIndex.second;
-                            if(!indexInfo.Unique)
-                                continue;
-
-                            for(auto &field : indexInfo.Fields)
-                            {
-                                auto iterKey = bsonDoc.find(field.first);
-                                if(iterKey == bsonDoc.end())
-                                {
-                                    CLOG_ERROR("Failed to insert data into collection of:lack unique fields data, unique field:%s dbName:%s, collectionName:%s, jsonStringPtr:%s"
-                                        , indexInfo.ToString().c_str(), dbName.c_str(), collectionName.c_str(), jsonStringPtr->c_str());
-                                    
-                                    return res;
-                                }
-                            }
-                            
-                        }
-                    }
-                }
+                CLOG_ERROR("Failed to insert data into collection of:lack unique key please check, dbName:%s, collectionName:%s, jsonStringPtr:%s"
+                    , dbName.c_str(), collectionName.c_str(), jsonStringPtr->c_str());
+                                                                            
+                return res;
             }
             
             auto ret = collection.insert_one(bsonDoc.view());
@@ -429,9 +522,165 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
     co_return true;
 }
 
-KERNEL_NS::CoTask<bool> MongoDbMgr::DelData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString keyName, Int64 keyValue)
+KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant>> uniqueKv, KERNEL_NS::LibString binaryKeyName, KERNEL_NS::LibStreamTL *binaryData)
 {
-    auto isSuc = co_await _eventLoopThread->SendAsync<MongoAsyncRes>([this, dbName, collectionName, keyName, keyValue]()->MongoAsyncRes
+    if(_focusDbs.find(dbName) == _focusDbs.end())
+    {
+        CLOG_ERROR("AddData fail, db:%s, not focus before will started, collection:%s, kv:%s, binaryName:%s, binaryData:%p, len:%lld", dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)->KERNEL_NS::LibString
+        {
+            return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+        }).c_str(), binaryKeyName.c_str(), binaryData, binaryData->GetReadableSize());
+        KERNEL_NS::LibStreamTL::DeleteThreadLocal_LibStream(binaryData);
+        co_return false;
+    }
+    
+    auto isSuc = co_await _eventLoopThread->SendAsync<MongoAsyncRes>([this, dbName, collectionName, uniqueKv, binaryKeyName, binaryData]()->MongoAsyncRes
+    {
+        MongoAsyncRes res;
+        SmartPtr<KERNEL_NS::LibStreamTL, AutoDelMethods::CustomDelete> steam(binaryData);
+        steam.SetClosureDelegate([](void *arg)
+        {
+            KERNEL_NS::LibStreamTL::DeleteThreadLocal_LibStream(KERNEL_NS::KernelCastTo<KERNEL_NS::LibStreamTL>(arg));
+        });
+
+        try
+        {
+            auto client = _connectionPool->acquire();
+            auto db = client[dbName];
+            auto collection = db[collectionName];
+                    
+            // 设置表的大多数写成功, 且journal写完成功才算成功
+            auto &&concern = _MakeMongoMajorityWriteConcern();
+            collection.write_concern(concern);
+
+            // 唯一键检查
+             if(!_CheckHasUniqueKey(dbName, collectionName, [&uniqueKv](const KERNEL_NS::LibString &idxName, const KERNEL_NS::LibString &field) -> bool
+             {
+                 for(auto &kv : uniqueKv)
+                 {
+                     if(kv.first == field)
+                         return true;
+                 }
+                 return false;
+             }))
+             {
+                 CLOG_ERROR("Failed to insert data into collection of:lack unique key please check, kv:%s dbName:%s, collectionName:%s, binaryKeyName:%s, binary size:%lld, binaryData:%p"
+                     ,  KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem) -> KERNEL_NS::LibString
+                     {
+                         return KERNEL_NS::LibString().AppendFormat("%s:%ls", elem.first.c_str(), elem.second.ToString().c_str());
+                     }).c_str(), dbName.c_str(), collectionName.c_str(), binaryKeyName.c_str(), binaryData->GetReadableSize(), binaryData);
+                 return res;
+             }
+            
+            bsoncxx::builder::basic::document fullDoc;
+            for(auto &kv : uniqueKv)
+            {
+                if(kv.second.IsBriefData())
+                {
+                    fullDoc.append(bsoncxx::builder::basic::kvp(kv.first.GetRaw(), kv.second.AsInt64()));
+                }
+                else if(kv.second.IsStr())
+                {
+                    fullDoc.append(bsoncxx::builder::basic::kvp(kv.first.GetRaw(), kv.second.AsStr().GetRaw()));
+                }
+            }
+
+            // 存储二进制数据
+            auto binData = bsoncxx::types::b_binary();
+            binData.sub_type = bsoncxx::binary_sub_type::k_binary;
+            binData.size = static_cast<uint32_t>(binaryData->GetReadableSize());
+            binData.bytes = (uint8_t *) binaryData->GetReadBegin();
+            fullDoc.append(bsoncxx::builder::basic::kvp(binaryKeyName.GetRaw(), binData));
+
+            // extract让数据脱离构建器, 建议使用, 而不是使用view(),view是借用指针, 序列化的时候会拷走数据, 此处为了少一些拷贝用view()
+            auto ret = collection.insert_one(fullDoc.view());
+            if(!ret)
+            {
+                auto &&kvStr = KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)-> KERNEL_NS::LibString
+                {
+                    return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+                });
+                CLOG_ERROR("Failed to insert data into collection, dbName:%s, collectionName:%s, kvStr:%s, binarySize:%lld, binary:%p"
+                    , dbName.c_str(), collectionName.c_str(), kvStr.c_str(), steam->GetReadableSize(), steam.AsSelf());
+                return res;
+            }
+
+            auto &&id = ret->inserted_id().get_oid().value.to_string();
+            CLOG_DEBUG("insert one success, dbName:%s, collectionName:%s, kv:%s, binarySize:%lld, binary:%p, mongodb _id:%s", dbName.c_str(), collectionName.c_str()
+                , KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)-> KERNEL_NS::LibString
+                    {
+                        return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+                    }).c_str(), steam->GetReadableSize(), steam.AsSelf(), id.c_str());
+            
+            res.IsSuccess = true;
+        }
+        catch (const mongocxx::exception &e)
+        {
+            auto &&kvStr = KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)-> KERNEL_NS::LibString
+            {
+                return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+            });
+            CLOG_ERROR("AddData mongodb mongocxx exception: %s, dbName:%s collectionName:%s, kvStr:%s, binarySize:%lld, binary:%p"
+                , e.what(), dbName.c_str(), collectionName.c_str(), kvStr.c_str(), steam->GetReadableSize(), steam.AsSelf());
+            return res;
+        }
+        catch (const std::exception &e)
+        {
+            auto &&kvStr = KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)-> KERNEL_NS::LibString
+            {
+                return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+            });
+            CLOG_ERROR("AddData mongodb std exception: %s, dbName:%s collectionName:%s, kvStr:%s, binarySize:%lld, binary:%p"
+                , e.what(), dbName.c_str(), collectionName.c_str(), kvStr.c_str(), steam->GetReadableSize(), steam.AsSelf());
+            return res;
+        }
+        catch (...)
+        {
+            auto &&kvStr = KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)-> KERNEL_NS::LibString
+            {
+                return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+            });
+            CLOG_ERROR("AddData mongodb unknown exception: dbName:%s collectionName:%s, kvStr:%s, binarySize:%lld, binary:%p"
+                ,dbName.c_str(), collectionName.c_str(), kvStr.c_str(), steam->GetReadableSize(), steam.AsSelf());
+            
+            return res;
+        }
+
+        return res;
+    });
+
+    if(!isSuc->IsSuccess)
+    {
+        auto &&kvStr = KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)-> KERNEL_NS::LibString
+        {
+            return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+        });
+        
+        CLOG_ERROR("AddData fail, db:%s, collection:%s, unique kv:%s", dbName.c_str(), collectionName.c_str(), kvStr.c_str());
+        co_return false;
+    }
+
+    CLOG_DEBUG("AddData success, db:%s, collection:%s", dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)-> KERNEL_NS::LibString
+    {
+        return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+    }).c_str());
+    co_return true;
+}
+
+KERNEL_NS::CoTask<bool> MongoDbMgr::DelData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant>> uniqueKv)
+{
+    if(_focusDbs.find(dbName) == _focusDbs.end())
+    {
+        CLOG_ERROR("DelData fail, db:%s, not focus before will started, collection:%s, uniqueKv:%s"
+            , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem) -> LibString
+            {
+                return LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+            }).c_str());
+        
+        co_return false;
+    }
+    
+    auto isSuc = co_await _eventLoopThread->SendAsync<MongoAsyncRes>([this, dbName, collectionName, uniqueKv]()->MongoAsyncRes
     {
         MongoAsyncRes res;
         try
@@ -443,17 +692,32 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::DelData(KERNEL_NS::LibString dbName, KERNEL_
             // 设置表的大多数写成功, 且journal写完成功才算成功
             auto &&concern = _MakeMongoMajorityWriteConcern();
             collection.write_concern(concern);
-
-            auto key = bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp(keyName.GetRaw(), keyValue));
-            auto result = collection.delete_one(key.view());
+            
+            bsoncxx::builder::basic::document fullKv;
+            for(auto &kv : uniqueKv)
+            {
+                if(kv.second.IsBriefData())
+                {
+                    fullKv.append(bsoncxx::builder::basic::kvp(kv.first.GetRaw(), kv.second.AsInt64()));
+                }
+                else if(kv.second.IsStr())
+                {
+                    fullKv.append(bsoncxx::builder::basic::kvp(kv.first.GetRaw(), kv.second.AsStr().GetRaw()));
+                }
+            }
+            
+            auto result = collection.delete_one(fullKv.view());
             Int32 deletedCount = 0;
             if(result)
             {
                 deletedCount = result->deleted_count();
             }
 
-            CLOG_DEBUG("DelData success deletedCount:%d, keyName:%s, keyValue:%lld, key:%s, db:%s, collection:%s"
-                ,deletedCount, keyName.c_str(), keyValue, bsoncxx::to_json(key).c_str(), dbName.c_str(), collectionName.c_str());
+            CLOG_DEBUG("DelData success deletedCount:%d, keyJson:%s, db:%s, collection:%s, uniqueKv:%s"
+                ,deletedCount,  bsoncxx::to_json(fullKv).c_str(), dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)
+                {
+                    return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+                }).c_str());
 
             res.IsSuccess = true;
 
@@ -461,77 +725,27 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::DelData(KERNEL_NS::LibString dbName, KERNEL_
         }
         catch (const mongocxx::exception &e)
         {
-            CLOG_DEBUG("DelData fail exception:%s, keyName:%s, keyValue:%lld, db:%s, collection:%s"
-                ,e.what(), keyName.c_str(), keyValue, dbName.c_str(), collectionName.c_str());
-        }
-        catch (const std::exception &e)
-        {
-            CLOG_DEBUG("DelData fail std exception:%s, keyName:%s, keyValue:%lld, db:%s, collection:%s"
-                ,e.what(), keyName.c_str(), keyValue, dbName.c_str(), collectionName.c_str());
-        }
-        catch (...)
-        {
-            CLOG_DEBUG("DelData fail unknown exception, keyName:%s, keyValue:%lld, db:%s, collection:%s"
-                , keyName.c_str(), keyValue, dbName.c_str(), collectionName.c_str());
-        }
-
-        return res;
-    });
-
-    if(!isSuc->IsSuccess)
-    {
-        CLOG_ERROR("DelData fail, db:%s, collection:%s, keyName:%s, value:%lld", dbName.c_str(), collectionName.c_str(), keyName.c_str(), keyValue);
-        co_return false;
-    }
-
-    CLOG_DEBUG("DelData success, db:%s, collection:%s, keyName:%s, value:%lld", dbName.c_str(), collectionName.c_str(), keyName.c_str(), keyValue);
-    co_return true;
-}
-
-KERNEL_NS::CoTask<bool> MongoDbMgr::DelData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString keyName, KERNEL_NS::LibString keyValue)
-{
-    auto isSuc = co_await _eventLoopThread->SendAsync<MongoAsyncRes>([this, dbName, collectionName, keyName, keyValue]()->MongoAsyncRes
-    {
-        MongoAsyncRes res;
-        try
-        {
-            auto client = _connectionPool->acquire();
-            auto db = client[dbName];
-            auto collection = db[collectionName];
-                                
-            // 设置表的大多数写成功, 且journal写完成功才算成功
-            auto &&concern = _MakeMongoMajorityWriteConcern();
-            collection.write_concern(concern);
-
-            auto key = bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp(keyName.GetRaw(), keyValue.GetRaw()));
-            auto result = collection.delete_one(key.view());
-            Int32 deletedCount = 0;
-            if(result)
+            CLOG_ERROR("DelData fail exception:%s, db:%s, collection:%s, uniqueKv:%s"
+            ,e.what(), dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)
             {
-                deletedCount = result->deleted_count();
-            }
-
-            CLOG_DEBUG("DelData success deletedCount:%d, keyName:%s, keyValue:%s, key:%s, db:%s, collection:%s"
-                ,deletedCount, keyName.c_str(), keyValue.c_str(), bsoncxx::to_json(key).c_str(), dbName.c_str(), collectionName.c_str());
-
-            res.IsSuccess = true;
-
-            return res;
-        }
-        catch (const mongocxx::exception &e)
-        {
-            CLOG_DEBUG("DelData fail exception:%s, keyName:%s, keyValue:%s, db:%s, collection:%s"
-                ,e.what(), keyName.c_str(), keyValue.c_str(), dbName.c_str(), collectionName.c_str());
+                return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+            }).c_str());
         }
         catch (const std::exception &e)
         {
-            CLOG_DEBUG("DelData fail std exception:%s, keyName:%s, keyValue:%s, db:%s, collection:%s"
-                ,e.what(), keyName.c_str(), keyValue.c_str(), dbName.c_str(), collectionName.c_str());
+            CLOG_ERROR("DelData fail std exception:%s, db:%s, collection:%s, uniqueKv:%s"
+            ,e.what(), dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)
+            {
+                return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+            }).c_str());
         }
         catch (...)
         {
-            CLOG_DEBUG("DelData fail unknown exception, keyName:%s, keyValue:%s, db:%s, collection:%s"
-                , keyName.c_str(), keyValue.c_str(), dbName.c_str(), collectionName.c_str());
+            CLOG_ERROR("DelData fail unknown exception, db:%s, collection:%s, uniqueKv:%s"
+            , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)
+            {
+                return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+            }).c_str());
         }
 
         return res;
@@ -539,14 +753,20 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::DelData(KERNEL_NS::LibString dbName, KERNEL_
 
     if(!isSuc->IsSuccess)
     {
-        CLOG_ERROR("DelData fail, db:%s, collection:%s, keyName:%s, value:%s", dbName.c_str(), collectionName.c_str(), keyName.c_str(), keyValue.c_str());
+        CLOG_ERROR("DelData fail, db:%s, collection:%s, uniqueKv:%s", dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)
+            {
+                return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+            }).c_str());
         co_return false;
     }
 
-    CLOG_DEBUG("DelData success, db:%s, collection:%s, keyName:%s, value:%s", dbName.c_str(), collectionName.c_str(), keyName.c_str(), keyValue.c_str());
+    CLOG_DEBUG("DelData success, db:%s, collection:%s, uniqueKv:%s", dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)
+            {
+                return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+            }).c_str());
+    
     co_return true;
 }
-
 
 #endif
 
@@ -655,6 +875,7 @@ void MongoDbMgr::_Clear()
     CRYSTAL_DELETE_SAFE(_connectionPool);
     CRYSTAL_RELEASE_SAFE(_eventLoopThread);
 }
+
 
 KERNEL_END
 

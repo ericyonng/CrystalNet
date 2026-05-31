@@ -61,17 +61,18 @@ public:
     virtual void SetSrvHostName(const KERNEL_NS::LibString &hostName) override;
 
     // 给表设置分片键
-    virtual bool SetShardKeyInfo(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const std::vector<ShardKeyInfo> &shardKeyInfos) override;
+    virtual bool SetShardKeyInfo(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const std::vector<ShardKeyInfo> &shardKeyInfos, bool isUnique = false) override;
     virtual bool CreateIndex(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const KERNEL_NS::LibString &indexName, const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &fields, bool unique = false) override;
+    virtual bool FocusDb(const KERNEL_NS::LibString &dbName) override;
 
     #ifdef CRYSTAL_NET_CPP20
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, UInt64 keyValue) override;
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, KERNEL_NS::LibString keyValue) override;
 
     virtual KERNEL_NS::CoTask<bool> AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString *jsonString) override;
+    virtual KERNEL_NS::CoTask<bool> AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant>> uniqueKv, KERNEL_NS::LibString binaryKeyName, KERNEL_NS::LibStreamTL *binaryData) override;
 
-    virtual KERNEL_NS::CoTask<bool> DelData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString keyName, Int64 keyValue) override;
-    virtual KERNEL_NS::CoTask<bool> DelData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString keyName, KERNEL_NS::LibString keyValue) override;
+    virtual KERNEL_NS::CoTask<bool> DelData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant>> uniqueKv) override;
 
     #endif
 
@@ -87,8 +88,51 @@ protected:
     virtual void _OnHostBeforeCompsWillClose() override;
     virtual void _OnHostClose() override;
     void _Clear();
+    template<typename LambdaType>
+    bool _CheckHasUniqueKey(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, LambdaType &&checkHasField) const
+    {
+        auto iterDb = _dbRefCollectionRefMongoIndexInfos.find(dbName);
+        if(iterDb == _dbRefCollectionRefMongoIndexInfos.end())
+            return false;
 
-    
+        auto &collectionRefIndexInfos = iterDb->second;
+        auto iterCollection = collectionRefIndexInfos.find(collectionName);
+        if(iterCollection == collectionRefIndexInfos.end())
+            return false;
+
+        auto &indexNameRefIndexInfo = iterCollection->second;
+        for(auto iterIndex : indexNameRefIndexInfo)
+        {
+            auto &indexInfo = iterIndex.second;
+            if(indexInfo.Fields.empty())
+                continue;
+                    
+            if(!indexInfo.Unique)
+                continue;
+
+            Int32 hasKeyCount = 0;
+            for(auto &field : indexInfo.Fields)
+            {
+                // 没有字段就跳出
+                if(!checkHasField(indexInfo.IndexName, field.first))
+                {
+                    break;
+                }
+
+                ++hasKeyCount;
+            }
+
+            // 有没有唯一索引的所有key
+            if(hasKeyCount == static_cast<Int32>(indexInfo.Fields.size()))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    void _DoAddIndex(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const KERNEL_NS::LibString &indexName, const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &fields, bool unique = false);
 
     friend class MongodbThreadStartup;
     // 连接mongo
@@ -100,12 +144,14 @@ protected:
     // mongodb + srv 连接域名
     KERNEL_NS::LibString _srvHostName;
     // db => 表 => 分片键
-    std::unordered_map<KERNEL_NS::LibString, std::unordered_map<KERNEL_NS::LibString, std::vector<ShardKeyInfo>>> _dbRefcollectionRefShardKeyInfos;
+    std::unordered_map<KERNEL_NS::LibString, std::unordered_map<KERNEL_NS::LibString, ShardKeyInfoGroup>> _dbRefcollectionRefShardKeyInfos;
     // db => 表 => 索引信息(indexname => 索引信息)
     std::unordered_map<KERNEL_NS::LibString, std::unordered_map<KERNEL_NS::LibString, std::unordered_map<KERNEL_NS::LibString, MongoIndexInfo>>> _dbRefCollectionRefMongoIndexInfos;
     // 不可添加分片键, 索引信息
     std::atomic_bool _cantAddSchemaInfo;
     SpinLock _schemaLock;
+    // 是否关注的数据库(不是关注的数据库不会提供服务)
+    std::unordered_set<KERNEL_NS::LibString> _focusDbs;
 
     // 初始化mongodb
     static mongocxx::instance _instance;

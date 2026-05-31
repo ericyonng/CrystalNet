@@ -592,8 +592,19 @@ private:
     virtual Int32 _OnCompsCreated() override
     {
         auto mongoDbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
-        mongoDbMgr->SetSrvHostName("xxx");
-        mongoDbMgr->SetAccountPwd("eric", "1111");
+        mongoDbMgr->SetSrvHostName("mongoscluster.ericyonng.com");
+        mongoDbMgr->SetAccountPwd("eric", "pK38U~mTk%5E3");
+
+        mongoDbMgr->FocusDb("testsuit1");
+        mongoDbMgr->FocusDb("testsuit2");
+        mongoDbMgr->FocusDb("testsuit3");
+        mongoDbMgr->FocusDb("testsuit4");
+        mongoDbMgr->FocusDb("testsuit5");
+        mongoDbMgr->FocusDb("testsuit6");
+        mongoDbMgr->FocusDb("testsuit7");
+        mongoDbMgr->FocusDb("testsuit8");
+        mongoDbMgr->FocusDb("testsuit9");
+        mongoDbMgr->FocusDb("testsuit10");
 
         std::vector<KERNEL_NS::ShardKeyInfo> shardKeys;
         KERNEL_NS::ShardKeyInfo info;
@@ -610,8 +621,12 @@ private:
         // info.IsUnique = true;
         shardKeys.push_back(info);
         mongoDbMgr->SetShardKeyInfo("testsuit8", "player", shardKeys);
+        mongoDbMgr->SetShardKeyInfo("testsuit9", "player", shardKeys);
+        mongoDbMgr->SetShardKeyInfo("testsuit10", "player", shardKeys);
 
         mongoDbMgr->CreateIndex("testsuit8", "player", "idx_player_id", {{"player_id", 1}}, true);
+        mongoDbMgr->CreateIndex("testsuit9", "player", "idx_player_id_role_id", {{"player_id", 1}, {"role_id", 1}}, true);
+        mongoDbMgr->CreateIndex("testsuit10", "player", "idx_player_id_name", {{"player_id", 1}, {"name", 1}}, true);
 
         return Status::Success;
     }
@@ -623,7 +638,7 @@ private:
         {
             auto mongodbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
 
-            auto ret = co_await mongodbMgr->DelData("testsuit6", "player", "player_id", 88888);
+            auto ret = co_await mongodbMgr->DelData("testsuit6", "player", {std::make_pair("player_id", KERNEL_NS::Variant(88888LL))});
             CLOG_INFO("DelData:%d", ret);
 
             nlohmann::json json1;
@@ -634,7 +649,7 @@ private:
             CLOG_INFO("add data:%d", ret);
 
             // 移除数据
-            ret = co_await mongodbMgr->DelData("testsuit8", "player", "player_id", "DAsssS");
+            ret = co_await mongodbMgr->DelData("testsuit8", "player", {std::make_pair("player_id", KERNEL_NS::Variant("DAsssS"))});
             CLOG_INFO("DelData:%d", ret);
             
             nlohmann::json json;
@@ -644,6 +659,37 @@ private:
             KERNEL_NS::LibString *str = new KERNEL_NS::LibString(json.dump());
             ret = co_await mongodbMgr->AddData("testsuit8", "player", str);
             CLOG_INFO("add data:%d", ret);
+
+            // 移除数据
+            ret = co_await mongodbMgr->DelData("testsuit6", "player", {std::make_pair("player_id", KERNEL_NS::Variant(5566654545646LL))});
+            CLOG_INFO("DelData:%d", ret);
+            
+            // 添加一条二进制数据
+            CRYSTAL_NET::service::LoginReq loginReq;
+            auto userInfo = loginReq.mutable_loginuserinfo();
+            userInfo->set_loginmode(1);
+            userInfo->set_accountname("xiaoming");
+            userInfo->set_pwd("xiaoming");
+            userInfo->set_logintoken("xxxxxxx4554");
+            userInfo->set_port(5555);
+            auto tl = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+            loginReq.Encode(*tl);
+            std::vector<std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant>> uniqueKv;
+            uniqueKv.push_back(std::make_pair("player_id", KERNEL_NS::Variant(5566654545646)));
+            ret = co_await mongodbMgr->AddData("testsuit6", "player", uniqueKv, "LoginReq", tl);
+            CLOG_INFO("add data:%d, tl:%p, uniqueKv:%s", ret, tl, KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)->KERNEL_NS::LibString
+            {
+                return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+            }).c_str());
+
+            // 移除数据
+            std::vector<std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant>> multikv = {std::make_pair("player_id", KERNEL_NS::Variant(5566654545646LL)), std::make_pair("name", KERNEL_NS::Variant("xiaoming"))};
+            ret = co_await mongodbMgr->DelData("testsuit10", "player", multikv);
+            CLOG_INFO("DelData:%d, multiindex:%s", ret, KERNEL_NS::StringUtil::ToString(multikv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)
+            {
+                return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+            }).c_str());
+            
         });
 
         return Status::Success;
@@ -657,12 +703,13 @@ void TestMongo::Run()
 
     try
     {
+        auto poller = KERNEL_NS::TlsUtil::GetPoller();
+        poller->PrepareLoop();
+        
         auto testObj = TestMongoHost::New_TestMongoHost();
         testObj->Init();
         testObj->Start();
 
-        auto poller = KERNEL_NS::TlsUtil::GetPoller();
-        poller->PrepareLoop();
         poller->EventLoop();
 
         testObj->WillClose();

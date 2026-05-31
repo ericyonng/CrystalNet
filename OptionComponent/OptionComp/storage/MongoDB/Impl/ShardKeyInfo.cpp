@@ -20,56 +20,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2026-05-18 11:10:18
+// Date: 2026-05-31 17:05:55
 // Author: Eric Yonng
 // Description:
 
 
-#ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_SHARD_KEY_INFO_H__
-#define __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_SHARD_KEY_INFO_H__
-
-#pragma once
-
-#include <kernel/comp/LibString.h>
-#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <pch.h>
+#include <OptionComp/storage/MongoDB/Impl/ShardKeyInfo.h>
+#include <kernel/comp/Utils/StringUtil.h>
 
 KERNEL_BEGIN
 
-// shard key 分片键的类型(比如hashed, 字符串类型, 1（升序）数值类型等)
-class ShardKeyType
+LibString ShardKeyInfoGroup::ToString() const
 {
-public:
-    enum ENUMS
-    {
-        HASHED = 0,
-        ASC,
-        DESC,
-    };
-};
-
-struct ShardKeyInfo
-{
-    KERNEL_NS::LibString KeyName;
-
-    ShardKeyType::ENUMS ValueType = ShardKeyType::ASC;
-
-    KERNEL_NS::LibString ToString() const
-    {
-        return KERNEL_NS::LibString().AppendFormat("%s, %d", KeyName.c_str(), ValueType);
-    }
-};
-
-struct ShardKeyInfoGroup
-{
-    // 组合分片键
-    std::vector<ShardKeyInfo> ShardKeyInfos;
-
-    // 是否需要唯一索引(hashed不能设置唯一索引, 会失败, 只有范围类型的分片键才可以做唯一索引，例如ASC)
-    bool IsUnique = false;
-
-    KERNEL_NS::LibString ToString() const;
-};
+    auto &&str = StringUtil::ToString(ShardKeyInfos, '|');
+    return str.AppendFormat(", IsUnique:%d", IsUnique);
+}
 
 KERNEL_END
-
-#endif

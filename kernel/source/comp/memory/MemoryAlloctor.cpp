@@ -32,6 +32,7 @@
 #include <kernel/comp/memory/GarbageCollector.h>
 #include <kernel/comp/memory/MergeMemoryBufferInfo.h>
 #include <kernel/comp/Tls/TlsDefaultObj.h>
+#include <kernel/comp/Poller/Poller.h>
 
 #include<kernel/comp/memory/MemoryAlloctor.h>
 #include <kernel/comp/memory/EmptyBufferLimitType.h>
@@ -252,6 +253,7 @@ MemoryAlloctor::MemoryAlloctor(const MemoryAlloctorConfig &config)
 ,_mergeBufferList(NULL)
 ,_mergeBufferListSwap(NULL)
 ,_centerMemroyCollector(NULL)
+,_thisPoller(TlsUtil::GetPoller())
 ,_tlsDefaultObj(TlsUtil::GetDefTls())
 {
     _centerMemroyCollector = CenterMemoryCollector::GetInstance();

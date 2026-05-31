@@ -70,6 +70,7 @@ class GarbageCollector;
 struct MergeMemoryBufferInfo;
 
 class TlsDefaultObj;
+class Poller;
 
 // 线程不安全
 class KERNEL_EXPORT MemoryAlloctor
@@ -177,6 +178,7 @@ protected:
     MergeMemoryBufferInfo *_mergeBufferListSwap;
 
     CenterMemoryCollector *_centerMemroyCollector;
+    Poller *_thisPoller;
 
 public:
     TlsDefaultObj *_tlsDefaultObj;

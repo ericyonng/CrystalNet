@@ -53,8 +53,8 @@ public:
     virtual void SetSrvHostName(const KERNEL_NS::LibString &hostName) = 0;
 
     // 给表设置分片键(需要在WillStart之前设置)
-    virtual bool SetShardKeyInfo(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const std::vector<ShardKeyInfo> &shardKeyInfos) = 0;
-    // 设置索引(支持符合索引, 需要在WillStart之前设置) fields:字段名, 1:升序, -1降序
+    virtual bool SetShardKeyInfo(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const std::vector<ShardKeyInfo> &shardKeyInfos, bool isUnique = false) = 0;
+    // 设置索引(支持符合索引, 需要在WillStart之前设置) fields:字段名, 1:升序, -1降序,-2:hashed
     virtual bool CreateIndex(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const KERNEL_NS::LibString &indexName, const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &fields, bool unique = false) = 0;
 
 #ifdef CRYSTAL_NET_CPP20
@@ -65,11 +65,16 @@ public:
 
     // jsonString 内部会释放(会自动检查唯一索引)
     virtual KERNEL_NS::CoTask<bool> AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString *jsonString) = 0;
-    virtual KERNEL_NS::CoTask<bool> DelData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString keyName, Int64 keyValue) = 0;
-    virtual KERNEL_NS::CoTask<bool> DelData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString keyName, KERNEL_NS::LibString keyValue) = 0;
+    // uniqueKv:唯一索引
+    virtual KERNEL_NS::CoTask<bool> AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant>> uniqueKv, KERNEL_NS::LibString binaryKeyName, KERNEL_NS::LibStreamTL *binaryData) = 0;
+    virtual KERNEL_NS::CoTask<bool> DelData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant>> uniqueKv) = 0;
+
+    // virtual KERNEL_NS::CoTask<bool> UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString keyName, KERNEL_NS::LibString keyValue, ) = 0;
 
     // 增, 删, 改, 查
 
+    // 被关注的db, 如果不在关注列表, 不提供服务, 在willStart之前需要关注数据库
+    virtual bool FocusDb(const KERNEL_NS::LibString &dbName) = 0;
 };
 
 KERNEL_END

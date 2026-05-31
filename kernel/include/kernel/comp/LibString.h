@@ -749,6 +749,9 @@ public:
     // 移除bomb
     void remove_utf8_bomb();
 
+    operator std::basic_string<Byte8> &();
+    operator const std::basic_string<Byte8> &() const;
+
 private:
     // 下一个utf8字符索引pos
     _Base::size_type _next_utf8_char_pos(_Base::size_type &beginBytePos) const;
@@ -756,6 +759,16 @@ private:
     // hex=>decimal
     U8 _TurnDecimal(const Byte8 hexChar);
 };
+
+ALWAYS_INLINE LibString::operator std::basic_string<Byte8> &()
+{
+    return *this;
+}
+
+ALWAYS_INLINE LibString::operator const std::basic_string<Byte8> &() const
+{
+    return *this;
+}
 
 ALWAYS_INLINE LibString::_Base &LibString::GetRaw()
 {

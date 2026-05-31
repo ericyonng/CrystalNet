@@ -256,7 +256,7 @@ void MongodbConnection::ReleaseLock(KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS:
     }
 }
 
-KERNEL_NS::CoTask<bool> MongodbConnection::ShardCollection(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collName, std::vector<ShardKeyInfo> shardKeys, Int32 numChunks)
+KERNEL_NS::CoTask<bool> MongodbConnection::ShardCollection(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collName, ShardKeyInfoGroup shardKeyGroup, Int32 numChunks)
 {
     // 生成唯一锁 ID (使用 UUID)
     auto &&lockOwner = KERNEL_NS::GuidUtil::GenStr();
@@ -308,14 +308,18 @@ KERNEL_NS::CoTask<bool> MongodbConnection::ShardCollection(KERNEL_NS::LibString 
             auto adminDb = _entry["admin"];
 
             auto builder = bsoncxx::builder::basic::document();
-            bool isUnique = shardKeys.empty() ? false : true;
-            for (auto &shardKey : shardKeys)
+            bool isUnique = shardKeyGroup.IsUnique;
+            for (auto &shardKey : shardKeyGroup.ShardKeyInfos)
             {
                 switch (shardKey.ValueType)
                 {
                     case ShardKeyType::HASHED:
                     {
+                        // hashed 字段不能做唯一索引
+                        isUnique = false;    
                         builder.append(bsoncxx::builder::basic::kvp(shardKey.KeyName.GetRaw(), "hashed"));
+                        CLOG_WARN("db:%s, collection:%s, ShardKeyGroup: %s, field:%s hashed, cant use unique index"
+                            , dbName.c_str(), collName.c_str(), shardKeyGroup.ToString().c_str(), shardKey.KeyName.c_str());    
                         break;
                     }
                     case ShardKeyType::ASC:
@@ -328,11 +332,6 @@ KERNEL_NS::CoTask<bool> MongodbConnection::ShardCollection(KERNEL_NS::LibString 
                         builder.append(bsoncxx::builder::basic::kvp(shardKey.KeyName.GetRaw(), -1));
                         break;
                     }
-                }
-
-                if (!shardKey.IsUnique)
-                {
-                    isUnique = false;
                 }
             }
 
@@ -399,15 +398,15 @@ KERNEL_NS::CoTask<bool> MongodbConnection::ShardCollection(KERNEL_NS::LibString 
     catch (const mongocxx::exception &e)
     {
         CLOG_ERROR("ShardCollection failed:%s, dbName:%s, collName:%s, shardKeys:%s"
-            , e.what(), dbName.c_str(), collName.c_str(), KERNEL_NS::StringUtil::ToString(shardKeys, ',').c_str());
+            , e.what(), dbName.c_str(), collName.c_str(), shardKeyGroup.ToString().c_str());
     }
     catch (const std::exception &e)
     {
-        CLOG_ERROR("ShardCollection std exception failed:%s, dbName:%s, collName:%s, shardKeys:%s", e.what(), dbName.c_str(), collName.c_str(), KERNEL_NS::StringUtil::ToString(shardKeys, ',').c_str());
+        CLOG_ERROR("ShardCollection std exception failed:%s, dbName:%s, collName:%s, shardKeys:%s", e.what(), dbName.c_str(), collName.c_str(), shardKeyGroup.ToString().c_str());
     }
     catch (...)
     {
-        CLOG_ERROR("ShardCollection unknown failed:%s, dbName:%s, collName:%s, shardKeys:%s", dbName.c_str(), collName.c_str(), KERNEL_NS::StringUtil::ToString(shardKeys, ',').c_str());
+        CLOG_ERROR("ShardCollection unknown failed:%s, dbName:%s, collName:%s, shardKeys:%s", dbName.c_str(), collName.c_str(), shardKeyGroup.ToString().c_str());
     }
 
     co_return false;
@@ -429,7 +428,15 @@ KERNEL_NS::CoTask<bool> MongodbConnection::CreateIndex(const KERNEL_NS::LibStrin
         bsoncxx::builder::basic::document keyDoc;
         for (const auto &field : fields)
         {
-            keyDoc.append(bsoncxx::builder::basic::kvp(field.first.GetRaw(), field.second));
+            // -2是哈希
+            if(field.second == -2)
+            {
+                keyDoc.append(bsoncxx::builder::basic::kvp(field.first.GetRaw(), "hashed"));
+            }
+            else
+            {
+                keyDoc.append(bsoncxx::builder::basic::kvp(field.first.GetRaw(), field.second));
+            }
         }
             
         // 使用 mongocxx::options::index_options 构建索引选项
