@@ -60,28 +60,28 @@ UInt64 KernelGetCurrentThreadId()
 }
 
 template<>
-void *KernelAllocMemory<_Build::MT>(UInt64 memSize)
+KERNEL_EXPORT void *KernelAllocMemory<_Build::MT>(UInt64 memSize)
 {
     auto pool = KernelMemoryPoolAdapter<_Build::MT>();
     return pool->AllocAdapter<_Build::MT>(memSize);
 }
 
 template<>
-void *KernelAllocMemory<_Build::TL>(UInt64 memSize)
+KERNEL_EXPORT void *KernelAllocMemory<_Build::TL>(UInt64 memSize)
 {
     auto pool = KernelMemoryPoolAdapter<_Build::TL>();
     return pool->AllocAdapter<_Build::TL>(memSize);
 }
 
 template<>
-void KernelFreeMemory<_Build::MT>(void *ptr)
+KERNEL_EXPORT void KernelFreeMemory<_Build::MT>(void *ptr)
 {
     auto pool = KernelMemoryPoolAdapter<_Build::MT>();
     pool->FreeAdapter<_Build::MT>(ptr);
 }
 
 template<>
-void KernelFreeMemory<_Build::TL>(void *ptr)
+KERNEL_EXPORT void KernelFreeMemory<_Build::TL>(void *ptr)
 {
     auto pool = KernelMemoryPoolAdapter<_Build::TL>();
     pool->FreeAdapter<_Build::TL>(ptr);
@@ -120,28 +120,28 @@ void UnlockConsole()
 // }
 
 template<>
-void *KernelAllocMemoryBy<_Build::MT>(void *pool, UInt64 memSize)
+KERNEL_EXPORT void *KernelAllocMemoryBy<_Build::MT>(void *pool, UInt64 memSize)
 {
     auto p = reinterpret_cast<MemoryPool *>(pool);
     return p->AllocAdapter<_Build::MT>(memSize);
 }
 
 template<>
-void *KernelAllocMemoryBy<_Build::TL>(void *pool, UInt64 memSize)
+KERNEL_EXPORT void *KernelAllocMemoryBy<_Build::TL>(void *pool, UInt64 memSize)
 {
     auto p = reinterpret_cast<MemoryPool *>(pool);
     return p->AllocAdapter<_Build::TL>(memSize);
 }
 
 template<>
-void KernelFreeMemoryBy<_Build::MT>(void *pool, void *ptr)
+KERNEL_EXPORT void KernelFreeMemoryBy<_Build::MT>(void *pool, void *ptr)
 {
     auto p = reinterpret_cast<MemoryPool *>(pool);
     return p->FreeAdapter<_Build::MT>(ptr);
 }
 
 template<>
-void KernelFreeMemoryBy<_Build::TL>(void *pool, void *ptr)
+KERNEL_EXPORT void KernelFreeMemoryBy<_Build::TL>(void *pool, void *ptr)
 {
     auto p = reinterpret_cast<MemoryPool *>(pool);
     return p->FreeAdapter<_Build::TL>(ptr);

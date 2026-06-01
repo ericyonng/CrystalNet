@@ -65,16 +65,16 @@ KERNEL_EXPORT CRYSTAL_FORCE_INLINE MemoryPool *KernelMemoryPoolAdapter<_Build::T
 
 // 分配内存
 template<typename BuildType>
-extern void *KernelAllocMemory(UInt64 memSize);
+extern KERNEL_EXPORT void *KernelAllocMemory(UInt64 memSize);
 
 // 释放内存
 template<typename BuildType>
-extern void KernelFreeMemory(void *ptr);
+extern KERNEL_EXPORT void KernelFreeMemory(void *ptr);
 
 template<typename BuildType>
-extern void *KernelAllocMemoryBy(void *pool, UInt64 memSize);
+extern KERNEL_EXPORT void *KernelAllocMemoryBy(void *pool, UInt64 memSize);
 template<typename BuildType>
-extern void KernelFreeMemoryBy(void *pool, void *ptr);
+extern KERNEL_EXPORT void KernelFreeMemoryBy(void *pool, void *ptr);
 
 // 内存分配宏
 #ifndef KERNEL_ALLOC_MEMORY_TL 

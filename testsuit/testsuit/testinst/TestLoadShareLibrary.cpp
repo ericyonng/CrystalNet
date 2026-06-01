@@ -43,26 +43,6 @@ void TestLoadShareLibrary::Run()
     loader->Init();
     loader->Start();
 
-    // Windows下
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    auto ret = InitPlugin();
-    
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLoadShareLibrary, "init plugin ret:%d"), ret);
-
-    ret = StartPlugin();
-
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLoadShareLibrary, "start plugin ret:%d"), ret);
-
-    WillClosePlugin();
-
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLoadShareLibrary, "will close plugin..."));
-
-    ClosePlugin();
-
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLoadShareLibrary, "close plugin."));
-
-#else
-
     auto initPtr = loader->LoadSym<InitPluginPtr>(KERNEL_NS::LibString("InitPlugin"));
     auto startPtr = loader->LoadSym<StartPluginPtr>(KERNEL_NS::LibString("StartPlugin"));
     auto willClosePtr = loader->LoadSym<WillClosePluginPtr>(KERNEL_NS::LibString("WillClosePlugin"));
@@ -81,7 +61,6 @@ void TestLoadShareLibrary::Run()
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLoadShareLibrary, "will close plugin..."));
     (*closePtr)();
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLoadShareLibrary, "close plugin"));
-#endif
     
     KERNEL_NS::SystemUtil::ThreadSleep(5000);
 

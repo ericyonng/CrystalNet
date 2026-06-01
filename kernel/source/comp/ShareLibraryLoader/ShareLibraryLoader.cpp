@@ -33,6 +33,8 @@
 
 #if CRYSTAL_TARGET_PLATFORM_LINUX
  #include <dlfcn.h>
+#elif CRYSTAL_TARGET_PLATFORM_WINDOWS
+ #include <windows.h>
 #endif
 
 KERNEL_BEGIN
@@ -69,6 +71,14 @@ Int32 ShareLibraryLoader::Load(const LibString &libraryPath)
     if(!newLibrary)
     {
         g_Log->Error(LOGFMT_OBJ_TAG("dlopen fail err:%s, library path:%s."), dlerror(), libraryPath.c_str());
+        return Status::LoadShareLibraryFail;
+    }
+#elif CRYSTAL_TARGET_PLATFORM_WINDOWS
+    newLibrary = LoadLibraryA(libraryPath.c_str());
+    if(!newLibrary)
+    {
+        auto lastErr = GetLastError();
+        g_Log->Error(LOGFMT_OBJ_TAG("LoadLibraryA fail err:%u, library path:%s."), lastErr, libraryPath.c_str());
         return Status::LoadShareLibraryFail;
     }
 #endif
@@ -138,6 +148,12 @@ void ShareLibraryLoader::_CloseLib()
         auto errStr = dlerror();
         g_Log->Error(LOGFMT_OBJ_TAG("dlclose library:%s,%p, fail:%d(%s)."), _libPath.c_str(), _library, err, errStr ? errStr : "unknown fail");
     }
+#elif CRYSTAL_TARGET_PLATFORM_WINDOWS
+    if(!FreeLibrary((HMODULE)_library))
+    {
+        auto lastErr = GetLastError();
+        g_Log->Error(LOGFMT_OBJ_TAG("FreeLibrary library:%s,%p, fail:%u."), _libPath.c_str(), _library, lastErr);
+    }
 #endif
 
     _library = NULL;
@@ -165,11 +181,18 @@ void *ShareLibraryLoader::_LoadSym(const LibString &symName)
 
     g_Log->Info(LOGFMT_OBJ_TAG("share library:%s,%p, load sym :%s, success."), _libPath.c_str(), _library, symName.c_str());
     return symPtr;
-#else
+#elif CRYSTAL_TARGET_PLATFORM_WINDOWS
+    auto symPtr = GetProcAddress((HMODULE)_library, symName.c_str());
+    if(UNLIKELY(!symPtr))
+    {
+        auto lastErr = GetLastError();
+        g_Log->Error(LOGFMT_OBJ_TAG("GetProcAddress fail err:%u, library:%s,%p, symName:%s")
+            , lastErr, _libPath.c_str(), _library, symName.c_str());
+        return NULL;
+    }
 
-    g_Log->Info(LOGFMT_OBJ_TAG("share library:%s,%p, windows cant load sym :%s"), _libPath.c_str(), _library, symName.c_str());
-
-    return NULL;
+    g_Log->Info(LOGFMT_OBJ_TAG("share library:%s,%p, load sym :%s, success."), _libPath.c_str(), _library, symName.c_str());
+    return symPtr;
 #endif
 }
 

@@ -141,7 +141,7 @@ requires requires(ObjType obj)
     obj.Release();
 }
 #endif
-struct KERNEL_EXPORT ObjectPollerEvent : public StubPollerEvent
+struct ObjectPollerEvent : public StubPollerEvent
 {
     POOL_CREATE_TEMPLATE_OBJ_DEFAULT_P1(StubPollerEvent, ObjectPollerEvent, ObjType)
 

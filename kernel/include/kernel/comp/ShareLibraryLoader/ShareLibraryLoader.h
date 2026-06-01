@@ -80,7 +80,7 @@ ALWAYS_INLINE const LibString &ShareLibraryLoader::GetLibraryPath() const
 
 ALWAYS_INLINE bool ShareLibraryLoader::IsLoaded() const
 {
-    return !_library;
+    return _library != NULL;
 }
 
 KERNEL_END

@@ -132,11 +132,7 @@ dofile("./kernel_premake5.lua")
 project "TestServicePlugin"
     -- language, kind
     language "c++"
-    if IS_WINDOWS then
-        kind "StaticLib"
-    else
-        kind "SharedLib"
-    end
+    kind "SharedLib"
 
     -- 支持c++20
     -- cppdialect "c++20"
@@ -152,10 +148,10 @@ project "TestServicePlugin"
 
 	enable_precompileheader("pch.h", ROOT_DIR .. "TestServicePlugin/TestServicePlugin_pch/pch.cpp")
 
-    -- windows下是静态库, linux下是动态库
-    if IS_WINDOWS then
-        defines{"TEST_PLUGIN_STATIC_LIB"}
-    end
+    -- 都是动态库 linux下是动态库
+    -- if IS_WINDOWS then
+    --     defines{"TEST_PLUGIN_STATIC_LIB"}
+    -- end
 
     if ISUSE_STORAGE then
 	    defines {"CRYSTAL_STORAGE_ENABLE"}
@@ -293,11 +289,11 @@ project "testsuit"
         "CrystalKernel",
     }
 
-    filter {"system:windows"}
-        dependson {
-            "TestServicePlugin",
-        }
-    filter{}
+    -- filter {"system:windows"}
+    --     dependson {
+    --         "TestServicePlugin",
+    --     }
+    -- filter{}
 
     if ISUSE_STORAGE then
 	    defines {"CRYSTAL_STORAGE_ENABLE"}
@@ -362,16 +358,16 @@ project "testsuit"
     include_mongodb_driver_libs(ROOT_DIR)
 
     -- windows 下连接plugin静态库
-    filter { "configurations:debug*", "language:c++", "system:windows" }
-        links {
-            "libTestServicePlugin_debug",
-        }
-    filter {}
-    filter { "configurations:release*", "language:c++", "system:windows" }
-        links {
-            "libTestServicePlugin",
-        }
-    filter {}
+    -- filter { "configurations:debug*", "language:c++", "system:windows" }
+    --     links {
+    --         "libTestServicePlugin_debug",
+    --     }
+    -- filter {}
+    -- filter { "configurations:release*", "language:c++", "system:windows" }
+    --     links {
+    --         "libTestServicePlugin",
+    --     }
+    -- filter {}
 
 	-- 设置通用选项
     set_common_options(nil, true)

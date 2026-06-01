@@ -35,7 +35,7 @@
 
 KERNEL_BEGIN
 // 
-// ALWAYS_INLINE KERNEL_EXPORT void AppendFormatString(std::string &o, const Byte8 *fmt, ...)
+// ALWAYS_INLINE KERNEL_EXPORT void AppendFormatString(::std::string &o, const Byte8 *fmt, ...)
 // {
 //     // if fmt args is null, return.
 //     if (UNLIKELY(!fmt))

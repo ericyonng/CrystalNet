@@ -146,6 +146,7 @@ project "CrystalKernel"
         }
 
     filter { "system:windows" }
+        buildoptions { "/bigobj" }
         links {
             "ws2_32",
             "Mswsock",

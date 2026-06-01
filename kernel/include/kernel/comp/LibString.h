@@ -27,7 +27,7 @@
  * Description: 默认使用Ascii码,打印日志时候应使用Utf8编码,提供ascii码转utf8接口
  *              有别于标准库,内存分配由用户指定分配器,带码点，数据包括一颗树和一个数组，支持utf8，支持append_format接口等，编码不同直接报错处理
  *              默认使用tls memmory pool
- *              std::string::data只有在std::string内容大小使得capacity发生变化的时候才会失效
+ *              ::std::string::data只有在::std::string内容大小使得capacity发生变化的时候才会失效
 */
 
 #ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_LIBSTRING_H__
@@ -99,17 +99,14 @@ static ALWAYS_INLINE Byte8 *InitHexToDecimalValues()
     return arr;
 }
 
-class KERNEL_EXPORT LibString : public std::basic_string<Byte8>
+class KERNEL_EXPORT LibString : public ::std::string
 {
 public:
     typedef std::vector<LibString> _These, LibStrings;
-    typedef LibString _ThisType;
     typedef Byte8 _Elem;
-    typedef std::basic_string<Byte8> _Base;
-    typedef _Base::size_type size_type;
 
     static const Byte8 *endl;
-    static const std::string _defStripChars;
+    static const ::std::string _defStripChars;
 
 public:
     LibString()
@@ -124,32 +121,32 @@ public:
     }
 
     LibString(LibString &&other)
-        :_Base(std::move(other))
+        : ::std::string(std::move(other))
     {
     }
     
     LibString(const LibString &other)
-        :_Base(other)
+        : ::std::string(other)
     {
     }
 
-    LibString(const _Base &other)
-        :_Base(other)
+    LibString(const ::std::string &other)
+        : ::std::string(other)
     {
     }
 
     LibString(const Byte8 *other)
-        :_Base(other)
+        : ::std::string(other)
     {
     }
 
     LibString(const Byte8 *other, UInt64 cacheSize)
-        :_Base(other, cacheSize)
+        : ::std::string(other, cacheSize)
     {
     }
 
     LibString(Byte8 other)
-        :_Base(&other, 1)
+        : ::std::string(&other, 1)
     {
     }
 
@@ -171,24 +168,24 @@ public:
         return *this;
     }
 
-    LibString &operator = (const _Base &other)
+    // LibString &operator = (const ::std::string &other)
+    // {
+    //     assign(other);
+    //     return *this;
+    // }
+    // LibString &operator = (::std::string &&other)
+    // {
+    //     swap(other);
+    //     return *this;
+    // }
+
+    LibString &operator = (LibString &&other)
     {
         assign(other);
         return *this;
     }
-    LibString &operator = (_Base &&other)
-    {
-        swap(other);
-        return *this;
-    }
 
-    LibString &operator = (_ThisType &&other)
-    {
-        assign(other);
-        return *this;
-    }
-
-    LibString &operator = (const _ThisType &other)
+    LibString &operator = (const LibString &other)
     {
         assign(other);
         return *this;
@@ -196,12 +193,12 @@ public:
 
     LibString operator + (LibString &&other) const
     {
-        return _Base(*this).append(other);
+        return ::std::string(*this).append(other);
     }
 
     LibString operator + (const LibString &other) const
     {
-        return _Base(*this).append(other);
+        return ::std::string(*this).append(other);
     }
 
     LibString operator + (const Byte8 *other) const
@@ -209,12 +206,12 @@ public:
         if(UNLIKELY(!other))
             return *this;
 
-        return _Base(*this).append(other);
+        return ::std::string(*this).append(other);
     }
 
-    LibString operator + (const _Base &other) const
+    LibString operator + (const ::std::string &other) const
     {
-        return _Base(*this).append(other);
+        return ::std::string(*this).append(other);
     }
 
     LibString &operator += (const LibString &other)
@@ -231,7 +228,7 @@ public:
         return *this;
     }
 
-    LibString &operator += (const _Base &other)
+    LibString &operator += (const ::std::string &other)
     {
         append(other);
         return *this;
@@ -242,7 +239,7 @@ public:
     LibString operator - (const LibString &other) const
     {
         auto pos = find(other);
-        if(pos == _Base::npos)
+        if(pos == ::std::string::npos)
             return *this;
 
         auto cache = *this;
@@ -258,7 +255,7 @@ public:
         return LibString::operator -(LibString(other));
     }
 
-    LibString operator - (const _Base &other) const
+    LibString operator - (const ::std::string &other) const
     {
         return LibString::operator -(LibString(other));
     }
@@ -266,7 +263,7 @@ public:
     LibString &operator -= (const LibString &other)
     {
         auto pos = find(other);
-        if(pos == _Base::npos)
+        if(pos == ::std::string::npos)
             return *this;
 
         erase(pos, other.size());
@@ -281,7 +278,7 @@ public:
         return LibString::operator -=(LibString(other));
     }
 
-    LibString &operator -= (const _Base &other)
+    LibString &operator -= (const ::std::string &other)
     {
         return LibString::operator -=(LibString(other));
     }
@@ -307,13 +304,13 @@ public:
         return *this;
     }
 
-    LibString &operator << (const _Base &str)
+    LibString &operator << (const ::std::string &str)
     {
         append(str);
         return *this;
     }
 
-    LibString &operator << (_Base &&str)
+    LibString &operator << (::std::string &&str)
     {
         append(str);
         if(UNLIKELY(this != &str))
@@ -433,22 +430,22 @@ public:
 
     Byte8 &operator [] (UInt64 index)
     {
-        return _Base::operator[](index);
+        return ::std::string::operator[](index);
     }
 
     const Byte8 &operator [] (UInt64 index) const
     {
-        return _Base::operator[](index);
+        return ::std::string::operator[](index);
     }
 
     Byte8 &at (UInt64 index)
     {
-        return _Base::at(index);
+        return ::std::string::at(index);
     }
 
     const Byte8 &at (UInt64 index) const
     {
-        return _Base::at(index);
+        return ::std::string::at(index);
     }
 
     bool operator == (const LibString &other) const
@@ -456,7 +453,7 @@ public:
         return _Equal(other);
     }
 
-    bool operator == (const _Base &other) const
+    bool operator == (const ::std::string &other) const
     {
         return  _Equal(other);
     }
@@ -484,7 +481,7 @@ public:
         return compare(right) < 0;
     }
 
-    friend std::basic_ostream<_Elem> &operator <<(std::basic_ostream<_Elem> &o, const _ThisType &str)
+    friend std::basic_ostream<_Elem> &operator <<(std::basic_ostream<_Elem> &o, const LibString &str)
     {
         o.write(str.data(), str.size());
         return o;
@@ -503,8 +500,8 @@ public:
     
     // c_str()'\0'结尾
     // data()没有'\0'结尾
-    LibString::_Base &GetRaw();
-    const LibString::_Base &GetRaw() const;
+    ::std::string &GetRaw();
+    const ::std::string &GetRaw() const;
     bool Contain(const LibString &piece) const;
 
     LibString ToHexString() const;    
@@ -516,7 +513,7 @@ public:
 
     bool FromHexString(const LibString &hexString);
 
-    void Swap(_Base &str)
+    void Swap(::std::string &str)
     {
         if(UNLIKELY(this == &str))
         {
@@ -612,13 +609,13 @@ public:
     // 当参数为0时会匹配非泛型版本
     LibString &Append();
 
-    _ThisType &findreplace(const _Elem &dest, const _Elem &with, Int32 count = -1);
+    LibString &findreplace(const _Elem &dest, const _Elem &with, Int32 count = -1);
 
-    _ThisType &findreplace(const _ThisType &dest, const _ThisType &with, Int32 count = -1);
+    LibString &findreplace(const LibString &dest, const LibString &with, Int32 count = -1);
 
-    _ThisType &findFirstAppendFormat(const _ThisType &dest, const Byte8 *fmt, ...) LIB_KERNEL_FORMAT_CHECK(3, 4);
+    LibString &findFirstAppendFormat(const LibString &dest, const Byte8 *fmt, ...) LIB_KERNEL_FORMAT_CHECK(3, 4);
 
-    _ThisType &EraseAnyOf(const _ThisType &dest);
+    LibString &EraseAnyOf(const LibString &dest);
 
     // @param(sep):切割关键字符
     // @param(max_split):切割成多少份
@@ -633,7 +630,7 @@ public:
     // @param(max_split):切割成多少份
     // @param(onlyLikely):true:模糊匹配（匹配字符串中的某个字符即可）, false:必须完全匹配字符串
     // @param(enableEmptyPart):允许空字符串
-    _These Split(const LibString &sep, _Base::size_type max_split = -1, bool onlyLikely = false, bool enableEmptyPart = true) const;
+    _These Split(const LibString &sep, ::std::string::size_type max_split = -1, bool onlyLikely = false, bool enableEmptyPart = true) const;
    
     // @param(seps):切割关键字符串， 完全匹配这组字符串中的一个即可
     // @param(max_split):切割成多少份
@@ -713,20 +710,20 @@ public:
     LibString FirstCharToLower() const;
 
     // escape support: escape string
-    _ThisType &escape(const _ThisType &willbeEscapeChars, const _Elem &escapeChar);
+    LibString &escape(const LibString &willbeEscapeChars, const _Elem &escapeChar);
 
-    _ThisType escape(const _ThisType &willbeEscapeChars, const _Elem &escapeChar) const
+    LibString escape(const LibString &willbeEscapeChars, const _Elem &escapeChar) const
     {
         if (empty())
             return *this;
 
-        return _ThisType(*this).escape(willbeEscapeChars, escapeChar);
+        return LibString(*this).escape(willbeEscapeChars, escapeChar);
     }
 
     // escape support: unescape string
-    _ThisType &unescape(const _Elem &escapeChar);
+    LibString &unescape(const _Elem &escapeChar);
 
-    _ThisType unescape(const _Elem &escapeChar) const;
+    LibString unescape(const _Elem &escapeChar) const;
 
     // UTF8 Surport
     // 是否utf8判断(只对不带bom utf8判断, 如果带bom请移除后判断)
@@ -734,15 +731,15 @@ public:
     // 添加bomb
     void add_utf8_bomb();
     // utf8字符个数
-    _Base::size_type length_with_utf8() const;
+    ::std::string::size_type length_with_utf8() const;
     // 截取utf8字符串pos是按照utf8字符算的（不是按照字节）
-    _ThisType substr_with_utf8(_Base::size_type pos = 0, _Base::size_type n = _Base::npos) const;
+    LibString substr_with_utf8(::std::string::size_type pos = 0, ::std::string::size_type n = ::std::string::npos) const;
 
     // 从第charIndex个字符拆分成两个utf8字符串（前charIndex个utf8字符在strs的第一个）
     void split_utf8_string(size_type charIndex, _These &strs) const;   
 
     // 打散ut8f字符串 scatterCount:按顺序打散n次，生产scatterCount个utf8字符串
-    void scatter_utf8_string(_These &chars, _Base::size_type scatterCount = 0) const;
+    void scatter_utf8_string(_These &chars, ::std::string::size_type scatterCount = 0) const;
 
     // utf8有没带bomb（windows下utf8识别带bomb（字符串前三个字节：\xef\xbb\xbf）一般在处理文件时用到）
     bool has_utf8_bomb() const;
@@ -754,7 +751,7 @@ public:
 
 private:
     // 下一个utf8字符索引pos
-    _Base::size_type _next_utf8_char_pos(_Base::size_type &beginBytePos) const;
+    ::std::string::size_type _next_utf8_char_pos(::std::string::size_type &beginBytePos) const;
     
     // hex=>decimal
     U8 _TurnDecimal(const Byte8 hexChar);
@@ -770,19 +767,19 @@ ALWAYS_INLINE LibString::operator const std::basic_string<Byte8> &() const
     return *this;
 }
 
-ALWAYS_INLINE LibString::_Base &LibString::GetRaw()
+ALWAYS_INLINE ::std::string &LibString::GetRaw()
 {
     return *this;
 }
 
-ALWAYS_INLINE const LibString::_Base &LibString::GetRaw() const
+ALWAYS_INLINE const ::std::string &LibString::GetRaw() const
 {
     return *this;
 }
 
 ALWAYS_INLINE  bool LibString::Contain(const LibString &piece) const
 {
-    return find(piece) != _Base::npos;
+    return find(piece) != ::std::string::npos;
 }
 
 ALWAYS_INLINE LibString LibString::ToHexString() const
@@ -858,7 +855,7 @@ ALWAYS_INLINE LibString LibString::lstripString(const LibString &str) const
 
 ALWAYS_INLINE LibString LibString::rstrip(const LibString &chars) const
 {
-    _ThisType copyThis(*this);
+    LibString copyThis(*this);
     return copyThis.rstrip(chars);
 }
 
@@ -875,7 +872,7 @@ ALWAYS_INLINE LibString &LibString::strip(const LibString &chars)
 
 ALWAYS_INLINE LibString LibString::strip(const LibString &chars) const
 {
-    _ThisType copyThis(*this);
+    LibString copyThis(*this);
     return copyThis.lstrip(chars).rstrip(chars);
 }
 
@@ -886,7 +883,7 @@ ALWAYS_INLINE LibString &LibString::stripString(const LibString &str)
 
 ALWAYS_INLINE LibString LibString::stripString(const LibString &str) const
 {
-    _ThisType copyThis(*this);
+    LibString copyThis(*this);
     return copyThis.lstripString(str).rstripString(str);
 }
 
@@ -952,9 +949,9 @@ ALWAYS_INLINE bool LibString::isspace() const
     return isspace(*this);
 }
 
-ALWAYS_INLINE LibString::_ThisType LibString::unescape(const _Elem &escapeChar) const
+ALWAYS_INLINE LibString LibString::unescape(const _Elem &escapeChar) const
 {
-    return _ThisType(*this).unescape(escapeChar);   
+    return LibString(*this).unescape(escapeChar);   
 }
 
 ALWAYS_INLINE void LibString::add_utf8_bomb()
@@ -963,11 +960,11 @@ ALWAYS_INLINE void LibString::add_utf8_bomb()
         insert(0, reinterpret_cast<const _Elem *>("\xef\xbb\xbf"));
 }
 
-ALWAYS_INLINE LibString::_Base::size_type LibString::length_with_utf8() const
+ALWAYS_INLINE ::std::string::size_type LibString::length_with_utf8() const
 {
     size_type count = 0;
     size_type bytePos = 0;
-    while ((bytePos = _ThisType::_next_utf8_char_pos(bytePos)) != LibString::_Base::npos)
+    while ((bytePos = LibString::_next_utf8_char_pos(bytePos)) != ::std::string::npos)
         ++count;
 
     return count;
@@ -992,28 +989,28 @@ KERNEL_EXPORT LibString &KernelAppendFormat(LibString &o, const Byte8 *fmt, ...)
 
 KERNEL_END
 
-// 重载运算符实现 std::string += LibString
-// extern KERNEL_EXPORT ALWAYS_INLINE std::string &operator +=(std::string &o, const KERNEL_NS::LibString &input)
+// 重载运算符实现 ::std::string += LibString
+// extern KERNEL_EXPORT ALWAYS_INLINE ::std::string &operator +=(::std::string &o, const KERNEL_NS::LibString &input)
 // {
 //     o.append(input);
 //     return o;
 // }
 
-// 重载运算符实现 std::string + LibString
-// extern KERNEL_EXPORT ALWAYS_INLINE std::string operator +(const std::string &o, const KERNEL_NS::LibString &input)
+// 重载运算符实现 ::std::string + LibString
+// extern KERNEL_EXPORT ALWAYS_INLINE ::std::string operator +(const ::std::string &o, const KERNEL_NS::LibString &input)
 // {
 //     return o + input;
 // }
 
-// 重载运算符实现 std::string += LibString
-// extern KERNEL_EXPORT ALWAYS_INLINE std::string &operator +=(std::string &o, KERNEL_NS::LibString &&input)
+// 重载运算符实现 ::std::string += LibString
+// extern KERNEL_EXPORT ALWAYS_INLINE ::std::string &operator +=(::std::string &o, KERNEL_NS::LibString &&input)
 // {
 //     o.append(input);
 //     return o;
 // }
 
-// 重载运算符实现 std::string + LibString
-// extern KERNEL_EXPORT ALWAYS_INLINE std::string operator +(const std::string &o, KERNEL_NS::LibString &&input)
+// 重载运算符实现 ::std::string + LibString
+// extern KERNEL_EXPORT ALWAYS_INLINE ::std::string operator +(const ::std::string &o, KERNEL_NS::LibString &&input)
 // {
 //     return o + input;
 // }

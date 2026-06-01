@@ -41,7 +41,7 @@ KERNEL_BEGIN
 #endif
 
 // 默认需要剔除的符号
-const std::string LibString::_defStripChars = DEF_STRIP_CHARS;
+const ::std::string LibString::_defStripChars = DEF_STRIP_CHARS;
 
 bool LibString::IsUtf8() const
 {
@@ -85,7 +85,7 @@ LibString &LibString::operator *= (size_t right)
 		return *this;
 	}
 
-	_ThisType unitStr(*this);
+	LibString unitStr(*this);
 	const _Elem *unitStrBuf = unitStr.data();
 	typename LibString::size_type unitStrSize = unitStr.size();
 
@@ -105,7 +105,7 @@ void LibString::ToHexString(LibString &target) const
 
 	static const Byte8 ChToHexChars[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
-	std::string info;
+	::std::string info;
 	char cache[4] = {0};
 	info.reserve(bufferSize * 2);
 	for(Int64 i = 0; i < bufferSize; ++i)
@@ -185,7 +185,7 @@ const LibString &LibString::RemoveZeroTail()
 		return *this;
 
 	auto pos = find_first_of((const char)(0), 0);
-	if(pos == _Base::npos)
+	if(pos == ::std::string::npos)
 		return *this;
 
 	erase(pos, bufferSize - pos);
@@ -199,7 +199,7 @@ const LibString &LibString::RemoveHeadZero()
 		return *this;
 
 	auto pos = find_first_not_of((const char)(0), 0);
-	if(pos == _Base::npos)
+	if(pos == ::std::string::npos)
 		return *this;
 
 	erase(0, pos);
@@ -241,7 +241,7 @@ LibString &LibString::AppendFormat(const Byte8 *fmt, ...)
 	return *this;
 }
 
-LibString::_ThisType &LibString::findreplace(const _Elem &dest, const _Elem &with, Int32 count)
+LibString &LibString::findreplace(const _Elem &dest, const _Elem &with, Int32 count)
 {
 	if (dest == with)
 		return *this;
@@ -262,14 +262,14 @@ LibString::_ThisType &LibString::findreplace(const _Elem &dest, const _Elem &wit
 	return *this;
 }
 
-LibString::_ThisType &LibString::findreplace(const _ThisType &dest, const _ThisType &with, Int32 count)
+LibString &LibString::findreplace(const LibString &dest, const LibString &with, Int32 count)
 {
 	if (dest == with)
 		return *this;
 
 	size_type found = 0;
 	Int32 foundCount = 0;
-	while ((found = find(dest, found)) != _Base::npos)
+	while ((found = find(dest, found)) != ::std::string::npos)
 	{
 		replace(found, dest.size(), with);
 		found += with.size();
@@ -281,10 +281,10 @@ LibString::_ThisType &LibString::findreplace(const _ThisType &dest, const _ThisT
 	return *this;
 }
 
-LibString::_ThisType &LibString::findFirstAppendFormat(const _ThisType &dest, const Byte8 *fmt, ...)
+LibString &LibString::findFirstAppendFormat(const LibString &dest, const Byte8 *fmt, ...)
 {
 	auto pos = find(dest);
-	if(pos == _Base::npos)
+	if(pos == ::std::string::npos)
 		return *this;
 
 	// try detach detach format require buffers and resize it.
@@ -295,7 +295,7 @@ LibString::_ThisType &LibString::findFirstAppendFormat(const _ThisType &dest, co
 	if (len <= 0)
 		return *this;
 
-	std::string cache;
+	::std::string cache;
 	cache.resize(len);
 
 	// exec format.
@@ -325,7 +325,7 @@ LibString::_ThisType &LibString::findFirstAppendFormat(const _ThisType &dest, co
 	return *this;
 }
 
-LibString::_ThisType &LibString::EraseAnyOf(const _ThisType &dest)
+LibString &LibString::EraseAnyOf(const LibString &dest)
 {
 	const UInt64 len = dest.length();
 	UInt64 curPos = 0;
@@ -334,15 +334,15 @@ LibString::_ThisType &LibString::EraseAnyOf(const _ThisType &dest)
 		do 
 		{
 			curPos = find(dest[idx]);
-			if (curPos != _Base::npos)
+			if (curPos != ::std::string::npos)
 				erase(curPos, 1);
-		} while (curPos != _Base::npos);
+		} while (curPos != ::std::string::npos);
 	}
 
 	return *this;
 }
 
-LibString::_These LibString::Split(const LibString &sep, _Base::size_type max_split, bool onlyLikely, bool enableEmptyPart) const
+LibString::_These LibString::Split(const LibString &sep, ::std::string::size_type max_split, bool onlyLikely, bool enableEmptyPart) const
 {
 	_These substrs;
 	if(sep.empty() || max_split == 0 || this->empty())
@@ -358,13 +358,13 @@ LibString::_These LibString::Split(const LibString &sep, _Base::size_type max_sp
 	const UInt64 stepSize = onlyLikely ? 1 : sep.size();
 	for(; splitTimes < static_cast<UInt32>(max_split); ++splitTimes)
 	{
-		size_type findIdx = _Base::npos;
+		size_type findIdx = ::std::string::npos;
 		if(onlyLikely)
 		{
 			for(size_t i = 0; i < sep.size(); i++)
 			{
 				findIdx = find(sep[i], idx);
-				if(findIdx != _Base::npos)
+				if(findIdx != ::std::string::npos)
 					break;
 			}
 		}
@@ -373,18 +373,18 @@ LibString::_These LibString::Split(const LibString &sep, _Base::size_type max_sp
 			findIdx = find(sep, idx);
 		}
 
-		if(findIdx == _Base::npos)
+		if(findIdx == ::std::string::npos)
 			break;
 		
 		if (findIdx == idx)
 		{
 			if(enableEmptyPart)
-				substrs.push_back(_ThisType());
+				substrs.push_back(LibString());
 
 			if ((idx = findIdx + stepSize) == this->size())
 			{
 				if (enableEmptyPart)
-					substrs.push_back(_ThisType());
+					substrs.push_back(LibString());
 				break;
 			}
 
@@ -396,7 +396,7 @@ LibString::_These LibString::Split(const LibString &sep, _Base::size_type max_sp
 		if((idx = findIdx + stepSize) == this->size())
 		{
 			if(enableEmptyPart)
-				substrs.push_back(_ThisType());
+				substrs.push_back(LibString());
 
 			break;
 		}
@@ -428,26 +428,26 @@ LibString::_These LibString::Split(const _These &seps, size_type max_split, bool
 	std::set<size_type> minIdx;
 	for(; splitTimes < static_cast<UInt32>(max_split); ++splitTimes)
 	{
-		size_type findIdx = _Base::npos;
+		size_type findIdx = ::std::string::npos;
 		minIdx.clear();
 		for(size_t i = 0; i < seps.size(); i++)
 		{
 			findIdx = find(seps[i], idx);
-			if(findIdx != _Base::npos)
+			if(findIdx != ::std::string::npos)
 				minIdx.insert(findIdx);
 		}
 
 		if(!minIdx.empty())
 			findIdx = *minIdx.begin();
 
-		if(findIdx == _Base::npos)
+		if(findIdx == ::std::string::npos)
 			break;
 
 		substrs.push_back(substr(idx, findIdx - idx));
 		if((idx = findIdx + 1) == this->size())
 		{
 			if(enableEmptyPart)
-			substrs.push_back(_ThisType());
+			substrs.push_back(LibString());
 			break;
 		}
 	}
@@ -464,7 +464,7 @@ LibString::_These LibString::Split(const _These &seps, size_type max_split, bool
 
 LibString &LibString::lstrip(const LibString &chars)
 {
-	_ThisType willStripChars = chars;
+	LibString willStripChars = chars;
 	if (chars.empty())
 	{
 		willStripChars.append(reinterpret_cast<const _Elem *>(" \t\v\r\n\f"));
@@ -532,7 +532,7 @@ LibString &LibString::lstripString(const LibString &str)
 
 LibString &LibString::rstrip(const LibString &chars)
 {
-	_ThisType willStripChars = chars;
+	LibString willStripChars = chars;
 	if (chars.empty())
 		willStripChars.append(reinterpret_cast<const _Elem *>(" \t\v\r\n\f"));
 
@@ -601,7 +601,7 @@ LibString &LibString::rstripString(const LibString &str)
 LibString LibString::DragAfter(const LibString &start) const
 {
 	auto pos =  find(start);
-	if(pos == _Base::npos)
+	if(pos == ::std::string::npos)
 		return LibString();
 	
 	return substr(pos + start.size());
@@ -610,7 +610,7 @@ LibString LibString::DragAfter(const LibString &start) const
 LibString LibString::DragAfter(const LibString &start, size_t &startPos, size_t &endPos) const
 {
 	auto pos =  find(start);
-	if(pos == _Base::npos)
+	if(pos == ::std::string::npos)
 		return LibString();
 
 	endPos = pos + start.size() - 1;
@@ -623,7 +623,7 @@ LibString LibString::DragAfter(const LibString &start, size_t &startPos, size_t 
 LibString LibString::DragBefore(const LibString &start) const
 {
 	auto pos =  find(start);
-	if(pos == _Base::npos)
+	if(pos == ::std::string::npos)
 		return LibString();
 
 	return substr(0, pos);
@@ -632,7 +632,7 @@ LibString LibString::DragBefore(const LibString &start) const
 LibString LibString::lsub(const LibString &flagStr) const
 {
 	auto pos = find(flagStr, 0);
-	if(pos == _Base::npos)
+	if(pos == ::std::string::npos)
 		return LibString();
 
 	return substr(pos + flagStr.size());
@@ -641,7 +641,7 @@ LibString LibString::lsub(const LibString &flagStr) const
 LibString LibString::rsub(const LibString &flagStr) const
 {
 	auto pos = rfind(flagStr);
-	if(pos == _Base::npos)
+	if(pos == ::std::string::npos)
 		return LibString();
 
 	return substr(0, pos);
@@ -749,7 +749,7 @@ bool LibString::IsEndsWith(const LibString &s) const
 LibString LibString::StartCut(const LibString &startStr) const
 {
     auto pos = find(startStr, 0);
-    if(pos == _Base::npos)
+    if(pos == ::std::string::npos)
         return "";
 
     return substr(pos + startStr.size());
@@ -758,7 +758,7 @@ LibString LibString::StartCut(const LibString &startStr) const
 LibString LibString::EndCut(const LibString &endStr) const
 {
     auto pos = find(endStr, 0);
-    if(pos == _Base::npos)
+    if(pos == ::std::string::npos)
         return "";
 
     return substr(0, pos);
@@ -769,7 +769,7 @@ LibString LibString::tolower() const
 	const _Elem *buf = data();
 	const size_type size = this->size();
 
-	_ThisType lower;
+	LibString lower;
 	lower.resize(size);
 	for (size_type i = 0; i < size; ++i)
 	{
@@ -787,7 +787,7 @@ LibString LibString::toupper() const
 	const _Elem *buf = this->data();
 	const size_type size = this->size();
 
-	_ThisType upper;
+	LibString upper;
 	upper.resize(size);
 	for (size_type i = 0; i < size; ++i)
 		if (buf[i] >= 0x61 && buf[i] <= 0x7a)
@@ -805,7 +805,7 @@ LibString LibString::FirstCharToUpper() const
 	if(size == 0)
 		return *this;
 
-	_ThisType upper = *this;
+	LibString upper = *this;
 
 	if (buf[0] >= 0x61 && buf[0] <= 0x7a)
 		upper[0] = buf[0] - 0x20;
@@ -820,7 +820,7 @@ LibString LibString::FirstCharToLower() const
 	if(size == 0)
 		return *this;
 
-	_ThisType lower = *this;
+	LibString lower = *this;
 
 	if (buf[0] >= 0x41 && buf[0] <= 0x5A)
 		lower[0] = buf[0] + 0x20;
@@ -828,7 +828,7 @@ LibString LibString::FirstCharToLower() const
 	return lower; 
 }
 
-LibString::_ThisType &LibString::escape(const _ThisType &willbeEscapeChars, const _Elem &escapeChar)
+LibString &LibString::escape(const LibString &willbeEscapeChars, const _Elem &escapeChar)
 {
 	if (this->empty())
 		return *this;
@@ -838,14 +838,14 @@ LibString::_ThisType &LibString::escape(const _ThisType &willbeEscapeChars, cons
 	{
 		const _Elem &ch = (*this)[i];
 		if (ch == escapeChar ||
-			willbeEscapeChars.find(ch) != _Base::npos)
+			willbeEscapeChars.find(ch) != ::std::string::npos)
 			insert(i, 1, escapeChar);
 	}
 
 	return *this;
 }
 
-LibString::_ThisType &LibString::unescape(const _Elem &escapeChar)
+LibString &LibString::unescape(const _Elem &escapeChar)
 {
 	if (empty())
 		return *this;
@@ -866,25 +866,25 @@ LibString::_ThisType &LibString::unescape(const _Elem &escapeChar)
 	return *this;
 }
 
-LibString::_ThisType LibString::substr_with_utf8(_Base::size_type pos, _Base::size_type n) const
+LibString LibString::substr_with_utf8(::std::string::size_type pos, ::std::string::size_type n) const
 {
 	size_type utf8Len = this->length_with_utf8();
 	if (pos >= utf8Len || n == 0)
-		return _ThisType();
+		return LibString();
 
 	_These substrs;
 	this->split_utf8_string(pos, substrs);
 	if (substrs.empty())
-		return _ThisType();
+		return LibString();
 
-	_ThisType str1 = *substrs.rbegin();
+	LibString str1 = *substrs.rbegin();
 	utf8Len = str1.length_with_utf8();
-	pos = (n == LibString::_Base::npos || n > utf8Len) ? utf8Len : n;
+	pos = (n == ::std::string::npos || n > utf8Len) ? utf8Len : n;
 
 	substrs.clear();
 	str1.split_utf8_string(pos, substrs);
 	if (substrs.empty())
-		return _ThisType();
+		return LibString();
 
 	return substrs[0];
 }
@@ -898,8 +898,8 @@ void LibString::split_utf8_string(size_type charIndex, _These &strs) const
 		return;
 	}
 
-	size_type utf8Count = _ThisType::length_with_utf8();
-	if (UNLIKELY(utf8Count == _Base::npos))
+	size_type utf8Count = LibString::length_with_utf8();
+	if (UNLIKELY(utf8Count == ::std::string::npos))
 	{
 		strs.push_back(*this);
 		return;
@@ -917,7 +917,7 @@ void LibString::split_utf8_string(size_type charIndex, _These &strs) const
 	size_type charPos = 0;
 	while (charPos != charIndex)
 	{
-		bytePos = _ThisType::_next_utf8_char_pos(bytePos);
+		bytePos = LibString::_next_utf8_char_pos(bytePos);
 		++charPos;
 	}
 
@@ -925,13 +925,13 @@ void LibString::split_utf8_string(size_type charIndex, _These &strs) const
 	strs.push_back(substr(bytePos));
 }
 
-void LibString::scatter_utf8_string(_These &chars, _Base::size_type scatterCount) const
+void LibString::scatter_utf8_string(_These &chars, ::std::string::size_type scatterCount) const
 {
 	chars.clear();
 
 	if (scatterCount == 0)
-		scatterCount = _Base::npos;
-	else if (scatterCount != _Base::npos)
+		scatterCount = ::std::string::npos;
+	else if (scatterCount != ::std::string::npos)
 		scatterCount -= 1;
 
 	if (scatterCount == 0)
@@ -943,11 +943,11 @@ void LibString::scatter_utf8_string(_These &chars, _Base::size_type scatterCount
 	size_type curPos = 0;
 	size_type prevPos = 0;
 	size_type curScatterCount = 0;
-	while ((curPos = this->_next_utf8_char_pos(prevPos)) != _Base::npos)
+	while ((curPos = this->_next_utf8_char_pos(prevPos)) != ::std::string::npos)
 	{
 		chars.push_back(substr(prevPos, curPos - prevPos));
 
-		if (scatterCount != _Base::npos && ++curScatterCount >= scatterCount)
+		if (scatterCount != ::std::string::npos && ++curScatterCount >= scatterCount)
 		{
 			chars.push_back(substr(curPos));
 			break;
@@ -958,15 +958,15 @@ void LibString::scatter_utf8_string(_These &chars, _Base::size_type scatterCount
 }
 
 // 下一个utf8字符索引pos
-LibString::_Base::size_type LibString::_next_utf8_char_pos(_Base::size_type &beginBytePos) const
+::std::string::size_type LibString::_next_utf8_char_pos(::std::string::size_type &beginBytePos) const
 {
 	if (beginBytePos == 0 && this->has_utf8_bomb())
 		beginBytePos += 3;
 
-	if (beginBytePos == _Base::npos || beginBytePos >= size())
-		return _Base::npos;
+	if (beginBytePos == ::std::string::npos || beginBytePos >= size())
+		return ::std::string::npos;
 
-	size_type waitCheckCount = _Base::npos;
+	size_type waitCheckCount = ::std::string::npos;
 
 	// 0xxx xxxx
 	// Encoding len: 1 byte.
@@ -994,19 +994,19 @@ LibString::_Base::size_type LibString::_next_utf8_char_pos(_Base::size_type &beg
 	else if ((ch & 0xfe) == 0xfc)
 		waitCheckCount = 5;
 
-	if (waitCheckCount == _Base::npos)
-		return _Base::npos;
+	if (waitCheckCount == ::std::string::npos)
+		return ::std::string::npos;
 
 	size_type curPos = beginBytePos + 1;
 	size_type endPos = curPos + waitCheckCount;
 	if (endPos > size())
-		return _Base::npos;
+		return ::std::string::npos;
 
 	for (; curPos != endPos; ++curPos)
 	{
 		ch = static_cast<U8>(at(curPos));
 		if ((ch & 0xc0) != 0x80)
-			return _Base::npos;
+			return ::std::string::npos;
 	}
 
 	return endPos;

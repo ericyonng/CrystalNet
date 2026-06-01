@@ -14,7 +14,7 @@ echo    vs2019
 echo    vs2022
 set /p choose=Please input:
 
-cd %ROOT_PATH%tools\premake && win_premake5.exe %choose% '' '' use_storage
+cd %ROOT_PATH%tools\premake && win_premake5.exe %choose% '' use_kernel_so use_storage
 Rem cd %ROOT_PATH%tools\premake && win_premake5.exe %choose%
 
 if errorlevel 1 (

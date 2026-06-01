@@ -70,18 +70,26 @@ Int32 PluginMgr::_OnGlobalSysCompsCreated()
 {
     auto dirPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(GetService()->GetApp()->GetAppPath());
 
-#ifdef _DEBUG
-    dirPath.AppendFormat("/libTestServicePlugin_debug.so");
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    #ifdef _DEBUG
+        dirPath.AppendFormat("/libTestServicePlugin_debug.dll");
+    #else
+        dirPath.AppendFormat("/libTestServicePlugin.dll");
+    #endif
 #else
-    dirPath.AppendFormat("/libTestServicePlugin.so");
+    #ifdef _DEBUG
+        dirPath.AppendFormat("/libTestServicePlugin_debug.so");
+    #else
+        dirPath.AppendFormat("/libTestServicePlugin.so");
+    #endif
 #endif
+    
+
     g_Log->Info(LOGFMT_OBJ_TAG("plugin so dirPath:%s"), dirPath.c_str());
 
-#if CRYSTAL_TARGET_PLATFORM_LINUX
     auto shareLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
     shareLibrary->SetLibraryPath(dirPath);
-#endif
-
+    
     return Status::Success;
 }
 
@@ -179,18 +187,6 @@ void PluginMgr::_InitPluginModule()
 {
     auto shareLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
 
-    // Windows下
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    SetPluginMgr(this);
-    auto ret = InitPlugin();
-    
-    g_Log->Info(LOGFMT_OBJ_TAG("init plugin ret:%d"), ret);
-
-    ret = StartPlugin();
-
-    g_Log->Info(LOGFMT_OBJ_TAG("start plugin ret:%d"), ret);
-
-#else
     auto initPtr = shareLibrary->LoadSym<InitPluginPtr>(KERNEL_NS::LibString("InitPlugin"));
     auto startPtr = shareLibrary->LoadSym<StartPluginPtr>(KERNEL_NS::LibString("StartPlugin"));
     auto setPluginMgrPtr = shareLibrary->LoadSym<SetPluginMgrPtr>(KERNEL_NS::LibString("SetPluginMgr"));
@@ -207,7 +203,20 @@ void PluginMgr::_InitPluginModule()
     g_Log->Info(LOGFMT_OBJ_TAG("init plugin:%d"), pluginRet);
     pluginRet = (*startPtr)();
     g_Log->Info(LOGFMT_OBJ_TAG("start plugin:%d"), pluginRet);
-#endif
+    
+// #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+//     SetPluginMgr(this);
+//     auto ret = InitPlugin();
+//     
+//     g_Log->Info(LOGFMT_OBJ_TAG("init plugin ret:%d"), ret);
+//
+//     ret = StartPlugin();
+//
+//     g_Log->Info(LOGFMT_OBJ_TAG("start plugin ret:%d"), ret);
+//
+// #else
+//
+// #endif
 
     g_Log->Info(LOGFMT_OBJ_TAG("init plugin module success."));
 }
@@ -216,12 +225,6 @@ void PluginMgr::_WillClosePlugin()
 {
     auto shareLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
 
-    // Windows下
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    WillClosePlugin();
-    g_Log->Info(LOGFMT_OBJ_TAG("will close plugin..."));
-
-#else
     auto willClosePtr = shareLibrary->LoadSym<WillClosePluginPtr>(KERNEL_NS::LibString("WillClosePlugin"));
     if((!willClosePtr))
     {
@@ -231,19 +234,20 @@ void PluginMgr::_WillClosePlugin()
     
     (*willClosePtr)();
     g_Log->Info(LOGFMT_OBJ_TAG("will close plugin..."));
-#endif
+//     
+//     // Windows下
+// #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+//     WillClosePlugin();
+//     g_Log->Info(LOGFMT_OBJ_TAG("will close plugin..."));
+//
+// #else
+//
+// #endif
 }
 
 void PluginMgr::_ClosePlugin()
 {
     auto shareLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
-
-    // Windows下
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    ClosePlugin();
-    g_Log->Info(LOGFMT_OBJ_TAG("close plugin."));
-
-#else
     auto closePtr = shareLibrary->LoadSym<ClosePluginPtr>(KERNEL_NS::LibString("ClosePlugin"));
     if((!closePtr))
     {
@@ -253,7 +257,15 @@ void PluginMgr::_ClosePlugin()
     
     (*closePtr)();
     g_Log->Info(LOGFMT_OBJ_TAG("close plugin"));
-#endif
+//     
+//     // Windows下
+// #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+//     ClosePlugin();
+//     g_Log->Info(LOGFMT_OBJ_TAG("close plugin."));
+//
+// #else
+//
+// #endif
 }
 
 void PluginMgr::_Clear()

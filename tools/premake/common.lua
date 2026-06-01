@@ -89,9 +89,10 @@ function set_common_options(optOption, use_dynamic)
     if ENABLE_TEST_SERVICE ~= 0 then
         defines("ENABLE_TEST_SERVICE")
     end
-    filter { "system:windows" }
-	    defines { "CRYSTAL_NET_STATIC_KERNEL_LIB" }
-    filter {}
+    -- 是否使用静态库
+    if not USE_KERNEL_SO then
+        defines { "CRYSTAL_NET_STATIC_KERNEL_LIB" }
+    end
 
 	filter {"language:c++", "system:windows" }
         defines("_WINSOCK_DEPRECATED_NO_WARNINGS")
