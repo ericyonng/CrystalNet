@@ -32,6 +32,7 @@
 #include <kernel/comp/Tls/Tls.h>
 #include <kernel/comp/Utils/TlsUtil.h>
 #include <kernel/comp/LibString.h>
+#include <kernel/comp/Log/log.h>
 
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
     // linux下类型识别接口相关
@@ -80,6 +81,15 @@ const Byte8 *RttiUtil::GetByTypeName(const char *rawTypeName)
     Byte8 *rtti = tlsStack->GetDef()->rtti;
 
     size_t rawTyNameLen = strlen(rawTypeName);
+    if (rawTyNameLen >= static_cast<size_t>(TlsDefs::LIB_RTTI_BUF_SIZE))
+    {
+        CLOG_ERROR_GLOBAL(RttiUtil, "GetByTypeName over rtti size, rawTyNameLen:%lld rawTypeName:%s will cut to len:%d", static_cast<Int64>(rawTyNameLen), rawTypeName, TlsDefs::LIB_RTTI_BUF_SIZE);
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    throw std::logic_error("RttiUtil::GetByTypeName() failed large than LIB_RTTI_BUF_SIZE");
+#endif
+        rawTyNameLen = static_cast<size_t>(TlsDefs::LIB_RTTI_BUF_SIZE) - 1;
+    }
     memcpy(rtti, rawTypeName, rawTyNameLen);
     rtti[rawTyNameLen] = '\0';
 
@@ -122,7 +132,10 @@ const Byte8 *RttiUtil::GetCxxDemangle(const char *name)
     // 名字重整技术应用
     abi::__cxa_demangle(name, defTls->rtti, &length, &status);
     if(status != 0)
+    {
+        CLOG_ERROR_GLOBAL(RttiUtil, "GetByTypeName over rtti size, __cxa_demangle return len:%lld rawTypeName:%s GetCxxDemangle fail", static_cast<Int64>(length), name);
         return "";
+    }
 
     return defTls->rtti;
 }

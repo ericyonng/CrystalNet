@@ -55,7 +55,7 @@ TlsHandle &TlsUtil::GetUtileTlsHandle()
 }
 
 // 创建tlsstack
-TlsStack<TlsStackSize::SIZE_1MB> *TlsUtil::GetTlsStack(bool forceCreate)
+TlsStack<TLS_STACK_DEFAULT_SIZE> *TlsUtil::GetTlsStack(bool forceCreate)
 {
     auto &handle = GetUtileTlsHandle();
     // if(UNLIKELY(handle == INVALID_TLS_HANDLE))
@@ -63,11 +63,11 @@ TlsStack<TlsStackSize::SIZE_1MB> *TlsUtil::GetTlsStack(bool forceCreate)
     //     CreateUtilTlsHandle();
     // }
 
-    TlsStack<TlsStackSize::SIZE_1MB> *tlsStack = NULL;
+    TlsStack<TLS_STACK_DEFAULT_SIZE> *tlsStack = NULL;
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-    tlsStack = reinterpret_cast<TlsStack<TlsStackSize::SIZE_1MB> *>(pthread_getspecific(handle));
+    tlsStack = reinterpret_cast<TlsStack<TLS_STACK_DEFAULT_SIZE> *>(pthread_getspecific(handle));
 #else
-    tlsStack = reinterpret_cast<TlsStack<TlsStackSize::SIZE_1MB> *>(::TlsGetValue(handle));
+    tlsStack = reinterpret_cast<TlsStack<TLS_STACK_DEFAULT_SIZE> *>(::TlsGetValue(handle));
 #endif
 
     if(LIKELY(tlsStack || !forceCreate))
@@ -78,8 +78,8 @@ TlsStack<TlsStackSize::SIZE_1MB> *TlsUtil::GetTlsStack(bool forceCreate)
         // void *ptr = memPool->Alloc(__MEMORY_ALIGN__(sizeof(TlsStack<TlsStackSize::SIZE_1MB>)));
         // tlsStack = AllocUtil::NewByPtrNoConstructorParams<TlsStack<TlsStackSize::SIZE_1MB>>(ptr) ;
 
-        Byte8 *ptr = new Byte8[__MEMORY_ALIGN__(sizeof(TlsStack<TlsStackSize::SIZE_1MB>))];
-        tlsStack = AllocUtil::NewByPtrNoConstructorParams<TlsStack<TlsStackSize::SIZE_1MB>>(ptr) ;
+        Byte8 *ptr = new Byte8[__MEMORY_ALIGN__(sizeof(TlsStack<TLS_STACK_DEFAULT_SIZE>))];
+        tlsStack = AllocUtil::NewByPtrNoConstructorParams<TlsStack<TLS_STACK_DEFAULT_SIZE>>(ptr) ;
 
         tlsStack->SetThreadId(SystemUtil::GetCurrentThreadId());
 
@@ -93,7 +93,7 @@ TlsStack<TlsStackSize::SIZE_1MB> *TlsUtil::GetTlsStack(bool forceCreate)
     return tlsStack;
 }
 
-void TlsUtil::DestroyTlsStack(TlsStack<TlsStackSize::SIZE_1MB> *tlsStack)
+void TlsUtil::DestroyTlsStack(TlsStack<TLS_STACK_DEFAULT_SIZE> *tlsStack)
 {
     tlsStack->FreeAll();
     // memPool->Free(tlsStack);

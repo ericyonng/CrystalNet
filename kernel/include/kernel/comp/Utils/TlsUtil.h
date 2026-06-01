@@ -67,13 +67,13 @@ public:
     static void DestroyUtilTlsHandle();
 
     // 创建tlsstack 默认只使用1MB空间
-    static TlsStack<TlsStackSize::SIZE_1MB> *GetTlsStack(bool forceCreate = true); 
+    static TlsStack<TLS_STACK_DEFAULT_SIZE> *GetTlsStack(bool forceCreate = true); 
     static TlsDefaultObj *GetDefTls();
     static Poller *GetPoller();
     static IdGenerator *GetIdGenerator();
     static TlsCompsOwner *GetTlsCompsOwner();
     static void DestroyTlsStack();
-    static void DestroyTlsStack(TlsStack<TlsStackSize::SIZE_1MB> *tlsTask);
+    static void DestroyTlsStack(TlsStack<TLS_STACK_DEFAULT_SIZE> *tlsTask);
     static void SetTlsValueNull();
 
     // 获取thread local MemoryAlloc
@@ -118,7 +118,7 @@ ALWAYS_INLINE void TlsUtil::DestroyUtilTlsHandle()
 
 ALWAYS_INLINE TlsDefaultObj *TlsUtil::GetDefTls()
 {
-    DEF_STATIC_THREAD_LOCAL_DECLEAR TlsStack<TlsStackSize::SIZE_1MB> *s_TlsStack = NULL;
+    DEF_STATIC_THREAD_LOCAL_DECLEAR TlsStack<TLS_STACK_DEFAULT_SIZE> *s_TlsStack = NULL;
     if(UNLIKELY(!s_TlsStack))
         s_TlsStack = GetTlsStack();
     

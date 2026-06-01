@@ -41,7 +41,7 @@ KERNEL_BEGIN
     TlsDefaultObj::TlsDefaultObj()
     :_objTypeName("TlsDefaultObj")
     ,rtti{0}
-    ,stackArray{NULL}
+    ,OverflowDetect{NULL}
     ,_threadId(0)
     ,_threadGlobalId(0)
     ,_thread(NULL)

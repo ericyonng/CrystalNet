@@ -50,7 +50,7 @@ KERNEL_BEGIN
 
 class TlsDefaultObj;
 
-template<TlsStackSize::SizeType TlsSizeType = TlsStackSize::SIZE_2MB>
+template<TlsStackSize::SizeType TlsSizeType = TLS_STACK_DEFAULT_SIZE>
 class TlsStack
 {
 public:

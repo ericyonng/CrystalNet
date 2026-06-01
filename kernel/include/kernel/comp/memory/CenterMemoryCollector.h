@@ -76,7 +76,7 @@ public:
     void OnThreadQuit(UInt64 threadId);
 
     // 每个线程都需要注册到收集器 tlsStack在Collector释放
-    void RegisterThreadInfo(UInt64 threadId, TlsStack<TlsStackSize::SIZE_1MB> *tlsStack);
+    void RegisterThreadInfo(UInt64 threadId, TlsStack<TLS_STACK_DEFAULT_SIZE> *tlsStack);
 
     // TODO:需要区分threadlocal和分threadlocal block, threadlocal需要流转到对应线程合并, 非threadlocal的上锁并调用Free接口
     // 要释放的内存块 只有当Collector结束的时候才会失败, 此时系统已经正在清理, 不需要归还block

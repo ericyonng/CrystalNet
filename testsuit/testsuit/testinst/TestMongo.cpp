@@ -689,7 +689,12 @@ private:
             {
                 return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
             }).c_str());
-            
+
+            // 添加数据
+            tl = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+            loginReq.Encode(*tl);
+            ret = co_await mongodbMgr->AddData("testsuit10", "player", multikv, "LoginReq2", tl);
+            CLOG_INFO("add data:%d", ret);
         });
 
         return Status::Success;

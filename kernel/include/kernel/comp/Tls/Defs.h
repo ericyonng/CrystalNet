@@ -37,6 +37,11 @@
 
 KERNEL_BEGIN
 
+// 默认的tls大小
+#ifndef TLS_STACK_DEFAULT_SIZE
+ #define TLS_STACK_DEFAULT_SIZE KERNEL_NS::TlsStackSize::SIZE_2MB
+#endif
+
 class KERNEL_EXPORT TlsStackSize
 {
 public:
@@ -61,7 +66,7 @@ class KERNEL_EXPORT TlsDefs
 public:
     enum ENUMS
     {
-        LIB_RTTI_BUF_SIZE = 512,            // 运行时识别缓冲大小
+        LIB_RTTI_BUF_SIZE = 4096,            // 运行时识别缓冲大小
     };
 };
 

@@ -178,7 +178,6 @@ protected:
     MergeMemoryBufferInfo *_mergeBufferListSwap;
 
     CenterMemoryCollector *_centerMemroyCollector;
-    Poller *_thisPoller;
 
 public:
     TlsDefaultObj *_tlsDefaultObj;

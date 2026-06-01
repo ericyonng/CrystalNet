@@ -91,7 +91,7 @@ public:
     bool IsQuit() const;
 
     // 设置线程当前线程的tlsstack
-    void SetTlsStack(TlsStack<TlsStackSize::SIZE_1MB> *tlsStack);
+    void SetTlsStack(TlsStack<TLS_STACK_DEFAULT_SIZE> *tlsStack);
 
     // 当前线程分配内存字节数
     UInt64 GetAllocBytes() const;
@@ -127,7 +127,7 @@ private:
     std::map<MemoryAlloctor *, CenterMemoryProfileInfo *> _memoryAlloctorRefBlockCount;
 
     // 当前线程的tlsstack
-    TlsStack<TlsStackSize::SIZE_1MB> *_tlsStack;
+    TlsStack<TLS_STACK_DEFAULT_SIZE> *_tlsStack;
 
     // 线程退出
     std::atomic_bool _isQuit;
@@ -156,7 +156,7 @@ ALWAYS_INLINE bool CenterMemoryThreadInfo::IsQuit() const
     return _isQuit.load(std::memory_order_acquire);
 }
 
-ALWAYS_INLINE void CenterMemoryThreadInfo::SetTlsStack(TlsStack<TlsStackSize::SIZE_1MB> *tlsStack)
+ALWAYS_INLINE void CenterMemoryThreadInfo::SetTlsStack(TlsStack<TLS_STACK_DEFAULT_SIZE> *tlsStack)
 {
     _tlsStack = tlsStack;
 }

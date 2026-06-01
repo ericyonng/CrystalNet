@@ -140,7 +140,7 @@ void CenterMemoryCollector::OnThreadQuit(UInt64 threadId)
         threadInfo->OnThreadWillQuit();
 }
 
-void CenterMemoryCollector::RegisterThreadInfo(UInt64 threadId, TlsStack<TlsStackSize::SIZE_1MB> *tlsStack)
+void CenterMemoryCollector::RegisterThreadInfo(UInt64 threadId, TlsStack<TLS_STACK_DEFAULT_SIZE> *tlsStack)
 {
     if(UNLIKELY(_isDestroy.load(std::memory_order_acquire)))
         return;

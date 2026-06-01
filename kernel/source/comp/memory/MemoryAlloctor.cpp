@@ -253,7 +253,6 @@ MemoryAlloctor::MemoryAlloctor(const MemoryAlloctorConfig &config)
 ,_mergeBufferList(NULL)
 ,_mergeBufferListSwap(NULL)
 ,_centerMemroyCollector(NULL)
-,_thisPoller(TlsUtil::GetPoller())
 ,_tlsDefaultObj(TlsUtil::GetDefTls())
 {
     _centerMemroyCollector = CenterMemoryCollector::GetInstance();
