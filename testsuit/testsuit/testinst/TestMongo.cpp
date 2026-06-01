@@ -592,8 +592,8 @@ private:
     virtual Int32 _OnCompsCreated() override
     {
         auto mongoDbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
-        mongoDbMgr->SetSrvHostName("mongoscluster.ericyonng.com");
-        mongoDbMgr->SetAccountPwd("eric", "pK38U~mTk%5E3");
+        mongoDbMgr->SetSrvHostName("xxx");
+        mongoDbMgr->SetAccountPwd("eric", "xxx");
 
         mongoDbMgr->FocusDb("testsuit1");
         mongoDbMgr->FocusDb("testsuit2");
