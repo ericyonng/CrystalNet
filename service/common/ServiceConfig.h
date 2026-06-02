@@ -31,6 +31,7 @@
 #include <service/common/macro.h>
 #include <service_common/ServiceCommon.h>
 #include <kernel/comp/LibString.h>
+#include <kernel/comp/LibStringYaml.h>
 #include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/Utils/ContainerUtil.h>
 #include <kernel/comp/NetEngine/Poller/Defs/PollerConfig.h>

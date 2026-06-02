@@ -34,6 +34,7 @@
 #include <protocols/protocols.h>
 #include <service/Client/ServiceFactory.h>
 #include <service/Client/MyTestService.h>
+#include <kernel/comp/LibStringYaml.h>
 
 SERVICE_BEGIN
 

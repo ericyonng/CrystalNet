@@ -34,6 +34,8 @@
 
 
 // 基础组件
+#include <kernel/comp/BasicStringHelper.h>
+#include <kernel/comp/LibBasicString.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/LibStringYaml.h>
 #include <kernel/comp/LibStringOut.h>

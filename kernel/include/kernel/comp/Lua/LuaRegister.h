@@ -54,9 +54,9 @@ typedef Int32 (*MtIndexFunc)(lua_State*, void*, const Byte8*);
 typedef Int32 (*MtNewIndexFunc)(lua_State*, void*, const Byte8*, Int32);
 
 // 原表名
-struct KERNEL_EXPORT LuaOpTool
+struct LuaOpTool
 {
-  static std::string ToMetaTableName(const std::string &name)
+  static ALWAYS_INLINE std::string ToMetaTableName(const std::string &name)
   {
     return std::string("Lua.") + name;
   }

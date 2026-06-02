@@ -35,6 +35,7 @@
 #include <kernel/common/macro.h>
 #include <kernel/common/BaseType.h>
 #include <kernel/comp/LibString.h>
+#include <kernel/comp/BasicStringHelper.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -336,42 +337,7 @@ ALWAYS_INLINE bool StringUtil::IsUtf8String(const LibString &str)
 
 ALWAYS_INLINE UInt64 StringUtil::CalcUtf8CharBytes(U8 ctrlChar)
 {
-	if ((ctrlChar & (U8)0x80) == 0x00)
-	{
-		return 1;
-	}
-    // 110x xxxx
-    // Encoding len: 2 bytes.
-    else if ((ctrlChar & (U8)0xe0) == 0xc0)
-	{
-        return 2;
-	}
-    // 1110 xxxx
-    // Encoding len: 3 bytes.
-    else if ((ctrlChar & (U8)0xf0) == 0xe0)
-	{
-        return 3;
-	}
-    // 1111 0xxx
-    // Encoding len: 4 bytes.
-    else if ((ctrlChar & (U8)0xf8) == 0xf0)
-	{
-        return 4;
-	}
-    // 1111 10xx
-    // Encoding len: 5 bytes.
-    else if ((ctrlChar & (U8)0xfc) == 0xf8)
-	{
-        return 5;
-	}
-    // 1111 110x
-    // Encoding len: 6 bytes.
-    else if ((ctrlChar & (U8)0xfe) == 0xfc)
-	{
-        return 6;
-	}
-
-	return 0;
+	return BasicStringHelper::CalcUtf8CharBytes(ctrlChar);
 }
 
 ALWAYS_INLINE void StringUtil::MergerMultiLine(const std::vector<LibString> &lines, LibString &target)

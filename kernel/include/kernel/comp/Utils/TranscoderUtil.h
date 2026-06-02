@@ -34,10 +34,9 @@
 #include <kernel/kernel_export.h>
 #include <kernel/common/BaseMacro.h>
 #include <kernel/common/BaseType.h>
+#include <kernel/comp/LibString.h>
 
 KERNEL_BEGIN
-
-class LibString;
 
 /**
  * \brief The llbc library transcoder class encapsulation.

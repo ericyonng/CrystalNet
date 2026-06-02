@@ -40,7 +40,6 @@
 
 KERNEL_BEGIN
 
-class LibString;
 struct ProcessMemInfo;
 
 class KERNEL_EXPORT SystemUtil

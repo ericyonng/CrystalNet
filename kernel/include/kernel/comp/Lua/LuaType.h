@@ -64,7 +64,7 @@ struct KERNEL_EXPORT LuaStringTool
 	inline static const char* c_str(const char* s)   { return s; }
 };
 
-class KERNEL_EXPORT LuaException: public std::exception
+class LuaException: public std::exception
 {
 public:
     explicit LuaException(const char *err)

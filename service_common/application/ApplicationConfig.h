@@ -70,7 +70,7 @@ namespace YAML
 {
     // 网络单元定义
     template<>
-    struct KERNEL_EXPORT convert<SERVICE_COMMON_NS::ApplicationConfig>
+    struct convert<SERVICE_COMMON_NS::ApplicationConfig>
     {
         static Node encode(const SERVICE_COMMON_NS::ApplicationConfig& rhs)
         {

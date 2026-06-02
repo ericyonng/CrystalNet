@@ -42,7 +42,6 @@
 
 KERNEL_BEGIN
 
-class LibString;
 class ArchiveFile;
 class XMLDocument;
 class XlsxSheet;

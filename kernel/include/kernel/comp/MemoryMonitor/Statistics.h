@@ -38,10 +38,9 @@
 #include <kernel/common/BaseType.h>
 
 #include <kernel/comp/Lock/Impl/SpinLock.h>
+#include <kernel/comp/LibString.h>
 
 KERNEL_BEGIN
-
-class LibString;
 
 template <typename Rtn, typename... Args>
 class IDelegate;

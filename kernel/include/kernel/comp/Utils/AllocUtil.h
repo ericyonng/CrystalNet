@@ -41,8 +41,6 @@
 
 KERNEL_BEGIN
 
-class LibString;
-
 class KERNEL_EXPORT AllocUtil
 {
 public:

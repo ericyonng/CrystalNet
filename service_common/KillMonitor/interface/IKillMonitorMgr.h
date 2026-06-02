@@ -36,7 +36,6 @@
 
 KERNEL_BEGIN
 
-class LibString;
 class TimerMgr;
 
 KERNEL_END

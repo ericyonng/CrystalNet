@@ -35,7 +35,15 @@ void TestLoadShareLibrary::Run()
     KERNEL_NS::SmartPtr<KERNEL_NS::ShareLibraryLoader, KERNEL_NS::AutoDelMethods::Release> loader = KERNEL_NS::ShareLibraryLoaderFactory().Create()->CastTo<KERNEL_NS::ShareLibraryLoader>();
 
     auto libraryPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    libraryPath.AppendFormat("/libTestServicePlugin_debug.dll");
+
+#else
+
     libraryPath.AppendFormat("/libTestServicePlugin_debug.so");
+
+#endif
+    
 
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLoadShareLibrary, "libraryPath:%s"), libraryPath.c_str());
 

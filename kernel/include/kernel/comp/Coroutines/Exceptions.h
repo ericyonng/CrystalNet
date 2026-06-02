@@ -37,7 +37,7 @@
 
 KERNEL_BEGIN
 
-struct KERNEL_EXPORT TimeoutError : std::exception 
+struct TimeoutError : public std::exception 
 {
     // 超时异常
     [[nodiscard]] const char* what() const noexcept override 
@@ -46,7 +46,7 @@ struct KERNEL_EXPORT TimeoutError : std::exception
     }
 };
 
-struct KERNEL_EXPORT NoResultError : std::exception 
+struct NoResultError : public std::exception 
 {
     // 结果还没设置
     [[nodiscard]] const char* what() const noexcept override 
@@ -55,7 +55,7 @@ struct KERNEL_EXPORT NoResultError : std::exception
     }
 };
 
-struct KERNEL_EXPORT InvalidFuture : std::exception 
+struct InvalidFuture : public std::exception 
 {
     // future是无效的
     [[nodiscard]] const char* what() const noexcept override 

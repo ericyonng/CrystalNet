@@ -36,8 +36,6 @@
 
 KERNEL_BEGIN
 
-class LibString;
-
 KERNEL_END
 
 SERVICE_COMMON_BEGIN

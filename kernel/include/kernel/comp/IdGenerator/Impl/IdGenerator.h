@@ -43,7 +43,7 @@
 
 KERNEL_BEGIN
 
-struct KERNEL_EXPORT IdGeneratorEception : std::exception 
+struct IdGeneratorEception : public std::exception 
 {
     // id占位异常
     [[nodiscard]] const char* what() const noexcept override 

@@ -59,33 +59,26 @@ UInt64 KernelGetCurrentThreadId()
     return SystemUtil::GetCurrentThreadId();
 }
 
-template<>
-KERNEL_EXPORT void *KernelAllocMemory<_Build::MT>(UInt64 memSize)
+void *KernelAllocTL(UInt64 memSize)
 {
-    auto pool = KernelMemoryPoolAdapter<_Build::MT>();
-    return pool->AllocAdapter<_Build::MT>(memSize);
+    return KernelGetTlsMemoryPool()->Alloc(memSize);
 }
 
-template<>
-KERNEL_EXPORT void *KernelAllocMemory<_Build::TL>(UInt64 memSize)
+void *KernelAllocMT(UInt64 memSize)
 {
-    auto pool = KernelMemoryPoolAdapter<_Build::TL>();
-    return pool->AllocAdapter<_Build::TL>(memSize);
+    return  KernelGetDefaultMemoryPool()->Alloc(memSize);
 }
 
-template<>
-KERNEL_EXPORT void KernelFreeMemory<_Build::MT>(void *ptr)
+void KernelAllocFreeTL(void *ptr)
 {
-    auto pool = KernelMemoryPoolAdapter<_Build::MT>();
-    pool->FreeAdapter<_Build::MT>(ptr);
+    KernelGetTlsMemoryPool()->Free(ptr);
 }
 
-template<>
-KERNEL_EXPORT void KernelFreeMemory<_Build::TL>(void *ptr)
+void KernelAllocFreeMT(void *ptr)
 {
-    auto pool = KernelMemoryPoolAdapter<_Build::TL>();
-    pool->FreeAdapter<_Build::TL>(ptr);
+    KernelGetDefaultMemoryPool()->Free(ptr);
 }
+
 
 SpinLock &GetConsoleLocker()
 {
@@ -118,34 +111,6 @@ void UnlockConsole()
 // {
 //     GetBackTraceLock().Unlock();
 // }
-
-template<>
-KERNEL_EXPORT void *KernelAllocMemoryBy<_Build::MT>(void *pool, UInt64 memSize)
-{
-    auto p = reinterpret_cast<MemoryPool *>(pool);
-    return p->AllocAdapter<_Build::MT>(memSize);
-}
-
-template<>
-KERNEL_EXPORT void *KernelAllocMemoryBy<_Build::TL>(void *pool, UInt64 memSize)
-{
-    auto p = reinterpret_cast<MemoryPool *>(pool);
-    return p->AllocAdapter<_Build::TL>(memSize);
-}
-
-template<>
-KERNEL_EXPORT void KernelFreeMemoryBy<_Build::MT>(void *pool, void *ptr)
-{
-    auto p = reinterpret_cast<MemoryPool *>(pool);
-    return p->FreeAdapter<_Build::MT>(ptr);
-}
-
-template<>
-KERNEL_EXPORT void KernelFreeMemoryBy<_Build::TL>(void *pool, void *ptr)
-{
-    auto p = reinterpret_cast<MemoryPool *>(pool);
-    return p->FreeAdapter<_Build::TL>(ptr);
-}
 
 KERNEL_END
 

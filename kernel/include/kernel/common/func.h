@@ -41,7 +41,6 @@ KERNEL_BEGIN
 
 class MemoryPool;
 class SpinLock;
-class LibString;
 
 extern KERNEL_EXPORT MemoryPool *KernelGetTlsMemoryPool();
 extern KERNEL_EXPORT MemoryPool *KernelGetDefaultMemoryPool();
@@ -49,7 +48,7 @@ extern KERNEL_EXPORT UInt64 KernelGetCurrentThreadId();
 
 // 内存池适配
 template<typename BuildType>
-extern KERNEL_EXPORT MemoryPool *KernelMemoryPoolAdapter();
+extern MemoryPool *KernelMemoryPoolAdapter();
 // 多线程版本使用默认的内存池
 template<>
 KERNEL_EXPORT CRYSTAL_FORCE_INLINE MemoryPool *KernelMemoryPoolAdapter<_Build::MT>()
@@ -63,18 +62,43 @@ KERNEL_EXPORT CRYSTAL_FORCE_INLINE MemoryPool *KernelMemoryPoolAdapter<_Build::T
     return KernelGetTlsMemoryPool();
 }
 
+KERNEL_EXPORT extern void *KernelAllocTL(UInt64 memSize);
+KERNEL_EXPORT extern void *KernelAllocMT(UInt64 memSize);
+KERNEL_EXPORT extern void KernelAllocFreeTL(void *ptr);
+KERNEL_EXPORT extern void KernelAllocFreeMT(void *ptr);
+
 // 分配内存
 template<typename BuildType>
-extern KERNEL_EXPORT void *KernelAllocMemory(UInt64 memSize);
+extern void *KernelAllocMemory(UInt64 memSize);
 
 // 释放内存
 template<typename BuildType>
-extern KERNEL_EXPORT void KernelFreeMemory(void *ptr);
+extern void KernelFreeMemory(void *ptr);
 
-template<typename BuildType>
-extern KERNEL_EXPORT void *KernelAllocMemoryBy(void *pool, UInt64 memSize);
-template<typename BuildType>
-extern KERNEL_EXPORT void KernelFreeMemoryBy(void *pool, void *ptr);
+
+template<>
+KERNEL_EXPORT CRYSTAL_FORCE_INLINE void *KernelAllocMemory<_Build::MT>(UInt64 memSize)
+{
+    return KernelAllocMT(memSize);
+}
+
+template<>
+KERNEL_EXPORT CRYSTAL_FORCE_INLINE void *KernelAllocMemory<_Build::TL>(UInt64 memSize)
+{
+    return KernelAllocTL(memSize);
+}
+
+template<>
+KERNEL_EXPORT CRYSTAL_FORCE_INLINE void KernelFreeMemory<_Build::MT>(void *ptr)
+{
+    KernelAllocFreeMT(ptr);
+}
+
+template<>
+KERNEL_EXPORT CRYSTAL_FORCE_INLINE void KernelFreeMemory<_Build::TL>(void *ptr)
+{
+    KernelAllocFreeTL(ptr);
+}
 
 // 内存分配宏
 #ifndef KERNEL_ALLOC_MEMORY_TL 

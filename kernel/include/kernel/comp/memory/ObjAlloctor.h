@@ -33,13 +33,13 @@
 
 #include <kernel/common/BaseMacro.h>
 #include <kernel/common/BaseType.h>
+#include <kernel/comp/LibString.h>
 #include <kernel/comp/memory/MemoryDefs.h>
 #include <kernel/comp/Delegate/IDelegate.h>
 #include <kernel/comp/memory/MemoryAlloctor.h>
 #include <kernel/comp/memory/Defs/MemoryAlloctorConfig.h>
 #include <kernel/comp/Utils/RttiUtil.h>
 #include <kernel/comp/MemoryMonitor/memorymonitor_inc.h>
-#include <kernel/comp/LibString.h>
 #include <kernel/common/Destructor.h>
 
 KERNEL_BEGIN

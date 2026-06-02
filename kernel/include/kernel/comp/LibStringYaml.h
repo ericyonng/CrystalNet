@@ -37,16 +37,16 @@ namespace YAML
 {
     // LibString
     template<>
-    struct KERNEL_EXPORT convert<KERNEL_NS::LibString>
+    struct convert<KERNEL_NS::LibString>
     {
-        static Node encode(const KERNEL_NS::LibString& rhs)
+        static ALWAYS_INLINE Node encode(const KERNEL_NS::LibString& rhs)
         {
             Node node;
             node = rhs.GetRaw();
             return node;
         }
     
-        static bool decode(const Node& node,  KERNEL_NS::LibString& rhs)
+        static ALWAYS_INLINE bool decode(const Node& node,  KERNEL_NS::LibString& rhs)
         {
             if(!node.IsDefined())
                 return false;

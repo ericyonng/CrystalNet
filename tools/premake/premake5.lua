@@ -104,7 +104,7 @@ workspace ("CrystalNet_" .. _ACTION)
 
     -- disable some warnings
     filter { "system:windows", "language:c++" }
-        disablewarnings { "4091", "4819" }
+        disablewarnings { "4091", "4819", "4251" }
     filter {}
 
     -- 支持c++20

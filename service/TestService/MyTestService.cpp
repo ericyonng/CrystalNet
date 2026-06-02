@@ -38,6 +38,7 @@
 #include <protocols/protocols.h>
 #include <service/TestService/ServiceFactory.h>
 #include <service/TestService/MyTestService.h>
+#include <kernel/comp/LibStringYaml.h>
 
 SERVICE_BEGIN
     // 配置项

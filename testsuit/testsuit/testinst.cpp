@@ -306,8 +306,8 @@ void TestInst::Run(int argc, char const *argv[])
     // TestLua::Run();
     // TestJson::Run();
     // TestIdGenerator::Run();
-    // TestLoadShareLibrary::Run();
-    TestMongo::Run();
+    TestLoadShareLibrary::Run();
+    // TestMongo::Run();
     // TestSort::Run();
     // TestEventLoopThread::Run();
     // TestLockFree::Run();

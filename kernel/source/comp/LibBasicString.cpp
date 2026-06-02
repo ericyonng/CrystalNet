@@ -1,5 +1,5 @@
 /*!
- * MIT License
+* MIT License
  *  
  * Copyright (c) 2020 Eric Yonng<120453674@qq.com>
  *  
@@ -22,9 +22,14 @@
  * SOFTWARE.
  *  
  * 
- * Date: 2020-10-18 15:26:21
+ * Date: 2026-06-02 11:26:21
  * Author: Eric Yonng
  * Description: 
 */
 
 #include <pch.h>
+#include <kernel/comp/LibBasicString.h>
+
+KERNEL_BEGIN
+
+KERNEL_END
