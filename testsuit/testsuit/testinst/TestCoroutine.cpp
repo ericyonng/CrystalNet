@@ -182,7 +182,7 @@ void TestCoroutine::Run()
     //     // g_Log->Warn(LOGFMT_NON_OBJ_TAG(TestCoroutine, "co time out errCode:%d"), params->_params->_errCode);
     // });
 
-    poller->SafeEventLoop();
+    poller->EventLoop();
 
     poller->OnLoopEnd();
 }

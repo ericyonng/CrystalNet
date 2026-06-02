@@ -241,10 +241,6 @@ public:
     bool PrepareLoop();
     // Debug下是QuicklyLoop, 不使用try/catch让问题充分暴露, release下是SafeEventLoop, 保证稳定性
     void EventLoop();
-    // 不适用try/catch 应对高效的简单的场景
-    void QuicklyLoop();
-    // 使用try/catch保证稳定性
-    void SafeEventLoop();
     void OnLoopEnd();
     void WakeupEventLoop();
     ConditionLocker &GetConditionLocker();
@@ -556,6 +552,10 @@ public:
     void UnSubscribeStubEvent(UInt64 stub);
     
 protected:
+    // 不适用try/catch 应对高效的简单的场景
+    void QuicklyLoop();
+    // 使用try/catch保证稳定性
+    void SafeEventLoop();
     
     virtual Int32 _OnInit() override;
     virtual Int32 _OnStart() override;

@@ -144,7 +144,7 @@ public:
     }
 
     LibBasicString(_This &&other)
-        : _Base(std::move(other))
+        : _Base(std::forward<_Base>(other))
     {
     }
     
@@ -166,7 +166,7 @@ public:
     }
 
     LibBasicString(_Base &&other)
-        : _Base(other)
+        : _Base(std::forward<_Base>(other))
     {
     }
 
@@ -203,20 +203,20 @@ public:
 
     _This &operator = (_This &&other)
     {
-        this->assign(other);
+        _Base::operator = (std::forward<_Base>(other));
         return *this;
     }
 
     _This &operator = (const _This &other)
     {
-        this->assign(other);
+        _Base::operator = (other);
         return *this;
     }
 
     _This operator + (_This &&other) const
     {
         _This copyThis = *this;
-        copyThis.append(other);
+        copyThis.append(std::forward<_Base>(other));
         return copyThis;
     }
 
@@ -289,6 +289,25 @@ public:
 
     _This operator - (const _This &other) const
     {
+        return _This::operator-(static_cast<const _Base &>(other));
+    }
+
+    _This operator - (const Byte8 *other) const
+    {
+        if(UNLIKELY(!other))
+            return *this;
+
+        auto pos = this->find(other);
+        if(pos == npos)
+            return *this;
+
+        auto cache = *this;
+        cache.erase(pos, strlen(other));
+        return cache;
+    }
+
+    _This operator - (const _Base &other) const
+    {
         auto pos = this->find(other);
         if(pos == npos)
             return *this;
@@ -298,27 +317,9 @@ public:
         return cache;
     }
 
-    _This operator - (const Byte8 *other) const
-    {
-        if(UNLIKELY(!other))
-            return *this;
-
-        return *this - _This(other);
-    }
-
-    _This operator - (const _Base &other) const
-    {
-        return _This::operator -(_This(other));
-    }
-
     _This &operator -= (const _This &other)
     {
-        auto pos = this->find(other);
-        if(pos == npos)
-            return *this;
-
-        this->erase(pos, other.size());
-        return *this;
+        return  _This::operator -=(static_cast<const _Base &>(other));
     }
 
     _This &operator -= (const Byte8 *other)
@@ -326,12 +327,22 @@ public:
         if(UNLIKELY(!other))
             return *this;
 
-        return _This::operator -=(_This(other));
+        auto pos = this->find(other);
+        if(pos == npos)
+            return *this;
+
+        this->erase(pos, strlen(other));
+        return *this;
     }
 
     _This &operator -= (const _Base &other)
     {
-        return _This::operator -=(_This(other));
+        auto pos = this->find(other);
+        if(pos == npos)
+            return *this;
+
+        this->erase(pos, other.size());
+        return *this;
     }
 
     _This &operator << (const _This &str)
@@ -342,10 +353,7 @@ public:
 
     _This &operator << (_This &&str)
     {
-        this->append(str);
-        if (UNLIKELY(this != &str))
-            str.clear();
-        
+        this->append(std::forward<_Base>(str));
         return *this;
     }
 
@@ -363,10 +371,7 @@ public:
 
     _This &operator << (_Base &&str)
     {
-        this->append(str);
-        if(UNLIKELY(this != &str))
-            str.clear();    
-            
+        this->append(std::forward<_Base>(str));
         return *this;
     }
     _This &operator << (const bool &val)
@@ -640,7 +645,7 @@ public:
         if (UNLIKELY(this == &str))
             return;
             
-        this->swap(str);
+        this->swap(std::forward<_Base>(str));
     }
 
     void Swap(_This &str)

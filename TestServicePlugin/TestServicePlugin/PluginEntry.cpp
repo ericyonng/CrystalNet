@@ -41,8 +41,9 @@ extern "C"
         PluginWrap pluginWrap;
         UNUSED(pluginWrap);
         UNUSED(pluginWrap._id);
+        pluginWrap._id = 100;
         
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(PluginWrap, "Plugin init success g_PluginMgr:%p %s."), g_PluginMgr, g_PluginMgr->ToString().c_str());
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(PluginWrap, "Plugin init success g_PluginMgr:%p %s pluginWrap:%d."), g_PluginMgr, (g_PluginMgr ? g_PluginMgr->ToString().c_str() : ""), pluginWrap._id);
         return Status::Success;
     }
 
