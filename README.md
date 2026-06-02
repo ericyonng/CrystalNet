@@ -204,7 +204,9 @@ public:
   sh ./scripts/hotfix/hotfix.sh testsuit debug TestPlugin libTestPlugin2.so
   ```
 
-  
+* 热更插件集由于热更时静态全局, 静态局部对象等会被销毁, 会影响到池化对象, 所以插件集中泛型实例化的对象最多只能使用threadlocal模式分配和回收内存,
+
+* 插件集的对象不能跨线程，跨模块传播, 避免热更后导致对象未定义行为
 
 # 性能(见doc/压测/)
 
