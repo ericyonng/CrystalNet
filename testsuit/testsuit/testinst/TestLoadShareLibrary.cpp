@@ -30,66 +30,16 @@
 #include "kernel/comp/ShareLibraryLoader/ShareLibraryLoaderFactory.h"
 #include <TestServicePlugin/TestServicePlugin.h>
 #include <iostream>
+#include <OptionComp/Command/Command.h>
 
 // 监控dll/so热更
-class HotfixMonitor : public KERNEL_NS::IThreadStartUp
+class HotfixMonitor 
 {
 public:
-    HotfixMonitor(const KERNEL_NS::LibString &path, KERNEL_NS::Poller *poller)
-        :_libraryPath(path)
-        ,_poller(poller)
-    {
-        
-    }
-    
-    virtual void Run() override
-    {
-        KERNEL_NS::RunRightNow([this]()->KERNEL_NS::CoTask<>
-        {
-            DoHotfix();
-            co_return;
-        });
-
-        KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<>
-        {
-            while (true)
-            {
-                KERNEL_NS::LibString input;
-                std::getline(std::cin, input);
-                CLOG_INFO("get line:%s", input.c_str());
-                if (input.tolower() == "fix")
-                {
-                    CLOG_INFO("start hotfix...");
-                    DoHotfix();
-                    CLOG_INFO("finish hotfix.");
-                }
-                else if (input.tolower() == "quit")
-                {
-                    _poller->QuitLoop();
-                    CLOG_INFO("quit co task 1");
-                    break;
-                }
-            }
-
-            CLOG_INFO("quit co task 2");
-
-            KERNEL_NS::TlsUtil::GetPoller()->QuitLoop();
-            
-
-            co_return;
-        });
-    }
-    
-    virtual void Release() override
-    {
-        delete this;
-    }
-
-private:
-    void DoHotfix()
+    static void DoHotfix(const KERNEL_NS::LibString &path)
     {
         KERNEL_NS::SmartPtr<KERNEL_NS::ShareLibraryLoader, KERNEL_NS::AutoDelMethods::Release> loader = KERNEL_NS::ShareLibraryLoaderFactory().Create()->CastTo<KERNEL_NS::ShareLibraryLoader>();
-        loader->SetLibraryPath(_libraryPath);
+        loader->SetLibraryPath(path);
         loader->Init();
         loader->Start();
 
@@ -123,8 +73,8 @@ private:
 
 void TestLoadShareLibrary::Run()
 {
-
     auto libraryPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();
+    
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     libraryPath.AppendFormat("/libTestServicePlugin_debug.dll");
 
@@ -135,9 +85,20 @@ void TestLoadShareLibrary::Run()
 #endif
 
     auto poller = KERNEL_NS::TlsUtil::GetPoller();
-    auto thread = new CRYSTAL_NET::kernel::LibEventLoopThread("HotfixMonitor", new HotfixMonitor(libraryPath, poller));
-    thread->Start();
+    KERNEL_NS::SmartPtr<KERNEL_NS::ICommandMgr, KERNEL_NS::AutoDelMethods::Release> commandMgr = KERNEL_NS::CommandMgrFactory().Create()->CastTo<KERNEL_NS::ICommandMgr>();
 
+    commandMgr->AddCommand("fix", [libraryPath]()
+    {
+        HotfixMonitor::DoHotfix(libraryPath);
+    });
+    commandMgr->AddCommand("quit", [libraryPath, poller]()
+    {
+        poller->QuitLoop();
+    });
+
+    commandMgr->Init();
+    commandMgr->Start();
+    
     poller->PrepareLoop();
     CLOG_DEBUG_GLOBAL(TestLoadShareLibrary, "Start eventloop");
     poller->EventLoop();
@@ -146,7 +107,8 @@ void TestLoadShareLibrary::Run()
 
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLoadShareLibrary, "will quit test:%s"), libraryPath.c_str());
 
-    thread->Close();
-
+    commandMgr->WillClose();
+    commandMgr->Close();
+    
     CLOG_DEBUG_GLOBAL(TestLoadShareLibrary, "finishe test share library");
 }

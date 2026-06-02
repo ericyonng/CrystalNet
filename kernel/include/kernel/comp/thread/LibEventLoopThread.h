@@ -40,18 +40,30 @@
 
 #include "kernel/comp/SmartPtr.h"
 #include <kernel/comp/Poller/Poller.h>
+#include <kernel/comp/thread/IThreadStartUp.h>
 
 KERNEL_BEGIN
 
-class IThreadStartUp;
-
- class LibThread;
+class LibThread;
 
 class KERNEL_EXPORT LibEventLoopThread
 {
 
 public:
      LibEventLoopThread(const LibString &threadName = "", IThreadStartUp *startUp = NULL);
+    
+     template<typename LambdaType>
+     requires requires(LambdaType obj)
+     {
+         {obj()} -> std::same_as<void>;
+     }
+     LibEventLoopThread(LambdaType &&lambda, const LibString &threadName = "")
+         :_thread(NULL)
+     {
+         auto startUp = DefaultThreadStartUp::Create(std::forward<LambdaType>(lambda));
+         _CreateThreadObj(startUp, threadName);
+     }
+    
      virtual  ~LibEventLoopThread();
      virtual void Release();
 
@@ -153,6 +165,9 @@ public:
 
     const LibThread *GetThread() const;
 private:
+
+    void _CreateThreadObj(IThreadStartUp *startUp, const LibString &threadName);
+    
     LibThread *_thread;
 };
 

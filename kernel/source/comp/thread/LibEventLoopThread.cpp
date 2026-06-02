@@ -45,6 +45,14 @@ LibEventLoopThread::~LibEventLoopThread()
  CRYSTAL_DELETE_SAFE(_thread);
 }
 
+void LibEventLoopThread::_CreateThreadObj(IThreadStartUp *startUp, const LibString &threadName)
+{
+    _thread = new LibThread(startUp);
+    if (!threadName.empty())
+        _thread->SetThreadName(threadName);
+}
+
+
 void LibEventLoopThread::Release()
 {
   delete this;
