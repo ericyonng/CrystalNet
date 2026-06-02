@@ -45,8 +45,7 @@ class LibEventLoopThreadPool;
 class KERNEL_EXPORT ConstantGather
 {
 public:
-    static const std::string anyIp;
-    static const std::string interfacePrefix;
+    static constexpr const Byte8 * const interfacePrefix = "I";
 };
 
 KERNEL_END

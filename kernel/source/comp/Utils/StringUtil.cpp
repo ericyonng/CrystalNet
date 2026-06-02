@@ -405,7 +405,7 @@ LibString StringUtil::InterfaceObjName(const LibString &name)
     for(Int32 idx = 0; idx < splitSize; ++idx)
     {
         if(idx == splitSize -1)
-            icompName.AppendFormat("%s", ConstantGather::interfacePrefix.c_str());
+            icompName.AppendFormat("%s", ConstantGather::interfacePrefix);
 
         if(!splitNameSpace[idx].empty())
             icompName.AppendFormat("%s", splitNameSpace[idx].c_str());

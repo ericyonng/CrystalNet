@@ -41,7 +41,7 @@
 KERNEL_BEGIN
 
 #ifdef CRYSTAL_NET_CPP20
-void CoToolsPushPoller(KERNEL_NS::AsyncTaskPollerEvent *ev);
+KERNEL_EXPORT extern void CoToolsPushPoller(KERNEL_NS::AsyncTaskPollerEvent *ev);
     
 // AsyncTask事件
 template<typename CallerType>

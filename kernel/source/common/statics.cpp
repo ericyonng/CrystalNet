@@ -31,8 +31,6 @@
 #include <kernel/common/statics.h>
 
 KERNEL_BEGIN
-const std::string ConstantGather::anyIp = "ANY";
-const std::string ConstantGather::interfacePrefix = "I";
 
 KERNEL_END
 

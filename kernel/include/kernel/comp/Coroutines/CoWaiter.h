@@ -136,8 +136,8 @@ struct KERNEL_EXPORT CoWaiter: private NonCopyable
 // }
 
 // 超时唤醒需要外部手动销毁Waiting产生的协程, 通过GetParam可以获取协程handle
-CoTask<> Waiting(KERNEL_NS::TimeSlice slice = KERNEL_NS::TimeSlice::ZeroSlice(), bool printStackIfTimeout = false);
-CoTask<> CoCompleted();
+KERNEL_EXPORT extern CoTask<> Waiting(KERNEL_NS::TimeSlice slice = KERNEL_NS::TimeSlice::ZeroSlice(), bool printStackIfTimeout = false);
+KERNEL_EXPORT extern  CoTask<> CoCompleted();
 
 // 空协程
 #ifndef CRYSTAL_CO_COMPLETED
