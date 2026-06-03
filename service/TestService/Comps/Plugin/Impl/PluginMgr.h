@@ -59,10 +59,12 @@ private:
     void _WillClosePlugin();
     void _ClosePlugin();
     void _Clear();
+    void _InitPath();
 
 
 private:
     KERNEL_NS::LibString _hotfixKey;
+    KERNEL_NS::LibString _hotfixFilePath;
 
     KERNEL_NS::FileMonitor<PluginOptions, KERNEL_NS::YamlDeserializer> *_options;
 };

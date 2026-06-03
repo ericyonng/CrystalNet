@@ -35,6 +35,7 @@
 
 #include "kernel/comp/NetEngine/Poller/Defs/PollerInnerEvent.h"
 #include <TestServicePlugin/TestServicePlugin.h>
+#include <OptionComp/Command/Command.h>
 
 #include "MyTestService.h"
 
@@ -68,27 +69,9 @@ KERNEL_NS::LibString PluginMgr::ToString() const
 
 Int32 PluginMgr::_OnGlobalSysCompsCreated()
 {
-    auto dirPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(GetService()->GetApp()->GetAppPath());
-
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    #ifdef _DEBUG
-        dirPath.AppendFormat("/libTestServicePlugin_debug.dll");
-    #else
-        dirPath.AppendFormat("/libTestServicePlugin.dll");
-    #endif
-#else
-    #ifdef _DEBUG
-        dirPath.AppendFormat("/libTestServicePlugin_debug.so");
-    #else
-        dirPath.AppendFormat("/libTestServicePlugin.so");
-    #endif
-#endif
-    
-
-    g_Log->Info(LOGFMT_OBJ_TAG("plugin so dirPath:%s"), dirPath.c_str());
-
+    _InitPath();
     auto shareLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
-    shareLibrary->SetLibraryPath(dirPath);
+    shareLibrary->SetLibraryPath(_hotfixFilePath);
     
     return Status::Success;
 }
@@ -116,11 +99,50 @@ Int32 PluginMgr::_OnGlobalSysInit()
         CLOG_ERROR("plugin options init fail service:%s", GetService()->GetServiceName().c_str());
         return Status::ConfigError;
     }
+
+    _InitPath();
     
     _hotfixKey = _options->Current()->PluginHotfixKey;
 
+    auto serviceId = GetService()->GetServiceId();
     GetService()->GetPoller()->Subscribe(KERNEL_NS::PollerEventType::HotfixShareLibrary, this, &PluginMgr::_OnHotfixPlubin);
     GetService()->GetPoller()->Subscribe(KERNEL_NS::PollerEventType::HotfixShareLibraryComplete, this, &PluginMgr::_OnHotfixPlubinComplete);
+
+    // 注册监听热更(windows下生效, 其他平台命令行不生效)
+    auto app = GetService()->GetApp();
+    auto path = _hotfixFilePath;
+    auto hotfixKey = _hotfixKey;
+    app->GetComp<KERNEL_NS::ICommandMgr>()->AddCommand("fix", [path, hotfixKey, serviceId, app]()
+    {
+        // 1. 判断文件存在否
+        if(!KERNEL_NS::FileUtil::IsFileExist(path.c_str()))
+        {
+            CLOG_WARN("file not exist %s when hotfix", path.c_str());
+            return;
+        }
+
+        KERNEL_NS::SmartPtr<KERNEL_NS::ShareLibraryLoader, KERNEL_NS::AutoDelMethods::Release> newShareLibrary = KERNEL_NS::ShareLibraryLoaderFactory().Create()->CastTo<KERNEL_NS::ShareLibraryLoader>();
+        newShareLibrary->SetLibraryPath(path);
+        auto ret = newShareLibrary->Init();
+        if(ret != Status::Success)
+        {
+            CLOG_ERROR("plugin init new share library fail path:%s when hotfix ret:%d, serviceId:%llu"
+                , path.c_str(), ret, serviceId);
+            return;
+        }
+
+        ret = newShareLibrary->Start();
+        if(ret != Status::Success)
+        {
+            CLOG_ERROR("plugin start new share library fail path:%s when hotfix ret:%d, serviceId:%llu", path.c_str(), ret, serviceId);
+            return;
+        }
+
+        auto ev = KERNEL_NS::HotfixShareLibraryEvent::New_HotfixShareLibraryEvent();
+        ev->_hotfixKey = hotfixKey;
+        ev->_shareLib = std::move(newShareLibrary);
+        app->GetComp<KERNEL_NS::IServiceProxy>()->PostMsg(serviceId, ev);
+    });
 
     CLOG_INFO("plugin mgr hotfix key:%s", _hotfixKey.c_str());
 
@@ -276,6 +298,33 @@ void PluginMgr::_Clear()
         _options = NULL;
     }
 }
+
+void PluginMgr::_InitPath()
+{
+    if(!_hotfixFilePath.empty())
+        return;
+    
+    auto dirPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(GetService()->GetApp()->GetAppPath());
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+#ifdef _DEBUG
+    dirPath.AppendFormat("/libTestServicePlugin_debug.dll");
+#else
+    dirPath.AppendFormat("/libTestServicePlugin.dll");
+#endif
+#else
+#ifdef _DEBUG
+    dirPath.AppendFormat("/libTestServicePlugin_debug.so");
+#else
+    dirPath.AppendFormat("/libTestServicePlugin.so");
+#endif
+#endif
+    
+
+    _hotfixFilePath = dirPath;
+    g_Log->Info(LOGFMT_OBJ_TAG("plugin so dirPath:%s"), _hotfixFilePath.c_str());
+}
+
 
 
 SERVICE_END

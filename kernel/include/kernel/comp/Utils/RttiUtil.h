@@ -52,7 +52,11 @@ public:
     static LibString GetByObj(ObjType *obj);
 
     template<typename ObjType>
-    static UInt64 GetTypeId();
+    static UInt64 GetTypeId()
+    {
+        static UInt64 s_objTypeId = _GenTypeId(typeid(ObjType).name());
+        return s_objTypeId;
+    }
 
     // 获取类的纯名
     static  LibString GetSimpleTypeName(LibString &&fullName);
@@ -64,7 +68,7 @@ public:
 private:
     static const Byte8 *GetByTypeName(const char *rawTypeName);
 
-    static UInt64 _GenTypeId();
+    static UInt64 _GenTypeId(const char *rawTypeName);
 
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
     // 非windows平台下的类型识别
@@ -83,13 +87,6 @@ template<typename ObjType>
 ALWAYS_INLINE LibString RttiUtil::GetByObj(ObjType *obj)
 {
     return GetByTypeName(typeid(*obj).name());
-}
-
-template<typename ObjType>
-ALWAYS_INLINE UInt64 RttiUtil::GetTypeId()
-{
-    static UInt64 s_objTypeId = _GenTypeId();
-    return s_objTypeId;
 }
 
 KERNEL_END

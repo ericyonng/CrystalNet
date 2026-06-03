@@ -36,6 +36,7 @@
 
 #ifdef ENABLE_TEST_SERVICE
  #include <service/TestService/service.h>
+#include <OptionComp/Command/Command.h>
 
 class TestServiceApplication : public SERVICE_COMMON_NS::Application
 {
@@ -58,6 +59,9 @@ public:
 
         // 注册热更监控
         RegisterComp<SERVICE_COMMON_NS::LibraryHotfixMonitorFactory>();
+
+        // 注册命令行工具
+        RegisterComp<KERNEL_NS::CommandMgrFactory>();
     }
 
     virtual Int32 _OnCompsCreated() override

@@ -33,6 +33,7 @@
 #include <kernel/comp/Utils/TlsUtil.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/Log/log.h>
+#include <kernel/comp/Lock/Impl/SpinLock.h>
 
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
     // linux下类型识别接口相关
@@ -151,10 +152,25 @@ const Byte8 *RttiUtil::GetCxxDemangle(const char *name)
 
 //     return *s_dict;
 // }
-UInt64 RttiUtil::_GenTypeId()
+UInt64 RttiUtil::_GenTypeId(const char *rawTypeName)
 {
-    static std::atomic<UInt64> s_inc = {0};
-    return s_inc.fetch_add(1, std::memory_order_acq_rel) + 1;
+    static UInt64 s_inc = 0;
+    static std::map<KERNEL_NS::LibString, UInt64> typeNameRefId;
+    static SpinLock s_lck;
+    
+    KERNEL_NS::LibString typeStr = rawTypeName;
+    typeStr.strip();
+    
+    s_lck.Lock();
+    auto iter = typeNameRefId.find(typeStr);
+    if(iter != typeNameRefId.end())
+    {
+        s_lck.Unlock();
+        return iter->second;
+    }
+    iter = typeNameRefId.emplace(std::move(typeStr), ++s_inc).first;
+    s_lck.Unlock();
+    return iter->second;
 }
 
 // UInt64 RttiUtil::GetTypIdBy(const LibString &objName)
