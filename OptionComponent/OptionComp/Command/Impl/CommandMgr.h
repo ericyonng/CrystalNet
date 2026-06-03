@@ -57,10 +57,13 @@ private:
     virtual void _OnHostClose() override;
     void _Clear();
 
+    void _WakeupCin() const;
+
     std::unordered_map<LibString, IDelegate<void> *> _cmdRefCallback;
     SpinLock _lck;
     KERNEL_NS::LibEventLoopThread *_eventLoopThread;
     std::atomic_bool _isWorking;
+    std::atomic_bool _inWaiting;
 };
 
 KERNEL_END

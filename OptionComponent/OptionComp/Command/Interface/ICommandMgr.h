@@ -41,7 +41,7 @@ class ICommandMgr : public CompHostObject
 public:
     ICommandMgr(UInt64 typeId): CompHostObject(typeId) {}
 
-    // 添加命令与回调
+    // 添加命令与回调(大小写不敏感, 均按小写处理)
     virtual void AddCommand(const LibString &cmd, IDelegate<void> *callback) = 0;
     template <typename T>
     void AddCommand(const LibString &cmd, T *obj, void(T::*listener)());

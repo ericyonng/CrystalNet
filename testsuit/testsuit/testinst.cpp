@@ -351,12 +351,10 @@ void TestInst::Run(int argc, char const *argv[])
 
     // pool->Start(true, 4);
 
-    getchar();
-
+    KERNEL_NS::SystemUtil::ThreadSleep(5000);
     KERNEL_NS::KernelUtil::Destroy();
     
     printf("\ntest case finish.\n");
-    KERNEL_NS::SystemUtil::ThreadSleep(5000);
     getchar();
     // while(true)
     // {
