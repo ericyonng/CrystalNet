@@ -76,6 +76,27 @@ CRYSTAL_NET_BEGIN                                       \
 #undef ALWAYS_INLINE
 #define ALWAYS_INLINE CRYSTAL_FORCE_INLINE
 
+// 禁用内联
+#undef FORBID_INLINE
+#if defined(_MSC_VER)
+    /* MSVC: 仅能在函数级禁止内联，IPO 需在工程级关闭 /GL /LTCG */
+    #define FORBID_INLINE __declspec(noinline)
+#elif defined(__clang__)
+    /* Clang 没有 noclone，用 noinline + optnone 关闭该函数所有优化 */
+    // #define FORBID_INLINE __attribute__((noinline, optnone))
+    // Clang 的ipa不激进, 没必要optnone禁止函数内部的优化
+    #define FORBID_INLINE __attribute__((noinline))
+#elif defined(__GNUC__)
+    /* GCC: noinline 禁内联, noclone 阻止克隆/参数特化,阻止ipa过程中函数分析, 克隆常量等
+     * no-ipa-cp 阻止过程间常量传播, 禁内联noinline, noclone足够了 */
+    // 而且 optimize(...) 属性在 GCC 里有个已知副作用：它会让该函数脱离全局 -O 的优化级别管理，某些版本上可能导致优化行为不一致。能不用就不用
+    // #define FORBID_INLINE __attribute__((noinline, noclone, optimize("no-ipa-cp")))
+    #define FORBID_INLINE __attribute__((noinline, noclone))
+#else
+  #define FORBID_INLINE
+#endif
+
+
 #if defined(_MSC_VER)
     #ifndef LIKELY
         #define LIKELY(x) (x)

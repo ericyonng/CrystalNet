@@ -100,7 +100,7 @@ public:                                                                         
         {                                                                                                                           \
             return *GetStaticAllocter_##ObjType();                                                                                  \
         }                                                                                                                           \
-        static  KERNEL_NS::ObjAlloctor<ObjType> &GetThreadLocalAlloctor_##_objAlloctor()                               \
+        static FORBID_INLINE KERNEL_NS::ObjAlloctor<ObjType> &GetThreadLocalAlloctor_##_objAlloctor()                               \
         {                                                                                                                           \
             DEF_STATIC_THREAD_LOCAL_DECLEAR KERNEL_NS::ObjAlloctor<ObjType> *staticThreadLocal##ObjType##Alloctor = NULL;           \
             if(UNLIKELY(!staticThreadLocal##ObjType##Alloctor))                                                                                                                                     \
@@ -208,7 +208,7 @@ public:                                                                         
         {                                                                                                                           \
             GetThreadLocalAlloctor_##_objAlloctor().AddRefThreadLocal(this);                                                        \
         }                                                                                                                           \
-        static  KERNEL_NS::ObjAlloctor<ObjType> *GetStaticAllocter_##ObjType()                                                \
+        static FORBID_INLINE KERNEL_NS::ObjAlloctor<ObjType> *GetStaticAllocter_##ObjType()                                         \
         {                                                                                                                           \
             static KERNEL_NS::ObjAlloctor<ObjType> *s_alloctor = new KERNEL_NS::ObjAlloctor<ObjType>(false, initBlockNumPerBuffer   \
             , KERNEL_NS::MemoryAlloctorConfig(sizeof(ObjType), createBufferNumWhenInit));                                           \

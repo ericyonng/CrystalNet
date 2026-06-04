@@ -93,14 +93,14 @@ public:                                                                         
         {                                                                                                           \
             return *GetStaticAllocter_##ObjTypeNoTempArgs();                                                           \
         }                                                                                                           \
-        static  KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> *GetStaticAllocter_##ObjTypeNoTempArgs()             \
+        static FORBID_INLINE  KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> *GetStaticAllocter_##ObjTypeNoTempArgs()    \
         {                                                                                                                           \
             static KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> *s_alloctor = new KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >>(false, initBlockNumPerBuffer                      \
             , KERNEL_NS::MemoryAlloctorConfig(sizeof(ObjTypeNoTempArgs< __VA_ARGS__ >), createBufferNumWhenInit));                   \
             return s_alloctor;                                                                                                      \
         }                                                                                                                           \
                                                                                                                     \
-        static  KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> &GetThreadLocalAlloctor_##_objAlloctor()    \
+        static FORBID_INLINE KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> &GetThreadLocalAlloctor_##_objAlloctor()    \
         {                                                                                                           \
             DEF_STATIC_THREAD_LOCAL_DECLEAR KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> *staticThreadLocal##ObjTypeNoTempArgs##Alloctor = NULL;                                                                        \
             if(UNLIKELY(!staticThreadLocal##ObjTypeNoTempArgs##Alloctor))                                                                                                                                                           \
