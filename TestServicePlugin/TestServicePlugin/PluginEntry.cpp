@@ -38,6 +38,13 @@ extern "C"
     // 初始化插件集
     Int32 InitPlugin()
     {
+        auto st = g_PluginGlobal->Init();
+        if(st != Status::Success)
+        {
+            CLOG_ERROR_GLOBAL(SERVICE_NS::IPluginGlobal, "plugin global init fail st:%d", st);
+            return st;
+        }
+        
         PluginWrap pluginWrap;
         UNUSED(pluginWrap);
         UNUSED(pluginWrap._id);
@@ -50,6 +57,13 @@ extern "C"
     // 启动插件集
     Int32 StartPlugin()
     {
+        auto st = g_PluginGlobal->Start();
+        if(st != Status::Success)
+        {
+            CLOG_ERROR_GLOBAL(SERVICE_NS::IPluginGlobal, "plugin global start fail st:%d", st);
+            return st;
+        }
+        
         g_Log->Info(LOGFMT_NON_OBJ_TAG(PluginWrap, "Plugin start success."));
         return Status::Success;
     }
@@ -57,17 +71,38 @@ extern "C"
     // 预关闭插件集
     void WillClosePlugin()
     {
+        if(g_PluginGlobal)
+        {
+            g_PluginGlobal->WillClose();
+        }
         g_Log->Info(LOGFMT_NON_OBJ_TAG(PluginWrap, "Plugin will close ..."));
     }
 
     // 释放插件集
     void ClosePlugin()
     {
+        if(g_PluginGlobal)
+        {
+            g_PluginGlobal->Close();
+            g_PluginGlobal->Release();
+            g_PluginGlobal = NULL;
+        }
+        
         g_Log->Info(LOGFMT_NON_OBJ_TAG(PluginWrap, "Plugin close success."));
     }
 
     void SetPluginMgr(void *pluginMgr)
     {
         g_PluginMgr = reinterpret_cast<SERVICE_NS::IPluginMgr *>(pluginMgr);
+    }
+
+    void SetPluginGlobal(void *pluginGlobal)
+    {
+        g_PluginGlobal = reinterpret_cast<SERVICE_NS::IPluginGlobal *>(pluginGlobal);
+    }
+
+    void DispatchEvent(void *ev)
+    {
+        
     }
 }

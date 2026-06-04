@@ -20,22 +20,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2025-02-05 16:35:27
+// Date: 2026-06-05 00:06:33
 // Author: Eric Yonng
 // Description:
 
-#ifndef __CRYSTAL_NET_TEST_SERVICE_PLUGIN_TEST_SERVICE_PLUGIN_EXTERN_PLUGIN_MGR_H__
-#define __CRYSTAL_NET_TEST_SERVICE_PLUGIN_TEST_SERVICE_PLUGIN_EXTERN_PLUGIN_MGR_H__
+#include <pch.h>
+#include <Comps/Plugin/Impl/PluginGlobal.h>
+#include <Comps/Plugin/Impl/PluginGlobalFactory.h>
 
-#pragma once
+SERVICE_BEGIN
 
-#include <TestService/Comps/Plugin/Plugin.h>
+KERNEL_NS::CompFactory *PluginGlobalFactory::FactoryCreate()
+{
+    return KERNEL_NS::ObjPoolWrap<PluginGlobalFactory>::NewByAdapter(_buildType.V);
+}
 
-#include "service/common/macro.h"
+void PluginGlobalFactory::Release()
+{
+    KERNEL_NS::ObjPoolWrap<PluginGlobalFactory>::DeleteByAdapter(_buildType.V, this);
+}
 
-extern SERVICE_NS::IPluginMgr *g_PluginMgr;
+KERNEL_NS::CompObject *PluginGlobalFactory::Create() const
+{
+    CREATE_CRYSTAL_COMP(comp, PluginGlobal);
+    return comp;
+}
 
-// 插件集的全局对象每个线程一个, 在插件集初始化的时候初始化, 结束时释放
-extern SERVICE_NS::IPluginGlobal *g_PluginGlobal;
-
-#endif
+SERVICE_END

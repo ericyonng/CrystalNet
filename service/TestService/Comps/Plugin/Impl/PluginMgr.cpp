@@ -34,8 +34,8 @@
 #include <Comps/Plugin/Impl/PluginMgrFactory.h>
 
 #include "kernel/comp/NetEngine/Poller/Defs/PollerInnerEvent.h"
-#include <TestServicePlugin/TestServicePlugin.h>
 #include <OptionComp/Command/Command.h>
+#include <Comps/Plugin/Impl/PluginGlobalFactory.h>
 
 #include "MyTestService.h"
 
@@ -43,6 +43,7 @@ SERVICE_BEGIN
     PluginMgr::PluginMgr()
 : IPluginMgr(KERNEL_NS::RttiUtil::GetTypeId<PluginMgr>())
 ,_options(KERNEL_NS::FileMonitor<PluginOptions, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
+,_dispatchEvent(NULL)
 {
     
 }
@@ -208,23 +209,43 @@ void PluginMgr::_OnHotfixPlubinComplete(KERNEL_NS::PollerEvent *ev)
 void PluginMgr::_InitPluginModule()
 {
     auto shareLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
-
+    
     auto initPtr = shareLibrary->LoadSym<InitPluginPtr>(KERNEL_NS::LibString("InitPlugin"));
     auto startPtr = shareLibrary->LoadSym<StartPluginPtr>(KERNEL_NS::LibString("StartPlugin"));
     auto setPluginMgrPtr = shareLibrary->LoadSym<SetPluginMgrPtr>(KERNEL_NS::LibString("SetPluginMgr"));
+    auto setPluginGlobalPtr = shareLibrary->LoadSym<SetPluginGlobalPtr>(KERNEL_NS::LibString("SetPluginGlobal"));
+    auto dispatchEventPtr = shareLibrary->LoadSym<DispatchEventPtr>(KERNEL_NS::LibString("DispatchEvent"));
 
-    if((!initPtr) || (!startPtr) ||(!setPluginMgrPtr))
+    if((!initPtr) || (!startPtr) ||(!setPluginMgrPtr) || (!setPluginGlobalPtr) || (!dispatchEventPtr))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("load sym fail"));
         return;
     }
 
+    _dispatchEvent = dispatchEventPtr;
     // 设置PluginMgrPtr
     (*setPluginMgrPtr)(this);
+    (*setPluginGlobalPtr)(PluginGlobalFactory().Create());
+    
     auto pluginRet = (*initPtr)();
-    g_Log->Info(LOGFMT_OBJ_TAG("init plugin:%d"), pluginRet);
+    if(pluginRet != Status::Success)
+    {
+        CLOG_ERROR("init fail st:%d", pluginRet);
+        _WillClosePlugin();
+        _ClosePlugin();
+        return;
+    }
+    
     pluginRet = (*startPtr)();
-    g_Log->Info(LOGFMT_OBJ_TAG("start plugin:%d"), pluginRet);
+    if(pluginRet != Status::Success)
+    {
+        CLOG_ERROR("start fail st:%d", pluginRet);
+        _WillClosePlugin();
+        _ClosePlugin();
+        return;
+    }
+
+    CLOG_INFO("start plugin success.");
     
 // #if CRYSTAL_TARGET_PLATFORM_WINDOWS
 //     SetPluginMgr(this);
@@ -255,6 +276,7 @@ void PluginMgr::_WillClosePlugin()
     }
     
     (*willClosePtr)();
+    _dispatchEvent = NULL;
     g_Log->Info(LOGFMT_OBJ_TAG("will close plugin..."));
 //     
 //     // Windows下
@@ -269,6 +291,8 @@ void PluginMgr::_WillClosePlugin()
 
 void PluginMgr::_ClosePlugin()
 {
+    _dispatchEvent = NULL;
+
     auto shareLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
     auto closePtr = shareLibrary->LoadSym<ClosePluginPtr>(KERNEL_NS::LibString("ClosePlugin"));
     if((!closePtr))
@@ -297,6 +321,8 @@ void PluginMgr::_Clear()
         KERNEL_NS::FileMonitor<PluginOptions, KERNEL_NS::YamlDeserializer>::Delete_FileMonitor(_options);
         _options = NULL;
     }
+
+    _dispatchEvent = NULL;
 }
 
 void PluginMgr::_InitPath()

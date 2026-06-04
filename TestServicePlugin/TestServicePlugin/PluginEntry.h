@@ -45,6 +45,9 @@ extern "C"
     typedef void (*ClosePluginPtr)();
     // 设置插件集对象
     typedef void (*SetPluginMgrPtr)(void *);
+    typedef void (*SetPluginGlobalPtr)(void *);
+    // 转发流量
+    typedef void (*DispatchEventPtr)(void *);
     
     // 初始化插件集
     extern TEST_PLUGIN_EXPORT Int32 InitPlugin();
@@ -60,6 +63,11 @@ extern "C"
 
     // 设置对象
     extern TEST_PLUGIN_EXPORT void SetPluginMgr(void *pluginMgr);
+    // 由插件集自己销毁
+    extern TEST_PLUGIN_EXPORT void SetPluginGlobal(void *pluginGlobal);
+
+    // 事件
+    extern TEST_PLUGIN_EXPORT void DispatchEvent(void *ev);
 }
 
 #endif

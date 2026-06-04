@@ -20,22 +20,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2025-02-05 16:35:27
+// Date: 2026-06-05 00:06:24
 // Author: Eric Yonng
 // Description:
 
-#ifndef __CRYSTAL_NET_TEST_SERVICE_PLUGIN_TEST_SERVICE_PLUGIN_EXTERN_PLUGIN_MGR_H__
-#define __CRYSTAL_NET_TEST_SERVICE_PLUGIN_TEST_SERVICE_PLUGIN_EXTERN_PLUGIN_MGR_H__
 
 #pragma once
 
-#include <TestService/Comps/Plugin/Plugin.h>
+#include <kernel/comp/CompObject/CompFactory.h>
+#include <service/common/macro.h>
 
-#include "service/common/macro.h"
+SERVICE_BEGIN
 
-extern SERVICE_NS::IPluginMgr *g_PluginMgr;
+class PluginGlobalFactory : public KERNEL_NS::CompFactory
+{
+    // 创建factory对象时候使用创建的方法类型
+public:
+    static constexpr KERNEL_NS::_Build::TL _buildType{};
 
-// 插件集的全局对象每个线程一个, 在插件集初始化的时候初始化, 结束时释放
-extern SERVICE_NS::IPluginGlobal *g_PluginGlobal;
+    static KERNEL_NS::CompFactory *FactoryCreate();
 
-#endif
+    virtual void Release() override;
+
+public:
+    virtual KERNEL_NS::CompObject *Create() const override;
+};
+
+SERVICE_END

@@ -20,22 +20,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2025-02-05 16:35:27
+// Date: 2026-06-05 00:06:00
 // Author: Eric Yonng
 // Description:
 
-#ifndef __CRYSTAL_NET_TEST_SERVICE_PLUGIN_TEST_SERVICE_PLUGIN_EXTERN_PLUGIN_MGR_H__
-#define __CRYSTAL_NET_TEST_SERVICE_PLUGIN_TEST_SERVICE_PLUGIN_EXTERN_PLUGIN_MGR_H__
-
 #pragma once
 
-#include <TestService/Comps/Plugin/Plugin.h>
+#include <Comps/Plugin/Interface/IPluginGlobal.h>
 
-#include "service/common/macro.h"
+SERVICE_BEGIN
 
-extern SERVICE_NS::IPluginMgr *g_PluginMgr;
+class PluginGlobal : public IPluginGlobal
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(IPluginGlobal, PluginGlobal);
+    
+public:
+    PluginGlobal();
+    ~PluginGlobal() override;
 
-// 插件集的全局对象每个线程一个, 在插件集初始化的时候初始化, 结束时释放
-extern SERVICE_NS::IPluginGlobal *g_PluginGlobal;
+    void Release() override;
+    void OnRegisterComps() override;
 
-#endif
+private:
+    virtual Int32 _OnHostInit() override;
+    virtual Int32 _OnCompsCreated() override;
+    virtual Int32 _OnHostWillStart() override;
+
+    virtual Int32 _OnHostStart() override;
+    virtual void _OnHostBeforeCompsWillClose() override;
+    virtual void _OnHostClose() override;
+    void _Clear();
+};
+
+SERVICE_END

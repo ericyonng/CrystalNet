@@ -24,6 +24,7 @@
 // Author: Eric Yonng
 // Description:
 
+#pragma once
 
 #include <ServiceCompHeader.h>
 #include <service/common/BaseComps/GlobalSys/GlobalSys.h>

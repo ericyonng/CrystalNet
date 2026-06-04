@@ -28,3 +28,5 @@
 #include <TestServicePlugin/ExternPluginMgr.h>
 
 SERVICE_NS::IPluginMgr *g_PluginMgr = NULL;
+SERVICE_NS::IPluginGlobal *g_PluginGlobal = NULL;
+

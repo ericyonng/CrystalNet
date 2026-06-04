@@ -28,4 +28,6 @@
 #pragma once
 
 #include <Comps/Plugin/Interface/IPluginMgr.h>
+#include <Comps/Plugin/Interface/IPluginGlobal.h>
 #include <Comps/Plugin/Impl/PluginMgrFactory.h>
+#include <Comps/Plugin/Impl/PluginGlobalFactory.h>

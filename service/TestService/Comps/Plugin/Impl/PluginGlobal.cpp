@@ -20,22 +20,73 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2025-02-05 16:35:27
+// Date: 2026-06-05 00:06:42
 // Author: Eric Yonng
 // Description:
 
-#ifndef __CRYSTAL_NET_TEST_SERVICE_PLUGIN_TEST_SERVICE_PLUGIN_EXTERN_PLUGIN_MGR_H__
-#define __CRYSTAL_NET_TEST_SERVICE_PLUGIN_TEST_SERVICE_PLUGIN_EXTERN_PLUGIN_MGR_H__
 
-#pragma once
+#include <pch.h>
+#include <Comps/Plugin/Impl/PluginGlobal.h>
+#include <google/protobuf/stubs/status.h>
 
-#include <TestService/Comps/Plugin/Plugin.h>
+#include "PluginGlobalFactory.h"
 
-#include "service/common/macro.h"
+SERVICE_BEGIN
 
-extern SERVICE_NS::IPluginMgr *g_PluginMgr;
+PluginGlobal::PluginGlobal()
+    :IPluginGlobal(KERNEL_NS::RttiUtil::GetTypeId<PluginGlobal>())
+{
+    
+}
 
-// 插件集的全局对象每个线程一个, 在插件集初始化的时候初始化, 结束时释放
-extern SERVICE_NS::IPluginGlobal *g_PluginGlobal;
+PluginGlobal::~PluginGlobal()
+{
+    
+}
 
-#endif
+void PluginGlobal::Release()
+{
+    PluginGlobal::DeleteByAdapter_PluginGlobal(PluginGlobalFactory::_buildType.V, this);
+}
+
+void PluginGlobal::OnRegisterComps()
+{
+    
+}
+
+Int32 PluginGlobal::_OnHostInit()
+{
+    return Status::Success;
+}
+
+Int32 PluginGlobal::_OnCompsCreated()
+{
+    return Status::Success;
+}
+
+Int32 PluginGlobal::_OnHostWillStart()
+{
+    return Status::Success;
+}
+
+Int32 PluginGlobal::_OnHostStart()
+{
+    return Status::Success;
+}
+
+void PluginGlobal::_OnHostBeforeCompsWillClose()
+{
+    
+}
+void PluginGlobal::_OnHostClose()
+{
+    
+}
+
+void PluginGlobal::_Clear()
+{
+    
+}
+
+
+SERVICE_END

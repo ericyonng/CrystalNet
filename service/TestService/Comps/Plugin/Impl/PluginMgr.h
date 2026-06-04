@@ -24,10 +24,13 @@
 // Author: Eric Yonng
 // Description:
 
+#pragma once
+
 #include <Comps/Plugin/Interface/IPluginMgr.h>
 #include <Comps/Plugin/Impl/PluginOptions.h>
 #include <kernel/comp/FileMonitor/FileMonitor.h>
 #include <kernel/comp/FileMonitor/YamlDeserializer.h>
+#include <TestServicePlugin/TestServicePlugin.h>
 
 SERVICE_BEGIN
 
@@ -67,6 +70,8 @@ private:
     KERNEL_NS::LibString _hotfixFilePath;
 
     KERNEL_NS::FileMonitor<PluginOptions, KERNEL_NS::YamlDeserializer> *_options;
+
+    DispatchEventPtr _dispatchEvent;
 };
 
 SERVICE_END
