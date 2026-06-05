@@ -59,7 +59,7 @@ public:
 public:
     /**
      * Add event listener.
-     * @param[in] id         - event Id.
+     * @param[in] id         - event Id, 为0表示监听所有事件, 用于转发事件
      * @param[in] listener   - event listener.
      * @param[in] bindedStub - the binded stub, if not specified, will auto gen stub. 指定的存根若存在则销毁当前的delegate
      * @return ListenerStub - return INVALID_LISTENER_STUB if failed, otherwise return validate stub.

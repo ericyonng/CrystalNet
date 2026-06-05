@@ -1091,12 +1091,12 @@ void UserMgr::_OnGlobalSysClose()
 void UserMgr::_OnQuitServiceEventDefault(KERNEL_NS::LibEvent *ev)
 {
     auto allUsers = _lru;
-    ev->SetDontDelAfterFire(true);
+    ev->DisableDelAfterFire();
     
     for(auto user : allUsers)
         user->Logout(LogoutReason::CLOSE_SERVER);
 
-    ev->SetDontDelAfterFire(false);
+    ev->EnableDelAfterFire();
     IGlobalSys::_OnQuitServiceEventDefault(ev);
 }
 

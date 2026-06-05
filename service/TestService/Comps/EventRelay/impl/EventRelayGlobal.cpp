@@ -137,12 +137,9 @@ void EventRelayGlobal::_OnRemoveLibraryMember(KERNEL_NS::LibEvent *ev)
 
     _DisableFromRelayToUser(userId, eventId);
 
-    auto oldStatus = ev->IsDontDelAfterFire();
-    ev->SetDontDelAfterFire(true);
-
+    ev->DisableDelAfterFire();
     user->FireEvent(ev);
-
-    ev->SetDontDelAfterFire(oldStatus);
+    ev->EnableDelAfterFire();
 
     _OnEventFromUserHandled(userId, eventId);
 }
@@ -175,12 +172,11 @@ void EventRelayGlobal::_OnJoinLibraryMember(KERNEL_NS::LibEvent *ev)
 
     _DisableFromRelayToUser(userId, eventId);
 
-    auto oldStatus = ev->IsDontDelAfterFire();
-    ev->SetDontDelAfterFire(true);
+    ev->DisableDelAfterFire();
 
     user->FireEvent(ev);
 
-    ev->SetDontDelAfterFire(oldStatus);
+    ev->EnableDelAfterFire();
 
     _OnEventFromUserHandled(userId, eventId);
 }
@@ -238,9 +234,9 @@ void EventRelayGlobal::_EventFromUserToGlobal(KERNEL_NS::LibEvent *ev)
     _DisableFromRelayToUser(userId, ev->GetId());
 
     auto flag = ev->IsDontDelAfterFire();
-    ev->SetDontDelAfterFire(true);
+    ev->DisableDelAfterFire();
     GetEventMgr()->FireEvent(ev);
-    ev->SetDontDelAfterFire(flag);
+    ev->EnableDelAfterFire();
 
     _OnEventFromUserHandled(userId, eventId);
 }

@@ -73,8 +73,9 @@ public:
      * Set don't delete after fire option.
      * @param[in] dontDelAfterFire - the don't delete after fire option.
      */
-    void SetDontDelAfterFire(bool dontDelAfterFire);
+    void DisableDelAfterFire();
 
+    void EnableDelAfterFire();
 public:
     /**
      * Get integer key indexed event param.
@@ -200,7 +201,7 @@ public:
 
 private:
     int _id = 0;
-    bool _dontDelAfterFire = true;
+    Int32 _dontDelAfterFire = 0;
     IDelegate<void, LibEvent *> *_releaseFunc = NULL;
 
     typedef std::map<Int32, Variant> _IntKeyParams;
@@ -226,13 +227,19 @@ ALWAYS_INLINE int LibEvent::GetId() const
 
 ALWAYS_INLINE bool LibEvent::IsDontDelAfterFire() const
 {
-    return _dontDelAfterFire;
+    return _dontDelAfterFire > 0;
 }
 
-ALWAYS_INLINE void LibEvent::SetDontDelAfterFire(bool dontDelAfterFire)
+ALWAYS_INLINE void LibEvent::DisableDelAfterFire()
 {
-    _dontDelAfterFire = dontDelAfterFire;
+    ++_dontDelAfterFire;
 }
+
+ALWAYS_INLINE void LibEvent::EnableDelAfterFire()
+{
+    --_dontDelAfterFire;
+}
+
 
 template <typename ParamType>
 ALWAYS_INLINE LibEvent &LibEvent::SetParam(int key, const ParamType &param)

@@ -165,6 +165,9 @@ Int32 EventManager::FireEvent(LibEvent *event)
     Int32 res = FireEvResult::Fail;
     const Int32 evId = event->GetId();
 
+    // 禁止监听者释放event
+    event->DisableDelAfterFire();
+    
     // 监听所有事件的回调
     auto iterAllEvs = _listeners.find(0);
     if(iterAllEvs != _listeners.end())
@@ -204,19 +207,31 @@ Int32 EventManager::FireEvent(LibEvent *event)
     }
     else if(_delayAddOpRefCount.find(evId) != _delayAddOpRefCount.end())
     {
-        // 延迟监听,延迟fire TODO:
-        _Op op;
-        op._op = EventManager::FIRE;
-        op._fireInfo._ev = event;
-        _delayedOps.push_back(op);
+        // 延迟监听,延迟fire TODO:, 已经在执行延迟了, 不能再添加延迟
+        if (_delaying <= 0)
+        {
+            _Op op;
+            op._op = EventManager::FIRE;
+            op._fireInfo._ev = event;
+            _delayedOps.push_back(op);
+        }
+        else
+        {
+            CLOG_WARN("attention: fire event[%d] in delay fire event please check if it is a terrible design, it cant fire event when listen is not finish!", evId);
+        }
+
         --_firing;
 
         CLOG_WARN("attention: fire event[%d] with delay listen please check if it is a terrible design, it cant fire event when listen is not finish!", evId);
+
+        event->EnableDelAfterFire();
         return FireEvResult::Asyn;
     }
 
     AfterFireEvent();
 
+    event->EnableDelAfterFire();
+    
     if(!event->IsDontDelAfterFire())
         event->Release();
 
