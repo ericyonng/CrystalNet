@@ -49,7 +49,7 @@ class KERNEL_EXPORT LibEvent
     POOL_CREATE_OBJ_DEFAULT(LibEvent);
 
 public:
-    LibEvent(int id = 0, bool dontDelAfterFire = false);
+    LibEvent(int id = 0);
     virtual ~LibEvent();
     virtual void Release();
 

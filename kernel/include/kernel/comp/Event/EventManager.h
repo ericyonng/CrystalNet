@@ -75,6 +75,10 @@ public:
                                   void (ObjectType::*listener)(LibEvent *),
                                   const ListenerStub &bindedStub = INVALID_LISTENER_STUB);
 
+    
+    ListenerStub AddListener(int id,
+                              void (*listener)(LibEvent *));
+
     /**
      * Remove event listener.
      * @param[in] id - event Id.
@@ -109,6 +113,7 @@ public:
      * 若立即FireEvent会丢失事件,因为IsFiring状态下的AddListen在异步队列中
      * @param[in] event - event object.
      * @return(Int32) FireEvResult, 为了降低复杂度,请保证统一征内事件不同时Add与Fire(IsFiring状态下)
+     * FireEvent如果event->IsDontDel为false那么会调用event->Release,自动释放
      */
     virtual Int32 FireEvent(LibEvent *event);
 
@@ -281,6 +286,15 @@ ALWAYS_INLINE ListenerStub EventManager::AddListener(int id,
 
     auto listenerDelegate = DelegateFactory::Create(obj, listener);
     return AddListener(id, listenerDelegate, bindedStub);
+}
+
+ALWAYS_INLINE ListenerStub EventManager::AddListener(int id, void (*listener)(LibEvent *))
+{
+    if(!listener)
+        return INVALID_LISTENER_STUB;
+
+    auto listenerDelegate = DelegateFactory::Create(listener);
+    return AddListener(id, listenerDelegate, INVALID_LISTENER_STUB);
 }
 
 ALWAYS_INLINE int EventManager::RemoveListenerX(ListenerStub &stub)

@@ -207,7 +207,7 @@ Int32 EventManager::FireEvent(LibEvent *event)
     }
     else if(_delayAddOpRefCount.find(evId) != _delayAddOpRefCount.end())
     {
-        // 延迟监听,延迟fire TODO:, 已经在执行延迟了, 不能再添加延迟
+        // 延迟监听,延迟fire 已经在执行延迟了, 不能再添加延迟
         if (_delaying <= 0)
         {
             _Op op;
@@ -217,7 +217,7 @@ Int32 EventManager::FireEvent(LibEvent *event)
         }
         else
         {
-            CLOG_WARN("attention: fire event[%d] in delay fire event please check if it is a terrible design, it cant fire event when listen is not finish!", evId);
+            CLOG_WARN("attention: fire event[%d] in delay fire event please check if it is a terrible design, and will release event, it cant fire event when listen is not finish!", evId);
         }
 
         --_firing;
@@ -225,6 +225,14 @@ Int32 EventManager::FireEvent(LibEvent *event)
         CLOG_WARN("attention: fire event[%d] with delay listen please check if it is a terrible design, it cant fire event when listen is not finish!", evId);
 
         event->EnableDelAfterFire();
+
+        // 正在处理延迟, event不在延迟队列需要释放
+        if(_delaying > 0)
+        {
+            if(!event->IsDontDelAfterFire())
+                event->Release();
+        }
+
         return FireEvResult::Asyn;
     }
 

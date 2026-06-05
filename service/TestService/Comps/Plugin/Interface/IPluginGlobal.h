@@ -30,6 +30,12 @@
 #include <kernel/comp/CompObject/CompHostObject.h>
 #include <service/common/macro.h>
 
+KERNEL_BEGIN
+
+class EventManager;
+
+KERNEL_END
+
 SERVICE_BEGIN
 
 class IPluginGlobal : public KERNEL_NS::CompHostObject
@@ -38,6 +44,11 @@ class IPluginGlobal : public KERNEL_NS::CompHostObject
 
 public:
     IPluginGlobal(UInt64 objTypeId) : CompHostObject(objTypeId) {}
+
+    // 插件集事件管理器
+    virtual KERNEL_NS::EventManager *GetEventManager() = 0;
+    // 测试
+    virtual void TestHello() const = 0;
 };
 
 SERVICE_END

@@ -38,12 +38,13 @@
 #include <Comps/Plugin/Impl/PluginGlobalFactory.h>
 
 #include "MyTestService.h"
+#include "Comps/Plugin/Interface/IPluginGlobal.h"
 
 SERVICE_BEGIN
     PluginMgr::PluginMgr()
 : IPluginMgr(KERNEL_NS::RttiUtil::GetTypeId<PluginMgr>())
 ,_options(KERNEL_NS::FileMonitor<PluginOptions, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
-,_dispatchEvent(NULL)
+,_pluginGlobal(NULL)
 {
     
 }
@@ -73,6 +74,8 @@ Int32 PluginMgr::_OnGlobalSysCompsCreated()
     _InitPath();
     auto shareLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
     shareLibrary->SetLibraryPath(_hotfixFilePath);
+
+    GetEventMgr()->AddListener(0, this, &PluginMgr::_OnAnyEvent);
     
     return Status::Success;
 }
@@ -214,18 +217,17 @@ void PluginMgr::_InitPluginModule()
     auto startPtr = shareLibrary->LoadSym<StartPluginPtr>(KERNEL_NS::LibString("StartPlugin"));
     auto setPluginMgrPtr = shareLibrary->LoadSym<SetPluginMgrPtr>(KERNEL_NS::LibString("SetPluginMgr"));
     auto setPluginGlobalPtr = shareLibrary->LoadSym<SetPluginGlobalPtr>(KERNEL_NS::LibString("SetPluginGlobal"));
-    auto dispatchEventPtr = shareLibrary->LoadSym<DispatchEventPtr>(KERNEL_NS::LibString("DispatchEvent"));
 
-    if((!initPtr) || (!startPtr) ||(!setPluginMgrPtr) || (!setPluginGlobalPtr) || (!dispatchEventPtr))
+    if((!initPtr) || (!startPtr) ||(!setPluginMgrPtr) || (!setPluginGlobalPtr))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("load sym fail"));
         return;
     }
 
-    _dispatchEvent = dispatchEventPtr;
+    auto pluginGlobal = PluginGlobalFactory().Create();
     // 设置PluginMgrPtr
     (*setPluginMgrPtr)(this);
-    (*setPluginGlobalPtr)(PluginGlobalFactory().Create());
+    (*setPluginGlobalPtr)(pluginGlobal);
     
     auto pluginRet = (*initPtr)();
     if(pluginRet != Status::Success)
@@ -245,6 +247,7 @@ void PluginMgr::_InitPluginModule()
         return;
     }
 
+    _pluginGlobal = pluginGlobal->CastTo<IPluginGlobal>();
     CLOG_INFO("start plugin success.");
     
 // #if CRYSTAL_TARGET_PLATFORM_WINDOWS
@@ -266,6 +269,7 @@ void PluginMgr::_InitPluginModule()
 
 void PluginMgr::_WillClosePlugin()
 {
+    _pluginGlobal = NULL;
     auto shareLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
 
     auto willClosePtr = shareLibrary->LoadSym<WillClosePluginPtr>(KERNEL_NS::LibString("WillClosePlugin"));
@@ -276,7 +280,6 @@ void PluginMgr::_WillClosePlugin()
     }
     
     (*willClosePtr)();
-    _dispatchEvent = NULL;
     g_Log->Info(LOGFMT_OBJ_TAG("will close plugin..."));
 //     
 //     // Windows下
@@ -291,8 +294,6 @@ void PluginMgr::_WillClosePlugin()
 
 void PluginMgr::_ClosePlugin()
 {
-    _dispatchEvent = NULL;
-
     auto shareLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
     auto closePtr = shareLibrary->LoadSym<ClosePluginPtr>(KERNEL_NS::LibString("ClosePlugin"));
     if((!closePtr))
@@ -322,7 +323,7 @@ void PluginMgr::_Clear()
         _options = NULL;
     }
 
-    _dispatchEvent = NULL;
+    _pluginGlobal = NULL;
 }
 
 void PluginMgr::_InitPath()
@@ -333,24 +334,28 @@ void PluginMgr::_InitPath()
     auto dirPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(GetService()->GetApp()->GetAppPath());
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-#ifdef _DEBUG
-    dirPath.AppendFormat("/libTestServicePlugin_debug.dll");
+    #ifdef _DEBUG
+        dirPath.AppendFormat("/libTestServicePlugin_debug.dll");
+    #else
+        dirPath.AppendFormat("/libTestServicePlugin.dll");
+    #endif
 #else
-    dirPath.AppendFormat("/libTestServicePlugin.dll");
-#endif
-#else
-#ifdef _DEBUG
-    dirPath.AppendFormat("/libTestServicePlugin_debug.so");
-#else
-    dirPath.AppendFormat("/libTestServicePlugin.so");
-#endif
+    #ifdef _DEBUG
+        dirPath.AppendFormat("/libTestServicePlugin_debug.so");
+    #else
+        dirPath.AppendFormat("/libTestServicePlugin.so");
+    #endif
 #endif
     
-
     _hotfixFilePath = dirPath;
     g_Log->Info(LOGFMT_OBJ_TAG("plugin so dirPath:%s"), _hotfixFilePath.c_str());
 }
 
+void PluginMgr::_OnAnyEvent(KERNEL_NS::LibEvent *ev)
+{
+    if(LIKELY(_pluginGlobal))
+        _pluginGlobal->GetEventManager()->FireEvent(ev);
+}
 
 
 SERVICE_END

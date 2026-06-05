@@ -20,42 +20,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2026-06-05 00:06:00
+// Date: 2026-06-06 00:06:29
 // Author: Eric Yonng
 // Description:
 
 #pragma once
 
-#include <Comps/Plugin/Interface/IPluginGlobal.h>
+KERNEL_BEGIN
+class LibEvent;
+KERNEL_END
 
-SERVICE_BEGIN
-
-class PluginGlobal : public IPluginGlobal
+class PluginLogic
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(IPluginGlobal, PluginGlobal);
-    
 public:
-    PluginGlobal();
-    ~PluginGlobal() override;
-
-    void Release() override;
-    void OnRegisterComps() override;
-
-    KERNEL_NS::EventManager *GetEventManager() override;
-    virtual void TestHello() const override;
-
-private:
-    virtual Int32 _OnHostInit() override;
-    virtual Int32 _OnCompsCreated() override;
-    virtual Int32 _OnHostWillStart() override;
-
-    virtual Int32 _OnHostStart() override;
-    virtual void _OnHostBeforeCompsWillClose() override;
-    virtual void _OnHostClose() override;
-    void _Clear();
-
-private:
-    KERNEL_NS::EventManager *_eventManager;
+    static void OnPluginStartup();
+    static void OnPluginTestEvent(KERNEL_NS::LibEvent *ev);
+    static void OnPluginTestEvent2(KERNEL_NS::LibEvent *ev);
+    static void OnPluginTestEvent3(KERNEL_NS::LibEvent *ev);
 };
-
-SERVICE_END

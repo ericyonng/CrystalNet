@@ -27,6 +27,10 @@
 #include <pch.h>
 #include <TestServicePlugin/PluginEntry.h>
 #include <TestServicePlugin/ExternPluginMgr.h>
+#include <TestServicePlugin/PluginLogic.h>
+#include <kernel/comp/Event/event_inc.h>
+
+#include <TestService/Common/ServiceCommon.h>
 
 extern "C"
 {
@@ -65,6 +69,13 @@ extern "C"
         }
         
         g_Log->Info(LOGFMT_NON_OBJ_TAG(PluginWrap, "Plugin start success."));
+        g_PluginGlobal->TestHello();
+
+        PluginLogic::OnPluginStartup();
+
+        auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::TEST_PLUGIN_EVENT);
+        g_PluginGlobal->GetEventManager()->FireEvent(ev);
+        
         return Status::Success;
     }
 
@@ -98,6 +109,12 @@ extern "C"
 
     void SetPluginGlobal(void *pluginGlobal)
     {
+        if(g_PluginGlobal)
+        {
+            g_PluginGlobal->WillClose();
+            g_PluginGlobal->Close();
+            g_PluginGlobal->Release();
+        }
         g_PluginGlobal = reinterpret_cast<SERVICE_NS::IPluginGlobal *>(pluginGlobal);
     }
 

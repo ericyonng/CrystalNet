@@ -27,21 +27,23 @@
 
 #include <pch.h>
 #include <Comps/Plugin/Impl/PluginGlobal.h>
-#include <google/protobuf/stubs/status.h>
+#include <kernel/common/status.h>
 
-#include "PluginGlobalFactory.h"
+#include <Comps/Plugin/Impl/PluginGlobalFactory.h>
+#include <kernel/comp/Event/event_inc.h>
 
 SERVICE_BEGIN
 
 PluginGlobal::PluginGlobal()
     :IPluginGlobal(KERNEL_NS::RttiUtil::GetTypeId<PluginGlobal>())
+    ,_eventManager(NULL)
 {
     
 }
 
 PluginGlobal::~PluginGlobal()
 {
-    
+    _Clear();
 }
 
 void PluginGlobal::Release()
@@ -54,8 +56,19 @@ void PluginGlobal::OnRegisterComps()
     
 }
 
+KERNEL_NS::EventManager *PluginGlobal::GetEventManager()
+{
+    return _eventManager;
+}
+
+void PluginGlobal::TestHello() const
+{
+    CLOG_INFO("PluginGlobal::TestHello()");
+}
+
 Int32 PluginGlobal::_OnHostInit()
 {
+    _eventManager = KERNEL_NS::EventManager::NewThreadLocal_EventManager();
     return Status::Success;
 }
 
@@ -85,7 +98,10 @@ void PluginGlobal::_OnHostClose()
 
 void PluginGlobal::_Clear()
 {
-    
+    if(_eventManager)
+    {
+        KERNEL_NS::EventManager::DeleteThreadLocal_EventManager(_eventManager);
+    }
 }
 
 

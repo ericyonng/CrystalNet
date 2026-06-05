@@ -29,13 +29,12 @@
 
 #pragma once
 
+#include "service/common/macro.h"
 #include <TestService/Comps/Plugin/Plugin.h>
 
-#include "service/common/macro.h"
-
-extern SERVICE_NS::IPluginMgr *g_PluginMgr;
+extern DEF_THREAD_LOCAL_DECLEAR SERVICE_NS::IPluginMgr *g_PluginMgr;
 
 // 插件集的全局对象每个线程一个, 在插件集初始化的时候初始化, 结束时释放
-extern SERVICE_NS::IPluginGlobal *g_PluginGlobal;
+extern DEF_THREAD_LOCAL_DECLEAR SERVICE_NS::IPluginGlobal *g_PluginGlobal;
 
 #endif

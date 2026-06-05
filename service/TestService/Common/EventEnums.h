@@ -105,5 +105,9 @@ namespace EventEnums
                                         */
 
         SERVICE_FRAME_TICK,             // 服务帧结束事件
+
+        TEST_PLUGIN_EVENT,              // 测试插件集事件
+        TEST_PLUGIN_EVENT2,              // 测试插件集事件
+        TEST_PLUGIN_EVENT3,              // 测试插件集事件
     };
 }

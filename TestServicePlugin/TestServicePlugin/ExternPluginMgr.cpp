@@ -27,6 +27,7 @@
 #include "pch.h"
 #include <TestServicePlugin/ExternPluginMgr.h>
 
-SERVICE_NS::IPluginMgr *g_PluginMgr = NULL;
-SERVICE_NS::IPluginGlobal *g_PluginGlobal = NULL;
+DEF_THREAD_LOCAL_DECLEAR SERVICE_NS::IPluginMgr *g_PluginMgr = NULL;
+
+DEF_THREAD_LOCAL_DECLEAR SERVICE_NS::IPluginGlobal *g_PluginGlobal = NULL;
 

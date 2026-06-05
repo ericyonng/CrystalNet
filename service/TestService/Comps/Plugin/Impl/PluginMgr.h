@@ -34,6 +34,8 @@
 
 SERVICE_BEGIN
 
+class IPluginGlobal;
+
 class PluginMgr : public IPluginMgr
 {
     POOL_CREATE_OBJ_DEFAULT_P1(IPluginMgr, PluginMgr);
@@ -64,6 +66,7 @@ private:
     void _Clear();
     void _InitPath();
 
+    void _OnAnyEvent(KERNEL_NS::LibEvent *ev);
 
 private:
     KERNEL_NS::LibString _hotfixKey;
@@ -71,7 +74,8 @@ private:
 
     KERNEL_NS::FileMonitor<PluginOptions, KERNEL_NS::YamlDeserializer> *_options;
 
-    DispatchEventPtr _dispatchEvent;
+    // 插件集资源
+    IPluginGlobal *_pluginGlobal;
 };
 
 SERVICE_END

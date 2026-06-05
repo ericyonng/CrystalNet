@@ -40,10 +40,10 @@ KERNEL_END
 
 KERNEL_BEGIN
 
-LibEvent::LibEvent(int id /*= 0*/, bool dontDelAfterFire /*= false*/)
+LibEvent::LibEvent(int id /*= 0*/)
 {
     _id = id;
-    _dontDelAfterFire = dontDelAfterFire;
+    _dontDelAfterFire = 0;
     _intKeyParams = NULL;
     _strKeyParams = NULL;
     _releaseFunc = NULL;
