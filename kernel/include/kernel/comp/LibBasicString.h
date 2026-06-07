@@ -506,12 +506,12 @@ public:
     
     bool operator == (const _This &other) const
     {
-        return this->_Equal(other);
+        return this->compare(other) == 0;
     }
     
     bool operator == (const _Base &other) const
     {
-        return  this->_Equal(other);
+        return  this->compare(other) == 0;
     }
 
     bool operator == (const Byte8 *other) const
@@ -519,7 +519,7 @@ public:
         if(UNLIKELY(!other))
             return false;
 
-        return this->_Equal(other);
+        return this->compare(other) == 0;
     }
 
     bool operator != (const Byte8 *other) const
