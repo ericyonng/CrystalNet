@@ -1804,7 +1804,7 @@ ALWAYS_INLINE  LibBasicString<_Elem, _Traits, _Ax> &LibBasicString<_Elem, _Trait
 template <typename _Elem,
           typename _Traits,
           typename _Ax>
-ALWAYS_INLINE  LibBasicString<_Elem, _Traits, _Ax>::_These LibBasicString<_Elem, _Traits, _Ax>::Split(Byte8 sep, size_type max_split, bool enableEmptyPart) const
+ALWAYS_INLINE typename LibBasicString<_Elem, _Traits, _Ax>::_These LibBasicString<_Elem, _Traits, _Ax>::Split(Byte8 sep, size_type max_split, bool enableEmptyPart) const
 {
     return this->Split(_This(sep), max_split, false, enableEmptyPart);
 }
@@ -1812,7 +1812,7 @@ ALWAYS_INLINE  LibBasicString<_Elem, _Traits, _Ax>::_These LibBasicString<_Elem,
 template <typename _Elem,
           typename _Traits,
           typename _Ax>
-ALWAYS_INLINE LibBasicString<_Elem, _Traits, _Ax>::_These LibBasicString<_Elem, _Traits, _Ax>::Split(const Byte8 *sep, size_type max_split, bool onlyLikely, bool enableEmptyPart) const
+ALWAYS_INLINE typename LibBasicString<_Elem, _Traits, _Ax>::_These LibBasicString<_Elem, _Traits, _Ax>::Split(const Byte8 *sep, size_type max_split, bool onlyLikely, bool enableEmptyPart) const
 {
     return this->Split(_This(sep), max_split, onlyLikely, enableEmptyPart);
 }
@@ -2004,7 +2004,7 @@ ALWAYS_INLINE void LibBasicString<_Elem, _Traits, _Ax>::add_utf8_bomb()
 template <typename _Elem,
           typename _Traits,
           typename _Ax>
-ALWAYS_INLINE  LibBasicString<_Elem, _Traits, _Ax>::size_type LibBasicString<_Elem, _Traits, _Ax>::length_with_utf8() const
+ALWAYS_INLINE typename  LibBasicString<_Elem, _Traits, _Ax>::size_type LibBasicString<_Elem, _Traits, _Ax>::length_with_utf8() const
 {
     size_type count = 0;
     size_type bytePos = 0;
