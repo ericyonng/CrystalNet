@@ -167,14 +167,14 @@ KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> Mongo
                 bsoncxx::builder::basic::kvp("$exists", false)
             ))),
             bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("expireAt", bsoncxx::builder::basic::make_document(
-                bsoncxx::builder::basic::kvp("$lt", now.GetMilliTimestamp())  // 已过期
+                bsoncxx::builder::basic::kvp("$lt", static_cast<std::int64_t>(now.GetMilliTimestamp()))  // 已过期
             )))
         )));
         
         // 更新操作: 设置 owner 和新的过期时间
         bsoncxx::builder::basic::document updateDoc;
         updateDoc.append(bsoncxx::builder::basic::kvp("owner", ownerId.GetRaw()));
-        updateDoc.append(bsoncxx::builder::basic::kvp("expireAt", expireTime.GetMilliTimestamp()));
+        updateDoc.append(bsoncxx::builder::basic::kvp("expireAt", static_cast<std::int64_t>(expireTime.GetMilliTimestamp())));
         
         mongocxx::options::find_one_and_update options;
         options.upsert(true);
@@ -406,7 +406,7 @@ KERNEL_NS::CoTask<bool> MongodbConnection::ShardCollection(KERNEL_NS::LibString 
     }
     catch (...)
     {
-        CLOG_ERROR("ShardCollection unknown failed:%s, dbName:%s, collName:%s, shardKeys:%s", dbName.c_str(), collName.c_str(), shardKeyGroup.ToString().c_str());
+        CLOG_ERROR("ShardCollection unknown failed, dbName:%s, collName:%s, shardKeys:%s", dbName.c_str(), collName.c_str(), shardKeyGroup.ToString().c_str());
     }
 
     co_return false;
@@ -420,7 +420,7 @@ KERNEL_NS::CoTask<bool> MongodbConnection::CreateIndex(const KERNEL_NS::LibStrin
         auto collection = (*_entry)[dbName.GetRaw()][collName.GetRaw()];
         if(_CheckIndexExists(collection, indexName))
         {
-            CLOG_DEBUG("index already exists %, db:%s, collection:%s", indexName.c_str(), dbName.c_str(), collName.c_str());
+            CLOG_DEBUG("index already exists %s, db:%s, collection:%s", indexName.c_str(), dbName.c_str(), collName.c_str());
             co_return true;
         }
 
