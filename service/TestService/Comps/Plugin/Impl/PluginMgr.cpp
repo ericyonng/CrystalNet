@@ -46,8 +46,8 @@ SERVICE_BEGIN
 : IPluginMgr(KERNEL_NS::RttiUtil::GetTypeId<PluginMgr>())
 ,_options(KERNEL_NS::FileMonitor<PluginOptions, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
 ,_pluginGlobal(NULL)
-,_tick(NULL)
 ,_delayRemovePluginTimer(NULL)
+,_tick(NULL)
 ,_willQuitService(false)
 {
     
@@ -158,7 +158,7 @@ Int32 PluginMgr::_OnGlobalSysInit()
         if(content == "fix")
         {
             UInt64 maxTimestampSuffix = 0;
-            KERNEL_NS::DirectoryUtil::TraverseDirRecursively(dirPath, [&withoutExtensionMatch, &withoutExtension, &maxTimestampSuffix, &fileNamePart](const KERNEL_NS::FindFileInfo &fileInfo, bool &isContinue)->bool
+            KERNEL_NS::DirectoryUtil::TraverseDirRecursively(dirPath, [&withoutExtensionMatch, &maxTimestampSuffix, &fileNamePart](const KERNEL_NS::FindFileInfo &fileInfo, bool &isContinue)->bool
             {
                 if(KERNEL_NS::FileUtil::IsDir(fileInfo))
                     return true;
@@ -412,7 +412,7 @@ bool PluginMgr::_InitPluginModule(KERNEL_NS::ShareLibraryLoader *shareLibrary, I
     }
     catch (...)
     {
-        CLOG_ERROR("plugin init err service:%s, unknown exception:%s", GetService()->ToString().c_str());
+        CLOG_ERROR("plugin init err service:%s, unknown exception", GetService()->ToString().c_str());
     }
 
     return false;
@@ -438,7 +438,7 @@ void PluginMgr::_WillClosePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary)
     }
     catch (...)
     {
-        CLOG_ERROR("will close plugin unknown exception:%s");
+        CLOG_ERROR("will close plugin unknown exception");
     }
 
 //     
@@ -495,7 +495,7 @@ void PluginMgr::_ClosePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary)
     }
     catch (...)
     {
-        CLOG_ERROR("will close plugin unknown exception:%s");
+        CLOG_ERROR("will close plugin unknown exception");
     }
 }
 

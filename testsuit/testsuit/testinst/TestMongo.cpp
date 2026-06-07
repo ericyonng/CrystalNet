@@ -243,7 +243,7 @@ namespace
                 // 等待锁释放后再次检查状态
                 g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "waiting for lock %s, will check sharding status after timeout"), lockName.c_str());
                 // 再次检查分片状态(锁可能已超时自动释放)
-                std::this_thread::sleep_for(std::chrono::seconds(LOCK_EXPIRE_SECONDS + 1));
+                KERNEL_NS::SystemUtil::ThreadSleep((LOCK_EXPIRE_SECONDS + 1) * 1000);
                 return CheckDatabaseSharded(pool, dbName);
             }
             
@@ -361,7 +361,7 @@ namespace
             {
                 // 等待锁释放后再次检查状态
                 g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "waiting for lock %s, will check sharding status after timeout"), lockName.c_str());
-                std::this_thread::sleep_for(std::chrono::seconds(LOCK_EXPIRE_SECONDS + 1));
+                KERNEL_NS::SystemUtil::ThreadSleep((LOCK_EXPIRE_SECONDS + 1)*1000);
                 return CheckCollectionSharded(pool, dbName, collName);
             }
             
@@ -577,7 +577,7 @@ public:
     {
         
     }
-    virtual void Release()
+    virtual void Release() override
     {
         TestMongoHost::Delete_TestMongoHost(this); 
     }

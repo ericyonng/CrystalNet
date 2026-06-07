@@ -65,10 +65,6 @@ public:
         loader->WillClose();
         loader->Close();
     }
-
-private:
-    KERNEL_NS::LibString _libraryPath;
-    KERNEL_NS::Poller *_poller;
 };
 
 void TestLoadShareLibrary::Run()
