@@ -419,7 +419,7 @@ LibString StringUtil::InterfaceObjName(const LibString &name)
 
 bool StringUtil::IsMatch(const LibString &content, const LibString &matchStr)
 {
-	return std::regex_match(content.GetRaw(), std::regex(matchStr.c_str()));
+	return std::regex_match(content, std::regex(matchStr.c_str()));
 }
 
 KERNEL_END

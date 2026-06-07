@@ -30,7 +30,8 @@
 #include <Comps/Plugin/Impl/PluginOptions.h>
 #include <kernel/comp/FileMonitor/FileMonitor.h>
 #include <kernel/comp/FileMonitor/YamlDeserializer.h>
-#include <TestServicePlugin/TestServicePlugin.h>
+#include <Comps/Plugin/Impl/PluginDelayRemoveInfo.h>
+#include <kernel/comp/Timer/LibTimer.h>
 
 SERVICE_BEGIN
 
@@ -60,13 +61,20 @@ private:
     void _OnHotfixPlubin(KERNEL_NS::PollerEvent *ev);
     void _OnHotfixPlubinComplete(KERNEL_NS::PollerEvent *ev);
 
-    void _InitPluginModule();
-    void _WillClosePlugin();
-    void _ClosePlugin();
+    bool _InitPluginModule(KERNEL_NS::ShareLibraryLoader *shareLibrary, IPluginGlobal *&newPluginGlobal);
+    void _CompletePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary);
+    void _WillClosePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary);
+    void _ClosePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary);
     void _Clear();
     void _InitPath();
 
     void _OnAnyEvent(KERNEL_NS::LibEvent *ev);
+
+    void _OnDelayRemovePluginTimer(KERNEL_NS::LibTimer *t);
+    void _StartDelayRemovePluginTimer();
+    KERNEL_NS::LibString _GetPluginLibraryFinalPath();
+
+    void _OnTick(KERNEL_NS::LibTimer *t);
 
 private:
     KERNEL_NS::LibString _hotfixKey;
@@ -76,6 +84,12 @@ private:
 
     // 插件集资源
     IPluginGlobal *_pluginGlobal;
+
+    std::vector<PluginDelayRemoveInfo *> _delayRemoveInfos;
+    KERNEL_NS::LibTimer *_delayRemovePluginTimer;
+
+    // tick 插件集 20ms一帧
+    KERNEL_NS::LibTimer *_tick;
 };
 
 SERVICE_END

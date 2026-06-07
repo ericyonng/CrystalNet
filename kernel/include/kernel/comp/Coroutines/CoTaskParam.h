@@ -86,6 +86,8 @@ struct KERNEL_EXPORT CoTaskParam
 
     // 超时是否打印堆栈
     bool _printStackIfTimeout = true;
+    // 模块id
+    UInt64 _moduleId = 0;
 };
 
 struct KERNEL_EXPORT CoCurrentTaskParam

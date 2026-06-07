@@ -58,7 +58,7 @@ struct KERNEL_EXPORT KernelHandle
         SCHEDULED,
     };
 
-    KernelHandle() noexcept;
+    KernelHandle(UInt64 moduleId) noexcept;
 
     // 获取堆栈
     virtual void GetBacktrace(KERNEL_NS::LibString &content, Int32 depth = 0) const = 0;
@@ -92,6 +92,7 @@ private:
     HandleId _handleId;
 
 protected:
+    const UInt64 _moduleId = 0;
     State _state {KernelHandle::UNSCHEDULED};
     bool _canSelfDestroy = false;
 };
@@ -107,6 +108,11 @@ struct KERNEL_EXPORT KernelHandleInfo
 
 struct KERNEL_EXPORT CoHandle : KernelHandle 
 {
+    CoHandle(UInt64 moduleId) noexcept
+    : KernelHandle(moduleId)
+    {
+        
+    }
     KERNEL_NS::LibString FrameName() const 
     {
         const auto& frame_info = _GetFrameInfo();

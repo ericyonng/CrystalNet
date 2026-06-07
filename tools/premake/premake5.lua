@@ -134,6 +134,12 @@ project "TestServicePlugin"
     language "c++"
     kind "SharedLib"
 
+    -- windows下先生成到tmp
+    filter{ "system:windows"}		
+        targetdir (OUTPUT_DIR .. "/PluginTmp/")
+        libdirs { OUTPUT_DIR .. "/PluginTmp/"}	
+    filter{}
+
     -- 支持c++20
     -- cppdialect "c++20"
 
@@ -218,7 +224,8 @@ project "TestServicePlugin"
 
     -- debug target suffix define
     filter { "configurations:debug*" }
-        targetsuffix "_debug"
+        local str = "_debug"
+        targetsuffix(str)
     filter {}
 
     -- enable multithread compile
@@ -240,7 +247,11 @@ project "TestServicePlugin"
 	
 	-- set post build commands.
     filter { "system:windows" }
-        postbuildcommands(string.format("start %srunfirstly_scripts.bat %s", SCRIPT_PATH, _ACTION))
+        local suffix = ""
+        filter { "configurations:debug*" }
+            suffix = "_debug"
+        filter {}
+        postbuildcommands(string.format("start %srunfirstly_scripts.bat %s %s", SCRIPT_PATH, _ACTION, suffix))
     filter {}
 
 -- ****************************************************************************

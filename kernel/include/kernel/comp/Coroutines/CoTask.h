@@ -61,6 +61,7 @@
 #include <kernel/comp/LibTime.h>
 
 #include "kernel/comp/LibTraceId.h"
+#include <kernel/common/func.h>
 
 #ifdef CRYSTAL_NET_CPP20
 
@@ -78,21 +79,27 @@ public:
 
     explicit CoTask(coro_handle h) noexcept
     : _handle(h)
+    // 每个模块不一样
+    ,_moduleId(GetCrystalModuleId())
     ,_params(CoTaskParam::NewThreadLocal_CoTaskParam())
     {
+        _params->_moduleId = _moduleId;
     }
 
-    CoTask(coro_handle h, SmartPtr<CoTaskParam, AutoDelMethods::Release> &param) noexcept
+    CoTask(coro_handle h, UInt64 moduleId, SmartPtr<CoTaskParam, AutoDelMethods::Release> &param) noexcept
     : _handle(h)
+    ,_moduleId(moduleId)
     ,_params(param)
     {
+        _params->_moduleId = _moduleId;
     }
 
     CoTask(CoTask&& t) noexcept
         : _handle(std::exchange(t._handle, {}))
+        ,_moduleId(GetCrystalModuleId())
         ,_params(std::move(t._params))
         {
-
+            _params->_moduleId = _moduleId;
         }
 
     CoTask& operator=(CoTask&& other)
@@ -100,7 +107,9 @@ public:
         Destroy();
 
         _handle = std::exchange(other._handle, {});
+        _moduleId = GetCrystalModuleId();
         _params = std::move(other._params);
+        _params->_moduleId = _moduleId;
         return *this;
     }
 
@@ -226,6 +235,7 @@ public:
         }
 
         coro_handle _selfCoro {};
+        UInt64 _moduleId = 0;
         SmartPtr<CoTaskParam, AutoDelMethods::Release> _params;
     };
     
@@ -244,7 +254,9 @@ public:
             }
         };
 
-        return Awaiter {_handle, _params};
+        auto &&awaiter = Awaiter {_handle, GetCrystalModuleId(), _params};
+        awaiter._params->_moduleId = awaiter._moduleId;
+        return awaiter;
     }
 
     auto operator co_await() const && noexcept 
@@ -262,32 +274,43 @@ public:
             }
         };
 
-        return Awaiter {_handle, _params};
+        auto &&awaiter = Awaiter {_handle, GetCrystalModuleId(), _params};
+        awaiter._params->_moduleId = awaiter._moduleId;
+
+        return awaiter;
     }
 
     struct promise_type: CoHandle, CoResult<R> 
     {
         promise_type()
+            :CoHandle(GetCrystalModuleId())
         {
             _params = CoTaskParam::NewThreadLocal_CoTaskParam();
             _params->_handle = this;
             _params->_trace = LibTraceId::NewThreadLocal_LibTraceId();
+            _params->_moduleId = _moduleId;
         }
 
         template<typename... Args> // from free function
-        promise_type(NoWaitAtInitialSuspend, Args&&...): _wait_at_initial_suspend{false} 
+        promise_type(NoWaitAtInitialSuspend, Args&&...)
+        :CoHandle(GetCrystalModuleId())
+        ,_wait_at_initial_suspend{false} 
         {
             _params = CoTaskParam::NewThreadLocal_CoTaskParam();
             _params->_handle = this;
             _params->_trace = LibTraceId::NewThreadLocal_LibTraceId();
+            _params->_moduleId = _moduleId;
         }
 
         template<typename Obj, typename... Args> // from member function
-        promise_type(Obj&&, NoWaitAtInitialSuspend, Args&&...): _wait_at_initial_suspend{false} 
+        promise_type(Obj&&, NoWaitAtInitialSuspend, Args&&...)
+        :CoHandle(GetCrystalModuleId())
+        ,_wait_at_initial_suspend{false} 
         {
             _params = CoTaskParam::NewThreadLocal_CoTaskParam();
             _params->_handle = this;
             _params->_trace = LibTraceId::NewThreadLocal_LibTraceId();
+            _params->_moduleId = _moduleId;
         }
 
         ~promise_type()
@@ -425,9 +448,10 @@ public:
             if(UNLIKELY(!_params))
             {
                 _params = KERNEL_NS::CoTaskParam::NewThreadLocal_CoTaskParam();
+                _params->_moduleId = GetCrystalModuleId();
             }
 
-            return CoTask{coro_handle::from_promise(*this), _params};
+            return CoTask{coro_handle::from_promise(*this), _params->_moduleId, _params};
         }
 
         template<Awaitable A>
@@ -580,7 +604,7 @@ public:
         {
             KERNEL_NS::LibString content;
             if(_params)
-                content.AppendFormat("CoTask ErrCode:%d\n", _params->_errCode);
+                content.AppendFormat("CoTask module:%llu ErrCode:%d\n", _moduleId, _params->_errCode);
             
             CoHandle::DumpBacktrace(depth, content);
 
@@ -691,7 +715,10 @@ public:
     CoTask<R> &SetEnableSuspend(bool enableSuspend = true)
     {
         if(UNLIKELY(!_params))
+        {
             _params = CoTaskParam::NewThreadLocal_CoTaskParam();
+            _params->_moduleId = GetCrystalModuleId();
+        }
 
         _params->_enableSuspend = enableSuspend;
 
@@ -706,6 +733,7 @@ public:
         if(UNLIKELY(!_params))
         {
             _params = CoTaskParam::NewThreadLocal_CoTaskParam();
+            _params->_moduleId = GetCrystalModuleId();
         }
 
         param = _params;
@@ -718,6 +746,7 @@ public:
         if(UNLIKELY(!_params))
         {
             _params = CoTaskParam::NewThreadLocal_CoTaskParam();
+            _params->_moduleId = GetCrystalModuleId();
         }
 
         paramRef->_params = _params;
@@ -730,6 +759,7 @@ public:
         if(UNLIKELY(!_params))
         {
             _params = CoTaskParam::NewThreadLocal_CoTaskParam();
+            _params->_moduleId = GetCrystalModuleId();
         }
 
         if (UNLIKELY(_params->_releaseSource))
@@ -743,7 +773,10 @@ public:
     CoTask<R>& SetTimeout(const TimeSlice &slice)
     {
         if(UNLIKELY(!_params))
+        {
             _params = CoTaskParam::NewThreadLocal_CoTaskParam();
+            _params->_moduleId = GetCrystalModuleId();
+        }
 
         _params->_endTime = KERNEL_NS::LibTime::Now() + slice;
 
@@ -753,7 +786,10 @@ public:
     CoTask<R>& SetPrintStackIfTimeout(bool printStack)
     {
         if(UNLIKELY(!_params))
+        {
             _params = CoTaskParam::NewThreadLocal_CoTaskParam();
+            _params->_moduleId = GetCrystalModuleId();
+        }
 
         _params->_printStackIfTimeout = printStack;
 
@@ -779,6 +815,7 @@ private:
 private:
     // 为了能在PostRun 中使用，破例用mutable
     mutable coro_handle _handle;
+    mutable UInt64 _moduleId;
     mutable SmartPtr<CoTaskParam, AutoDelMethods::Release> _params;
 };
 

@@ -84,10 +84,11 @@ public:
     
     virtual Int32 _OnHostWillStart() override
     {
+        auto moduleId = GetAppModuleId();
         auto err = SERVICE_COMMON_NS::Application::_OnHostWillStart();
         if(err != Status::Success)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("_OnHostWillStart err:%d"), err);
+            g_Log->Warn(LOGFMT_OBJ_TAG("_OnHostWillStart err:%d moduleId:%llu"), err, moduleId);
             return err;
         }
 
@@ -126,6 +127,8 @@ public:
                 serviceProxy->PostMsg(serviceId, msg, 1);
             });
         }
+
+        CLOG_INFO("app start success moduleId:%llu", moduleId);
         
         return Status::Success;
     }

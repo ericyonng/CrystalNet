@@ -114,7 +114,10 @@ struct KERNEL_EXPORT CoWaiter: private NonCopyable
     void SetTimeout(const KERNEL_NS::TimeSlice &slice)
     {
         if(!_param)
+        {
             _param = KERNEL_NS::CoTaskParam::NewThreadLocal_CoTaskParam();
+            _param->_moduleId = GetCrystalModuleId();
+        }
 
         _param->_endTime = KERNEL_NS::LibTime::Now() + slice;
     }
@@ -122,7 +125,10 @@ struct KERNEL_EXPORT CoWaiter: private NonCopyable
     void SetPrintStackIfTimeout(bool printStack)
     {
         if(!_param)
+        {
             _param = KERNEL_NS::CoTaskParam::NewThreadLocal_CoTaskParam();
+            _param->_moduleId = GetCrystalModuleId();
+        }
 
         _param->_printStackIfTimeout = printStack;
     }

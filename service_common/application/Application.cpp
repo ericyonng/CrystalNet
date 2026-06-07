@@ -28,6 +28,25 @@
 
 #include <pch.h>
 #include <kernel/kernel.h>
+
+KERNEL_BEGIN
+
+UInt64 GetCrystalModuleId()
+{
+    static const UInt64 id = GetGlobalIdSrc().fetch_add(1, std::memory_order_release) + 1;
+
+// #if _DEBUG
+//     if(g_Log)
+//     {
+//         CLOG_DEBUG_GLOBAL(SystemUtil, "Application - GetCrystalModuleId:%llu", id);
+//     }
+// #endif
+    
+    return id;
+}
+
+KERNEL_END
+
 #include <service_common/application/ResponseInfo.h>
 #include <service_common/service_proxy/ServiceProxyInc.h>
 
@@ -59,6 +78,11 @@ Application::~Application()
 void Application::Release()
 {
     Application::Delete_Application(this);
+}
+
+UInt64 Application::GetAppModuleId() const
+{
+    return KERNEL_NS::GetCrystalModuleId();
 }
 
 const KERNEL_NS::LibString &Application::GetAppAliasName() const 

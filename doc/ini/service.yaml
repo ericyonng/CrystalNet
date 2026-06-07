@@ -82,7 +82,7 @@ ApplicationConfig:
 # 服务公共配置项 service proxy 维护
 ServiceCommon:
   # 激活的服务 填入想要激活的服务项名称
-  ActiveServiceItem: [TestSuit]
+  ActiveServiceItem: [TestSuit, TestSuit]
   
 # testsuit配置(会动态热更)
 TestSuit:

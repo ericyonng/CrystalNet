@@ -36,15 +36,24 @@
 
 KERNEL_BEGIN
 
-KernelHandle::KernelHandle() noexcept
+KernelHandle::KernelHandle(UInt64 moduleId) noexcept
 :_handleId(_GetMaxHandleId().fetch_add(1, std::memory_order_acq_rel) + 1)
+,_moduleId(moduleId)
 {
     KERNEL_NS::TlsUtil::GetTlsCoDict()->AddCo(_handleId, this);
+    KERNEL_NS::GetCoroutineThreadLocalSet(_moduleId).insert(_handleId);
 }
 
 KernelHandle::~KernelHandle()
 {
     KERNEL_NS::TlsUtil::GetTlsCoDict()->RemoveCo(_handleId);
+    KERNEL_NS::GetCoroutineThreadLocalSet(_moduleId).erase(_handleId);
+// #if _DEBUG
+//     auto count = KERNEL_NS::GetCoroutineThreadLocalSet(_moduleId).size();
+//     if(g_Log)
+//         CLOG_DEBUG("Coroutines KernelHandle thread local set module:%llu, count:%d", _moduleId, count);
+// #endif
+    
 }
 
 const std::source_location& CoHandle::_GetFrameInfo() const 
@@ -94,7 +103,7 @@ void CoHandle::GetBacktrace(KERNEL_NS::LibString &content, Int32 depth) const
 
 void CoHandle::DumpBacktrace(Int32 depth, KERNEL_NS::LibString &content) const
 {
-    content.AppendFormat("#%d CoHandleId:%llu, %s\n", depth, GetHandleId(), FrameName().c_str());
+    content.AppendFormat("#%d CoHandleId:%llu, moduleId:%llu, %s\n", depth, GetHandleId(), _moduleId, FrameName().c_str());
 }
 
 void CoHandle::DumpBacktraceFinish(const KERNEL_NS::LibString &content) const

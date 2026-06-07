@@ -39,12 +39,15 @@
 
 #include "MyTestService.h"
 #include "Comps/Plugin/Interface/IPluginGlobal.h"
+#include <TestServicePlugin/TestServicePlugin.h>
 
 SERVICE_BEGIN
     PluginMgr::PluginMgr()
 : IPluginMgr(KERNEL_NS::RttiUtil::GetTypeId<PluginMgr>())
 ,_options(KERNEL_NS::FileMonitor<PluginOptions, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
 ,_pluginGlobal(NULL)
+,_tick(NULL)
+,_delayRemovePluginTimer(NULL)
 {
     
 }
@@ -71,9 +74,9 @@ KERNEL_NS::LibString PluginMgr::ToString() const
 
 Int32 PluginMgr::_OnGlobalSysCompsCreated()
 {
-    _InitPath();
+    auto &&path = _GetPluginLibraryFinalPath();
     auto shareLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
-    shareLibrary->SetLibraryPath(_hotfixFilePath);
+    shareLibrary->SetLibraryPath(path);
 
     GetEventMgr()->AddListener(0, this, &PluginMgr::_OnAnyEvent);
     
@@ -82,18 +85,31 @@ Int32 PluginMgr::_OnGlobalSysCompsCreated()
 
 Int32 PluginMgr::_OnHostStart()
 {
-    _InitPluginModule();
+    auto shareLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
+    _pluginGlobal = NULL;
+    auto ret = _InitPluginModule(shareLibrary, _pluginGlobal);
+    if(!ret)
+    {
+        CLOG_ERROR("plugin init fail");
+        return Status::Failed;
+    }
+
+    _CompletePlugin(shareLibrary);
+    
+    CLOG_INFO("plugin init module success service:%s.", GetService()->ToString().c_str());
     return Status::Success;
 }
 
 void PluginMgr::_OnHostBeforeCompsWillClose()
 {
-    _WillClosePlugin();
+    auto shareLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
+    _WillClosePlugin(shareLibrary);
 }
 
 void PluginMgr::_OnHostBeforeCompsClose()
 {
-   _ClosePlugin();
+    auto shareLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
+   _ClosePlugin(shareLibrary);
 }
 
 Int32 PluginMgr::_OnGlobalSysInit()
@@ -112,12 +128,98 @@ Int32 PluginMgr::_OnGlobalSysInit()
     GetService()->GetPoller()->Subscribe(KERNEL_NS::PollerEventType::HotfixShareLibrary, this, &PluginMgr::_OnHotfixPlubin);
     GetService()->GetPoller()->Subscribe(KERNEL_NS::PollerEventType::HotfixShareLibraryComplete, this, &PluginMgr::_OnHotfixPlubinComplete);
 
+    _delayRemovePluginTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    _delayRemovePluginTimer->SetTimeOutHandler(this, &PluginMgr::_OnDelayRemovePluginTimer);
+
+    // 帧
+    _tick = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    _tick->SetTimeOutHandler(this, &PluginMgr::_OnTick);
+    _tick->Schedule(KERNEL_NS::TimeSlice::FromMilliSeconds(20));
+    
     // 注册监听热更(windows下生效, 其他平台命令行不生效)
     auto app = GetService()->GetApp();
-    auto path = _hotfixFilePath;
+    auto hotfixFilePath = _hotfixFilePath;
     auto hotfixKey = _hotfixKey;
-    app->GetComp<KERNEL_NS::ICommandMgr>()->AddCommand("fix", [path, hotfixKey, serviceId, app]()
+    app->GetComp<KERNEL_NS::ICommandMgr>()->AddRegularCommand("fix.*", [hotfixFilePath, hotfixKey, serviceId, app](const KERNEL_NS::LibString &input) mutable
     {
+        KERNEL_NS::LibString path = hotfixFilePath;
+        auto &&content =  input.strip();
+        auto parts = content.Split(' ');
+        auto &&dirPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(path);
+        auto &&fileNamePart = KERNEL_NS::DirectoryUtil::GetFileNameInPath(path);
+        auto &&withoutExtension = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(fileNamePart);
+        auto &&withoutExtensionMatch = withoutExtension + ".*";
+        CLOG_INFO("regular command fix.* input:%s", input.c_str());
+        
+        // 匹配时间戳最大的那个
+        if(content == "fix")
+        {
+            UInt64 maxTimestampSuffix = 0;
+            KERNEL_NS::DirectoryUtil::TraverseDirRecursively(dirPath, [&withoutExtensionMatch, &withoutExtension, &maxTimestampSuffix, &fileNamePart](const KERNEL_NS::FindFileInfo &fileInfo, bool &isContinue)->bool
+            {
+                if(KERNEL_NS::FileUtil::IsDir(fileInfo))
+                    return true;
+
+                if(KERNEL_NS::FileUtil::IsFile(fileInfo))
+                {
+                    // .dll
+                    if(fileInfo._extension != ".dll")
+                        return true;
+                    
+                    if(KERNEL_NS::StringUtil::IsMatch(fileInfo._fileName, withoutExtensionMatch))
+                    {
+                        // 不带时间戳
+                        if(fileInfo._fileName == fileNamePart)
+                        {
+                            return true;
+                        }
+
+                        auto &&removeDll = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(fileInfo._fileName);
+                        auto &&afterRemove = KERNEL_NS::FileUtil::ExtractFileExtension(removeDll);
+                        auto &&getTimestampPart = afterRemove.lsub(".");
+                        getTimestampPart.strip();
+                        if(getTimestampPart.isdigit())
+                        {
+                            auto timePart = KERNEL_NS::StringUtil::StringToUInt64(getTimestampPart.c_str());
+                            if(maxTimestampSuffix == 0)
+                            {
+                                maxTimestampSuffix = timePart;
+                            }
+                            else if(maxTimestampSuffix < timePart)
+                            {
+                                maxTimestampSuffix = timePart;
+                            }
+                        }
+                    }
+                }
+
+                return true;
+            }, 1);
+
+            // 没有时间戳后缀, 用原始文件名
+            if(maxTimestampSuffix != 0)
+            {
+                path = dirPath + withoutExtension + KERNEL_NS::LibString().AppendFormat(".%llu.dll", maxTimestampSuffix);
+            }
+        }
+        // 指定匹配某个文件
+        else
+        {
+            if(parts.size() <= 1)
+            {
+                CLOG_WARN("input command err, input:%s", input.c_str());
+                return;
+            }
+            auto &timePartStr = parts[1];
+            if(!timePartStr.isdigit())
+            {
+                CLOG_WARN("input command err, input:%s", input.c_str());
+                return;
+            }
+
+            path = dirPath + withoutExtension + KERNEL_NS::LibString().AppendFormat(".%s.dll", timePartStr.c_str());
+        }
+        
         // 1. 判断文件存在否
         if(!KERNEL_NS::FileUtil::IsFileExist(path.c_str()))
         {
@@ -125,6 +227,7 @@ Int32 PluginMgr::_OnGlobalSysInit()
             return;
         }
 
+        // windows下会对dll进行文件锁, 而且判断一个dll是不是同一个dll, 凭借是完整的文件路径, 如果路径一样, 只会在旧的已打开的dll上引用计数+1，多线程情况下dll可能引用计数还没归零, 还得等待其他线程卸载完
         KERNEL_NS::SmartPtr<KERNEL_NS::ShareLibraryLoader, KERNEL_NS::AutoDelMethods::Release> newShareLibrary = KERNEL_NS::ShareLibraryLoaderFactory().Create()->CastTo<KERNEL_NS::ShareLibraryLoader>();
         newShareLibrary->SetLibraryPath(path);
         auto ret = newShareLibrary->Init();
@@ -165,42 +268,76 @@ void PluginMgr::_OnHotfixPlubin(KERNEL_NS::PollerEvent *ev)
         return;
 
     auto shareLoader = GetComp<KERNEL_NS::ShareLibraryLoader>();
-    if(UNLIKELY(!shareLoader))
+    if(shareLoader->GetLibrary() == hotfixEv->_shareLib->GetLibrary())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("have no share library loader."));
+        CLOG_WARN("cant reload same library : %p", shareLoader->GetLibrary());
         return;
     }
 
-    try
+    // 先初始化新的插件集, 有问题则停止热更
+    IPluginGlobal *newPluginGlobal = NULL;
+    auto ret = _InitPluginModule(hotfixEv->_shareLib.AsSelf(), newPluginGlobal);
+    if(!ret)
     {
-        g_Log->Info(LOGFMT_OBJ_TAG("close old plugin:%s"), shareLoader->ToString().c_str());
-        _WillClosePlugin();
-        _ClosePlugin();
-        
-        shareLoader->WillClose();
-        shareLoader->Close();
-    }
-    catch (std::exception &e)
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("hotfix remove old sharelibrary fail e:%s"), e.what());
-    }
-    catch (...)
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("hotfix remove old sharelibrary fail unknown error"));
+        CLOG_ERROR("plugin hotfix fail service:%s", GetService()->ToString().c_str());
+        return;
     }
 
-    RemoveComp(shareLoader);
+    if(UNLIKELY(!shareLoader))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("have no share library loader."));
+    }
+    else
+    {
+        // 弹出
+        PopComp(shareLoader);
+    }
 
     // 热更组件
     ReplaceComp(hotfixEv->_shareLib.AsSelf());
 
-    auto newComp = GetComp<KERNEL_NS::ShareLibraryLoader>();
-    g_Log->Info(LOGFMT_OBJ_TAG("New ShareLibraryLoader:%s"), newComp->ToString().c_str());
+    // 移除信息
+    auto removeInfo = PluginDelayRemoveInfo::NewThreadLocal_PluginDelayRemoveInfo();
+    removeInfo->_pluginGlobal = _pluginGlobal;
+    removeInfo->_shareLibraryLoader = shareLoader;
+    _pluginGlobal = NULL;
+
+    // 插件集协程是否都完成了
+    auto oldPluginGlobal = removeInfo->_pluginGlobal;
+    if(oldPluginGlobal)
+    {
+        _delayRemoveInfos.push_back(removeInfo);
+
+        auto oldModuleId = oldPluginGlobal->GetPluginModuleId();
+        auto &coroutineSet = KERNEL_NS::GetCoroutineThreadLocalSet(oldModuleId);
+        if(coroutineSet.empty())
+        {
+            CLOG_INFO("plugin execute remove when coroutines are all completed service:%s module id:%llu, library name:%s"
+                , GetService()->ToString().c_str(), oldModuleId, removeInfo->_shareLibraryLoader->GetLibraryPath().c_str());
+
+            _delayRemoveInfos.pop_back();
+            PluginDelayRemoveInfo::DeleteThreadLocal_PluginDelayRemoveInfo(removeInfo);
+        }
+        else
+        {
+            CLOG_WARN("plugin execute remove but plugin coroutine not completed, and will wait coroutine completed coroutine count:%d, oldModuleId:%llu service:%s", static_cast<Int32>(coroutineSet.size()), oldModuleId, GetService()->ToString().c_str());
+            _StartDelayRemovePluginTimer();
+        }
+    }
+    else
+    {
+        PluginDelayRemoveInfo::DeleteThreadLocal_PluginDelayRemoveInfo(removeInfo);
+    }
+
+    // 必要信息打印
+    _pluginGlobal = newPluginGlobal;
+    auto newShareLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
+    g_Log->Info(LOGFMT_OBJ_TAG("New ShareLibraryLoader:%s, module id:%llu"), newShareLibrary->ToString().c_str(), _pluginGlobal->GetPluginModuleId());
 
     hotfixEv->_shareLib.pop();
-
-    // 组件初始化
-    _InitPluginModule();
+    
+    // 热更完成
+    _CompletePlugin(newShareLibrary);
 }
 
 void PluginMgr::_OnHotfixPlubinComplete(KERNEL_NS::PollerEvent *ev)
@@ -209,78 +346,92 @@ void PluginMgr::_OnHotfixPlubinComplete(KERNEL_NS::PollerEvent *ev)
     g_Log->Info(LOGFMT_OBJ_TAG("completeEv:%s"), completeEv->ToString().c_str());
 }
 
-void PluginMgr::_InitPluginModule()
+bool PluginMgr::_InitPluginModule(KERNEL_NS::ShareLibraryLoader *shareLibrary, IPluginGlobal *&newPluginGlobal)
 {
-    auto shareLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
-    
-    auto initPtr = shareLibrary->LoadSym<InitPluginPtr>(KERNEL_NS::LibString("InitPlugin"));
-    auto startPtr = shareLibrary->LoadSym<StartPluginPtr>(KERNEL_NS::LibString("StartPlugin"));
-    auto setPluginMgrPtr = shareLibrary->LoadSym<SetPluginMgrPtr>(KERNEL_NS::LibString("SetPluginMgr"));
-    auto setPluginGlobalPtr = shareLibrary->LoadSym<SetPluginGlobalPtr>(KERNEL_NS::LibString("SetPluginGlobal"));
-
-    if((!initPtr) || (!startPtr) ||(!setPluginMgrPtr) || (!setPluginGlobalPtr))
+    try
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("load sym fail"));
-        return;
+        auto initPtr = shareLibrary->LoadSym<InitPluginPtr>(KERNEL_NS::LibString("InitPlugin"));
+        auto startPtr = shareLibrary->LoadSym<StartPluginPtr>(KERNEL_NS::LibString("StartPlugin"));
+        auto startCompletePtr = shareLibrary->LoadSym<StartPluginCompletePtr>(KERNEL_NS::LibString("StartPluginComplete"));
+        auto willClosePtr = shareLibrary->LoadSym<WillClosePluginPtr>(KERNEL_NS::LibString("WillClosePlugin"));
+        auto closePluginPtr = shareLibrary->LoadSym<ClosePluginPtr>(KERNEL_NS::LibString("ClosePlugin"));
+        auto setPluginMgrPtr = shareLibrary->LoadSym<SetPluginMgrPtr>(KERNEL_NS::LibString("SetPluginMgr"));
+        auto setPluginGlobalPtr = shareLibrary->LoadSym<SetPluginGlobalPtr>(KERNEL_NS::LibString("SetPluginGlobal"));
+        auto getPluginModuleIdPtr = shareLibrary->LoadSym<GetPluginModuleIdPtr>(KERNEL_NS::LibString("GetPluginModuleId"));
+
+        if((!initPtr) || (!startPtr) || (!startCompletePtr) || (!willClosePtr) || (!closePluginPtr) ||(!setPluginMgrPtr) || (!setPluginGlobalPtr))
+        {
+            CLOG_ERROR("load sym fail");
+            return false;
+        }
+
+        auto pluginGlobal = PluginGlobalFactory().Create()->CastTo<IPluginGlobal>();
+        // 设置模块id
+        auto moduleId = (*getPluginModuleIdPtr)();
+        pluginGlobal->SetPluginModuleId(moduleId);
+    
+        // 设置PluginMgrPtr
+        (*setPluginMgrPtr)(this);
+        (*setPluginGlobalPtr)(pluginGlobal);
+    
+        auto pluginRet = (*initPtr)();
+        if(pluginRet != Status::Success)
+        {
+            CLOG_ERROR("init fail st:%d", pluginRet);
+            _WillClosePlugin(shareLibrary);
+            _ClosePlugin(shareLibrary);
+            return false;
+        }
+    
+        pluginRet = (*startPtr)();
+        if(pluginRet != Status::Success)
+        {
+            CLOG_ERROR("start fail st:%d", pluginRet);
+            _WillClosePlugin(shareLibrary);
+            _ClosePlugin(shareLibrary);
+            return false;
+        }
+
+        newPluginGlobal = pluginGlobal;
+        CLOG_INFO("start plugin success service:%s moduleId:%llu.", GetService()->ToString().c_str(), moduleId);
+
+        return true;
+    }
+    catch (const std::exception &e)
+    {
+        CLOG_ERROR("plugin init err service:%s, exception:%s", GetService()->ToString().c_str(), e.what());
+    }
+    catch (...)
+    {
+        CLOG_ERROR("plugin init err service:%s, unknown exception:%s", GetService()->ToString().c_str());
     }
 
-    auto pluginGlobal = PluginGlobalFactory().Create();
-    // 设置PluginMgrPtr
-    (*setPluginMgrPtr)(this);
-    (*setPluginGlobalPtr)(pluginGlobal);
-    
-    auto pluginRet = (*initPtr)();
-    if(pluginRet != Status::Success)
-    {
-        CLOG_ERROR("init fail st:%d", pluginRet);
-        _WillClosePlugin();
-        _ClosePlugin();
-        return;
-    }
-    
-    pluginRet = (*startPtr)();
-    if(pluginRet != Status::Success)
-    {
-        CLOG_ERROR("start fail st:%d", pluginRet);
-        _WillClosePlugin();
-        _ClosePlugin();
-        return;
-    }
-
-    _pluginGlobal = pluginGlobal->CastTo<IPluginGlobal>();
-    CLOG_INFO("start plugin success.");
-    
-// #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-//     SetPluginMgr(this);
-//     auto ret = InitPlugin();
-//     
-//     g_Log->Info(LOGFMT_OBJ_TAG("init plugin ret:%d"), ret);
-//
-//     ret = StartPlugin();
-//
-//     g_Log->Info(LOGFMT_OBJ_TAG("start plugin ret:%d"), ret);
-//
-// #else
-//
-// #endif
-
-    g_Log->Info(LOGFMT_OBJ_TAG("init plugin module success."));
+    return false;
 }
 
-void PluginMgr::_WillClosePlugin()
+void PluginMgr::_WillClosePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary)
 {
-    _pluginGlobal = NULL;
-    auto shareLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
-
-    auto willClosePtr = shareLibrary->LoadSym<WillClosePluginPtr>(KERNEL_NS::LibString("WillClosePlugin"));
-    if((!willClosePtr))
+    try
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("load sym fail"));
-        return;
-    }
+        auto willClosePtr = shareLibrary->LoadSym<WillClosePluginPtr>(KERNEL_NS::LibString("WillClosePlugin"));
+        if((!willClosePtr))
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("load sym fail"));
+            return;
+        }
     
-    (*willClosePtr)();
-    g_Log->Info(LOGFMT_OBJ_TAG("will close plugin..."));
+        (*willClosePtr)();
+        g_Log->Info(LOGFMT_OBJ_TAG("will close plugin..."));
+    }
+    catch (const std::exception &e)
+    {
+        CLOG_ERROR("will close plugin fail exception:%s", e.what());
+    }
+    catch (...)
+    {
+        CLOG_ERROR("will close plugin unknown exception:%s");
+    }
+
 //     
 //     // Windows下
 // #if CRYSTAL_TARGET_PLATFORM_WINDOWS
@@ -292,27 +443,51 @@ void PluginMgr::_WillClosePlugin()
 // #endif
 }
 
-void PluginMgr::_ClosePlugin()
+void PluginMgr::_CompletePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary)
 {
-    auto shareLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
-    auto closePtr = shareLibrary->LoadSym<ClosePluginPtr>(KERNEL_NS::LibString("ClosePlugin"));
-    if((!closePtr))
+    // 热更完成
+    auto startCompletePtr = shareLibrary->LoadSym<StartPluginCompletePtr>(KERNEL_NS::LibString("StartPluginComplete"));
+    if(LIKELY(startCompletePtr))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("load sym fail"));
-        return;
+        try
+        {
+            (*startCompletePtr)();
+            CLOG_INFO("plugin hotfix complete service:%s", GetService()->ToString().c_str());
+        }
+        catch (const std::exception &e)
+        {
+            CLOG_ERROR("plugin start complete err service:%s, e:%s", GetService()->ToString().c_str(), e.what());
+        }
+        catch (...)
+        {
+            CLOG_ERROR("plugin start complete unknown err service:%s", GetService()->ToString().c_str());
+        }
     }
+}
+
+
+void PluginMgr::_ClosePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary)
+{
+    try
+    {
+        auto closePtr = shareLibrary->LoadSym<ClosePluginPtr>(KERNEL_NS::LibString("ClosePlugin"));
+        if((!closePtr))
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("load sym fail"));
+            return;
+        }
     
-    (*closePtr)();
-    g_Log->Info(LOGFMT_OBJ_TAG("close plugin"));
-//     
-//     // Windows下
-// #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-//     ClosePlugin();
-//     g_Log->Info(LOGFMT_OBJ_TAG("close plugin."));
-//
-// #else
-//
-// #endif
+        (*closePtr)();
+        g_Log->Info(LOGFMT_OBJ_TAG("close plugin"));
+    }
+    catch (const std::exception &e)
+    {
+        CLOG_ERROR("will close plugin fail exception:%s", e.what());
+    }
+    catch (...)
+    {
+        CLOG_ERROR("will close plugin unknown exception:%s");
+    }
 }
 
 void PluginMgr::_Clear()
@@ -324,6 +499,16 @@ void PluginMgr::_Clear()
     }
 
     _pluginGlobal = NULL;
+    
+    if(_delayRemovePluginTimer)
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(_delayRemovePluginTimer);
+    _delayRemovePluginTimer = NULL;
+
+    if(_tick)
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(_tick);
+    _tick = NULL;
+
+    KERNEL_NS::ContainerUtil::DelContainer2(_delayRemoveInfos);
 }
 
 void PluginMgr::_InitPath()
@@ -353,9 +538,126 @@ void PluginMgr::_InitPath()
 
 void PluginMgr::_OnAnyEvent(KERNEL_NS::LibEvent *ev)
 {
+    // 事件中转到插件集
     if(LIKELY(_pluginGlobal))
         _pluginGlobal->GetEventManager()->FireEvent(ev);
 }
 
+void PluginMgr::_OnDelayRemovePluginTimer(KERNEL_NS::LibTimer *t)
+{
+    if(_delayRemoveInfos.empty())
+    {
+        t->Cancel();
+        return;
+    }
+
+    // TODO:验证协程全部完成后是否正确移除动态库, 以及多个service情况下是否正确卸载动态库(通过在动态库中的全局变量的释放来观察动态库卸载, 动态库的卸载会根据引用计数)
+    const Int32 sz = static_cast<Int32>(_delayRemoveInfos.size());
+    for(Int32 idx = (sz - 1); idx >= 0; --idx)
+    {
+        auto info = _delayRemoveInfos[idx];
+        auto moduleId = info->_pluginGlobal->GetPluginModuleId();
+        auto &tlsSet = KERNEL_NS::GetCoroutineThreadLocalSet(moduleId);
+        if(!tlsSet.empty())
+            continue;
+
+        CLOG_INFO("plugin execute remove after coroutines are all completed in delay timer service:%s module id:%llu, library name:%s"
+            , GetService()->ToString().c_str(), moduleId, info->_shareLibraryLoader->GetLibraryPath().c_str());
+        PluginDelayRemoveInfo::DeleteThreadLocal_PluginDelayRemoveInfo(info);
+        _delayRemoveInfos.erase(_delayRemoveInfos.begin() + idx);
+    }
+
+    if(_delayRemoveInfos.empty())
+    {
+        t->Cancel();
+    }
+}
+
+void PluginMgr::_StartDelayRemovePluginTimer()
+{
+    if(_delayRemoveInfos.empty())
+        return;
+
+    if(_delayRemovePluginTimer->IsScheduling())
+        return;
+    
+    _delayRemovePluginTimer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(5));
+}
+
+KERNEL_NS::LibString PluginMgr::_GetPluginLibraryFinalPath()
+{
+    _InitPath();
+    
+    KERNEL_NS::LibString path = _hotfixFilePath;
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    auto &&dirPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(_hotfixFilePath);
+    auto &&fileNamePart = KERNEL_NS::DirectoryUtil::GetFileNameInPath(_hotfixFilePath);
+    auto &&withoutExtension = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(fileNamePart);
+    auto &&withoutExtensionMatch = withoutExtension + ".*";
+    
+    UInt64 maxTimestampSuffix = 0;
+    KERNEL_NS::DirectoryUtil::TraverseDirRecursively(dirPath, [&withoutExtensionMatch, &withoutExtension, &maxTimestampSuffix, &fileNamePart](const KERNEL_NS::FindFileInfo &fileInfo, bool &isContinue)->bool
+    {
+        if(KERNEL_NS::FileUtil::IsDir(fileInfo))
+            return true;
+
+        if(KERNEL_NS::FileUtil::IsFile(fileInfo))
+        {
+            // .dll
+            if(fileInfo._extension != ".dll")
+                return true;
+            
+            if(KERNEL_NS::StringUtil::IsMatch(fileInfo._fileName, withoutExtensionMatch))
+            {
+                // 不带时间戳
+                if(fileInfo._fileName == fileNamePart)
+                {
+                    return true;
+                }
+
+                auto &&removeDll = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(fileInfo._fileName);
+                auto &&afterRemove = KERNEL_NS::FileUtil::ExtractFileExtension(removeDll);
+                auto &&getTimestampPart = afterRemove.lsub(".");
+                getTimestampPart.strip();
+                if(getTimestampPart.isdigit())
+                {
+                    auto timePart = KERNEL_NS::StringUtil::StringToUInt64(getTimestampPart.c_str());
+                    if(maxTimestampSuffix == 0)
+                    {
+                        maxTimestampSuffix = timePart;
+                    }
+                    else if(maxTimestampSuffix < timePart)
+                    {
+                        maxTimestampSuffix = timePart;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }, 1);
+
+    // 没有时间戳后缀, 用原始文件名
+    if(maxTimestampSuffix != 0)
+    {
+        path = dirPath + withoutExtension + KERNEL_NS::LibString().AppendFormat(".%llu.dll", maxTimestampSuffix);
+    }
+#endif
+    
+    // 1. 判断文件存在否
+    if(!KERNEL_NS::FileUtil::IsFileExist(path.c_str()))
+    {
+        CLOG_WARN("file not exist %s", path.c_str());
+    }
+
+    return path;
+}
+
+void PluginMgr::_OnTick(KERNEL_NS::LibTimer *t)
+{
+    if(_pluginGlobal)
+        _pluginGlobal->OnTick();
+}
 
 SERVICE_END

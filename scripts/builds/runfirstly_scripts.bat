@@ -2,12 +2,17 @@
 :: 取得当前路径
 SET CUR_PATH="%~dp0"
 SET VER="%1"
+SET SUFFIX="%2"
 
 echo CUR_PATH:%CUR_PATH%
 echo VER:%VER%
+echo SUFFIX:%SUFFIX%
 
 :: 获取管理员权限
 :: if not "%1"=="am_admin" (powershell start -verb runas '%0' am_admin & exit /b)
+
+:: --------------------------------------- windows 下线拷贝Plugin.dll ------------------------
+call %CUR_PATH%runcopyplugindll.bat %VER% %SUFFIX%
 
 :: -------------------------------------- 链接配置 -------------------------------------------
 if not exist %CUR_PATH%\..\..\output\%VER%\build\Cfgs (

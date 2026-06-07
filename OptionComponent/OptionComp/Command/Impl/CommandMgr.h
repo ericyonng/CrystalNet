@@ -35,6 +35,19 @@ KERNEL_BEGIN
 
 class LibEventLoopThread;
 
+struct CommandThreadContainer
+{
+    POOL_CREATE_OBJ_DEFAULT(CommandThreadContainer);
+    
+    CommandThreadContainer(){}
+    ~CommandThreadContainer();
+
+    bool IsNoRelease = false;
+    
+    std::unordered_map<LibString, IDelegate<void> *> _cmdRefCallback;
+    std::unordered_map<LibString, IDelegate<void, const KERNEL_NS::LibString &> *> _regularKeywordRefCallback;
+};
+
 class CommandMgr : public ICommandMgr
 {
     POOL_CREATE_OBJ_DEFAULT_P1(ICommandMgr, CommandMgr);
@@ -46,6 +59,7 @@ public:
     virtual void DefaultMaskReady(bool isReady) override;
 
     virtual void AddCommand(const LibString &cmd, IDelegate<void> *callback) override;
+    virtual void AddRegularCommand(const LibString &cmd, IDelegate<void, const KERNEL_NS::LibString &> *callback) override;
 
 private:
     virtual Int32 _OnHostInit() override;
@@ -59,7 +73,9 @@ private:
 
     void _WakeupCin() const;
 
-    std::unordered_map<LibString, IDelegate<void> *> _cmdRefCallback;
+    std::unordered_map<UInt64, CommandThreadContainer> _threadIdRefCmdContainer;
+    // std::unordered_map<LibString, IDelegate<void> *> _cmdRefCallback;
+    // std::unordered_map<LibString, IDelegate<void, const KERNEL_NS::LibString &> *> _regularKeywordRefCallback;
     SpinLock _lck;
     KERNEL_NS::LibEventLoopThread *_eventLoopThread;
     std::atomic_bool _isWorking;

@@ -30,6 +30,8 @@
 #include <TestService/Common/ServiceCommon.h>
 #include <TestServicePlugin/ExternPluginMgr.h>
 #include <kernel/comp/Event/event_inc.h>
+#include <service/common/BaseComps/SessionMgrComp/SessionMgr.h>
+#include <TestServicePlugin/PluginEntry.h>
 
 
 void PluginLogic::OnPluginStartup()
@@ -38,6 +40,27 @@ void PluginLogic::OnPluginStartup()
 
     // 监听事件
     g_PluginGlobal->GetEventManager()->AddListener(EventEnums::TEST_PLUGIN_EVENT, &PluginLogic::OnPluginTestEvent);
+
+    // tick
+    auto timer = g_PluginGlobal->AddTimer();
+    timer->SetTimeOutHandler(&PluginLogic::OnPluginTestTimer);
+    timer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(5));
+
+    KERNEL_NS::PostCaller([]()->KERNEL_NS::CoTask<>
+    {
+        KERNEL_NS::SmartPtr<KERNEL_NS::TaskParamRefWrapper, KERNEL_NS::AutoDelMethods::Release> param = KERNEL_NS::TaskParamRefWrapper::NewThreadLocal_TaskParamRefWrapper();
+        auto randNum = co_await GetRandInt().GetParam(param);
+        auto moduleId = KERNEL_NS::GetCrystalModuleId();
+        auto &set = KERNEL_NS::GetCoroutineThreadLocalSet(moduleId);
+        auto setCount = static_cast<Int32>(set.size());
+
+        CLOG_INFO_GLOBAL(PluginLogic, "test fix plugin wait coroutine completed coroutine count:%d", setCount);
+
+        co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
+        
+        CLOG_INFO_GLOBAL(PluginLogic, "startup moduleId:%llu, param moduleId:%llu get rand:%d, setCount:%d"
+            , moduleId, param->_params->_moduleId, randNum, setCount);
+    });
 }
 
 void PluginLogic::OnPluginTestEvent(KERNEL_NS::LibEvent *ev)
@@ -56,12 +79,77 @@ void PluginLogic::OnPluginTestEvent2(KERNEL_NS::LibEvent *ev)
     g_PluginGlobal->GetEventManager()->AddListener(EventEnums::TEST_PLUGIN_EVENT3, &PluginLogic::OnPluginTestEvent3);
     auto ev3 = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::TEST_PLUGIN_EVENT3);
     g_PluginGlobal->GetEventManager()->FireEvent(ev3);
+    CLOG_INFO_GLOBAL(PluginLogic, "OnPluginTestEvent2");
 }
 
 void PluginLogic::OnPluginTestEvent3(KERNEL_NS::LibEvent *ev)
 {
     CLOG_INFO_GLOBAL(PluginLogic, "OnPluginTestEvent3");
 }
+
+KERNEL_NS::CoTask<Int32> PluginLogic::GetRandInt()
+{
+    co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
+
+    KERNEL_NS::LibRandom<Int32, KERNEL_NS::_Build::TL> rand;
+    rand.ResetSeed();
+    auto randNum = rand.Gen();
+    CLOG_INFO_GLOBAL(PluginLogic, "get rand num:%d", randNum);
+    co_return randNum;
+}
+
+void PluginLogic::OnPluginTestTimer(KERNEL_NS::LibTimer *t)
+{
+    KERNEL_NS::LibString info;
+    info.AppendFormat("=> plugin test timer 9963 service:%s", g_PluginMgr->GetService()->ToString().c_str());
+    g_PluginGlobal->TestHello(info);
+
+    if(!IsTestAddTas())
+    {
+        IsTestAddTas() = true;
+
+        KERNEL_NS::PostCaller([]()->KERNEL_NS::CoTask<>
+        {
+            co_await PluginLogic::TestAddTask();
+        });
+    }
+}
+
+bool &PluginLogic::IsTestAddTas()
+{
+    static DEF_THREAD_LOCAL_DECLEAR bool isTestAddTas = false;
+
+    return isTestAddTas;
+}
+
+KERNEL_NS::CoTask<> PluginLogic::TestAddTask()
+{
+    // 当前连接数
+    KERNEL_NS::PostCaller([]()->KERNEL_NS::CoTask<>
+    {
+        co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(120));
+
+        CLOG_INFO_GLOBAL(PluginLogic, "plugin module:%llu, test session new test count", GetPluginModuleId());
+        
+        auto service = g_PluginMgr->GetService();
+        auto sessionMgr = service->GetComp<SERVICE_NS::ISessionMgr>();
+        if(sessionMgr)
+        {
+            auto count = sessionMgr->GetSessionAmount();
+            CLOG_INFO_GLOBAL(PluginLogic, "service session count:%d", count);
+        }
+        else
+        {
+            CLOG_WARN_GLOBAL(PluginLogic, "session mgr not found");
+        }
+    });
+
+    co_return;
+}
+
+
+
+
 
 
 

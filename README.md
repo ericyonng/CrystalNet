@@ -148,6 +148,23 @@
   
   
 
+# 获取模块独立的id
+
+#### 原理
+
+```
+extern UInt64 GetCrystalModuleId();
+
+这个函数在CrystalKernel中，但是不导出符号, 每个模块自己实现GetCrystalModuleId(讲kernel中的实现, 复制到每个模块的cpp, 编译即可)
+每个模块自己调用该函数的时候会生成唯一的id, 建议每个模块初始化的时候生成
+
+extern KERNEL_EXPORT std::set<UInt64> &GetThreadLocalSet(UInt64 moduleId);
+通过moduleid, 生成模块在每个线程的std::set<UInt64> 线程安全
+
+```
+
+
+
 # CoTask协程支持
 
 项目引入C++20协程, 为了简化异步编程, 让异步代码变的丝滑
@@ -207,6 +224,10 @@ public:
 * 热更插件集由于热更时静态全局, 静态局部对象等会被销毁, 会影响到池化对象, 所以插件集中泛型实例化的对象最多只能使用threadlocal模式分配和回收内存,
 
 * 插件集的对象不能跨线程，跨模块传播, 避免热更后导致对象未定义行为
+
+* 比较重的任务不允许放在插件集启动, 应该放在程序集(因为如果插件集启动比较久, 会卡住线程影响业务)
+
+* 热更文件名: windows:TestServicePlugin.xxx.dll, 因为windows加载dll, 判断是否同一个dll是按照完整路径名, 如果新编译出来的dll与旧的同名， 加载的时候如果还没卸载旧的, 在加载的时候只会给旧的dll添加引用计数, 而且windows会锁定文件，还没卸载前无法替换旧文件, 只能重命名, 加载只会会记住LoadLibrary时候的完整路径名，所以windows下的热更方案: 在生成dll时候带上时间戳: TestServicePlugin.xxx.dll 每次加载时只加载xxx最大的那个dll，如果有调系统时间的话要记得清空dll,热更的时候也可以直接指定xxx, 比如fix xxx 只会加载xxx该版本的dll
 
 # 性能(见doc/压测/)
 

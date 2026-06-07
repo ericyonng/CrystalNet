@@ -61,6 +61,7 @@ public:
     Application();
     ~Application() override;
     void Release() override;
+    virtual UInt64 GetAppModuleId() const override;
 
 public:
     const KERNEL_NS::LibString &GetProjectMainServiceName() const; // 获取项目功能名, 如：Gate, Login等

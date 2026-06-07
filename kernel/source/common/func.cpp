@@ -35,6 +35,8 @@
 #include <kernel/comp/memory/MemoryPool.h>
 #include <kernel/comp/Lock/Lock.h>
 #include <kernel/comp/Utils/BackTraceUtil.h>
+#include <kernel/comp/Log/log.h>
+#include <unordered_map>
 
 KERNEL_BEGIN
 
@@ -94,6 +96,52 @@ void LockConsole()
 void UnlockConsole()
 {
     GetConsoleLocker().Unlock();
+}
+
+std::atomic<UInt64> &GetGlobalIdSrc()
+{
+    static std::atomic<UInt64> s_id;
+    return s_id;
+}
+
+UInt64 GetCrystalModuleId()
+{
+    static const UInt64 id = GetGlobalIdSrc().fetch_add(1, std::memory_order_release) + 1;
+
+// #if _DEBUG
+//     if(g_Log)
+//     {
+//         CLOG_DEBUG_GLOBAL(SystemUtil, "CrystalKernel - GetCrystalModuleId:%llu", id);
+//     }
+// #endif
+    
+    return id;
+}
+
+std::set<UInt64> &GetCoroutineThreadSet(UInt64 threadId, UInt64 moduleId)
+{
+    static SpinLock s_Lck;
+    static std::unordered_map<UInt64, std::unordered_map<UInt64, std::set<UInt64>>> s_threadIdRefModuleIdRefSet;
+
+    s_Lck.Lock();
+    auto iterThread = s_threadIdRefModuleIdRefSet.find(threadId);
+    if(iterThread == s_threadIdRefModuleIdRefSet.end())
+    {
+        iterThread = s_threadIdRefModuleIdRefSet.emplace(std::move(threadId), std::unordered_map<UInt64, std::set<UInt64>>()).first;
+    }
+    auto &moduleIdRefSet = iterThread->second;
+    s_Lck.Unlock();
+
+    auto iterModule = moduleIdRefSet.find(moduleId);
+    if(iterModule == moduleIdRefSet.end())
+        iterModule = moduleIdRefSet.emplace(std::move(moduleId), std::set<UInt64>()).first;
+    return iterModule->second;
+}
+
+std::set<UInt64> &GetCoroutineThreadLocalSet(UInt64 moduleId)
+{
+    static DEF_THREAD_LOCAL_DECLEAR std::set<UInt64> *s_Set = &GetCoroutineThreadSet(KERNEL_NS::SystemUtil::GetCurrentThreadId(), moduleId);
+    return *s_Set;
 }
 
 // SpinLock& GetBackTraceLock()

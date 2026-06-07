@@ -835,6 +835,7 @@ bool CompHostObject::PopComp(CompObject *comp)
 
     _OnDynamicPopCompFinish(comp);
 
+    comp->BindOwner(NULL);
     _attachedComps.erase(comp);
     return true;
 }
@@ -1629,6 +1630,8 @@ void CompHostObject::_RemoveComp(CompObject *comp)
             }
         }
     }
+
+    comp->BindOwner(NULL);
 
     if(!IsAttached(comp))
     {

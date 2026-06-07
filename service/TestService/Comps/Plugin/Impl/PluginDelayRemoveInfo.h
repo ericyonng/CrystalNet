@@ -20,31 +20,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2025-02-05 16:35:27
+// Date: 2026-06-06 20:06:47
 // Author: Eric Yonng
 // Description:
 
-#include "pch.h"
-#include <TestServicePlugin/ExternPluginMgr.h>
 
-DEF_THREAD_LOCAL_DECLEAR SERVICE_NS::IPluginMgr *g_PluginMgr = NULL;
+#pragma once
 
-DEF_THREAD_LOCAL_DECLEAR SERVICE_NS::IPluginGlobal *g_PluginGlobal = NULL;
+#include <service/common/macro.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 
 KERNEL_BEGIN
-
-UInt64 GetCrystalModuleId()
-{
-    static const UInt64 id = GetGlobalIdSrc().fetch_add(1, std::memory_order_release) + 1;
-
-// #if _DEBUG
-//     if(g_Log)
-//     {
-//         CLOG_DEBUG_GLOBAL(SystemUtil, "TestPlugin - GetCrystalModuleId:%llu", id);
-//     }
-// #endif
-    
-    return id;
-}
-
+class ShareLibraryLoader;
 KERNEL_END
+
+SERVICE_BEGIN
+
+class IPluginGlobal;
+
+struct PluginDelayRemoveInfo
+{
+    POOL_CREATE_OBJ_DEFAULT(PluginDelayRemoveInfo);
+    
+    PluginDelayRemoveInfo();
+    ~PluginDelayRemoveInfo();
+    void Release();
+    
+    KERNEL_NS::ShareLibraryLoader *_shareLibraryLoader;
+    IPluginGlobal *_pluginGlobal;
+};
+
+SERVICE_END

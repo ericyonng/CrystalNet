@@ -31,14 +31,18 @@
 
 #include <Comps/Plugin/Impl/PluginGlobalFactory.h>
 #include <kernel/comp/Event/event_inc.h>
+#include <kernel/comp/Timer/TimerMgr.h>
+#include <kernel/comp/Timer/LibTimer.h>
 
 SERVICE_BEGIN
 
 PluginGlobal::PluginGlobal()
     :IPluginGlobal(KERNEL_NS::RttiUtil::GetTypeId<PluginGlobal>())
     ,_eventManager(NULL)
+    ,_timerMgr(KERNEL_NS::TimerMgr::NewThreadLocal_TimerMgr())
+    ,_pluginModuleId(0)
 {
-    
+    _timerMgr->Launch(NULL);
 }
 
 PluginGlobal::~PluginGlobal()
@@ -61,10 +65,53 @@ KERNEL_NS::EventManager *PluginGlobal::GetEventManager()
     return _eventManager;
 }
 
-void PluginGlobal::TestHello() const
+KERNEL_NS::TimerMgr *PluginGlobal::GetTimerMgr()
 {
-    CLOG_INFO("PluginGlobal::TestHello()");
+    return _timerMgr;
 }
+
+KERNEL_NS::LibTimer *PluginGlobal::AddTimer()
+{
+    auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer(_timerMgr);
+    _timerMgr->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t)
+    {
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    });
+
+    return timer;
+}
+
+
+void PluginGlobal::TestHello(const KERNEL_NS::LibString &content) const
+{
+    CLOG_INFO("PluginGlobal::TestHello content:%s", content.c_str());
+}
+
+// 设置模块id
+void PluginGlobal::SetPluginModuleId(UInt64 moduleId)
+{
+    _pluginModuleId = moduleId;
+}
+
+// 获取模块id
+UInt64 PluginGlobal::GetPluginModuleId() const
+{
+    return _pluginModuleId;
+}
+
+void PluginGlobal::OnTick()
+{
+    if(_timerMgr)
+        _timerMgr->Drive();
+}
+
+KERNEL_NS::LibString PluginGlobal::ToString() const
+{
+    KERNEL_NS::LibString info;
+    info.AppendFormat("PluginGlobal moduleId:%llu, %s", _pluginModuleId, KERNEL_NS::CompHostObject::ToString().c_str());
+    return info;
+}
+
 
 Int32 PluginGlobal::_OnHostInit()
 {
@@ -102,7 +149,13 @@ void PluginGlobal::_Clear()
     {
         KERNEL_NS::EventManager::DeleteThreadLocal_EventManager(_eventManager);
     }
-}
 
+    if(_timerMgr)
+    {
+        KERNEL_NS::TimerMgr::DeleteThreadLocal_TimerMgr(_timerMgr);
+    }
+    _eventManager = NULL;
+    _timerMgr = NULL;
+}
 
 SERVICE_END

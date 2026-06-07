@@ -22,7 +22,8 @@
 // 
 // Date: 2026-06-05 00:06:00
 // Author: Eric Yonng
-// Description:
+// Description: 所有Global的接口只能间接的被系统调用, 避免做出闭包注册到系统, 以免在热更的时候, 如果暂时卸载不掉, 会造成Global注册到系统的被触发, 造成重复的调用（新的Global也被创建出来, 也注册了回调）
+// 插件集中的所有接口的注册回调只能注册给PluginGlobal, 以便统一释放, 避免注册到程序集的其他对象, 造成卸载后遗漏反注册
 
 #pragma once
 
@@ -42,8 +43,17 @@ public:
     void OnRegisterComps() override;
 
     KERNEL_NS::EventManager *GetEventManager() override;
-    virtual void TestHello() const override;
+    virtual KERNEL_NS::TimerMgr *GetTimerMgr() override;
+    virtual KERNEL_NS::LibTimer *AddTimer() override;
 
+    virtual void TestHello(const KERNEL_NS::LibString &content) const override;
+    // 设置模块id
+    virtual void SetPluginModuleId(UInt64 moduleId) override;
+    // 获取模块id
+    virtual UInt64 GetPluginModuleId() const override;
+    virtual void OnTick() override;
+
+    virtual KERNEL_NS::LibString ToString() const override;
 private:
     virtual Int32 _OnHostInit() override;
     virtual Int32 _OnCompsCreated() override;
@@ -56,6 +66,8 @@ private:
 
 private:
     KERNEL_NS::EventManager *_eventManager;
+    KERNEL_NS::TimerMgr *_timerMgr;
+    UInt64 _pluginModuleId;
 };
 
 SERVICE_END

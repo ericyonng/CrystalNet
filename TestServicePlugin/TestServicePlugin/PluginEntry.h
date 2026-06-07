@@ -35,25 +35,30 @@ class IPluginMgr;
 
 extern "C"
 {
-    // 入口方法
+    // 入口方法 比较重的任务不允许放在插件集启动, 应该放在程序集(因为如果比较久, 会卡住线程影响业务)
     typedef Int32 (*InitPluginPtr)();
-    // 插件集启动
+    // 插件集启动 比较重的任务不允许放在插件集启动, 应该放在程序集(因为如果比较久, 会卡住线程影响业务)
     typedef Int32 (*StartPluginPtr)();
-    // 插件集即将关闭
+    // 启动完成 比较重的任务不允许放在插件集启动, 应该放在程序集(因为如果比较久, 会卡住线程影响业务)
+    typedef void (*StartPluginCompletePtr)();
+    // 插件集即将关闭 比较重的任务不允许放在插件集结束, 应该放在程序集(因为如果比较久, 会卡住线程影响业务)
     typedef void (*WillClosePluginPtr)();
-    // 插件集关闭
+    // 插件集关闭 比较重的任务不允许放在插件集结束, 应该放在程序集(因为如果比较久, 会卡住线程影响业务)
     typedef void (*ClosePluginPtr)();
     // 设置插件集对象
     typedef void (*SetPluginMgrPtr)(void *);
     typedef void (*SetPluginGlobalPtr)(void *);
-    // 转发流量
-    typedef void (*DispatchEventPtr)(void *);
+    // 获取插件集的模块id
+    typedef UInt64 (*GetPluginModuleIdPtr)();
     
     // 初始化插件集
     extern TEST_PLUGIN_EXPORT Int32 InitPlugin();
 
     // 启动插件集
     extern TEST_PLUGIN_EXPORT Int32 StartPlugin();
+
+    // 插件集启动完成
+    extern TEST_PLUGIN_EXPORT void StartPluginComplete();
 
     // 预关闭插件集
     extern TEST_PLUGIN_EXPORT void WillClosePlugin();
@@ -66,8 +71,8 @@ extern "C"
     // 由插件集自己销毁
     extern TEST_PLUGIN_EXPORT void SetPluginGlobal(void *pluginGlobal);
 
-    // 事件
-    extern TEST_PLUGIN_EXPORT void DispatchEvent(void *ev);
+    // 模块id
+    extern TEST_PLUGIN_EXPORT UInt64 GetPluginModuleId();
 }
 
 #endif

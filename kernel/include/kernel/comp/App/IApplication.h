@@ -69,6 +69,8 @@ public:
     virtual void DefaultMaskReady(bool isReady) override {}
 
 public:
+    // 提醒每个app必须在模块中实现 KERNEL_NS::GetCrystalModuleId,以便获取模块id
+    virtual UInt64 GetAppModuleId() const = 0;
     void SetYamlPath(const KERNEL_NS::LibString &path);
     const YAML::Node &GetYamlConfig() const;
     void SetYamlMemoryContent(const KERNEL_NS::LibString &content);

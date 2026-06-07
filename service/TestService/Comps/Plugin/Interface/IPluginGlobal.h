@@ -33,6 +33,8 @@
 KERNEL_BEGIN
 
 class EventManager;
+class TimerMgr;
+class LibTimer;
 
 KERNEL_END
 
@@ -47,8 +49,18 @@ public:
 
     // 插件集事件管理器
     virtual KERNEL_NS::EventManager *GetEventManager() = 0;
+    // 插件集事件管理器
+    virtual KERNEL_NS::TimerMgr *GetTimerMgr() = 0;
+    // 插件集的定时器只能通过global来管理,避免泄露对象
+    virtual KERNEL_NS::LibTimer *AddTimer() = 0;
     // 测试
-    virtual void TestHello() const = 0;
+    virtual void TestHello(const KERNEL_NS::LibString &content) const = 0;
+    // 设置模块id
+    virtual void SetPluginModuleId(UInt64 moduleId) = 0;
+    // 获取模块id
+    virtual UInt64 GetPluginModuleId() const = 0;
+    // tick
+    virtual void OnTick() = 0;
 };
 
 SERVICE_END

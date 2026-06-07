@@ -219,19 +219,19 @@ void TlsMemoryCleanerComp::_PurgeTlsMemory()
     _tlsDefaultObj->_durtyListSwap = toSwap;
     _tlsDefaultObj->_lck->Unlock();
 
-    auto &&cpuStart = LibCpuCounter::Current();
+    // auto &&cpuStart = LibCpuCounter::Current();
     for(auto iter = toSwap->begin(); iter != toSwap->end();)
     {
         auto node = *iter;
         node->ForceMergeBlocks();
         iter = toSwap->erase(iter);
     }
-    auto diff = LibCpuCounter::Current().ElapseMilliseconds(cpuStart);
-    if (g_Log)
-    {
-        auto thread = KERNEL_NS::TlsUtil::GetDefTls()->_thread;
-        CLOG_DEBUG("tls memory cleaner threadId:%llu, threadName:%s, cost:%llu(milliseconds)", SystemUtil::GetCurrentThreadId(), thread? thread->GetThreadName().c_str():"", diff);
-    }
+    // auto diff = LibCpuCounter::Current().ElapseMilliseconds(cpuStart);
+    // if (g_Log)
+    // {
+    //     auto thread = KERNEL_NS::TlsUtil::GetDefTls()->_thread;
+    //     CLOG_DEBUG("tls memory cleaner threadId:%llu, threadName:%s, cost:%llu(milliseconds)", SystemUtil::GetCurrentThreadId(), thread? thread->GetThreadName().c_str():"", diff);
+    // }
 }
 
 KERNEL_NS::CompFactory *TlsMemoryCleanerCompFactory::FactoryCreate()

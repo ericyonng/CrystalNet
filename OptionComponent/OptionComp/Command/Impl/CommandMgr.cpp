@@ -37,8 +37,18 @@
 #include <kernel/comp/Coroutines/CoTask.h>
 #include <kernel/comp/Utils/SystemUtil.h>
 #include <kernel/comp/Timer/LibTimer.h>
+#include <kernel/comp/Utils/StringUtil.h>
 
 KERNEL_BEGIN
+
+CommandThreadContainer::~CommandThreadContainer()
+{
+    if(!IsNoRelease)
+    {
+        KERNEL_NS::ContainerUtil::DelContainer2(_cmdRefCallback);
+        KERNEL_NS::ContainerUtil::DelContainer2(_regularKeywordRefCallback);
+    }
+}
 
 CommandMgr::CommandMgr()
     :ICommandMgr(KERNEL_NS::RttiUtil::GetTypeId<CommandMgr>())
@@ -48,6 +58,7 @@ CommandMgr::CommandMgr()
 {
     
 }
+
 
 CommandMgr::~CommandMgr()
 {
@@ -69,23 +80,58 @@ void CommandMgr::DefaultMaskReady(bool isReady)
 void CommandMgr::AddCommand(const LibString &cmd, IDelegate<void> *callback)
 {
     auto &&toLower = cmd.tolower();
+    auto threadId = KERNEL_NS::SystemUtil::GetCurrentThreadId();
     _lck.Lock();
-    auto iter = _cmdRefCallback.find(toLower);
-    if(iter != _cmdRefCallback.end())
+    auto iterThread = _threadIdRefCmdContainer.find(threadId);
+    if(iterThread == _threadIdRefCmdContainer.end())
+    {
+        iterThread = _threadIdRefCmdContainer.insert(std::make_pair(threadId, CommandThreadContainer())).first;
+    }
+
+    auto &cmdContainer = iterThread->second;
+    auto iter = cmdContainer._cmdRefCallback.find(toLower);
+    if(iter != cmdContainer._cmdRefCallback.end())
     {
         auto oldCb = iter->second;
         CLOG_INFO("will remove old cmd:%s, callback:%p, %s", toLower.c_str(), oldCb, oldCb->GetCallbackRtti().c_str());
 
         oldCb->Release();
-        _cmdRefCallback.erase(iter);
+        cmdContainer._cmdRefCallback.erase(iter);
     }
 
     CLOG_INFO("will add cmd:%s, callback:%p, %s", toLower.c_str(), callback, callback->GetCallbackRtti().c_str());
 
-    _cmdRefCallback.insert(std::make_pair(toLower, callback));
+    cmdContainer._cmdRefCallback.insert(std::make_pair(toLower, callback));
     _lck.Unlock();
 }
 
+void CommandMgr::AddRegularCommand(const LibString &cmd, IDelegate<void, const KERNEL_NS::LibString &> *callback)
+{
+    auto &&toLower = cmd.tolower();
+    auto threadId = KERNEL_NS::SystemUtil::GetCurrentThreadId();
+
+    _lck.Lock();
+    auto iterThread = _threadIdRefCmdContainer.find(threadId);
+    if(iterThread == _threadIdRefCmdContainer.end())
+    {
+        iterThread = _threadIdRefCmdContainer.insert(std::make_pair(threadId, CommandThreadContainer())).first;
+    }
+    auto &cmdContainer = iterThread->second;
+    auto iter = cmdContainer._regularKeywordRefCallback.find(toLower);
+    if(iter != cmdContainer._regularKeywordRefCallback.end())
+    {
+        auto oldCb = iter->second;
+        CLOG_INFO("will remove old cmd:%s, callback:%p, %s", toLower.c_str(), oldCb, oldCb->GetCallbackRtti().c_str());
+
+        oldCb->Release();
+        cmdContainer._regularKeywordRefCallback.erase(iter);
+    }
+
+    CLOG_INFO("will add cmd:%s, callback:%p, %s", toLower.c_str(), callback, callback->GetCallbackRtti().c_str());
+
+    cmdContainer._regularKeywordRefCallback.insert(std::make_pair(toLower, callback));
+    _lck.Unlock();
+}
 
 Int32 CommandMgr::_OnHostInit()
 {
@@ -113,24 +159,58 @@ Int32 CommandMgr::_OnHostInit()
 
                 CLOG_DEBUG("getline waking up input:%s...", input.c_str());
 
+                // 拷贝出来的cmd不释放
                 _lck.Lock();
-                auto allCallback = _cmdRefCallback;
+                auto cmdContainer = _threadIdRefCmdContainer;
+                for(auto &iter : cmdContainer)
+                    iter.second.IsNoRelease = true;
                 _lck.Unlock();
-                auto iter = allCallback.find(input);
-                if(iter == allCallback.end())
-                {
-                    CLOG_DEBUG("unknown command:%s", input.c_str());
 
-                    // 让event loop处理其他事情避免导致其他事情无法执行 让出了控制权, 为了避免退出时无法退出需要设置false
-                    _isWorking.store(false, std::memory_order_release);
-                    co_await CoDelay(KERNEL_NS::TimeSlice::FromSeconds(5));
-                    continue;
+                // 优先执行正则匹配
+                bool isRunRegular = false;
+                {
+                    if(!input.empty())
+                    {
+                        for(auto &iter : cmdContainer)
+                        {
+                            auto threadId = iter.first;
+                            auto &containerInfo = iter.second;
+                            for(auto &iter : containerInfo._regularKeywordRefCallback)
+                            {
+                                auto &first = iter.first;
+                                auto cb = iter.second;
+                                if(KERNEL_NS::StringUtil::IsMatch(input, first))
+                                {
+                                    isRunRegular = true;
+                                    CLOG_INFO("invoke command:%s, input:%s", first.c_str(), input.c_str());
+                                    cb->Invoke(input);
+                                    CLOG_INFO("invoke command:%s finished", first.c_str());
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
 
-                CLOG_INFO("invoke cmd:%s...");
-                auto cb = iter->second;
-                cb->Invoke();
-                CLOG_INFO("invoke cmd:%s finished.");
+                if(!isRunRegular)
+                {
+                    for(auto &iterContainer : cmdContainer)
+                    {
+                        auto threadId = iterContainer.first;
+                        auto &containerInfo = iterContainer.second;
+                        auto iter = containerInfo._cmdRefCallback.find(input);
+                        if(iter == containerInfo._cmdRefCallback.end())
+                        {
+                            CLOG_DEBUG("unknown command:%s", input.c_str());
+                            continue;
+                        }
+
+                        CLOG_INFO("invoke cmd:%s...");
+                        auto cb = iter->second;
+                        cb->Invoke();
+                        CLOG_INFO("invoke cmd:%s finished.");
+                    }
+                }
 
                 // 让event loop处理其他事情避免导致其他事情无法执行 TODO:跳到Poller，此后poller退出, 无法再往回了 让出了控制权, 为了避免退出时无法退出需要设置false
                 _isWorking.store(false, std::memory_order_release);
@@ -271,7 +351,7 @@ void CommandMgr::_OnHostClose()
 
 void CommandMgr::_Clear()
 {
-    ContainerUtil::DelContainer2(_cmdRefCallback);
+    _threadIdRefCmdContainer.clear();
     CRYSTAL_RELEASE_SAFE(_eventLoopThread);
 }
 

@@ -36,6 +36,8 @@
 #include <kernel/common/BaseMacro.h>
 #include <kernel/common/BaseType.h>
 #include <kernel/common/LibObject.h>
+#include <set>
+#include <atomic>
 
 KERNEL_BEGIN
 
@@ -152,6 +154,17 @@ class CountArgs
 public:
     static constexpr Int32 Count = sizeof...(Args);
 };
+
+extern KERNEL_EXPORT std::atomic<UInt64> &GetGlobalIdSrc();
+
+// 每个模块在某个cpp中自己实现 GetCrystalModuleId, 这个函数不导出符号, 以便每个模块拥有自己独立的module id
+extern UInt64 GetCrystalModuleId();
+
+// 获取每个模块的某个std::set
+extern KERNEL_EXPORT std::set<UInt64> &GetCoroutineThreadSet(UInt64 threadId, UInt64 moduleId);
+
+// 获取tls 自己的set, 
+extern KERNEL_EXPORT std::set<UInt64> &GetCoroutineThreadLocalSet(UInt64 moduleId);
 
 KERNEL_END
 

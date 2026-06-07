@@ -52,6 +52,9 @@ public:
     SymType LoadSym(const LibString &symName);
 
     LibString ToString() const override;
+
+    void *GetLibrary();
+    const void *GetLibrary() const;
     
 private:
     Int32 _OnInit() override;
@@ -81,6 +84,16 @@ ALWAYS_INLINE const LibString &ShareLibraryLoader::GetLibraryPath() const
 ALWAYS_INLINE bool ShareLibraryLoader::IsLoaded() const
 {
     return _library != NULL;
+}
+
+ALWAYS_INLINE void *ShareLibraryLoader::GetLibrary()
+{
+    return _library;
+}
+
+ALWAYS_INLINE const void *ShareLibraryLoader::GetLibrary() const
+{
+    return _library;
 }
 
 KERNEL_END
