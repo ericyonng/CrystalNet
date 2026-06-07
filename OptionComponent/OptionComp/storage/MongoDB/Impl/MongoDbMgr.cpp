@@ -503,7 +503,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
         }
         catch (...)
         {
-            CLOG_ERROR("AddData mongodb unknown exception: %s, dbName:%s collectionName:%s, jsonStringPtr:%s"
+            CLOG_ERROR("AddData mongodb unknown exception: dbName:%s collectionName:%s, jsonStringPtr:%s"
                 , dbName.c_str(), collectionName.c_str(), jsonStringPtr->c_str());
             
             return res;
@@ -567,7 +567,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
                  CLOG_ERROR("Failed to insert data into collection of:lack unique key please check, kv:%s dbName:%s, collectionName:%s, binaryKeyName:%s, binary size:%lld, binaryData:%p"
                      ,  KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem) -> KERNEL_NS::LibString
                      {
-                         return KERNEL_NS::LibString().AppendFormat("%s:%ls", elem.first.c_str(), elem.second.ToString().c_str());
+                         return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
                      }).c_str(), dbName.c_str(), collectionName.c_str(), binaryKeyName.c_str(), binaryData->GetReadableSize(), binaryData);
                  return res;
              }
@@ -660,7 +660,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
         co_return false;
     }
 
-    CLOG_DEBUG("AddData success, db:%s, collection:%s", dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)-> KERNEL_NS::LibString
+    CLOG_DEBUG("AddData success, db:%s, collection:%s, uniqueKv:%s", dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)-> KERNEL_NS::LibString
     {
         return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
     }).c_str());

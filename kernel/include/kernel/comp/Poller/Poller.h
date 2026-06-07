@@ -359,7 +359,7 @@ public:
             {
                 // 返回包
                 auto resEv = KERNEL_NS::ObjectPollerEvent<ResType>::New_ObjectPollerEvent(stub
-                    , true, KERNEL_NS::TlsUtil::GetPoller(), NULL);
+                    , true, KERNEL_NS::TlsUtil::GetPoller(), nullptr);
                 resEv->_obj = CreateObjAdapter::Create<ResType>();
 
                 *(resEv->_obj) = lamb();
