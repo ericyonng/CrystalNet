@@ -229,6 +229,14 @@ public:
 
 * 热更文件名: windows:TestServicePlugin.xxx.dll, 因为windows加载dll, 判断是否同一个dll是按照完整路径名, 如果新编译出来的dll与旧的同名， 加载的时候如果还没卸载旧的, 在加载的时候只会给旧的dll添加引用计数, 而且windows会锁定文件，还没卸载前无法替换旧文件, 只能重命名, 加载只会会记住LoadLibrary时候的完整路径名，所以windows下的热更方案: 在生成dll时候带上时间戳: TestServicePlugin.xxx.dll 每次加载时只加载xxx最大的那个dll，如果有调系统时间的话要记得清空dll,热更的时候也可以直接指定xxx, 比如fix xxx 只会加载xxx该版本的dll
 
+* 插件集支持协程, 插件集热更会等待该插件集的协程完成后再卸载
+
+* 插件集windows下生成的dll会自动带上时间, 以保证热更时不会因为windows锁文件, 以及windows加载模块按照模块完整路径名的问题，导致热更失败
+
+* 热更只需要在控制台输入fix回车即可
+
+   
+
 # 性能(见doc/压测/)
 
 ```
