@@ -578,7 +578,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
                 auto &firstStr = kv.first;
                 if(kv.second.IsBriefData())
                 {
-                    fullDoc.append(bsoncxx::builder::basic::kvp(firstStr.GetRaw(), kv.second.AsInt64()));
+                    fullDoc.append(bsoncxx::builder::basic::kvp(firstStr.GetRaw(), static_cast<std::int64_t>(kv.second.AsInt64())));
                 }
                 else if(kv.second.IsStr())
                 {
@@ -701,7 +701,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::DelData(KERNEL_NS::LibString dbName, KERNEL_
                 auto &key = kv.first;
                 if(kv.second.IsBriefData())
                 {
-                    fullKv.append(bsoncxx::builder::basic::kvp(key.GetRaw(), kv.second.AsInt64()));
+                    fullKv.append(bsoncxx::builder::basic::kvp(key.GetRaw(),  static_cast<std::int64_t>(kv.second.AsInt64())));
                 }
                 else if(kv.second.IsStr())
                 {

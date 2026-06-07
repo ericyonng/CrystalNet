@@ -75,6 +75,7 @@ private:
     KERNEL_NS::LibString _GetPluginLibraryFinalPath();
 
     void _OnTick(KERNEL_NS::LibTimer *t);
+    void _OnQuitServiceEventDefault(KERNEL_NS::LibEvent *ev) override;
 
 private:
     KERNEL_NS::LibString _hotfixKey;
@@ -90,6 +91,7 @@ private:
 
     // tick 插件集 20ms一帧
     KERNEL_NS::LibTimer *_tick;
+    bool _willQuitService;
 };
 
 SERVICE_END

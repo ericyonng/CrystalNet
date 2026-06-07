@@ -133,6 +133,7 @@ bool IService::CheckServiceModuleQuitEnd(KERNEL_NS::LibString &notEndInfo) const
 void IService::MaskServiceModuleQuitFlag(const KERNEL_NS::CompObject *comp)
 {
     _quitEndComps.insert(comp);
+    CLOG_DEBUG("service comp :%s mask quit", comp->GetObjName().c_str());
 }
 
 bool IService::IsServiceModuleQuit(const KERNEL_NS::CompObject *comp) const

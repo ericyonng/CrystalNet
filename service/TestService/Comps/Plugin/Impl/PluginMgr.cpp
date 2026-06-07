@@ -48,6 +48,7 @@ SERVICE_BEGIN
 ,_pluginGlobal(NULL)
 ,_tick(NULL)
 ,_delayRemovePluginTimer(NULL)
+,_willQuitService(false)
 {
     
 }
@@ -103,13 +104,15 @@ Int32 PluginMgr::_OnHostStart()
 void PluginMgr::_OnHostBeforeCompsWillClose()
 {
     auto shareLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
-    _WillClosePlugin(shareLibrary);
+    if(shareLibrary)
+        _WillClosePlugin(shareLibrary);
 }
 
 void PluginMgr::_OnHostBeforeCompsClose()
 {
     auto shareLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
-   _ClosePlugin(shareLibrary);
+    if(shareLibrary)
+        _ClosePlugin(shareLibrary);
 }
 
 Int32 PluginMgr::_OnGlobalSysInit()
@@ -267,8 +270,14 @@ void PluginMgr::_OnHotfixPlubin(KERNEL_NS::PollerEvent *ev)
     if(!hotfixEv->_hotfixKey.Contain(_hotfixKey))
         return;
 
+    if(_willQuitService)
+    {
+        CLOG_WARN("will quit service cant hotfix, service:%s", GetService()->ToString().c_str());
+        return;
+    }
+
     auto shareLoader = GetComp<KERNEL_NS::ShareLibraryLoader>();
-    if(shareLoader->GetLibrary() == hotfixEv->_shareLib->GetLibrary())
+    if(shareLoader && shareLoader->GetLibrary() == hotfixEv->_shareLib->GetLibrary())
     {
         CLOG_WARN("cant reload same library : %p", shareLoader->GetLibrary());
         return;
@@ -545,8 +554,21 @@ void PluginMgr::_OnAnyEvent(KERNEL_NS::LibEvent *ev)
 
 void PluginMgr::_OnDelayRemovePluginTimer(KERNEL_NS::LibTimer *t)
 {
+    auto curSharLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
+
     if(_delayRemoveInfos.empty())
     {
+        // 服务即将退出, 则标记卸载插件集完成
+        if(_willQuitService)
+        {
+            _pluginGlobal = NULL;
+            // 先移除组件
+            if(curSharLibrary)
+                PopComp(curSharLibrary);
+
+            GetService()->MaskServiceModuleQuitFlag(this);
+        }
+
         t->Cancel();
         return;
     }
@@ -563,12 +585,34 @@ void PluginMgr::_OnDelayRemovePluginTimer(KERNEL_NS::LibTimer *t)
 
         CLOG_INFO("plugin execute remove after coroutines are all completed in delay timer service:%s module id:%llu, library name:%s"
             , GetService()->ToString().c_str(), moduleId, info->_shareLibraryLoader->GetLibraryPath().c_str());
+
+        // 当前的插件集卸载了
+        if(curSharLibrary == info->_shareLibraryLoader)
+        {
+            // 先移除组件
+            _pluginGlobal = NULL;
+            if(curSharLibrary)
+                PopComp(curSharLibrary);
+
+            curSharLibrary = NULL;
+        }
         PluginDelayRemoveInfo::DeleteThreadLocal_PluginDelayRemoveInfo(info);
         _delayRemoveInfos.erase(_delayRemoveInfos.begin() + idx);
     }
 
     if(_delayRemoveInfos.empty())
     {
+        // 服务即将退出, 则标记卸载插件集完成
+        if(_willQuitService)
+        {
+            // 先移除组件
+            _pluginGlobal = NULL;
+            if(curSharLibrary)
+                PopComp(curSharLibrary);
+
+            GetService()->MaskServiceModuleQuitFlag(this);
+        }
+        
         t->Cancel();
     }
 }
@@ -659,5 +703,64 @@ void PluginMgr::_OnTick(KERNEL_NS::LibTimer *t)
     if(_pluginGlobal)
         _pluginGlobal->OnTick();
 }
+
+void PluginMgr::_OnQuitServiceEventDefault(KERNEL_NS::LibEvent *ev)
+{
+    CLOG_INFO("plugin quit service");
+
+    _willQuitService = true;
+    auto shareLoader = GetComp<KERNEL_NS::ShareLibraryLoader>();
+    if(UNLIKELY(!shareLoader))
+    {
+        CLOG_WARN("share library comp not found service:%s", GetService()->ToString().c_str());
+        return;
+    }
+    
+    // 移除信息
+    auto removeInfo = PluginDelayRemoveInfo::NewThreadLocal_PluginDelayRemoveInfo();
+    removeInfo->_pluginGlobal = _pluginGlobal;
+    removeInfo->_shareLibraryLoader = shareLoader;
+
+    // 插件集协程是否都完成了
+    auto oldPluginGlobal = removeInfo->_pluginGlobal;
+    if(oldPluginGlobal)
+    {
+        _delayRemoveInfos.push_back(removeInfo);
+
+        auto oldModuleId = oldPluginGlobal->GetPluginModuleId();
+        auto &coroutineSet = KERNEL_NS::GetCoroutineThreadLocalSet(oldModuleId);
+        if(coroutineSet.empty())
+        {
+            CLOG_INFO("plugin execute remove when coroutines are all completed service:%s module id:%llu, library name:%s quit service"
+                , GetService()->ToString().c_str(), oldModuleId, removeInfo->_shareLibraryLoader->GetLibraryPath().c_str());
+
+            _delayRemoveInfos.pop_back();
+
+            // 先移除组件
+            _pluginGlobal = NULL;
+            PopComp(shareLoader);
+            PluginDelayRemoveInfo::DeleteThreadLocal_PluginDelayRemoveInfo(removeInfo);
+
+            GetService()->MaskServiceModuleQuitFlag(this);
+        }
+        else
+        {
+            CLOG_WARN("plugin execute remove but plugin coroutine not completed, and will wait coroutine completed coroutine count:%d, oldModuleId:%llu service:%s quit service", static_cast<Int32>(coroutineSet.size()), oldModuleId, GetService()->ToString().c_str());
+            _StartDelayRemovePluginTimer();
+        }
+    }
+    else
+    {
+        // 先移除组件
+        _pluginGlobal = NULL;
+        PopComp(shareLoader);
+        
+        CLOG_INFO("plugin global not exists...");
+        PluginDelayRemoveInfo::DeleteThreadLocal_PluginDelayRemoveInfo(removeInfo);
+
+        GetService()->MaskServiceModuleQuitFlag(this);
+    }
+}
+
 
 SERVICE_END
