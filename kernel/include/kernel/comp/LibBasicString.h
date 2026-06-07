@@ -1711,7 +1711,7 @@ private:
 template <typename _Elem,
           typename _Traits,
           typename _Ax>
-ALWAYS_INLINE LibBasicString<_Elem, _Traits, _Ax>::_Base &LibBasicString<_Elem, _Traits, _Ax>::GetRaw()
+ALWAYS_INLINE typename  LibBasicString<_Elem, _Traits, _Ax>::_Base &LibBasicString<_Elem, _Traits, _Ax>::GetRaw()
 {
     return *this;
 }
@@ -1719,7 +1719,7 @@ ALWAYS_INLINE LibBasicString<_Elem, _Traits, _Ax>::_Base &LibBasicString<_Elem, 
 template <typename _Elem,
           typename _Traits,
           typename _Ax>
-ALWAYS_INLINE const LibBasicString<_Elem, _Traits, _Ax>::_Base & LibBasicString<_Elem, _Traits, _Ax>::GetRaw() const
+ALWAYS_INLINE const typename LibBasicString<_Elem, _Traits, _Ax>::_Base & LibBasicString<_Elem, _Traits, _Ax>::GetRaw() const
 {
     return *this;
 }
