@@ -136,7 +136,7 @@ KERNEL_NS::CoTask<> PluginLogic::TestAddTask()
         if(sessionMgr)
         {
             auto count = sessionMgr->GetSessionAmount();
-            CLOG_INFO_GLOBAL(PluginLogic, "service session count:%d", count);
+            CLOG_INFO_GLOBAL(PluginLogic, "service session count:%llu", count);
         }
         else
         {

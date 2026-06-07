@@ -245,12 +245,13 @@ project "TestServicePlugin"
     -- optimize
     set_optimize_opts()
 	
+    local suffix = ""
+    filter { "configurations:debug*" }
+        suffix = "_debug"
+    filter {}
+
 	-- set post build commands.
     filter { "system:windows" }
-        local suffix = ""
-        filter { "configurations:debug*" }
-            suffix = "_debug"
-        filter {}
         postbuildcommands(string.format("start %srunfirstly_scripts.bat %s %s", SCRIPT_PATH, _ACTION, suffix))
     filter {}
 
