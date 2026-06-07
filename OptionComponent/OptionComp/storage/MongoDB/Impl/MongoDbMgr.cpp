@@ -575,13 +575,15 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
             bsoncxx::builder::basic::document fullDoc;
             for(auto &kv : uniqueKv)
             {
+                auto &firstStr = kv.first;
                 if(kv.second.IsBriefData())
                 {
-                    fullDoc.append(bsoncxx::builder::basic::kvp(kv.first.GetRaw(), kv.second.AsInt64()));
+                    fullDoc.append(bsoncxx::builder::basic::kvp(firstStr.GetRaw(), kv.second.AsInt64()));
                 }
                 else if(kv.second.IsStr())
                 {
-                    fullDoc.append(bsoncxx::builder::basic::kvp(kv.first.GetRaw(), kv.second.AsStr().GetRaw()));
+                    auto &&str = kv.second.AsStr();
+                    fullDoc.append(bsoncxx::builder::basic::kvp(firstStr.GetRaw(), str.GetRaw()));
                 }
             }
 
@@ -696,13 +698,15 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::DelData(KERNEL_NS::LibString dbName, KERNEL_
             bsoncxx::builder::basic::document fullKv;
             for(auto &kv : uniqueKv)
             {
+                auto &key = kv.first;
                 if(kv.second.IsBriefData())
                 {
-                    fullKv.append(bsoncxx::builder::basic::kvp(kv.first.GetRaw(), kv.second.AsInt64()));
+                    fullKv.append(bsoncxx::builder::basic::kvp(key.GetRaw(), kv.second.AsInt64()));
                 }
                 else if(kv.second.IsStr())
                 {
-                    fullKv.append(bsoncxx::builder::basic::kvp(kv.first.GetRaw(), kv.second.AsStr().GetRaw()));
+                    auto &&str = kv.second.AsStr();
+                    fullKv.append(bsoncxx::builder::basic::kvp(key.GetRaw(), str.GetRaw()));
                 }
             }
             
