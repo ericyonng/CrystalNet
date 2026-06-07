@@ -140,7 +140,10 @@ std::set<UInt64> &GetCoroutineThreadSet(UInt64 threadId, UInt64 moduleId)
 
 std::set<UInt64> &GetCoroutineThreadLocalSet(UInt64 moduleId)
 {
-    static DEF_THREAD_LOCAL_DECLEAR std::set<UInt64> *s_Set = &GetCoroutineThreadSet(KERNEL_NS::SystemUtil::GetCurrentThreadId(), moduleId);
+    static DEF_THREAD_LOCAL_DECLEAR std::set<UInt64> *s_Set = NULL;
+    if(UNLIKELY(!s_Set))
+        s_Set = &GetCoroutineThreadSet(KERNEL_NS::SystemUtil::GetCurrentThreadId(), moduleId);
+
     return *s_Set;
 }
 

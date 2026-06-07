@@ -2038,7 +2038,12 @@ ALWAYS_INLINE void LibBasicString<_Elem, _Traits, _Ax>::remove_utf8_bomb()
 template <typename _Elem,
           typename _Traits = std::char_traits<_Elem>,
           typename _Ax = std::allocator<_Elem> >
-ALWAYS_INLINE  LibBasicString<_Elem, _Traits, _Ax> &KernelAppendFormat(LibBasicString<_Elem, _Traits, _Ax> &o, const Byte8 *fmt, ...) LIB_KERNEL_FORMAT_CHECK(2, 3)
+LibBasicString<_Elem, _Traits, _Ax> &KernelAppendFormat(LibBasicString<_Elem, _Traits, _Ax> &o, const Byte8 *fmt, ...) LIB_KERNEL_FORMAT_CHECK(2, 3);
+
+template <typename _Elem,
+          typename _Traits = std::char_traits<_Elem>,
+          typename _Ax = std::allocator<_Elem> >
+ALWAYS_INLINE  LibBasicString<_Elem, _Traits, _Ax> &KernelAppendFormat(LibBasicString<_Elem, _Traits, _Ax> &o, const Byte8 *fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
