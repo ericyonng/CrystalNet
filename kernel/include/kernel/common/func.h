@@ -157,8 +157,8 @@ public:
 
 extern KERNEL_EXPORT std::atomic<UInt64> &GetGlobalIdSrc();
 
-// 每个模块在某个cpp中自己实现 GetCrystalModuleId, 这个函数不导出符号, 以便每个模块拥有自己独立的module id
-extern UInt64 &GetCrystalModuleId();
+// 每个模块在某个cpp中自己实现 GetCrystalModuleId, 这个函数不导出符号, 以便每个模块拥有自己独立的module id, 如果要热更, so的可见性一定得是hidden,不然静态局部变量在热更后仍然是旧的值
+extern UInt64 GetCrystalModuleId();
 
 // 获取每个模块的某个std::set
 extern KERNEL_EXPORT std::set<UInt64> &GetCoroutineThreadSet(UInt64 threadId, UInt64 moduleId);

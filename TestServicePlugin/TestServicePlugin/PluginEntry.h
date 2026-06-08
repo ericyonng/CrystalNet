@@ -49,8 +49,6 @@ extern "C"
     typedef void (*SetPluginMgrPtr)(void *);
     // 获取插件集的模块id
     typedef UInt64 (*GetPluginModuleIdPtr)();
-    // 获取插件集的模块id
-    typedef UInt64 (*UpdateModuleIdPtr)();
     
     // 初始化插件集
     extern TEST_PLUGIN_EXPORT Int32 InitPlugin(void *pluginGlobal);
@@ -72,9 +70,6 @@ extern "C"
 
     // 模块id
     extern TEST_PLUGIN_EXPORT UInt64 GetPluginModuleId();
-
-    // 更新模块id
-    extern TEST_PLUGIN_EXPORT UInt64 UpdateModuleId();
 }
 
 #endif

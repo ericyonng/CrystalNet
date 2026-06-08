@@ -31,9 +31,9 @@
 
 KERNEL_BEGIN
 
-UInt64 &GetCrystalModuleId()
+UInt64 GetCrystalModuleId()
 {
-    static UInt64 id = GetGlobalIdSrc().fetch_add(1, std::memory_order_release) + 1;
+    static const UInt64 id = GetGlobalIdSrc().fetch_add(1, std::memory_order_release) + 1;
 
 // #if _DEBUG
 //     if(g_Log)

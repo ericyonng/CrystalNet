@@ -376,9 +376,9 @@ bool PluginMgr::_InitPluginModule(KERNEL_NS::ShareLibraryLoader *shareLibrary, I
         auto willClosePtr = shareLibrary->LoadSym<WillClosePluginPtr>(KERNEL_NS::LibString("WillClosePlugin"));
         auto closePluginPtr = shareLibrary->LoadSym<ClosePluginPtr>(KERNEL_NS::LibString("ClosePlugin"));
         auto setPluginMgrPtr = shareLibrary->LoadSym<SetPluginMgrPtr>(KERNEL_NS::LibString("SetPluginMgr"));
-        auto updateModuleIdPtr = shareLibrary->LoadSym<UpdateModuleIdPtr>(KERNEL_NS::LibString("UpdateModuleId"));
+        auto getPluginModuleIdPtr = shareLibrary->LoadSym<GetPluginModuleIdPtr>(KERNEL_NS::LibString("GetPluginModuleId"));
 
-        if((!initPtr) || (!startPtr) || (!startCompletePtr) || (!willClosePtr) || (!closePluginPtr) ||(!setPluginMgrPtr) || (!updateModuleIdPtr))
+        if((!initPtr) || (!startPtr) || (!startCompletePtr) || (!willClosePtr) || (!closePluginPtr) ||(!setPluginMgrPtr) || (!getPluginModuleIdPtr))
         {
             CLOG_ERROR("load sym fail");
             return false;
@@ -386,7 +386,7 @@ bool PluginMgr::_InitPluginModule(KERNEL_NS::ShareLibraryLoader *shareLibrary, I
 
         KERNEL_NS::SmartPtr<SERVICE_NS::IPluginGlobal, KERNEL_NS::AutoDelMethods::Release> pluginGlobal = PluginGlobalFactory().Create()->CastTo<IPluginGlobal>();
         // 设置模块id
-        auto moduleId = (*updateModuleIdPtr)();
+        auto moduleId = (*getPluginModuleIdPtr)();
         pluginGlobal->SetPluginModuleId(moduleId);
     
         // 设置PluginMgrPtr

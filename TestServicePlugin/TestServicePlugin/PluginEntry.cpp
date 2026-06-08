@@ -120,15 +120,4 @@ extern "C"
 #endif
         return id;
     }
-
-    UInt64 UpdateModuleId()
-    {
-        KERNEL_NS::GetCrystalModuleId() = (KERNEL_NS::GetGlobalIdSrc().fetch_add(1, std::memory_order_release) + 1);
-
-        auto newId = KERNEL_NS::GetCrystalModuleId();
-        CLOG_INFO_GLOBAL(PluginWrap, "new module id:%llu", newId);
-        return newId;
-    }
-
-
 }
