@@ -76,6 +76,7 @@ private:
 
     void _OnTick(KERNEL_NS::LibTimer *t);
     void _OnQuitServiceEventDefault(KERNEL_NS::LibEvent *ev) override;
+    void _UpdatePluginGlobal(IPluginGlobal *pluginGlobal);
 
 private:
     KERNEL_NS::LibString _hotfixKey;

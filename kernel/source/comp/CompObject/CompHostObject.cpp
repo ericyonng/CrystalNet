@@ -170,7 +170,7 @@ void CompHostObject::_OnWillClose()
 
     if(g_Log)
     {
-        CLOG_DEBUG("_OnWillClose CompHostObject %s suc", GetObjName().c_str());
+        CLOG_DEBUG("_OnWillClose CompHostObject %s suc %p", GetObjName().c_str(), this);
     }
 }
 

@@ -88,12 +88,15 @@ Int32 PluginMgr::_OnHostStart()
 {
     auto shareLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
     _pluginGlobal = NULL;
-    auto ret = _InitPluginModule(shareLibrary, _pluginGlobal);
+    IPluginGlobal *newGlobal = NULL;
+    auto ret = _InitPluginModule(shareLibrary, newGlobal);
     if(!ret)
     {
         CLOG_ERROR("plugin init fail");
         return Status::Failed;
     }
+
+    _UpdatePluginGlobal(newGlobal);
 
     _CompletePlugin(shareLibrary);
     
@@ -292,6 +295,8 @@ void PluginMgr::_OnHotfixPlubin(KERNEL_NS::PollerEvent *ev)
         return;
     }
 
+    CLOG_INFO("will hotfix old sharlib:%p => new share lib:%p, newPluginGlobal:%p", shareLoader, hotfixEv->_shareLib.AsSelf(), newPluginGlobal);
+
     if(UNLIKELY(!shareLoader))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("have no share library loader."));
@@ -305,11 +310,14 @@ void PluginMgr::_OnHotfixPlubin(KERNEL_NS::PollerEvent *ev)
     // 热更组件
     ReplaceComp(hotfixEv->_shareLib.AsSelf());
 
+    auto newShareLib = GetComp<KERNEL_NS::ShareLibraryLoader>();
+    CLOG_INFO("will hotfix after replace comp, old sharlib:%p => new share lib:%p, newShareLib:%p, newPluginGlobal:%p", shareLoader, hotfixEv->_shareLib.AsSelf(), newShareLib, newPluginGlobal);
+
     // 移除信息
     auto removeInfo = PluginDelayRemoveInfo::NewThreadLocal_PluginDelayRemoveInfo();
     removeInfo->_pluginGlobal = _pluginGlobal;
     removeInfo->_shareLibraryLoader = shareLoader;
-    _pluginGlobal = NULL;
+    _UpdatePluginGlobal(NULL);
 
     // 插件集协程是否都完成了
     auto oldPluginGlobal = removeInfo->_pluginGlobal;
@@ -339,9 +347,9 @@ void PluginMgr::_OnHotfixPlubin(KERNEL_NS::PollerEvent *ev)
     }
 
     // 必要信息打印
-    _pluginGlobal = newPluginGlobal;
+    _UpdatePluginGlobal(newPluginGlobal);
     auto newShareLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
-    g_Log->Info(LOGFMT_OBJ_TAG("New ShareLibraryLoader:%s, module id:%llu"), newShareLibrary->ToString().c_str(), _pluginGlobal->GetPluginModuleId());
+    g_Log->Info(LOGFMT_OBJ_TAG("New ShareLibraryLoader:%s, module id:%llu, _pluginGlobal:%p"), newShareLibrary->ToString().c_str(), _pluginGlobal->GetPluginModuleId(), _pluginGlobal);
 
     hotfixEv->_shareLib.pop();
     
@@ -374,14 +382,14 @@ bool PluginMgr::_InitPluginModule(KERNEL_NS::ShareLibraryLoader *shareLibrary, I
             return false;
         }
 
-        auto pluginGlobal = PluginGlobalFactory().Create()->CastTo<IPluginGlobal>();
+        KERNEL_NS::SmartPtr<SERVICE_NS::IPluginGlobal, KERNEL_NS::AutoDelMethods::Release> pluginGlobal = PluginGlobalFactory().Create()->CastTo<IPluginGlobal>();
         // 设置模块id
         auto moduleId = (*getPluginModuleIdPtr)();
         pluginGlobal->SetPluginModuleId(moduleId);
     
         // 设置PluginMgrPtr
         (*setPluginMgrPtr)(this);
-        (*setPluginGlobalPtr)(pluginGlobal);
+        (*setPluginGlobalPtr)(pluginGlobal.AsSelf());
     
         auto pluginRet = (*initPtr)();
         if(pluginRet != Status::Success)
@@ -401,8 +409,8 @@ bool PluginMgr::_InitPluginModule(KERNEL_NS::ShareLibraryLoader *shareLibrary, I
             return false;
         }
 
-        newPluginGlobal = pluginGlobal;
-        CLOG_INFO("start plugin success service:%s moduleId:%llu.", GetService()->ToString().c_str(), moduleId);
+        newPluginGlobal = pluginGlobal.pop();
+        CLOG_INFO("start plugin success service:%s moduleId:%llu library load at:%p newPluginGlobal:%p.", GetService()->ToString().c_str(), moduleId, shareLibrary->GetLibrary(), newPluginGlobal);
 
         return true;
     }
@@ -507,7 +515,7 @@ void PluginMgr::_Clear()
         _options = NULL;
     }
 
-    _pluginGlobal = NULL;
+    _UpdatePluginGlobal(NULL);
     
     if(_delayRemovePluginTimer)
         KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(_delayRemovePluginTimer);
@@ -561,7 +569,9 @@ void PluginMgr::_OnDelayRemovePluginTimer(KERNEL_NS::LibTimer *t)
         // 服务即将退出, 则标记卸载插件集完成
         if(_willQuitService)
         {
-            _pluginGlobal = NULL;
+            CLOG_INFO("delay remove info empty and will quit service");
+            
+            _UpdatePluginGlobal(NULL);
             // 先移除组件
             if(curSharLibrary)
                 PopComp(curSharLibrary);
@@ -583,14 +593,22 @@ void PluginMgr::_OnDelayRemovePluginTimer(KERNEL_NS::LibTimer *t)
         if(!tlsSet.empty())
             continue;
 
-        CLOG_INFO("plugin execute remove after coroutines are all completed in delay timer service:%s module id:%llu, library name:%s"
-            , GetService()->ToString().c_str(), moduleId, info->_shareLibraryLoader->GetLibraryPath().c_str());
+        CLOG_INFO("plugin execute remove after coroutines are all completed in delay timer service:%s module id:%llu, library name:%s, library loaded at:%p, plugin global:%p, _shareLibraryLoader:%p, curSharLibrary:%p"
+            , GetService()->ToString().c_str(), moduleId, info->_shareLibraryLoader->GetLibraryPath().c_str(), info->_shareLibraryLoader->GetLibrary(), info->_pluginGlobal, info->_shareLibraryLoader, curSharLibrary);
 
+        // 卸载了当前的PluginGlobal
+        if (_pluginGlobal == info->_pluginGlobal)
+        {
+            CLOG_INFO("delay removed pluginglobal:%p, _shareLibraryLoader:%p", _pluginGlobal, info->_shareLibraryLoader);
+            _UpdatePluginGlobal(NULL);
+        }
+        
         // 当前的插件集卸载了
         if(curSharLibrary == info->_shareLibraryLoader)
         {
+            CLOG_INFO("delay remove cur share library and will set null to plugin global shareLib:%p, ", info->_shareLibraryLoader);
             // 先移除组件
-            _pluginGlobal = NULL;
+            _UpdatePluginGlobal(NULL);
             if(curSharLibrary)
                 PopComp(curSharLibrary);
 
@@ -605,8 +623,9 @@ void PluginMgr::_OnDelayRemovePluginTimer(KERNEL_NS::LibTimer *t)
         // 服务即将退出, 则标记卸载插件集完成
         if(_willQuitService)
         {
+            CLOG_INFO("delay remove info empty and will quit service and update plugin global to null");
             // 先移除组件
-            _pluginGlobal = NULL;
+            _UpdatePluginGlobal(NULL);
             if(curSharLibrary)
                 PopComp(curSharLibrary);
 
@@ -717,6 +736,7 @@ void PluginMgr::_OnQuitServiceEventDefault(KERNEL_NS::LibEvent *ev)
     }
     
     // 移除信息
+    CLOG_INFO("will quit service and will let plugin global and cur share library remove...");
     auto removeInfo = PluginDelayRemoveInfo::NewThreadLocal_PluginDelayRemoveInfo();
     removeInfo->_pluginGlobal = _pluginGlobal;
     removeInfo->_shareLibraryLoader = shareLoader;
@@ -731,13 +751,13 @@ void PluginMgr::_OnQuitServiceEventDefault(KERNEL_NS::LibEvent *ev)
         auto &coroutineSet = KERNEL_NS::GetCoroutineThreadLocalSet(oldModuleId);
         if(coroutineSet.empty())
         {
-            CLOG_INFO("plugin execute remove when coroutines are all completed service:%s module id:%llu, library name:%s quit service"
-                , GetService()->ToString().c_str(), oldModuleId, removeInfo->_shareLibraryLoader->GetLibraryPath().c_str());
+            CLOG_INFO("plugin execute remove when coroutines are all completed service:%s module id:%llu, library name:%s quit service, sharelib:%p, load at:%p, plugin global:%p"
+                , GetService()->ToString().c_str(), oldModuleId, removeInfo->_shareLibraryLoader->GetLibraryPath().c_str(), removeInfo->_shareLibraryLoader, removeInfo->_shareLibraryLoader->GetLibrary(), removeInfo->_pluginGlobal);
 
             _delayRemoveInfos.pop_back();
 
             // 先移除组件
-            _pluginGlobal = NULL;
+            _UpdatePluginGlobal(NULL);
             PopComp(shareLoader);
             PluginDelayRemoveInfo::DeleteThreadLocal_PluginDelayRemoveInfo(removeInfo);
 
@@ -745,14 +765,15 @@ void PluginMgr::_OnQuitServiceEventDefault(KERNEL_NS::LibEvent *ev)
         }
         else
         {
-            CLOG_WARN("plugin execute remove but plugin coroutine not completed, and will wait coroutine completed coroutine count:%d, oldModuleId:%llu service:%s quit service", static_cast<Int32>(coroutineSet.size()), oldModuleId, GetService()->ToString().c_str());
+            CLOG_WARN("plugin execute remove but plugin coroutine not completed, and will wait coroutine completed coroutine count:%d, oldModuleId:%llu service:%s quit service sharelib:%p, load at:%p, plugin global:%p"
+                , static_cast<Int32>(coroutineSet.size()), oldModuleId, GetService()->ToString().c_str(), removeInfo->_shareLibraryLoader, removeInfo->_shareLibraryLoader->GetLibrary(), removeInfo->_pluginGlobal);
             _StartDelayRemovePluginTimer();
         }
     }
     else
     {
         // 先移除组件
-        _pluginGlobal = NULL;
+        _UpdatePluginGlobal(NULL);
         PopComp(shareLoader);
         
         CLOG_INFO("plugin global not exists...");
@@ -760,6 +781,13 @@ void PluginMgr::_OnQuitServiceEventDefault(KERNEL_NS::LibEvent *ev)
 
         GetService()->MaskServiceModuleQuitFlag(this);
     }
+}
+
+void PluginMgr::_UpdatePluginGlobal(IPluginGlobal *pluginGlobal)
+{
+    auto oldGlobal = _pluginGlobal;
+    _pluginGlobal = pluginGlobal;
+    CLOG_DEBUG("_UpdatePluginGlobal %p => %p", oldGlobal, _pluginGlobal);
 }
 
 
