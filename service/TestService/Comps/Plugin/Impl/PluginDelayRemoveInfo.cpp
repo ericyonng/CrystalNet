@@ -61,6 +61,13 @@ PluginDelayRemoveInfo::~PluginDelayRemoveInfo()
                 (*closePtr)(_pluginGlobal);
             }
 
+            if (_pluginGlobal)
+            {
+                _pluginGlobal->WillClose();
+                _pluginGlobal->Close();
+                _pluginGlobal->Release();
+            }
+            
             _shareLibraryLoader->WillClose();
             _shareLibraryLoader->Close();
             _shareLibraryLoader->Release();
@@ -73,13 +80,6 @@ PluginDelayRemoveInfo::~PluginDelayRemoveInfo()
     catch (...)
     {
         CLOG_ERROR("unknown exception in PluginDelayRemoveInfo::PluginDelayRemoveInfo");
-    }
-
-    if (_pluginGlobal)
-    {
-        _pluginGlobal->WillClose();
-        _pluginGlobal->Close();
-        _pluginGlobal->Release();
     }
     
     _pluginGlobal = NULL;

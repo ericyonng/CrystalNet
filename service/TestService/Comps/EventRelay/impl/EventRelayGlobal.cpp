@@ -233,7 +233,6 @@ void EventRelayGlobal::_EventFromUserToGlobal(KERNEL_NS::LibEvent *ev)
 
     _DisableFromRelayToUser(userId, ev->GetId());
 
-    auto flag = ev->IsDontDelAfterFire();
     ev->DisableDelAfterFire();
     GetEventMgr()->FireEvent(ev);
     ev->EnableDelAfterFire();
