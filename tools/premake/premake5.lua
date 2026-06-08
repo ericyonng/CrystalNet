@@ -159,6 +159,11 @@ project "TestServicePlugin"
     --     defines{"TEST_PLUGIN_STATIC_LIB"}
     -- end
 
+    -- hidden是隐藏符号，符号不会导出
+    filter { "system:not windows" }
+        buildoptions { "-fvisibility=hidden" }
+    filter {}
+
     if ISUSE_STORAGE then
 	    defines {"CRYSTAL_STORAGE_ENABLE"}
     end

@@ -84,7 +84,7 @@ KERNEL_NS::LibTimer *PluginGlobal::AddTimer()
 
 void PluginGlobal::TestHello(const KERNEL_NS::LibString &content) const
 {
-    CLOG_INFO("PluginGlobal::TestHello content:%s", content.c_str());
+    CLOG_INFO("PluginGlobal::TestHello content:%s, this:%p", content.c_str(), this);
 }
 
 // 设置模块id
