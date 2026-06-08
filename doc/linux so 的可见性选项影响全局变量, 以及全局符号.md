@@ -75,3 +75,21 @@ hidden 后:
 ```
 
 这就是为什么 `-fvisibility=hidden` 是完整的解决方案——它不光解决函数符号冲突，**数据符号冲突也一并解决**。新 so 中所有内部符号（函数、全局变量、静态变量、thread_local）都完全独立，不与旧 so 产生任何符号冲突。
+
+
+
+所有的程序都要默认隐藏符号, 避免污染全局符号表 （避免走 PLT/GOT）， 因为同一个符号可能有不同版本的实现，建议如果没有导出符号的需求就默认隐藏不要默认导出
+
+  -- hidden是隐藏符号，符号默认不会导出
+
+  filter { "system:not windows" }
+
+​    buildoptions { "-fvisibility=hidden" }
+
+  filter {}
+
+
+
+hidden的话就是默认不导出，如果so中需要使用到其他模块的符号，那么不建议默认hidden而是对一些不想导出的函数hidden
+
+链接是 加 -rdynamic, -rdynamic会把可执行文件中所有非hidden符号放入动态符号表

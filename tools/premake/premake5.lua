@@ -306,11 +306,6 @@ project "testsuit"
         "CrystalKernel",
     }
 
-    -- hidden是隐藏符号，符号默认不会导出
-    filter { "system:not windows" }
-        buildoptions { "-fvisibility=hidden" }
-    filter {}
-
     -- filter {"system:windows"}
     --     dependson {
     --         "TestServicePlugin",

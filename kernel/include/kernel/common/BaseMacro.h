@@ -76,6 +76,14 @@ CRYSTAL_NET_BEGIN                                       \
 #undef ALWAYS_INLINE
 #define ALWAYS_INLINE CRYSTAL_FORCE_INLINE
 
+// 隐藏符号
+#undef ALWAYS_HIDDEN
+#if defined(_MSC_VER)
+#define ALWAYS_HIDDEN
+#else
+ #define ALWAYS_HIDDEN __attribute__((visibility("hidden")))
+#endif
+
 // 禁用内联
 #undef FORBID_INLINE
 #if defined(_MSC_VER)

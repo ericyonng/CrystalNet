@@ -104,7 +104,7 @@ std::atomic<UInt64> &GetGlobalIdSrc()
     return s_id;
 }
 
-UInt64 GetCrystalModuleId()
+ALWAYS_HIDDEN UInt64 GetCrystalModuleId()
 {
     static const UInt64 id = GetGlobalIdSrc().fetch_add(1, std::memory_order_release) + 1;
 
