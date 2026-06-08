@@ -28,7 +28,12 @@ project "CrystalKernel"
 	-- 设置通用选项
     set_common_options()
 	
-	-- includedirs
+    -- hidden是隐藏符号，符号默认不会导出
+    filter { "system:not windows" }
+        buildoptions { "-fvisibility=hidden" }
+    filter {}
+	
+    -- includedirs
     includedirs {
 		"../../",
 		"../../kernel/include/",

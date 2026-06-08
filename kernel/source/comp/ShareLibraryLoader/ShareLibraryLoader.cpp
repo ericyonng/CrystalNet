@@ -67,7 +67,7 @@ Int32 ShareLibraryLoader::Load(const LibString &libraryPath)
 
     void *newLibrary = NULL;
 #if CRYSTAL_TARGET_PLATFORM_LINUX
-    newLibrary = dlopen(libraryPath.c_str(), RTLD_NOW | RTLD_GLOBAL);
+    newLibrary = dlopen(libraryPath.c_str(), RTLD_NOW | RTLD_LOCAL);
     if(!newLibrary)
     {
         g_Log->Error(LOGFMT_OBJ_TAG("dlopen fail err:%s, library path:%s."), dlerror(), libraryPath.c_str());
