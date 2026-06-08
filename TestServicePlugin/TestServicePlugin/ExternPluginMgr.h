@@ -34,7 +34,4 @@
 
 extern DEF_THREAD_LOCAL_DECLEAR SERVICE_NS::IPluginMgr *g_PluginMgr;
 
-// 插件集的全局对象每个线程一个, 在插件集初始化的时候初始化, 结束时释放
-extern DEF_THREAD_LOCAL_DECLEAR SERVICE_NS::IPluginGlobal *g_PluginGlobal;
-
 #endif

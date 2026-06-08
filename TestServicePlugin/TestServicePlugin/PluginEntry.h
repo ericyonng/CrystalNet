@@ -36,43 +36,45 @@ class IPluginMgr;
 extern "C"
 {
     // 入口方法 比较重的任务不允许放在插件集启动, 应该放在程序集(因为如果比较久, 会卡住线程影响业务)
-    typedef Int32 (*InitPluginPtr)();
+    typedef Int32 (*InitPluginPtr)(void *);
     // 插件集启动 比较重的任务不允许放在插件集启动, 应该放在程序集(因为如果比较久, 会卡住线程影响业务)
-    typedef Int32 (*StartPluginPtr)();
+    typedef Int32 (*StartPluginPtr)(void *);
     // 启动完成 比较重的任务不允许放在插件集启动, 应该放在程序集(因为如果比较久, 会卡住线程影响业务)
-    typedef void (*StartPluginCompletePtr)();
+    typedef void (*StartPluginCompletePtr)(void *);
     // 插件集即将关闭 比较重的任务不允许放在插件集结束, 应该放在程序集(因为如果比较久, 会卡住线程影响业务)
-    typedef void (*WillClosePluginPtr)();
+    typedef void (*WillClosePluginPtr)(void *);
     // 插件集关闭 比较重的任务不允许放在插件集结束, 应该放在程序集(因为如果比较久, 会卡住线程影响业务)
-    typedef void (*ClosePluginPtr)();
+    typedef void (*ClosePluginPtr)(void *);
     // 设置插件集对象
     typedef void (*SetPluginMgrPtr)(void *);
-    typedef void (*SetPluginGlobalPtr)(void *);
     // 获取插件集的模块id
     typedef UInt64 (*GetPluginModuleIdPtr)();
+    // 获取插件集的模块id
+    typedef UInt64 (*UpdateModuleIdPtr)();
     
     // 初始化插件集
-    extern TEST_PLUGIN_EXPORT Int32 InitPlugin();
+    extern TEST_PLUGIN_EXPORT Int32 InitPlugin(void *pluginGlobal);
 
     // 启动插件集
-    extern TEST_PLUGIN_EXPORT Int32 StartPlugin();
+    extern TEST_PLUGIN_EXPORT Int32 StartPlugin(void *pluginGlobal);
 
     // 插件集启动完成
-    extern TEST_PLUGIN_EXPORT void StartPluginComplete();
+    extern TEST_PLUGIN_EXPORT void StartPluginComplete(void *pluginGlobal);
 
     // 预关闭插件集
-    extern TEST_PLUGIN_EXPORT void WillClosePlugin();
+    extern TEST_PLUGIN_EXPORT void WillClosePlugin(void *pluginGlobal);
 
     // 释放插件集
-    extern TEST_PLUGIN_EXPORT void ClosePlugin();
+    extern TEST_PLUGIN_EXPORT void ClosePlugin(void *pluginGlobal);
 
     // 设置对象
     extern TEST_PLUGIN_EXPORT void SetPluginMgr(void *pluginMgr);
-    // 由插件集自己销毁
-    extern TEST_PLUGIN_EXPORT void SetPluginGlobal(void *pluginGlobal);
 
     // 模块id
     extern TEST_PLUGIN_EXPORT UInt64 GetPluginModuleId();
+
+    // 更新模块id
+    extern TEST_PLUGIN_EXPORT UInt64 UpdateModuleId();
 }
 
 #endif

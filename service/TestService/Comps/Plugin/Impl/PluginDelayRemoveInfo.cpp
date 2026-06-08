@@ -30,9 +30,10 @@
 #include <TestServicePlugin/TestServicePlugin.h>
 #include <kernel/comp/Log/log.h>
 
-SERVICE_BEGIN
+#include "Comps/Plugin/Interface/IPluginGlobal.h"
 
-PluginDelayRemoveInfo::PluginDelayRemoveInfo()
+SERVICE_BEGIN
+    PluginDelayRemoveInfo::PluginDelayRemoveInfo()
     :_shareLibraryLoader(NULL)
     ,_pluginGlobal(NULL)
 
@@ -42,7 +43,6 @@ PluginDelayRemoveInfo::PluginDelayRemoveInfo()
 
 PluginDelayRemoveInfo::~PluginDelayRemoveInfo()
 {
-    _pluginGlobal = NULL;
     try
     {
         if(_shareLibraryLoader)
@@ -51,14 +51,14 @@ PluginDelayRemoveInfo::~PluginDelayRemoveInfo()
             if(willClosePtr)
             {
                 CLOG_INFO("will close plugin...");
-                (*willClosePtr)();
+                (*willClosePtr)(_pluginGlobal);
             }
 
             auto closePtr = _shareLibraryLoader->LoadSym<ClosePluginPtr>(KERNEL_NS::LibString("ClosePlugin"));
             if(closePtr)
             {
                 CLOG_INFO("close plugin...");
-                (*closePtr)();
+                (*closePtr)(_pluginGlobal);
             }
 
             _shareLibraryLoader->WillClose();
@@ -74,6 +74,15 @@ PluginDelayRemoveInfo::~PluginDelayRemoveInfo()
     {
         CLOG_ERROR("unknown exception in PluginDelayRemoveInfo::PluginDelayRemoveInfo");
     }
+
+    if (_pluginGlobal)
+    {
+        _pluginGlobal->WillClose();
+        _pluginGlobal->Close();
+        _pluginGlobal->Release();
+    }
+    
+    _pluginGlobal = NULL;
 }
 
 void PluginDelayRemoveInfo::Release()

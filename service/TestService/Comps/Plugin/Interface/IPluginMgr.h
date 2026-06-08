@@ -31,13 +31,17 @@
 
 SERVICE_BEGIN
 
+class IPluginGlobal;
+
 class IPluginMgr : public IGlobalSys
 {
     POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, IPluginMgr);
 
 public:
     IPluginMgr(UInt64 objTypeId) : IGlobalSys(objTypeId) {}
-    
+
+    virtual IPluginGlobal *GetCurPluginGlobal() = 0;
+    virtual const IPluginGlobal *GetCurPluginGlobal() const = 0;
 };
 
 SERVICE_END

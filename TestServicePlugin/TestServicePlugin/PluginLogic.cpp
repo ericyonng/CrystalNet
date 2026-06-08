@@ -28,21 +28,24 @@
 #include <TestServicePlugin/PluginLogic.h>
 #include <kernel/comp/Log/log.h>
 #include <TestService/Common/ServiceCommon.h>
-#include <TestServicePlugin/ExternPluginMgr.h>
 #include <kernel/comp/Event/event_inc.h>
 #include <service/common/BaseComps/SessionMgrComp/SessionMgr.h>
 #include <TestServicePlugin/PluginEntry.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
+#include <Comps/Plugin/Plugin.h>
+
+#include "ExternPluginMgr.h"
 
 
-void PluginLogic::OnPluginStartup()
+void PluginLogic::OnPluginStartup(SERVICE_NS::IPluginGlobal *pluginGlobal)
 {
     CLOG_INFO_GLOBAL(PluginLogic, "OnPluginStartup");
 
     // 监听事件
-    g_PluginGlobal->GetEventManager()->AddListener(EventEnums::TEST_PLUGIN_EVENT, &PluginLogic::OnPluginTestEvent);
+    pluginGlobal->GetEventManager()->AddListener(EventEnums::TEST_PLUGIN_EVENT, &PluginLogic::OnPluginTestEvent);
 
     // tick
-    auto timer = g_PluginGlobal->AddTimer();
+    auto timer = pluginGlobal->AddTimer();
     timer->SetTimeOutHandler(&PluginLogic::OnPluginTestTimer);
     timer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(5));
 
@@ -67,18 +70,18 @@ void PluginLogic::OnPluginTestEvent(KERNEL_NS::LibEvent *ev)
 {
     CLOG_INFO_GLOBAL(PluginLogic, "OnPluginTestEvent");
 
-    g_PluginGlobal->GetEventManager()->AddListener(EventEnums::TEST_PLUGIN_EVENT2, &PluginLogic::OnPluginTestEvent2);
+    g_PluginMgr->GetCurPluginGlobal()->GetEventManager()->AddListener(EventEnums::TEST_PLUGIN_EVENT2, &PluginLogic::OnPluginTestEvent2);
     auto ev2 = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::TEST_PLUGIN_EVENT2);
-    g_PluginGlobal->GetEventManager()->FireEvent(ev2);
+    g_PluginMgr->GetCurPluginGlobal()->GetEventManager()->FireEvent(ev2);
 }
 
 void PluginLogic::OnPluginTestEvent2(KERNEL_NS::LibEvent *ev)
 {
     CLOG_INFO_GLOBAL(PluginLogic, "OnPluginTestEvent2");
 
-    g_PluginGlobal->GetEventManager()->AddListener(EventEnums::TEST_PLUGIN_EVENT3, &PluginLogic::OnPluginTestEvent3);
+    g_PluginMgr->GetCurPluginGlobal()->GetEventManager()->AddListener(EventEnums::TEST_PLUGIN_EVENT3, &PluginLogic::OnPluginTestEvent3);
     auto ev3 = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::TEST_PLUGIN_EVENT3);
-    g_PluginGlobal->GetEventManager()->FireEvent(ev3);
+    g_PluginMgr->GetCurPluginGlobal()->GetEventManager()->FireEvent(ev3);
     CLOG_INFO_GLOBAL(PluginLogic, "OnPluginTestEvent2");
 }
 
@@ -102,7 +105,7 @@ void PluginLogic::OnPluginTestTimer(KERNEL_NS::LibTimer *t)
 {
     KERNEL_NS::LibString info;
     info.AppendFormat("=> plugin test timer 9963 service:%s", g_PluginMgr->GetService()->ToString().c_str());
-    g_PluginGlobal->TestHello(info);
+    g_PluginMgr->GetCurPluginGlobal()->TestHello(info);
 
     if(!IsTestAddTas())
     {

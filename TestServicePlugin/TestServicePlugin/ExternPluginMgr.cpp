@@ -29,13 +29,11 @@
 
 DEF_THREAD_LOCAL_DECLEAR SERVICE_NS::IPluginMgr *g_PluginMgr = NULL;
 
-DEF_THREAD_LOCAL_DECLEAR SERVICE_NS::IPluginGlobal *g_PluginGlobal = NULL;
-
 KERNEL_BEGIN
 
-UInt64 GetCrystalModuleId()
+UInt64 &GetCrystalModuleId()
 {
-    static const UInt64 id = GetGlobalIdSrc().fetch_add(1, std::memory_order_release) + 1;
+    static UInt64 id = GetGlobalIdSrc().fetch_add(1, std::memory_order_release) + 1;
 
 // #if _DEBUG
 //     if(g_Log)
