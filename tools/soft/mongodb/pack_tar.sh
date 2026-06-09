@@ -3,6 +3,13 @@
 # 打包脚本
 # pack_tar.sh tmp_dir 源文件路径 TGZ_FILE_NAME
 
+# 当前脚本路径
+PACK_TAR_SCRIPT_PATH="$(cd $(dirname $0); pwd)"
+
+# 加载公共函数(用于 safe_rm_rf)
+. ${PACK_TAR_SCRIPT_PATH}/common/common_define.sh
+. ${PACK_TAR_SCRIPT_PATH}/common/funcs.sh
+
 # 参数
 TMP_DIR=$1
 SRC_PATH=$2
@@ -25,11 +32,11 @@ if [ -z "${TGZ_FILE_NAME}" ]; then
 fi
 
 # 打包构建环境所需的文件
-rm -rf ${TMP_DIR}
-mkdir ${TMP_DIR}
+safe_rm_rf "${TMP_DIR}"
+mkdir -p "${TMP_DIR}"
 
 echo "打包需要的文件 => ${TMP_DIR} ..."
-cd ${SRC_PATH} && tar -zcvf ${TMP_DIR}/${TGZ_FILE_NAME} ./* || {
+cd "${SRC_PATH}" && tar -zcvf "${TMP_DIR}/${TGZ_FILE_NAME}" ./* || {
     echo "错误： tar fail SRC_PATH:${SRC_PATH} fail TGZ_FILE_NAME:${TGZ_FILE_NAME} 失败" >&2
     exit 1
 }

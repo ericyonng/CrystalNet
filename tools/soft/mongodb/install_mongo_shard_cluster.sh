@@ -270,6 +270,12 @@ for ip in "${!ALL_IPS[@]}"; do
     else
         if [ -z "${is_ip_init_dict[$ip]}" ]; then
             echo "remote: ${ip}: 创建目录: TMP_DIR:${TMP_DIR} ..."
+            # 安全检查: 确保路径深度足够(至少2层)，防止误删危险目录
+            TMP_DIR_DEPTH=$(echo "${TMP_DIR}" | tr -cd '/' | wc -c)
+            if [ ${TMP_DIR_DEPTH} -lt 2 ] || [ -z "${TMP_DIR}" ]; then
+                echo "错误： TMP_DIR 路径不安全: ${TMP_DIR}" >&2
+                exit 1
+            fi
             ssh root@${ip} "rm -rf ${TMP_DIR}" || {
                 echo "错误： 移除 ${TMP_DIR} 失败" >&2
                 exit 1

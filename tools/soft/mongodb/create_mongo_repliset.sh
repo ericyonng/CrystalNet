@@ -58,8 +58,8 @@ echo "PRIMARY_IP:${PRIMARY_IP}, ${PRIMARY_PORT}"
 
 # 先切换到执行目录
 TEMP_DIR=${SCRIPT_PATH}/TEMP_DIR
-rm -rf ${TEMP_DIR}
-mkdir ${TEMP_DIR}
+safe_rm_rf "${TEMP_DIR}"
+mkdir "${TEMP_DIR}"
 
 # host name 必须正常
 # hostname
@@ -106,9 +106,9 @@ fi
 # 创建目录
 if [ -e "${REPLISET_INSTALL_PATH}" ]; then
     echo "will remove exists dir:${REPLISET_INSTALL_PATH} ..."
-    rm -rf ${REPLISET_INSTALL_PATH}
+    safe_rm_rf "${REPLISET_INSTALL_PATH}"
 fi
-mkdir ${REPLISET_INSTALL_PATH}
+mkdir -p "${REPLISET_INSTALL_PATH}"
 
 # 生成keyfile
 KEYFILE_PATH=${TEMP_DIR}/keyfile

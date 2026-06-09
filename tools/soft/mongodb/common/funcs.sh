@@ -491,3 +491,42 @@ parse_host_port() {
         eval "${out_port_var}=\"${host_port_str##*:}\""
     fi
 }
+
+##############################
+# 安全删除函数: 防止 rm -rf 误删危险路径
+# $1: 要删除的路径
+# 返回: 0=成功, 1=拒绝删除(危险路径或空路径)
+##############################
+safe_rm_rf() {
+    local target_path="$1"
+
+    # 检查路径非空
+    if [ -z "${target_path}" ]; then
+        echo "错误: safe_rm_rf 拒绝删除空路径!" >&2
+        return 1
+    fi
+
+    # 去除末尾斜杠，统一格式
+    local normalized_path="${target_path%/}"
+
+    # 危险路径黑名单: 禁止删除的系统关键目录
+    local dangerous_paths="/ /root /home /etc /usr /var /opt /boot /sys /proc /bin /sbin /lib /tmp"
+    for dp in ${dangerous_paths}; do
+        if [ "${normalized_path}" = "${dp}" ]; then
+            echo "错误: safe_rm_rf 拒绝删除危险路径: ${target_path}!" >&2
+            return 1
+        fi
+    done
+
+    # 路径深度检查: 至少2层 (如 /root/xxx 可以, /root 不行)
+    local depth=$(echo "${normalized_path}" | tr -cd '/' | wc -c)
+    if [ ${depth} -lt 2 ]; then
+        echo "错误: safe_rm_rf 拒绝删除路径(深度不足): ${target_path}!" >&2
+        return 1
+    fi
+
+    # 执行前打印日志
+    echo "safe_rm_rf: 即将删除 ${target_path}"
+    rm -rf "${target_path}"
+    return $?
+}

@@ -9,6 +9,10 @@
 # 当前脚本路径
 SCRIPT_PATH="$(cd $(dirname $0); pwd)"
 
+# 加载公共函数(用于 safe_rm_rf)
+. ${SCRIPT_PATH}/common/common_define.sh
+. ${SCRIPT_PATH}/common/funcs.sh
+
 # IP列表文件
 IP_LIST_FILE=$1
 TARGET_USER=$2
@@ -32,13 +36,13 @@ INSTALL_PATH=/root/mongo_install
 REPLISET_INSTALL_PATH=/root/Mongo_${DB_NAME}_ReplisetWorkPlace/
 
 if [ -e "${WORK_PATH}" ]; then
-    cd ${WORK_PATH} && rm -rf ${WORK_PATH}
+    safe_rm_rf "${WORK_PATH}"
 fi
 if [ -e "${INSTALL_PATH}" ]; then
-    cd ${INSTALL_PATH} && rm -rf ${INSTALL_PATH}
+    safe_rm_rf "${INSTALL_PATH}"
 fi
 if [ -e "${REPLISET_INSTALL_PATH}" ]; then
-    cd ${REPLISET_INSTALL_PATH} && rm -rf ${REPLISET_INSTALL_PATH}
+    safe_rm_rf "${REPLISET_INSTALL_PATH}"
 fi
 
 echo "${IP_LIST_FILE}, ${TARGET_USER}, ${TARGET_PWD}, ${DB_NAME}, ${RS_NAME}, ${WORK_PATH}, ${INSTALL_PATH}, ${REPLISET_INSTALL_PATH}"

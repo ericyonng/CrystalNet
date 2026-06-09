@@ -19,17 +19,30 @@ INSTALL_MONGOSH_TGZ_NAME=${INSTALL_MONGOSH_NAME}.tgz
 INSTALL_INSTALL_PATH=$1
 INSTALL_SOURCE_PATH=${INSTALL_SCRIPT_PATH}
 
+# 加载公共函数(用于 safe_rm_rf)
+. ${INSTALL_SCRIPT_PATH}/common/common_define.sh
+. ${INSTALL_SCRIPT_PATH}/common/funcs.sh
+
 # 创建临时目录
-rm -rf ${INSTALL_TEMP_DIR}
-mkdir ${INSTALL_TEMP_DIR}
+safe_rm_rf "${INSTALL_TEMP_DIR}"
+mkdir -p "${INSTALL_TEMP_DIR}"
 
 # 安装路径必须是绝对路径
 if [ -d "${INSTALL_INSTALL_PATH}" ]; then
-    INSTALL_INSTALL_PATH="$(cd ${INSTALL_INSTALL_PATH}; pwd)"
+    INSTALL_INSTALL_PATH="$(cd "${INSTALL_INSTALL_PATH}" && pwd)" || {
+        echo "错误：cd 到 ${INSTALL_INSTALL_PATH} 失败" >&2
+        exit 1
+    }
     echo "will install path:${INSTALL_INSTALL_PATH},  current path:$(pwd)"
 else
-    mkdir ${INSTALL_INSTALL_PATH}
-    INSTALL_INSTALL_PATH="$(cd ${INSTALL_INSTALL_PATH}; pwd)"
+    mkdir -p "${INSTALL_INSTALL_PATH}" || {
+        echo "错误：创建 ${INSTALL_INSTALL_PATH} 失败" >&2
+        exit 1
+    }
+    INSTALL_INSTALL_PATH="$(cd "${INSTALL_INSTALL_PATH}" && pwd)" || {
+        echo "错误：cd 到 ${INSTALL_INSTALL_PATH} 失败" >&2
+        exit 1
+    }
     echo "created install path:${INSTALL_INSTALL_PATH}, current path:$(pwd)"
 fi
 
@@ -60,8 +73,8 @@ else
 fi
 
 # 解压到目标文件夹
-rm -rf ${INSTALL_INSTALL_PATH}
-mkdir ${INSTALL_INSTALL_PATH}
+safe_rm_rf "${INSTALL_INSTALL_PATH}"
+mkdir -p "${INSTALL_INSTALL_PATH}"
 
 # 目标包路径
 TARGET_MONGO_PATH=${INSTALL_INSTALL_PATH}/${INSTALL_MONGODB_NAME}
