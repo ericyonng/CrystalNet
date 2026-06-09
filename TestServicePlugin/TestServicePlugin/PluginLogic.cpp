@@ -104,7 +104,7 @@ KERNEL_NS::CoTask<Int32> PluginLogic::GetRandInt()
 void PluginLogic::OnPluginTestTimer(KERNEL_NS::LibTimer *t)
 {
     KERNEL_NS::LibString info;
-    info.AppendFormat("=> plugin test timer 9963 service:%s", g_PluginMgr->GetService()->ToString().c_str());
+    info.AppendFormat("=> plugin test timer dasfa service:%s", g_PluginMgr->GetService()->ToString().c_str());
     g_PluginMgr->GetCurPluginGlobal()->TestHello(info);
 
     if(!IsTestAddTas())

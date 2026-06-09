@@ -26,7 +26,7 @@ project "CrystalKernel"
 	enable_precompileheader("pch.h", KERNEL_HEADER_DIR .. "pch.cpp")
 
 	-- 设置通用选项
-    set_common_options()
+    set_common_options(nil, true)
 	
     -- includedirs
     includedirs {

@@ -34,6 +34,7 @@
 #include <service_common/common/macro.h>
 #include <kernel/comp/LibString.h>
 #include <atomic>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 
 SERVICE_COMMON_BEGIN
 
@@ -55,12 +56,26 @@ SERVICE_COMMON_BEGIN
 
 struct ApplicationConfig
 {
+    POOL_CREATE_OBJ_DEFAULT(ApplicationConfig);
+    
     // 别名
     KERNEL_NS::LibString AliasName;
     // 主服务
     KERNEL_NS::LibString ProjectMainServiceName;
     // 禁用控制台监控信息
     bool DisableConsoleMonitorInfo;
+
+    // 创建自己
+    static ApplicationConfig *CreateNewObj(ApplicationConfig &&cfg)
+    {
+        return ApplicationConfig::New_ApplicationConfig(std::move(cfg));
+    }
+
+    // 释放自己
+    void Release()
+    {
+        ApplicationConfig::Delete_ApplicationConfig(this);
+    }
 };
 
 SERVICE_COMMON_END

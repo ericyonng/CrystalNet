@@ -260,6 +260,12 @@ project "TestServicePlugin"
         postbuildcommands(string.format("start %srunfirstly_scripts.bat %s %s", SCRIPT_PATH, _ACTION, suffix))
     filter {}
 
+    	-- post build(linux)
+	filter { "system:linux", "configurations:release*"}
+	postbuildmessage "Generation hotfix so with timestamp ..."
+	postbuildcommands(string.format("sh %splugin_building.sh %s %s .so",  SCRIPT_PATH, SCRIPT_PATH, targetprefix() .. targetname() .. targetsuffix()))
+	filter {}
+
 -- ****************************************************************************
 
 -- 构造包含路径

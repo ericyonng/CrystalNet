@@ -23,6 +23,9 @@
 // Date: 2026-06-02 23:06:04
 // Author: Eric Yonng
 // Description:
+// 1.windows 下 使用std::getline监听控制台
+// 2.linux 下则监听文件
+
 
 #ifndef __CRYSTAL_NET_OPTION_COMPONENT_IMPL_COMMAND_MGR_H__
 #define __CRYSTAL_NET_OPTION_COMPONENT_IMPL_COMMAND_MGR_H__
@@ -30,6 +33,7 @@
 #pragma once
 
 #include <OptionComp/Command/Interface/ICommandMgr.h>
+#include <kernel/comp/Coroutines/CoTask.h>
 
 KERNEL_BEGIN
 
@@ -58,6 +62,7 @@ public:
     virtual void Release() override;
     virtual void DefaultMaskReady(bool isReady) override;
 
+    // windows下是指令, linux下由于脱离控制台所以用文件代替(linux下扫描文件名作为cmd)
     virtual void AddCommand(const LibString &cmd, IDelegate<void> *callback) override;
     virtual void AddRegularCommand(const LibString &cmd, IDelegate<void, const KERNEL_NS::LibString &> *callback) override;
 
@@ -73,6 +78,12 @@ private:
 
     void _WakeupCin() const;
 
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    KERNEL_NS::CoTask<> _WindowsWork();
+#else
+    KERNEL_NS::CoTask<> _LinuxWork();
+#endif
+    
     std::unordered_map<UInt64, CommandThreadContainer> _threadIdRefCmdContainer;
     // std::unordered_map<LibString, IDelegate<void> *> _cmdRefCallback;
     // std::unordered_map<LibString, IDelegate<void, const KERNEL_NS::LibString &> *> _regularKeywordRefCallback;

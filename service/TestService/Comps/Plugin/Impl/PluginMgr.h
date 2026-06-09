@@ -80,6 +80,9 @@ private:
     void _OnQuitServiceEventDefault(KERNEL_NS::LibEvent *ev) override;
     void _UpdatePluginGlobal(IPluginGlobal *pluginGlobal);
 
+    void _WindowsAddCmd();
+    void _LinuxAddCmd();
+
 private:
     KERNEL_NS::LibString _hotfixKey;
     KERNEL_NS::LibString _hotfixFilePath;

@@ -161,6 +161,8 @@ extern UInt64 GetCrystalModuleId();
 extern KERNEL_EXPORT std::set<UInt64> &GetThreadLocalSet(UInt64 moduleId);
 通过moduleid, 生成模块在每个线程的std::set<UInt64> 线程安全
 
+GetCrystalModuleId 必须显示的隐藏符号, 避免导出到全局符号表
+
 ```
 
 
@@ -234,6 +236,8 @@ public:
 * 插件集windows下生成的dll会自动带上时间, 以保证热更时不会因为windows锁文件, 以及windows加载模块按照模块完整路径名的问题，导致热更失败
 
 * 热更只需要在控制台输入fix回车即可
+
+* 热更的插件集若想不使用到旧so的符号, 那么应该设置hidden隐藏，且对咯喷的时候设置RTLD_LOCAL flag
 
    
 

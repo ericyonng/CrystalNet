@@ -77,7 +77,7 @@ ApplicationConfig:
   # 主服务
   ProjectMainServiceName: TestSuit
   # 禁用控制台监控信息
-  DisableConsoleMonitorInfo: false
+  DisableConsoleMonitorInfo: true
   
 # 服务公共配置项 service proxy 维护
 ServiceCommon:

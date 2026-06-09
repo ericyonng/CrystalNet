@@ -134,7 +134,6 @@ Int32 PluginMgr::_OnGlobalSysInit()
     
     _hotfixKey = _options->Current()->PluginHotfixKey;
 
-    auto serviceId = GetService()->GetServiceId();
     GetService()->GetPoller()->Subscribe(KERNEL_NS::PollerEventType::HotfixShareLibrary, this, &PluginMgr::_OnHotfixPlubin);
     GetService()->GetPoller()->Subscribe(KERNEL_NS::PollerEventType::HotfixShareLibraryComplete, this, &PluginMgr::_OnHotfixPlubinComplete);
 
@@ -146,121 +145,13 @@ Int32 PluginMgr::_OnGlobalSysInit()
     _tick->SetTimeOutHandler(this, &PluginMgr::_OnTick);
     _tick->Schedule(KERNEL_NS::TimeSlice::FromMilliSeconds(20));
     
-    // 注册监听热更(windows下生效, 其他平台命令行不生效)
-    auto app = GetService()->GetApp();
-    auto hotfixFilePath = _hotfixFilePath;
-    auto hotfixKey = _hotfixKey;
-    app->GetComp<KERNEL_NS::ICommandMgr>()->AddRegularCommand("fix.*", [hotfixFilePath, hotfixKey, serviceId, app](const KERNEL_NS::LibString &input) mutable
-    {
-        KERNEL_NS::LibString path = hotfixFilePath;
-        auto &&content =  input.strip();
-        auto parts = content.Split(' ');
-        auto &&dirPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(path);
-        auto &&fileNamePart = KERNEL_NS::DirectoryUtil::GetFileNameInPath(path);
-        auto &&withoutExtension = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(fileNamePart);
-        auto &&withoutExtensionMatch = withoutExtension + ".*";
-        CLOG_INFO("regular command fix.* input:%s", input.c_str());
-        
-        // 匹配时间戳最大的那个
-        if(content == "fix")
-        {
-            UInt64 maxTimestampSuffix = 0;
-            KERNEL_NS::DirectoryUtil::TraverseDirRecursively(dirPath, [&withoutExtensionMatch, &maxTimestampSuffix, &fileNamePart](const KERNEL_NS::FindFileInfo &fileInfo, bool &isContinue)->bool
-            {
-                if(KERNEL_NS::FileUtil::IsDir(fileInfo))
-                    return true;
-
-                if(KERNEL_NS::FileUtil::IsFile(fileInfo))
-                {
-                    // .dll
-                    if(fileInfo._extension != ".dll")
-                        return true;
-                    
-                    if(KERNEL_NS::StringUtil::IsMatch(fileInfo._fileName, withoutExtensionMatch))
-                    {
-                        // 不带时间戳
-                        if(fileInfo._fileName == fileNamePart)
-                        {
-                            return true;
-                        }
-
-                        auto &&removeDll = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(fileInfo._fileName);
-                        auto &&afterRemove = KERNEL_NS::FileUtil::ExtractFileExtension(removeDll);
-                        auto &&getTimestampPart = afterRemove.lsub(".");
-                        getTimestampPart.strip();
-                        if(getTimestampPart.isdigit())
-                        {
-                            auto timePart = KERNEL_NS::StringUtil::StringToUInt64(getTimestampPart.c_str());
-                            if(maxTimestampSuffix == 0)
-                            {
-                                maxTimestampSuffix = timePart;
-                            }
-                            else if(maxTimestampSuffix < timePart)
-                            {
-                                maxTimestampSuffix = timePart;
-                            }
-                        }
-                    }
-                }
-
-                return true;
-            }, 1);
-
-            // 没有时间戳后缀, 用原始文件名
-            if(maxTimestampSuffix != 0)
-            {
-                path = dirPath + withoutExtension + KERNEL_NS::LibString().AppendFormat(".%llu.dll", maxTimestampSuffix);
-            }
-        }
-        // 指定匹配某个文件
-        else
-        {
-            if(parts.size() <= 1)
-            {
-                CLOG_WARN("input command err, input:%s", input.c_str());
-                return;
-            }
-            auto &timePartStr = parts[1];
-            if(!timePartStr.isdigit())
-            {
-                CLOG_WARN("input command err, input:%s", input.c_str());
-                return;
-            }
-
-            path = dirPath + withoutExtension + KERNEL_NS::LibString().AppendFormat(".%s.dll", timePartStr.c_str());
-        }
-        
-        // 1. 判断文件存在否
-        if(!KERNEL_NS::FileUtil::IsFileExist(path.c_str()))
-        {
-            CLOG_WARN("file not exist %s when hotfix", path.c_str());
-            return;
-        }
-
-        // windows下会对dll进行文件锁, 而且判断一个dll是不是同一个dll, 凭借是完整的文件路径, 如果路径一样, 只会在旧的已打开的dll上引用计数+1，多线程情况下dll可能引用计数还没归零, 还得等待其他线程卸载完
-        KERNEL_NS::SmartPtr<KERNEL_NS::ShareLibraryLoader, KERNEL_NS::AutoDelMethods::Release> newShareLibrary = KERNEL_NS::ShareLibraryLoaderFactory().Create()->CastTo<KERNEL_NS::ShareLibraryLoader>();
-        newShareLibrary->SetLibraryPath(path);
-        auto ret = newShareLibrary->Init();
-        if(ret != Status::Success)
-        {
-            CLOG_ERROR("plugin init new share library fail path:%s when hotfix ret:%d, serviceId:%llu"
-                , path.c_str(), ret, serviceId);
-            return;
-        }
-
-        ret = newShareLibrary->Start();
-        if(ret != Status::Success)
-        {
-            CLOG_ERROR("plugin start new share library fail path:%s when hotfix ret:%d, serviceId:%llu", path.c_str(), ret, serviceId);
-            return;
-        }
-
-        auto ev = KERNEL_NS::HotfixShareLibraryEvent::New_HotfixShareLibraryEvent();
-        ev->_hotfixKey = hotfixKey;
-        ev->_shareLib = std::move(newShareLibrary);
-        app->GetComp<KERNEL_NS::IServiceProxy>()->PostMsg(serviceId, ev);
-    });
-
+    // 注册监听热更
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    _WindowsAddCmd();
+#else
+    _LinuxAddCmd();
+#endif
+    
     CLOG_INFO("plugin mgr hotfix key:%s", _hotfixKey.c_str());
 
     return Status::Success;
@@ -277,6 +168,8 @@ void PluginMgr::_OnHotfixPlubin(KERNEL_NS::PollerEvent *ev)
     if(!hotfixEv->_hotfixKey.Contain(_hotfixKey))
         return;
 
+    CLOG_INFO("a hot fix event come in, hotfix library:%p, service id:%llu", hotfixEv->_shareLib->GetLibrary(), GetService()->GetServiceId());
+    
     if(_willQuitService)
     {
         CLOG_WARN("will quit service cant hotfix, service:%s", GetService()->ToString().c_str());
@@ -789,6 +682,238 @@ void PluginMgr::_UpdatePluginGlobal(IPluginGlobal *pluginGlobal)
     auto oldGlobal = _pluginGlobal;
     _pluginGlobal = pluginGlobal;
     CLOG_DEBUG("_UpdatePluginGlobal %p => %p", oldGlobal, _pluginGlobal);
+}
+
+void PluginMgr::_WindowsAddCmd()
+{
+    // 注册监听热更(windows下生效, 其他平台命令行不生效)
+    auto app = GetService()->GetApp();
+    auto hotfixFilePath = _hotfixFilePath;
+    auto hotfixKey = _hotfixKey;
+    auto serviceId = GetService()->GetServiceId();
+
+    app->GetComp<KERNEL_NS::ICommandMgr>()->AddRegularCommand("fix.*", [hotfixFilePath, hotfixKey, serviceId, app](const KERNEL_NS::LibString &input)
+    {
+        KERNEL_NS::LibString path = hotfixFilePath;
+        auto &&content =  input.strip();
+        auto parts = content.Split(' ');
+        auto &&dirPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(path);
+        auto &&fileNamePart = KERNEL_NS::DirectoryUtil::GetFileNameInPath(path);
+        auto &&withoutExtension = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(fileNamePart);
+        auto &&withoutExtensionMatch = withoutExtension + ".*";
+        CLOG_INFO_GLOBAL(PluginMgr, "regular command fix.* input:%s", input.c_str());
+        
+        // 匹配时间戳最大的那个
+        if(content == "fix")
+        {
+            UInt64 maxTimestampSuffix = 0;
+            KERNEL_NS::DirectoryUtil::TraverseDirRecursively(dirPath, [&withoutExtensionMatch, &maxTimestampSuffix, &fileNamePart](const KERNEL_NS::FindFileInfo &fileInfo, bool &isContinue)->bool
+            {
+                if(KERNEL_NS::FileUtil::IsDir(fileInfo))
+                    return true;
+
+                if(KERNEL_NS::FileUtil::IsFile(fileInfo))
+                {
+                    // .dll
+                    if(fileInfo._extension != ".dll")
+                        return true;
+                    
+                    if(KERNEL_NS::StringUtil::IsMatch(fileInfo._fileName, withoutExtensionMatch))
+                    {
+                        // 不带时间戳
+                        if(fileInfo._fileName == fileNamePart)
+                        {
+                            return true;
+                        }
+
+                        auto &&removeDll = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(fileInfo._fileName);
+                        auto &&afterRemove = KERNEL_NS::FileUtil::ExtractFileExtension(removeDll);
+                        auto &&getTimestampPart = afterRemove.lsub(".");
+                        getTimestampPart.strip();
+                        if(getTimestampPart.isdigit())
+                        {
+                            auto timePart = KERNEL_NS::StringUtil::StringToUInt64(getTimestampPart.c_str());
+                            if(maxTimestampSuffix == 0)
+                            {
+                                maxTimestampSuffix = timePart;
+                            }
+                            else if(maxTimestampSuffix < timePart)
+                            {
+                                maxTimestampSuffix = timePart;
+                            }
+                        }
+                    }
+                }
+
+                return true;
+            }, 1);
+
+            // 没有时间戳后缀, 用原始文件名
+            if(maxTimestampSuffix != 0)
+            {
+                path = dirPath + withoutExtension + KERNEL_NS::LibString().AppendFormat(".%llu.dll", maxTimestampSuffix);
+            }
+        }
+        // 不开放指定某个文件, 避免复杂化
+        // 指定匹配某个文件
+        else
+        {
+            CLOG_WARN_GLOBAL(PluginMgr, "not support cmd:%s", input.c_str());
+            return;
+            
+            // if(parts.size() <= 1)
+            // {
+            //     CLOG_WARN("input command err, input:%s", input.c_str());
+            //     return;
+            // }
+            // auto &timePartStr = parts[1];
+            // if(!timePartStr.isdigit())
+            // {
+            //     CLOG_WARN("input command err, input:%s", input.c_str());
+            //     return;
+            // }
+            //
+            // path = dirPath + withoutExtension + KERNEL_NS::LibString().AppendFormat(".%s.dll", timePartStr.c_str());
+        }
+        
+        // 1. 判断文件存在否
+        if(!KERNEL_NS::FileUtil::IsFileExist(path.c_str()))
+        {
+            CLOG_WARN_GLOBAL(PluginMgr, "file not exist %s when hotfix", path.c_str());
+            return;
+        }
+
+        // windows下会对dll进行文件锁, 而且判断一个dll是不是同一个dll, 凭借是完整的文件路径, 如果路径一样, 只会在旧的已打开的dll上引用计数+1，多线程情况下dll可能引用计数还没归零, 还得等待其他线程卸载完
+        KERNEL_NS::SmartPtr<KERNEL_NS::ShareLibraryLoader, KERNEL_NS::AutoDelMethods::Release> newShareLibrary = KERNEL_NS::ShareLibraryLoaderFactory().Create()->CastTo<KERNEL_NS::ShareLibraryLoader>();
+        newShareLibrary->SetLibraryPath(path);
+        auto ret = newShareLibrary->Init();
+        if(ret != Status::Success)
+        {
+            CLOG_ERROR_GLOBAL(PluginMgr, "plugin init new share library fail path:%s when hotfix ret:%d, serviceId:%llu"
+                , path.c_str(), ret, serviceId);
+            return;
+        }
+
+        ret = newShareLibrary->Start();
+        if(ret != Status::Success)
+        {
+            CLOG_ERROR_GLOBAL(PluginMgr, "plugin start new share library fail path:%s when hotfix ret:%d, serviceId:%llu", path.c_str(), ret, serviceId);
+            return;
+        }
+
+        auto ev = KERNEL_NS::HotfixShareLibraryEvent::New_HotfixShareLibraryEvent();
+        ev->_hotfixKey = hotfixKey;
+        ev->_shareLib = std::move(newShareLibrary);
+        app->GetComp<KERNEL_NS::IServiceProxy>()->PostMsg(serviceId, ev);
+    });
+}
+
+void PluginMgr::_LinuxAddCmd()
+{
+    auto app = GetService()->GetApp();
+    auto hotfixFilePath = _hotfixFilePath;
+    auto hotfixKey = _hotfixKey;
+    auto serviceId = GetService()->GetServiceId();
+    const auto pid = KERNEL_NS::SystemUtil::GetCurProcessId();
+    KERNEL_NS::LibString cmd;
+    cmd.AppendFormat("hotfix_%d\\.cmd.*", pid);
+    auto &&projPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();
+    
+    app->GetComp<KERNEL_NS::ICommandMgr>()->AddRegularCommand(cmd, [projPath, hotfixFilePath, hotfixKey, serviceId, app](const KERNEL_NS::LibString &fileName)
+    {
+        // 删除文件
+        auto &&fullFilePath = projPath + "/" + fileName;
+        KERNEL_NS::FileUtil::DelFile(fullFilePath.c_str());
+
+        // 
+        KERNEL_NS::LibString path = hotfixFilePath;
+        auto &&dirPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(path);
+        auto &&fileNamePart = KERNEL_NS::DirectoryUtil::GetFileNameInPath(path);
+        auto &&withoutExtension = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(fileNamePart);
+        auto &&withoutExtensionMatch = withoutExtension + ".*";
+        CLOG_INFO_GLOBAL(PluginMgr, "regular command fix.* fileName:%s", fileName.c_str());
+        
+        // 匹配时间戳最大的那个
+        UInt64 maxTimestampSuffix = 0;
+        KERNEL_NS::DirectoryUtil::TraverseDirRecursively(dirPath, [&withoutExtensionMatch, &maxTimestampSuffix, &fileNamePart](const KERNEL_NS::FindFileInfo &fileInfo, bool &isContinue)->bool
+        {
+            if(KERNEL_NS::FileUtil::IsDir(fileInfo))
+                return true;
+
+            if(KERNEL_NS::FileUtil::IsFile(fileInfo))
+            {
+                // .dll
+                if(fileInfo._extension != ".so")
+                    return true;
+                
+                if(KERNEL_NS::StringUtil::IsMatch(fileInfo._fileName, withoutExtensionMatch))
+                {
+                    // 不带时间戳
+                    if(fileInfo._fileName == fileNamePart)
+                    {
+                        return true;
+                    }
+
+                    auto &&removeSo = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(fileInfo._fileName);
+                    auto &&afterRemove = KERNEL_NS::FileUtil::ExtractFileExtension(removeSo);
+                    auto &&getTimestampPart = afterRemove.lsub(".");
+                    getTimestampPart.strip();
+                    if(getTimestampPart.isdigit())
+                    {
+                        auto timePart = KERNEL_NS::StringUtil::StringToUInt64(getTimestampPart.c_str());
+                        if(maxTimestampSuffix == 0)
+                        {
+                            maxTimestampSuffix = timePart;
+                        }
+                        else if(maxTimestampSuffix < timePart)
+                        {
+                            maxTimestampSuffix = timePart;
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }, 1);
+
+        // 没有时间戳后缀, 用原始文件名
+        if(maxTimestampSuffix != 0)
+        {
+            path = dirPath + withoutExtension + KERNEL_NS::LibString().AppendFormat(".%llu.so", maxTimestampSuffix);
+        }
+        
+        // 1. 判断文件存在否
+        if(!KERNEL_NS::FileUtil::IsFileExist(path.c_str()))
+        {
+            CLOG_WARN_GLOBAL(PluginMgr, "file not exist %s when hotfix", path.c_str());
+            return;
+        }
+
+        // windows下会对dll进行文件锁, 而且判断一个dll是不是同一个dll, 凭借是完整的文件路径, 如果路径一样, 只会在旧的已打开的dll上引用计数+1，多线程情况下dll可能引用计数还没归零, 还得等待其他线程卸载完
+        KERNEL_NS::SmartPtr<KERNEL_NS::ShareLibraryLoader, KERNEL_NS::AutoDelMethods::Release> newShareLibrary = KERNEL_NS::ShareLibraryLoaderFactory().Create()->CastTo<KERNEL_NS::ShareLibraryLoader>();
+        newShareLibrary->SetLibraryPath(path);
+        auto ret = newShareLibrary->Init();
+        if(ret != Status::Success)
+        {
+            CLOG_ERROR_GLOBAL(PluginMgr, "plugin init new share library fail path:%s when hotfix ret:%d, serviceId:%llu"
+                , path.c_str(), ret, serviceId);
+            return;
+        }
+
+        ret = newShareLibrary->Start();
+        if(ret != Status::Success)
+        {
+            CLOG_ERROR_GLOBAL(PluginMgr, "plugin start new share library fail path:%s when hotfix ret:%d, serviceId:%llu", path.c_str(), ret, serviceId);
+            return;
+        }
+
+        CLOG_INFO("plugin hotfix message post to service:%llu, file name:%s, loaded lib:%p", serviceId, path.c_str(), newShareLibrary->GetLibrary());
+
+        auto ev = KERNEL_NS::HotfixShareLibraryEvent::New_HotfixShareLibraryEvent();
+        ev->_hotfixKey = hotfixKey;
+        ev->_shareLib = std::move(newShareLibrary);
+        app->GetComp<KERNEL_NS::IServiceProxy>()->PostMsg(serviceId, ev);
+    });
 }
 
 

@@ -61,6 +61,7 @@ PluginDelayRemoveInfo::~PluginDelayRemoveInfo()
                 (*closePtr)(_pluginGlobal);
             }
 
+            auto moduleId = _pluginGlobal->GetPluginModuleId();
             if (_pluginGlobal)
             {
                 _pluginGlobal->WillClose();
@@ -71,6 +72,8 @@ PluginDelayRemoveInfo::~PluginDelayRemoveInfo()
             _shareLibraryLoader->WillClose();
             _shareLibraryLoader->Close();
             _shareLibraryLoader->Release();
+
+            CLOG_INFO("plugin library close finished module id:%llu", moduleId);
         }
     }
     catch (std::exception &e)

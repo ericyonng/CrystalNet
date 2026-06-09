@@ -35,12 +35,12 @@ ALWAYS_HIDDEN UInt64 GetCrystalModuleId()
 {
     static const UInt64 id = GetGlobalIdSrc().fetch_add(1, std::memory_order_release) + 1;
 
-#if _DEBUG
-    if(g_Log)
-    {
-        CLOG_DEBUG_GLOBAL(SystemUtil, "Application - GetCrystalModuleId:%llu", id);
-    }
-#endif
+// #if _DEBUG
+//     if(g_Log)
+//     {
+//         CLOG_DEBUG_GLOBAL(SystemUtil, "Application - GetCrystalModuleId:%llu", id);
+//     }
+// #endif
     
     return id;
 }
@@ -61,6 +61,7 @@ SERVICE_COMMON_BEGIN
 
 Application::Application()
 :IApplication(KERNEL_NS::RttiUtil::GetTypeId<Application>())
+,_appCfg(KERNEL_NS::FileMonitor<ApplicationConfig, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
 ,_monitor(NULL)
 ,_killMonitorTimer(NULL)
 ,_statisticsInfo(StatisticsInfo::New_StatisticsInfo())
@@ -402,6 +403,12 @@ void Application::_Clear()
 #ifndef DISABLE_OPCODES
     Opcodes::Destroy();
 #endif
+
+    if (_appCfg)
+    {
+        KERNEL_NS::FileMonitor<ApplicationConfig, KERNEL_NS::YamlDeserializer>::Delete_FileMonitor(_appCfg);
+        _appCfg = NULL;
+    }
 }
 
 Int32 Application::_ReadBaseConfigs()
@@ -413,12 +420,22 @@ Int32 Application::_ReadBaseConfigs()
         {
             auto config = YAML::LoadFile(_yamlPath.c_str());
             _appConfig = config["ApplicationConfig"].as<SERVICE_COMMON_NS::ApplicationConfig>();
+
+            _appConfigSource.Path = _yamlPath;
         }
         else
         {
             auto config = YAML::Load(_yamlContent.GetRaw());
             _appConfig = config["ApplicationConfig"].as<SERVICE_COMMON_NS::ApplicationConfig>();
+            _appConfigSource.FromMemory = const_cast<Byte8 *>(_yamlContent.data());
         }
+
+        if (!_appCfg->Init(&_appConfigSource))
+        {
+            CLOG_ERROR("app config file monitor init fail");
+            return Status::ConfigError;
+        }
+
     }
     catch (std::exception &e)
     {
@@ -458,7 +475,8 @@ void Application::_OnMonitorThreadFrame()
     if(serviceProxy && serviceProxy->IsStarted())
         serviceProxy->OnMonitor(serviceProxyInfo);
 
-    if(!_appConfig.DisableConsoleMonitorInfo)
+    auto curCfg = _appCfg->Current();
+    if(!curCfg->DisableConsoleMonitorInfo)
     {
         KERNEL_NS::LibString info;
         info.AppendFormat("\n%s\n", serviceProxyInfo.ToString().c_str());

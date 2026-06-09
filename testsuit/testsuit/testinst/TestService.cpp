@@ -57,8 +57,8 @@ public:
     {
         SERVICE_COMMON_NS::Application::OnRegisterComps();
 
-        // 注册热更监控
-        RegisterComp<SERVICE_COMMON_NS::LibraryHotfixMonitorFactory>();
+        // 注册热更监控, 插件集使用Command监控, HotfixMonitor正式下线
+        // RegisterComp<SERVICE_COMMON_NS::LibraryHotfixMonitorFactory>();
 
         // 注册命令行工具
         RegisterComp<KERNEL_NS::CommandMgrFactory>();
@@ -73,11 +73,12 @@ public:
             return err;
         }
 
-        auto hotfixMonitor = GetComp<SERVICE_COMMON_NS::ILibraryHotfixMonitor>();
-        // 设置检测文件
-        hotfixMonitor->SetDetectionFile(_path + KERNEL_NS::LibString().AppendFormat(".hotfix_%d", _processId));
-        // 设置路径
-        hotfixMonitor->SetRootPath(KERNEL_NS::DirectoryUtil::GetFileDirInPath(GetAppPath()).strip());
+        // 下线,用CommandMgr替代, 检测逻辑更内聚
+        // auto hotfixMonitor = GetComp<SERVICE_COMMON_NS::ILibraryHotfixMonitor>();
+        // // 设置检测文件
+        // hotfixMonitor->SetDetectionFile(_path + KERNEL_NS::LibString().AppendFormat(".hotfix_%d", _processId));
+        // // 设置路径
+        // hotfixMonitor->SetRootPath(KERNEL_NS::DirectoryUtil::GetFileDirInPath(GetAppPath()).strip());
 
         return Status::Success;
     }
@@ -93,40 +94,39 @@ public:
         }
 
         // 设置插件集热更回调
-        auto hotfixMonitor = GetComp<SERVICE_COMMON_NS::ILibraryHotfixMonitor>();
-        auto serviceProxy = GetComp<SERVICE_COMMON_NS::ServiceProxy>();
-        auto &serviceRejectStatus = serviceProxy->GetServiceRejectStatus();
-        for(auto &iter :serviceRejectStatus)
-        {
-            auto serviceId = iter.first;
-
-            // 监听 TestPlugin 热更
-            hotfixMonitor->AddHotFixListener([this, serviceId](SERVICE_COMMON_NS::HotFixContainerElemType &hotfix)
-            {
-                auto serviceProxy = GetComp<SERVICE_COMMON_NS::ServiceProxy>();
-                auto service = serviceProxy->GetService(serviceId);
-                if(UNLIKELY(!service))
-                    return;
-                
-                auto msg = KERNEL_NS::HotfixShareLibraryEvent::New_HotfixShareLibraryEvent();
-                msg->_shareLib = std::move(hotfix->_shareLib);
-                msg->_hotfixKey = hotfix->_hotfixKey;
-                serviceProxy->PostMsg(serviceId, msg, 1);
-            });
-
-            // 监听热更完成消息
-            hotfixMonitor->AddHotFixCompleteCallback([this, serviceId](const std::set<KERNEL_NS::LibString> &hotfixKeys)
-            {
-                auto serviceProxy = GetComp<SERVICE_COMMON_NS::ServiceProxy>();
-                auto service = serviceProxy->GetService(serviceId);
-                if(UNLIKELY(!service))
-                    return;
-                                
-                auto msg = KERNEL_NS::HotfixShareLibraryCompleteEvent::New_HotfixShareLibraryCompleteEvent();
-                msg->_hotfixKeys = hotfixKeys;
-                serviceProxy->PostMsg(serviceId, msg, 1);
-            });
-        }
+        // auto serviceProxy = GetComp<SERVICE_COMMON_NS::ServiceProxy>();
+        // auto &serviceRejectStatus = serviceProxy->GetServiceRejectStatus();
+        // for(auto &iter :serviceRejectStatus)
+        // {
+        //     auto serviceId = iter.first;
+        //
+        //     // 监听 TestPlugin 热更 下线 Command替代
+        //     // hotfixMonitor->AddHotFixListener([this, serviceId](SERVICE_COMMON_NS::HotFixContainerElemType &hotfix)
+        //     // {
+        //     //     auto serviceProxy = GetComp<SERVICE_COMMON_NS::ServiceProxy>();
+        //     //     auto service = serviceProxy->GetService(serviceId);
+        //     //     if(UNLIKELY(!service))
+        //     //         return;
+        //     //     
+        //     //     auto msg = KERNEL_NS::HotfixShareLibraryEvent::New_HotfixShareLibraryEvent();
+        //     //     msg->_shareLib = std::move(hotfix->_shareLib);
+        //     //     msg->_hotfixKey = hotfix->_hotfixKey;
+        //     //     serviceProxy->PostMsg(serviceId, msg, 1);
+        //     // });
+        //     //
+        //     // // 监听热更完成消息
+        //     // hotfixMonitor->AddHotFixCompleteCallback([this, serviceId](const std::set<KERNEL_NS::LibString> &hotfixKeys)
+        //     // {
+        //     //     auto serviceProxy = GetComp<SERVICE_COMMON_NS::ServiceProxy>();
+        //     //     auto service = serviceProxy->GetService(serviceId);
+        //     //     if(UNLIKELY(!service))
+        //     //         return;
+        //     //                     
+        //     //     auto msg = KERNEL_NS::HotfixShareLibraryCompleteEvent::New_HotfixShareLibraryCompleteEvent();
+        //     //     msg->_hotfixKeys = hotfixKeys;
+        //     //     serviceProxy->PostMsg(serviceId, msg, 1);
+        //     // });
+        // }
 
         CLOG_INFO("app start success moduleId:%llu", moduleId);
         

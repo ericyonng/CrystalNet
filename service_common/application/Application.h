@@ -115,6 +115,8 @@ private:
 private:
     KERNEL_NS::LibString _memoryIni;                        // 内存配置表内容
     ApplicationConfig _appConfig;                           // app配置
+    KERNEL_NS::FileMonitor<ApplicationConfig, KERNEL_NS::YamlDeserializer> *_appCfg;
+    KERNEL_NS::SourceWrap _appConfigSource;
 
     // 监控线程
     KERNEL_NS::LibEventLoopThread *_monitor;

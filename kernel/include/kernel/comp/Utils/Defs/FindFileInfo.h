@@ -58,7 +58,7 @@ struct KERNEL_EXPORT FindFileInfo
         return info;
     }
 
-    LibString _fileName;     // 文件名
+    LibString _fileName;     // 文件名:xxx.xx
     LibString _extension;    // 扩展名 .xxx
     LibString _rootPath;    // 文件所在目录路径
     LibString _fullName;    // 文件完整名
