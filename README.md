@@ -208,19 +208,18 @@ public:
 
   * ShareLibraryLoader： 动态库加载组件, 作为组件嵌入到PluginMgr中, 用于加载指定的动态库
 
-    LibraryHotfixMonitor: 动态库热更监控组件, 作为组件嵌入到Application中，用于监控是否有动态库需要热更, 
+    CommandMgr: windows监听控制台输入的指令fix来热更，linux下扫描指定的文件名作为cmd来热更 
 
     PluginMgr: 用于管理插件集, 作为组件嵌入到MyTestService中
-
-* 流程图
-
-   ![image-20250205162034744](./resource/img/hotfix.png)
 
 * 插件集热更脚本
 
   ```
-  # **.sh 可执行程序名 可执行程序编译版本 插件集HotfixKey 要热更的插件集so文件名
-  sh ./scripts/hotfix/hotfix.sh testsuit debug TestPlugin libTestPlugin2.so
+  windows:
+  fix
+  
+  linux:
+  sh ./scripts/hotfix/hotfix.sh 进程id
   ```
 
 * 热更插件集由于热更时静态全局, 静态局部对象等会被销毁, 会影响到池化对象, 所以插件集中泛型实例化的对象最多只能使用threadlocal模式分配和回收内存,

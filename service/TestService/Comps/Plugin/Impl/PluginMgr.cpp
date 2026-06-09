@@ -827,9 +827,11 @@ void PluginMgr::_LinuxAddCmd()
     
     app->GetComp<KERNEL_NS::ICommandMgr>()->AddRegularCommand(cmd, [projPath, hotfixFilePath, hotfixKey, serviceId, app](const KERNEL_NS::LibString &fileName)
     {
+        CLOG_INFO_GLOBAL(PluginMgr, "will start command fileName:%s", fileName.c_str());
+        
         // 删除文件
         auto &&fullFilePath = projPath + "/" + fileName;
-        KERNEL_NS::FileUtil::DelFile(fullFilePath.c_str());
+        KERNEL_NS::FileUtil::DelFileCStyle(fullFilePath.c_str());
 
         // 
         KERNEL_NS::LibString path = hotfixFilePath;

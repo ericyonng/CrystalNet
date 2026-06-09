@@ -44,7 +44,7 @@ class LibTime;
 class KERNEL_EXPORT FileUtil
 {
 public:
-    static void DelFile(const Byte8 *filePath);
+    // static void DelFile(const Byte8 *filePath);
     static bool DelFileCStyle(const Byte8 *filePath);
     static FILE *CreateTmpFile();
     // static const Byte8 *GenRandFileName(Byte8 randName[L_tmpnam]);

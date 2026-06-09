@@ -875,29 +875,29 @@ Int32 FileUtil::Rename(const LibString &oldPathFile, const LibString &newPathFil
 
     return Status::Success;
 }
-
-void FileUtil::DelFile(const Byte8 *filePath)
-{
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    std::string strDelCmd = "del ";
-    strDelCmd += filePath;
-    size_t findPos = 0;
-    int nCount = 0;
-    const auto strCount = strDelCmd.length();
-    while((findPos = strDelCmd.find_first_of('/', findPos)) != std::string::npos)
-    {
-        strDelCmd[findPos] = '\\';
-    }
-    strDelCmd += " /f/s/q";
-
-    system(strDelCmd.c_str());
-#else
-    std::string strDelCmd = "sudo rm -rf ";
-    strDelCmd += filePath;
-    if(system(strDelCmd.c_str()) == -1)
-        perror("del files fail");
-#endif
-}
+//
+// void FileUtil::DelFile(const Byte8 *filePath)
+// {
+// #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+//     std::string strDelCmd = "del ";
+//     strDelCmd += filePath;
+//     size_t findPos = 0;
+//     int nCount = 0;
+//     const auto strCount = strDelCmd.length();
+//     while((findPos = strDelCmd.find_first_of('/', findPos)) != std::string::npos)
+//     {
+//         strDelCmd[findPos] = '\\';
+//     }
+//     strDelCmd += " /f/s/q";
+//
+//     system(strDelCmd.c_str());
+// #else
+//     std::string strDelCmd = "sudo rm -rf ";
+//     strDelCmd += filePath;
+//     if(system(strDelCmd.c_str()) == -1)
+//         perror("del files fail");
+// #endif
+// }
 
 bool FileUtil::DelFileCStyle(const Byte8 *filePath)
 {
