@@ -358,7 +358,6 @@ KERNEL_NS::CoTask<> CommandMgr::_WindowsWork()
             {
                 for(auto &iter : cmdContainer)
                 {
-                    auto threadId = iter.first;
                     auto &containerInfo = iter.second;
                     for(auto &iter : containerInfo._regularKeywordRefCallback)
                     {
@@ -381,7 +380,6 @@ KERNEL_NS::CoTask<> CommandMgr::_WindowsWork()
         {
             for(auto &iterContainer : cmdContainer)
             {
-                auto threadId = iterContainer.first;
                 auto &containerInfo = iterContainer.second;
                 auto iter = containerInfo._cmdRefCallback.find(input);
                 if(iter == containerInfo._cmdRefCallback.end())
@@ -390,10 +388,10 @@ KERNEL_NS::CoTask<> CommandMgr::_WindowsWork()
                     continue;
                 }
 
-                CLOG_INFO("invoke cmd:%s...");
+                CLOG_INFO("invoke cmd:%s...", input.c_str());
                 auto cb = iter->second;
                 cb->Invoke();
-                CLOG_INFO("invoke cmd:%s finished.");
+                CLOG_INFO("invoke cmd:%s finished.", input.c_str());
             }
         }
 
@@ -408,6 +406,7 @@ KERNEL_NS::CoTask<> CommandMgr::_WindowsWork()
 }
 
 #else
+
 KERNEL_NS::CoTask<> CommandMgr::_LinuxWork()
 {
     CLOG_INFO("command monitor thread started monitor file command");
@@ -438,7 +437,6 @@ KERNEL_NS::CoTask<> CommandMgr::_LinuxWork()
             // 优先执行正则匹配
             for(auto &iter : cmdContainer)
             {
-                auto threadId = iter.first;
                 auto &containerInfo = iter.second;
                 for(auto &iter : containerInfo._regularKeywordRefCallback)
                 {
@@ -459,7 +457,6 @@ KERNEL_NS::CoTask<> CommandMgr::_LinuxWork()
             {
                 for(auto &iterContainer : cmdContainer)
                 {
-                    auto threadId = iterContainer.first;
                     auto &containerInfo = iterContainer.second;
                     auto iter = containerInfo._cmdRefCallback.find(fileInfo._fileName);
                     if(iter == containerInfo._cmdRefCallback.end())
@@ -468,10 +465,10 @@ KERNEL_NS::CoTask<> CommandMgr::_LinuxWork()
                         continue;
                     }
 
-                    CLOG_INFO("invoke cmd:%s...");
+                    CLOG_INFO("invoke cmd:%s...", fileInfo._fileName.c_str());
                     auto cb = iter->second;
                     cb->Invoke();
-                    CLOG_INFO("invoke cmd:%s finished.");
+                    CLOG_INFO("invoke cmd:%s finished.", fileInfo._fileName.c_str());
                 }
             }
 
