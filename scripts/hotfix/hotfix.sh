@@ -8,6 +8,6 @@ RUN_PATH=${SCRIPT_PATH}/../../output/gmake/build
 PROG_PID=$1
 
 sudo touch ${RUN_PATH}/hotfix_${PROG_PID}.cmd
-chmod 644 hotfix_${PROG_PID}.cmd
+chmod 644 ${RUN_PATH}/hotfix_${PROG_PID}.cmd
 
 echo "create hotfix_${PROG_PID}.cmd"

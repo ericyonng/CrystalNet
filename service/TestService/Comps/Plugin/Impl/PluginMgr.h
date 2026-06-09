@@ -60,8 +60,8 @@ private:
     Int32 _OnGlobalSysInit() override;
     void _OnGlobalSysClose() override;
     
-    void _OnHotfixPlubin(KERNEL_NS::PollerEvent *ev);
-    void _OnHotfixPlubinComplete(KERNEL_NS::PollerEvent *ev);
+    void _OnHotfixPlugin(KERNEL_NS::PollerEvent *ev);
+    void _OnHotfixPluginComplete(KERNEL_NS::PollerEvent *ev);
 
     bool _InitPluginModule(KERNEL_NS::ShareLibraryLoader *shareLibrary, IPluginGlobal *&newPluginGlobal);
     void _CompletePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary);

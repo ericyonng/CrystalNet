@@ -136,8 +136,8 @@ Int32 PluginMgr::_OnGlobalSysInit()
     
     _hotfixKey = _options->Current()->PluginHotfixKey;
 
-    GetService()->GetPoller()->Subscribe(KERNEL_NS::PollerEventType::HotfixShareLibrary, this, &PluginMgr::_OnHotfixPlubin);
-    GetService()->GetPoller()->Subscribe(KERNEL_NS::PollerEventType::HotfixShareLibraryComplete, this, &PluginMgr::_OnHotfixPlubinComplete);
+    GetService()->GetPoller()->Subscribe(KERNEL_NS::PollerEventType::HotfixShareLibrary, this, &PluginMgr::_OnHotfixPlugin);
+    GetService()->GetPoller()->Subscribe(KERNEL_NS::PollerEventType::HotfixShareLibraryComplete, this, &PluginMgr::_OnHotfixPluginComplete);
 
     _delayRemovePluginTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
     _delayRemovePluginTimer->SetTimeOutHandler(this, &PluginMgr::_OnDelayRemovePluginTimer);
@@ -164,7 +164,7 @@ void PluginMgr::_OnGlobalSysClose()
     _Clear();
 }
 
-void PluginMgr::_OnHotfixPlubin(KERNEL_NS::PollerEvent *ev)
+void PluginMgr::_OnHotfixPlugin(KERNEL_NS::PollerEvent *ev)
 {
     auto hotfixEv = ev->CastTo<KERNEL_NS::HotfixShareLibraryEvent>();
     if(!hotfixEv->_hotfixKey.Contain(_hotfixKey))
@@ -255,7 +255,7 @@ void PluginMgr::_OnHotfixPlubin(KERNEL_NS::PollerEvent *ev)
     _CompletePlugin(newShareLibrary);
 }
 
-void PluginMgr::_OnHotfixPlubinComplete(KERNEL_NS::PollerEvent *ev)
+void PluginMgr::_OnHotfixPluginComplete(KERNEL_NS::PollerEvent *ev)
 {
     auto completeEv = ev->CastTo<KERNEL_NS::HotfixShareLibraryCompleteEvent>();
     g_Log->Info(LOGFMT_OBJ_TAG("completeEv:%s"), completeEv->ToString().c_str());
@@ -562,7 +562,7 @@ KERNEL_NS::LibString PluginMgr::_GetPluginLibraryFinalPath()
 #endif
     
     UInt64 maxTimestampSuffix = 0;
-    KERNEL_NS::DirectoryUtil::TraverseDirRecursively(dirPath, [&libraryExtension, &withoutExtensionMatch, &withoutExtension, &maxTimestampSuffix, &fileNamePart](const KERNEL_NS::FindFileInfo &fileInfo, bool &isContinue)->bool
+    KERNEL_NS::DirectoryUtil::TraverseDirRecursively(dirPath, [&libraryExtension, &withoutExtensionMatch, &maxTimestampSuffix, &fileNamePart](const KERNEL_NS::FindFileInfo &fileInfo, bool &isContinue)->bool
     {
         if(KERNEL_NS::FileUtil::IsDir(fileInfo))
             return true;

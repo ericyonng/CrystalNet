@@ -461,7 +461,7 @@ KERNEL_NS::CoTask<> CommandMgr::_LinuxWork()
                     auto iter = containerInfo._cmdRefCallback.find(fileInfo._fileName);
                     if(iter == containerInfo._cmdRefCallback.end())
                     {
-                        CLOG_DEBUG("unknown command:%s", fileInfo._fileName.c_str());
+                        // CLOG_DEBUG("unknown command:%s", fileInfo._fileName.c_str());
                         continue;
                     }
 
