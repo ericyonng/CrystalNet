@@ -40,68 +40,49 @@ extern "C"
     };
     
     // 初始化插件集
-    Int32 InitPlugin(void *pluginGlobal)
+    Int32 InitPlugin()
     {
-        auto asGlobal = KERNEL_NS::KernelCastTo<SERVICE_NS::IPluginGlobal>(pluginGlobal);
         auto pluginModuleId = GetPluginModuleId();
-        auto st = asGlobal->Init();
-        if(st != Status::Success)
-        {
-            CLOG_ERROR_GLOBAL(SERVICE_NS::IPluginGlobal, "plugin global init fail st:%d", st);
-            return st;
-        }
-        
         PluginWrap pluginWrap;
         UNUSED(pluginWrap);
         UNUSED(pluginWrap._id);
         pluginWrap._id = 100;
 
-        CLOG_INFO_GLOBAL(PluginWrap, "Plugin init success pluginWrap:%d pluginModuleId:%llu asGlobal:%p.", pluginWrap._id, pluginModuleId, asGlobal);
+        CLOG_INFO_GLOBAL(PluginWrap, "Plugin init success pluginWrap:%d pluginModuleId:%llu asGlobal:%p.", pluginWrap._id, pluginModuleId, g_PluginGlobal);
         return Status::Success;
     }
 
     // 启动插件集
-    Int32 StartPlugin(void *pluginGlobal)
+    Int32 StartPlugin()
     {
-        auto asGlobal = KERNEL_NS::KernelCastTo<SERVICE_NS::IPluginGlobal>(pluginGlobal);
-
-        auto st = asGlobal->Start();
-        if(st != Status::Success)
-        {
-            CLOG_ERROR_GLOBAL(SERVICE_NS::IPluginGlobal, "plugin global start fail st:%d", st);
-            return st;
-        }
-
         CLOG_INFO_GLOBAL(PluginWrap, "Plugin start success.");
-        asGlobal->TestHello("StartPlugin");
+        g_PluginGlobal->TestHello("StartPlugin");
         
         return Status::Success;
     }
 
-    void StartPluginComplete(void *pluginGlobal)
+    void StartPluginComplete()
     {
-        auto asGlobal = KERNEL_NS::KernelCastTo<SERVICE_NS::IPluginGlobal>(pluginGlobal);
-
-        PluginLogic::OnPluginStartup(asGlobal);
+        PluginLogic::OnPluginStartup();
 
         auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::TEST_PLUGIN_EVENT);
-        asGlobal->GetEventManager()->FireEvent(ev);
+        g_PluginGlobal->GetEventManager()->FireEvent(ev);
         
         CLOG_INFO_GLOBAL(PluginWrap, "plugin start completed");
     }
 
     // 预关闭插件集
-    void WillClosePlugin(void *pluginGlobal)
+    void WillClosePlugin()
     {
-        CLOG_INFO_GLOBAL(PluginWrap, "Plugin will close pluginGlobal:%p...", pluginGlobal);
+        CLOG_INFO_GLOBAL(PluginWrap, "Plugin will close pluginGlobal:%p...", g_PluginGlobal);
     }
 
     // 释放插件集
-    void ClosePlugin(void *pluginGlobal)
+    void ClosePlugin()
     {
         auto moduleId = GetPluginModuleId();
         // plugingglobal 在程序集中关闭和释放
-        CLOG_INFO_GLOBAL(PluginWrap, "Plugin close success module id:%llu pluginGlobal:%p.", moduleId, pluginGlobal);
+        CLOG_INFO_GLOBAL(PluginWrap, "Plugin close success module id:%llu pluginGlobal:%p.", moduleId, g_PluginGlobal);
     }
 
     void SetPluginMgr(void *pluginMgr)
@@ -109,15 +90,22 @@ extern "C"
         g_PluginMgr = reinterpret_cast<SERVICE_NS::IPluginMgr *>(pluginMgr);
     }
 
+    void SetPluginGlobal(void *pluginGlobal)
+    {
+        auto oldGlobal = g_PluginGlobal;
+        g_PluginGlobal = reinterpret_cast<SERVICE_NS::IPluginGlobal *>(pluginGlobal);
+        CLOG_INFO_GLOBAL(PluginWrap, "update plugin global %p => %p, input:%p", oldGlobal, g_PluginGlobal, pluginGlobal);
+    }
+
     UInt64 GetPluginModuleId()
     {
         auto id = KERNEL_NS::GetCrystalModuleId();
-#if _DEBUG
-        if(g_Log)
-        {
-            CLOG_DEBUG_GLOBAL(KERNEL_NS::SystemUtil, "TestPlugin - GetPluginModuleId:%llu", id);
-        }
-#endif
+// #if _DEBUG
+//         if(g_Log)
+//         {
+//             CLOG_DEBUG_GLOBAL(KERNEL_NS::SystemUtil, "TestPlugin - GetPluginModuleId:%llu", id);
+//         }
+// #endif
         return id;
     }
 }

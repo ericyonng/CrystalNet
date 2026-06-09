@@ -53,13 +53,13 @@ public:
             return;
         }
     
-        auto pluginRet = (*initPtr)(NULL);
+        auto pluginRet = (*initPtr)();
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLoadShareLibrary, "init plugin:%d"), pluginRet);
-        pluginRet = (*startPtr)(NULL);
+        pluginRet = (*startPtr)();
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLoadShareLibrary, "start plugin:%d"), pluginRet);
-        (*willClosePtr)(NULL);
+        (*willClosePtr)();
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLoadShareLibrary, "will close plugin..."));
-        (*closePtr)(NULL);
+        (*closePtr)();
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLoadShareLibrary, "close plugin"));
     
         loader->WillClose();

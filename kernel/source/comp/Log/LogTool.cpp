@@ -46,7 +46,7 @@ void LogTool::Debug(const Byte8 *tag, const char *fileName, const char *funcName
     va_end(va);
 
     va_start(va, fmt);
-    g_Log->_Common5(tag, codeLine, LogLevel::Debug, fmt, va, finalSize);
+    g_Log->_Common5(tag, fileName, codeLine, LogLevel::Debug, fmt, va, finalSize);
     va_end(va);
 }
 
@@ -58,7 +58,7 @@ void LogTool::Info(const Byte8 *tag, const char *fileName, const char *funcName,
     va_end(va);
 
     va_start(va, fmt);
-    g_Log->_Common5(tag, codeLine, LogLevel::Info, fmt, va, finalSize);
+    g_Log->_Common5(tag, fileName, codeLine, LogLevel::Info, fmt, va, finalSize);
     va_end(va);
 }
 
@@ -70,7 +70,7 @@ void LogTool::Warn(const Byte8 *tag, const char *fileName, const char *funcName,
     va_end(va);
 
     va_start(va, fmt);
-    g_Log->_Common5(tag, codeLine, LogLevel::Warn, fmt, va, finalSize);
+    g_Log->_Common5(tag, fileName, codeLine, LogLevel::Warn, fmt, va, finalSize);
     va_end(va);
 }
 

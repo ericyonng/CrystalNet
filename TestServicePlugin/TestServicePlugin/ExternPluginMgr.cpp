@@ -27,7 +27,8 @@
 #include "pch.h"
 #include <TestServicePlugin/ExternPluginMgr.h>
 
-DEF_THREAD_LOCAL_DECLEAR SERVICE_NS::IPluginMgr *g_PluginMgr = NULL;
+ALWAYS_HIDDEN DEF_THREAD_LOCAL_DECLEAR SERVICE_NS::IPluginMgr *g_PluginMgr = NULL;
+ALWAYS_HIDDEN DEF_THREAD_LOCAL_DECLEAR SERVICE_NS::IPluginGlobal *g_PluginGlobal = NULL;
 
 KERNEL_BEGIN
 

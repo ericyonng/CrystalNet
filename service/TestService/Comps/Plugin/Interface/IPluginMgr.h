@@ -39,9 +39,6 @@ class IPluginMgr : public IGlobalSys
 
 public:
     IPluginMgr(UInt64 objTypeId) : IGlobalSys(objTypeId) {}
-
-    virtual IPluginGlobal *GetCurPluginGlobal() = 0;
-    virtual const IPluginGlobal *GetCurPluginGlobal() const = 0;
 };
 
 SERVICE_END

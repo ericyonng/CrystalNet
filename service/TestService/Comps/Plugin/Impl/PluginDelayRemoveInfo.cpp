@@ -51,14 +51,14 @@ PluginDelayRemoveInfo::~PluginDelayRemoveInfo()
             if(willClosePtr)
             {
                 CLOG_INFO("will close plugin...");
-                (*willClosePtr)(_pluginGlobal);
+                (*willClosePtr)();
             }
 
             auto closePtr = _shareLibraryLoader->LoadSym<ClosePluginPtr>(KERNEL_NS::LibString("ClosePlugin"));
             if(closePtr)
             {
                 CLOG_INFO("close plugin...");
-                (*closePtr)(_pluginGlobal);
+                (*closePtr)();
             }
 
             auto moduleId = _pluginGlobal->GetPluginModuleId();

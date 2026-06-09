@@ -48,8 +48,6 @@ public:
     void OnRegisterComps() override;
 
     KERNEL_NS::LibString ToString() const override;
-    virtual IPluginGlobal *GetCurPluginGlobal() override;
-    virtual const IPluginGlobal *GetCurPluginGlobal() const override;
 
 private:
     virtual Int32 _OnGlobalSysCompsCreated() override;
@@ -65,8 +63,8 @@ private:
 
     bool _InitPluginModule(KERNEL_NS::ShareLibraryLoader *shareLibrary, IPluginGlobal *&newPluginGlobal);
     void _CompletePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary);
-    void _WillClosePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary, IPluginGlobal *pluginGlobal);
-    void _ClosePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary, IPluginGlobal *pluginGlobal);
+    void _WillClosePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary);
+    void _ClosePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary);
     void _Clear();
     void _InitPath();
 

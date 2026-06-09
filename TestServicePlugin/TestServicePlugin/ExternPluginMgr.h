@@ -32,6 +32,9 @@
 #include "service/common/macro.h"
 #include <TestService/Comps/Plugin/Plugin.h>
 
-extern DEF_THREAD_LOCAL_DECLEAR SERVICE_NS::IPluginMgr *g_PluginMgr;
+extern ALWAYS_HIDDEN DEF_THREAD_LOCAL_DECLEAR SERVICE_NS::IPluginMgr *g_PluginMgr;
+
+// 所有逻辑, 对象的创建如果想寄存到程序集只能寄存在PluginGlobal避免扩散导致卸载动态库的时候卸不干净
+extern ALWAYS_HIDDEN DEF_THREAD_LOCAL_DECLEAR SERVICE_NS::IPluginGlobal *g_PluginGlobal;
 
 #endif

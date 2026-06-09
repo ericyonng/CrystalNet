@@ -158,7 +158,7 @@ protected:
     // 带log time 与日志级别
     void _Common4(Int32 levelId, const char *fmt, va_list va, UInt64 formatFinalSize);
 
-    void _Common5(const Byte8 *tag, Int32 codeLine, Int32 levelId, const char *fmt, va_list va, UInt64 formatFinalSize);
+    void _Common5(const Byte8 *tag, const char *fileName, Int32 codeLine, Int32 levelId, const char *fmt, va_list va, UInt64 formatFinalSize);
     static LibString _BuildTraceInfo();
     
     template<typename... Args>

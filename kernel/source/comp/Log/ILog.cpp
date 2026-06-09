@@ -30,6 +30,8 @@
 #include <kernel/comp/Log/ILog.h>
 
 #include "kernel/comp/LibTraceId.h"
+#include "kernel/comp/Utils/DirectoryUtil.h"
+#include "kernel/comp/Utils/FileUtil.h"
 
 KERNEL_BEGIN
     // ILog *ILog::GetDefaultInstance()
@@ -47,7 +49,7 @@ void ILog::Info(const Byte8 *tag, const char *fileName, const char *funcName, In
     va_end(va);
 
     va_start(va, fmt);
-    _Common5(tag, codeLine, LogLevel::Info, fmt, va, finalSize);
+    _Common5(tag, fileName, codeLine, LogLevel::Info, fmt, va, finalSize);
     va_end(va);
 }
 
@@ -59,7 +61,7 @@ void ILog::Debug(const Byte8 *tag, const char *fileName, const char *funcName, I
     va_end(va);
 
     va_start(va, fmt);
-    _Common5(tag, codeLine, LogLevel::Debug, fmt, va, finalSize);
+    _Common5(tag, fileName, codeLine, LogLevel::Debug, fmt, va, finalSize);
     va_end(va);
 }
 
@@ -71,7 +73,7 @@ void ILog::Warn(const Byte8 *tag, const char *fileName, const char *funcName, In
     va_end(va);
 
     va_start(va, fmt);
-    _Common5(tag, codeLine, LogLevel::Warn, fmt, va, finalSize);
+    _Common5(tag, fileName,  codeLine, LogLevel::Warn, fmt, va, finalSize);
     va_end(va);
 }
 
@@ -131,7 +133,7 @@ void ILog::NetDebug(const Byte8 *tag, const char *fileName, const char *funcName
     va_end(va);
 
     va_start(va, fmt);
-    _Common5(tag, codeLine, LogLevel::NetDebug, fmt, va, finalSize);
+    _Common5(tag, fileName,  codeLine, LogLevel::NetDebug, fmt, va, finalSize);
     va_end(va);
 }
 
@@ -143,7 +145,7 @@ void ILog::NetWarn(const Byte8 *tag, const char *fileName, const char *funcName,
     va_end(va);
 
     va_start(va, fmt);
-    _Common5(tag, codeLine, LogLevel::NetWarn, fmt, va, finalSize);
+    _Common5(tag, fileName, codeLine, LogLevel::NetWarn, fmt, va, finalSize);
     va_end(va);
 }
 
@@ -155,7 +157,7 @@ void ILog::NetInfo(const Byte8 *tag, const char *fileName, const char *funcName,
     va_end(va);
 
     va_start(va, fmt);
-    _Common5(tag, codeLine, LogLevel::NetInfo, fmt, va, finalSize);
+    _Common5(tag, fileName, codeLine, LogLevel::NetInfo, fmt, va, finalSize);
     va_end(va);
 }
 
@@ -179,7 +181,7 @@ void ILog::NetTrace(const Byte8 *tag, const char *fileName, const char *funcName
     va_end(va);
 
     va_start(va, fmt);
-    _Common5(tag, codeLine, LogLevel::NetTrace, fmt, va, finalSize);
+    _Common5(tag, fileName, codeLine, LogLevel::NetTrace, fmt, va, finalSize);
     va_end(va);
 }
 
@@ -191,7 +193,7 @@ void ILog::Sys(const Byte8 *tag, const char *fileName, const char *funcName, Int
     va_end(va);
 
     va_start(va, fmt);
-    _Common5(tag, codeLine, LogLevel::Sys, fmt, va, finalSize);
+    _Common5(tag, fileName, codeLine, LogLevel::Sys, fmt, va, finalSize);
     va_end(va);
 }
 
@@ -228,7 +230,7 @@ void ILog::Trace(const Byte8 *tag, const char *fileName, const char *funcName, I
     va_end(va);
 
     va_start(va, fmt);
-    _Common5(tag, codeLine, LogLevel::Trace, fmt, va, finalSize);
+    _Common5(tag, fileName, codeLine, LogLevel::Trace, fmt, va, finalSize);
     va_end(va);
 }
 
@@ -255,7 +257,7 @@ void ILog::_Common1(const Byte8 *tag, Int32 levelId, const char *fileName, const
     LogData *newLogData = LogData::New_LogData();
     newLogData->_logTime.UpdateTime();
     auto &logInfo = newLogData->_logInfo;
-    logInfo.AppendFormat("%s<%s>[%s][%s][%s][line:%d][tid:%llu][%s]: "
+    logInfo.AppendFormat("%s<%s>[%s][%s][%s:%d][tid:%llu][%s]: "
                                    , newLogData->_logTime.ToString().c_str()
                                    , levelCfg->LevelName.c_str()
                                    , (tag ? tag : "")
@@ -378,7 +380,7 @@ void ILog::_Common4(Int32 levelId, const char *fmt, va_list va, UInt64 formatFin
     _WriteLog(levelCfg, newLogData);
 }
 
-void ILog::_Common5(const Byte8 *tag, Int32 codeLine, Int32 levelId, const char *fmt, va_list va, UInt64 formatFinalSize)
+void ILog::_Common5(const Byte8 *tag, const char *fileName, Int32 codeLine, Int32 levelId, const char *fmt, va_list va, UInt64 formatFinalSize)
 {
    if(UNLIKELY(!IsLogOpen()))
         return;
@@ -400,12 +402,14 @@ void ILog::_Common5(const Byte8 *tag, Int32 codeLine, Int32 levelId, const char 
     const KERNEL_NS::LibString &traceInfo = _BuildTraceInfo();
     const auto tid = KERNEL_NS::SystemUtil::GetCurrentThreadId();
     LogData *newLogData = LogData::New_LogData();
+    
     newLogData->_logTime.UpdateTime();
     auto &logInfo = newLogData->_logInfo;
-    logInfo.AppendFormat("%s<%s>[%s][line:%d][tid:%llu][%s]: "
+    logInfo.AppendFormat("%s<%s>[%s][%s:%d][tid:%llu][%s]: "
                         , newLogData->_logTime.ToString().c_str()
                         , levelCfg->LevelName.c_str()
                         , (tag ? tag : "")
+                        , KERNEL_NS::DirectoryUtil::GetFileNameInPath(fileName).c_str()
                         , codeLine
                         , tid
                         , traceInfo.c_str());

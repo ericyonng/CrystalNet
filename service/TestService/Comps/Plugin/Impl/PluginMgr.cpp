@@ -73,16 +73,6 @@ KERNEL_NS::LibString PluginMgr::ToString() const
     return KERNEL_NS::LibString().AppendFormat("plugin mgr, hotfix key:%s, %s", _hotfixKey.c_str(), KERNEL_NS::CompHostObject::ToString().c_str());
 }
 
-IPluginGlobal *PluginMgr::GetCurPluginGlobal()
-{
-    return _pluginGlobal;
-}
-
-const IPluginGlobal *PluginMgr::GetCurPluginGlobal() const
-{
-    return _pluginGlobal;
-}
-
 Int32 PluginMgr::_OnGlobalSysCompsCreated()
 {
     auto &&path = _GetPluginLibraryFinalPath();
@@ -271,6 +261,7 @@ bool PluginMgr::_InitPluginModule(KERNEL_NS::ShareLibraryLoader *shareLibrary, I
         auto willClosePtr = shareLibrary->LoadSym<WillClosePluginPtr>(KERNEL_NS::LibString("WillClosePlugin"));
         auto closePluginPtr = shareLibrary->LoadSym<ClosePluginPtr>(KERNEL_NS::LibString("ClosePlugin"));
         auto setPluginMgrPtr = shareLibrary->LoadSym<SetPluginMgrPtr>(KERNEL_NS::LibString("SetPluginMgr"));
+        auto setPluginGlobalPtr = shareLibrary->LoadSym<SetPluginGlobalPtr>(KERNEL_NS::LibString("SetPluginGlobal"));
         auto getPluginModuleIdPtr = shareLibrary->LoadSym<GetPluginModuleIdPtr>(KERNEL_NS::LibString("GetPluginModuleId"));
 
         if((!initPtr) || (!startPtr) || (!startCompletePtr) || (!willClosePtr) || (!closePluginPtr) ||(!setPluginMgrPtr) || (!getPluginModuleIdPtr))
@@ -283,30 +274,51 @@ bool PluginMgr::_InitPluginModule(KERNEL_NS::ShareLibraryLoader *shareLibrary, I
         // 设置模块id
         auto moduleId = (*getPluginModuleIdPtr)();
         pluginGlobal->SetPluginModuleId(moduleId);
-    
+
+        CLOG_INFO("_InitPluginModule create plugin global:%p, library:%s, at lib:%p module:%llu"
+            , pluginGlobal.AsSelf(), shareLibrary->GetLibraryPath().c_str(), shareLibrary->GetLibrary(), moduleId);
+
         // 设置PluginMgrPtr
         (*setPluginMgrPtr)(this);
-    
-        auto pluginRet = (*initPtr)(pluginGlobal.AsSelf());
-        if(pluginRet != Status::Success)
+        // 设置全局对象
+        (*setPluginGlobalPtr)(pluginGlobal.AsSelf());
+
+        auto st = pluginGlobal->Init();
+        if (st != Status::Success)
         {
-            CLOG_ERROR("init fail st:%d", pluginRet);
-            _WillClosePlugin(shareLibrary, pluginGlobal.AsSelf());
-            _ClosePlugin(shareLibrary, pluginGlobal.AsSelf());
+            CLOG_ERROR("pluginGlobal init fail st:%d", st);
             return false;
         }
     
-        pluginRet = (*startPtr)(pluginGlobal.AsSelf());
+        auto pluginRet = (*initPtr)();
+        if(pluginRet != Status::Success)
+        {
+            CLOG_ERROR("init fail st:%d", pluginRet);
+            _WillClosePlugin(shareLibrary);
+            _ClosePlugin(shareLibrary);
+            return false;
+        }
+
+        st = pluginGlobal->Start();
+        if (st != Status::Success)
+        {
+            CLOG_ERROR("pluginGlobal start fail st:%d", st);
+            _WillClosePlugin(shareLibrary);
+            _ClosePlugin(shareLibrary);
+            return false;
+        }
+        pluginRet = (*startPtr)();
         if(pluginRet != Status::Success)
         {
             CLOG_ERROR("start fail st:%d", pluginRet);
-            _WillClosePlugin(shareLibrary, pluginGlobal.AsSelf());
-            _ClosePlugin(shareLibrary, pluginGlobal.AsSelf());
+            _WillClosePlugin(shareLibrary);
+            _ClosePlugin(shareLibrary);
             return false;
         }
 
         newPluginGlobal = pluginGlobal.pop();
-        CLOG_INFO("start plugin success service:%s moduleId:%llu library load at:%p newPluginGlobal:%p.", GetService()->ToString().c_str(), moduleId, shareLibrary->GetLibrary(), newPluginGlobal);
+        CLOG_INFO("_InitPluginModule start plugin success service:%s moduleId:%llu library load at: %s, %p newPluginGlobal:%p."
+            , GetService()->ToString().c_str(), moduleId, shareLibrary->GetLibraryPath().c_str(), shareLibrary->GetLibrary(), newPluginGlobal);
 
         return true;
     }
@@ -322,7 +334,7 @@ bool PluginMgr::_InitPluginModule(KERNEL_NS::ShareLibraryLoader *shareLibrary, I
     return false;
 }
 
-void PluginMgr::_WillClosePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary, IPluginGlobal *pluginGlobal)
+void PluginMgr::_WillClosePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary)
 {
     try
     {
@@ -333,8 +345,8 @@ void PluginMgr::_WillClosePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary, IP
             return;
         }
     
-        (*willClosePtr)(pluginGlobal);
-        g_Log->Info(LOGFMT_OBJ_TAG("will close plugin..."));
+        (*willClosePtr)();
+        CLOG_INFO("will close plugin share lib at:%p...", shareLibrary->GetLibrary());
     }
     catch (const std::exception &e)
     {
@@ -364,7 +376,7 @@ void PluginMgr::_CompletePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary)
     {
         try
         {
-            (*startCompletePtr)(_pluginGlobal);
+            (*startCompletePtr)();
             CLOG_INFO("plugin hotfix complete service:%s", GetService()->ToString().c_str());
         }
         catch (const std::exception &e)
@@ -379,7 +391,7 @@ void PluginMgr::_CompletePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary)
 }
 
 
-void PluginMgr::_ClosePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary, IPluginGlobal *pluginGlobal)
+void PluginMgr::_ClosePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary)
 {
     try
     {
@@ -390,8 +402,8 @@ void PluginMgr::_ClosePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary, IPlugi
             return;
         }
     
-        (*closePtr)(pluginGlobal);
-        g_Log->Info(LOGFMT_OBJ_TAG("close plugin pluginGlobal:%p"), pluginGlobal);
+        (*closePtr)();
+        CLOG_INFO("close plugin share lib at:%p", shareLibrary->GetLibrary());
     }
     catch (const std::exception &e)
     {

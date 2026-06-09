@@ -37,15 +37,15 @@
 #include "ExternPluginMgr.h"
 
 
-void PluginLogic::OnPluginStartup(SERVICE_NS::IPluginGlobal *pluginGlobal)
+void PluginLogic::OnPluginStartup()
 {
     CLOG_INFO_GLOBAL(PluginLogic, "OnPluginStartup");
 
     // 监听事件
-    pluginGlobal->GetEventManager()->AddListener(EventEnums::TEST_PLUGIN_EVENT, &PluginLogic::OnPluginTestEvent);
+    g_PluginGlobal->GetEventManager()->AddListener(EventEnums::TEST_PLUGIN_EVENT, &PluginLogic::OnPluginTestEvent);
 
     // tick
-    auto timer = pluginGlobal->AddTimer();
+    auto timer = g_PluginGlobal->AddTimer();
     timer->SetTimeOutHandler(&PluginLogic::OnPluginTestTimer);
     timer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(5));
 
@@ -70,18 +70,18 @@ void PluginLogic::OnPluginTestEvent(KERNEL_NS::LibEvent *ev)
 {
     CLOG_INFO_GLOBAL(PluginLogic, "OnPluginTestEvent");
 
-    g_PluginMgr->GetCurPluginGlobal()->GetEventManager()->AddListener(EventEnums::TEST_PLUGIN_EVENT2, &PluginLogic::OnPluginTestEvent2);
+    g_PluginGlobal->GetEventManager()->AddListener(EventEnums::TEST_PLUGIN_EVENT2, &PluginLogic::OnPluginTestEvent2);
     auto ev2 = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::TEST_PLUGIN_EVENT2);
-    g_PluginMgr->GetCurPluginGlobal()->GetEventManager()->FireEvent(ev2);
+    g_PluginGlobal->GetEventManager()->FireEvent(ev2);
 }
 
 void PluginLogic::OnPluginTestEvent2(KERNEL_NS::LibEvent *ev)
 {
     CLOG_INFO_GLOBAL(PluginLogic, "OnPluginTestEvent2");
 
-    g_PluginMgr->GetCurPluginGlobal()->GetEventManager()->AddListener(EventEnums::TEST_PLUGIN_EVENT3, &PluginLogic::OnPluginTestEvent3);
+    g_PluginGlobal->GetEventManager()->AddListener(EventEnums::TEST_PLUGIN_EVENT3, &PluginLogic::OnPluginTestEvent3);
     auto ev3 = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::TEST_PLUGIN_EVENT3);
-    g_PluginMgr->GetCurPluginGlobal()->GetEventManager()->FireEvent(ev3);
+    g_PluginGlobal->GetEventManager()->FireEvent(ev3);
     CLOG_INFO_GLOBAL(PluginLogic, "OnPluginTestEvent2");
 }
 
@@ -104,8 +104,8 @@ KERNEL_NS::CoTask<Int32> PluginLogic::GetRandInt()
 void PluginLogic::OnPluginTestTimer(KERNEL_NS::LibTimer *t)
 {
     KERNEL_NS::LibString info;
-    info.AppendFormat("=> plugin test timer dasfa service:%s", g_PluginMgr->GetService()->ToString().c_str());
-    g_PluginMgr->GetCurPluginGlobal()->TestHello(info);
+    info.AppendFormat("=> plugin test timer hello world service:%s", g_PluginMgr->GetService()->ToString().c_str());
+    g_PluginGlobal->TestHello(info);
 
     if(!IsTestAddTas())
     {
