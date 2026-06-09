@@ -1,3 +1,16 @@
+# 热更指令
+
+```
+windows: 
+控制台输入fix并回车
+
+linux(pid:进程id):
+sh ./scripts/hotfix/hotfix.sh pid
+
+```
+
+
+
 # 热更插件集
 
 * 采用数据和逻辑分离，数据定义在TestService中, 逻辑写在Plugin中
