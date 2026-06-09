@@ -323,17 +323,26 @@ void LibLog::Close()
 
     CRYSTAL_TRACE("wait all log coroutine quit...");
 
-    for(Int32 idx = 0; idx < threadCount; ++idx)
+    Int32 threadWaiter = threadCount;
+    while (threadWaiter > 0)
     {
-        auto lck = _flushLocks[idx];
-        if(LIKELY(lck))
+        threadWaiter = 0;
+        for(Int32 idx = 0; idx < threadCount; ++idx)
         {
-            while (lck->HasWaiter())
+            auto lck = _flushLocks[idx];
+            if(LIKELY(lck))
             {
-                lck->Broadcast();
-                CRYSTAL_TRACE("wait log coroutine quit idx:%d ...", idx);
+                if (lck->HasWaiter())
+                {
+                    lck->Broadcast();
+                    CRYSTAL_TRACE("wait log coroutine quit idx:%d ...", idx);
+                    ++threadWaiter;
+                }
             }
         }
+
+        KERNEL_NS::SystemUtil::ThreadSleep(1000);
+        CRYSTAL_TRACE("wait log coroutine quit ...");
     }
 
     // 等所有线程退出
