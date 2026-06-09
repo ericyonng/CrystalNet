@@ -86,6 +86,8 @@ const IPluginGlobal *PluginMgr::GetCurPluginGlobal() const
 Int32 PluginMgr::_OnGlobalSysCompsCreated()
 {
     auto &&path = _GetPluginLibraryFinalPath();
+    CLOG_INFO("plugin library path:%s", path.c_str());
+    
     auto shareLibrary = GetComp<KERNEL_NS::ShareLibraryLoader>();
     shareLibrary->SetLibraryPath(path);
 
@@ -547,22 +549,27 @@ KERNEL_NS::LibString PluginMgr::_GetPluginLibraryFinalPath()
     
     KERNEL_NS::LibString path = _hotfixFilePath;
 
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
     auto &&dirPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(_hotfixFilePath);
     auto &&fileNamePart = KERNEL_NS::DirectoryUtil::GetFileNameInPath(_hotfixFilePath);
     auto &&withoutExtension = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(fileNamePart);
     auto &&withoutExtensionMatch = withoutExtension + ".*";
+
+    KERNEL_NS::LibString libraryExtension;
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    libraryExtension = ".dll";
+#else
+    libraryExtension = ".so";
+#endif
     
     UInt64 maxTimestampSuffix = 0;
-    KERNEL_NS::DirectoryUtil::TraverseDirRecursively(dirPath, [&withoutExtensionMatch, &withoutExtension, &maxTimestampSuffix, &fileNamePart](const KERNEL_NS::FindFileInfo &fileInfo, bool &isContinue)->bool
+    KERNEL_NS::DirectoryUtil::TraverseDirRecursively(dirPath, [&libraryExtension, &withoutExtensionMatch, &withoutExtension, &maxTimestampSuffix, &fileNamePart](const KERNEL_NS::FindFileInfo &fileInfo, bool &isContinue)->bool
     {
         if(KERNEL_NS::FileUtil::IsDir(fileInfo))
             return true;
 
         if(KERNEL_NS::FileUtil::IsFile(fileInfo))
         {
-            // .dll
-            if(fileInfo._extension != ".dll")
+            if(fileInfo._extension != libraryExtension)
                 return true;
             
             if(KERNEL_NS::StringUtil::IsMatch(fileInfo._fileName, withoutExtensionMatch))
@@ -598,9 +605,8 @@ KERNEL_NS::LibString PluginMgr::_GetPluginLibraryFinalPath()
     // 没有时间戳后缀, 用原始文件名
     if(maxTimestampSuffix != 0)
     {
-        path = dirPath + withoutExtension + KERNEL_NS::LibString().AppendFormat(".%llu.dll", maxTimestampSuffix);
+        path = dirPath + withoutExtension + KERNEL_NS::LibString().AppendFormat(".%llu%s", maxTimestampSuffix, libraryExtension.c_str());
     }
-#endif
     
     // 1. 判断文件存在否
     if(!KERNEL_NS::FileUtil::IsFileExist(path.c_str()))
