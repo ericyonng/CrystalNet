@@ -417,7 +417,9 @@ KERNEL_NS::CoTask<> CommandMgr::_LinuxWork()
     while (!poller->IsQuit())
     {
         // 5秒扫描一次
+        _isWorking.store(false, std::memory_order_release);
         co_await CoDelay(KERNEL_NS::TimeSlice::FromSeconds(5));
+        _isWorking.store(true, std::memory_order_release);
 
         // 拷贝出来的cmd不释放
         _lck.Lock();
@@ -477,6 +479,7 @@ KERNEL_NS::CoTask<> CommandMgr::_LinuxWork()
     }
 
     _isWorking.store(false, std::memory_order_release);
+    CLOG_INFO("command monitor thread will quit");
 }
 #endif
 
