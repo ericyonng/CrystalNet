@@ -261,10 +261,15 @@ project "TestServicePlugin"
     filter {}
 
     	-- post build(linux)
-	filter { "system:linux", "configurations:release*"}
-	postbuildmessage "Generation hotfix so with timestamp ..."
-	postbuildcommands(string.format("sh %splugin_building.sh %s %s .so",  SCRIPT_PATH, SCRIPT_PATH, targetprefix() .. targetname() .. targetsuffix()))
+	filter { "configurations:debug*", "system:not windows"}
+	    postbuildmessage "Generation hotfix so with timestamp ..."
+	    postbuildcommands(string.format("sh %splugin_building.sh %s %s .so",  SCRIPT_PATH, SCRIPT_PATH, "libTestServicePlugin_debug"))
 	filter {}
+
+    filter { "configurations:release*", "system:not windows"}
+        postbuildmessage "Generation hotfix so with timestamp ..."
+        postbuildcommands(string.format("sh %splugin_building.sh %s %s .so",  SCRIPT_PATH, SCRIPT_PATH, "libTestServicePlugin"))
+    filter {}
 
 -- ****************************************************************************
 
