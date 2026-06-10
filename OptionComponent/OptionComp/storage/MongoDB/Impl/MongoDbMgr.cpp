@@ -470,8 +470,8 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
                 return iterKey != bsonDoc.end();
             }))
             {
-                CLOG_ERROR("Failed to insert data into collection of:lack unique key please check, dbName:%s, collectionName:%s, jsonStringPtr:%s"
-                    , dbName.c_str(), collectionName.c_str(), jsonStringPtr->c_str());
+                CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("Failed to insert data into collection of:lack unique key please check, dbName:%s, collectionName:%s, jsonStringPtr:"
+                    , dbName.c_str(), collectionName.c_str()), *jsonStringPtr);
                                                                             
                 return res;
             }
@@ -479,32 +479,32 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
             auto ret = collection.insert_one(bsonDoc.view());
             if(!ret)
             {
-                CLOG_ERROR("Failed to insert data into collection, dbName:%s, collectionName:%s, jsonStringPtr:%s", dbName.c_str(), collectionName.c_str()
-                    , jsonStringPtr->c_str());
+                CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("Failed to insert data into collection, dbName:%s, collectionName:%s, jsonStringPtr:", dbName.c_str(), collectionName.c_str()
+                    ), *jsonStringPtr);
                 return res;
             }
 
             auto &&id = ret->inserted_id().get_oid().value.to_string();
-            CLOG_DEBUG("insert one success, dbName:%s, collectionName:%s, keyValue:%s, mongodb _id:%s", dbName.c_str(), collectionName.c_str()
-                    , jsonStringPtr->c_str(), id.c_str());
+            CLOG_DEBUG_ARGS(KERNEL_NS::LibString().AppendFormat("insert one success, dbName:%s, collectionName:%s, mongodb _id:%s, jsonString:", dbName.c_str(), collectionName.c_str()
+                    , id.c_str()), *jsonStringPtr);
             res.IsSuccess = true;
         }
         catch (const mongocxx::exception &e)
         {
-            CLOG_ERROR("AddData mongodb mongocxx exception: %s, dbName:%s collectionName:%s, jsonStringPtr:%s"
-                , e.what(), dbName.c_str(), collectionName.c_str(), jsonStringPtr->c_str());
+            CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("AddData mongodb mongocxx exception: %s, dbName:%s collectionName:%s, jsonStringPtr:"
+                , e.what(), dbName.c_str(), collectionName.c_str()), *jsonStringPtr);
             return res;
         }
         catch (const std::exception &e)
         {
-            CLOG_ERROR("AddData mongodb std exception: %s, dbName:%s collectionName:%s, jsonStringPtr:%s"
-                , e.what(), dbName.c_str(), collectionName.c_str(),  jsonStringPtr->c_str());
+            CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("AddData mongodb std exception: %s, dbName:%s collectionName:%s, jsonStringPtr:"
+                , e.what(), dbName.c_str(), collectionName.c_str()),  *jsonStringPtr);
             return res;
         }
         catch (...)
         {
-            CLOG_ERROR("AddData mongodb unknown exception: dbName:%s collectionName:%s, jsonStringPtr:%s"
-                , dbName.c_str(), collectionName.c_str(), jsonStringPtr->c_str());
+            CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("AddData mongodb unknown exception: dbName:%s collectionName:%s, jsonStringPtr:"
+                , dbName.c_str(), collectionName.c_str()), *jsonStringPtr);
             
             return res;
         }
@@ -772,6 +772,402 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::DelData(KERNEL_NS::LibString dbName, KERNEL_
     co_return true;
 }
 
+
+KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant>> uniqueKv, KERNEL_NS::LibString *jsonString)
+{
+    if(_focusDbs.find(dbName) == _focusDbs.end())
+    {
+        CLOG_ERROR("ReplaceData fail, db:%s, not focus before will started, collection:%s, uniqueKv:%s"
+            , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem) -> LibString
+            {
+                return LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+            }).c_str());
+        
+        co_return false;
+    }
+
+    auto isSuc = co_await _eventLoopThread->SendAsync<MongoAsyncRes>([this, dbName, collectionName, uniqueKv, jsonString]()->MongoAsyncRes
+    {
+        MongoAsyncRes res;
+        SmartPtr<LibString, AutoDelMethods::Release> jsonStringPtr(jsonString);
+
+        try
+        {
+            auto client = _connectionPool->acquire();
+            auto db = client[dbName];
+            auto collection = db[collectionName];
+            
+            auto &&bsonDoc = bsoncxx::from_json(*jsonStringPtr);
+
+            // bsonDoc 有没有 uniqueKv
+            for (auto &iter :uniqueKv)
+            {
+                if (bsonDoc.find(iter.first) == bsonDoc.end())
+                {
+                    CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("Failed to replace data into collection of:jsonString lack unique key please check, dbName:%s, collectionName:%s, uniqueKv:%s, jsonStringPtr:"
+                        , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem) -> KERNEL_NS::LibString
+                            {
+                                return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+                            }).c_str()), *jsonStringPtr);
+                    
+                    return  res;   
+                }
+            }
+
+            // 唯一键检查
+            if(!_CheckHasUniqueKey(dbName, collectionName, [&bsonDoc](const KERNEL_NS::LibString &idxName, const KERNEL_NS::LibString &field) -> bool
+            {
+                auto iterKey = bsonDoc.find(field);
+                return iterKey != bsonDoc.end();
+            }))
+            {
+                CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("Failed to replace data into collection of:lack unique key please check, dbName:%s, collectionName:%s, jsonStringPtr:"
+                    , dbName.c_str(), collectionName.c_str()), *jsonStringPtr);
+                                                                            
+                return res;
+            }
+
+            // 唯一键检查
+             if(!_CheckHasUniqueKey(dbName, collectionName, [&uniqueKv](const KERNEL_NS::LibString &idxName, const KERNEL_NS::LibString &field) -> bool
+             {
+                 for(auto &kv : uniqueKv)
+                 {
+                     if(kv.first == field)
+                         return true;
+                 }
+                 return false;
+             }))
+             {
+                 CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("Failed to replace data into collection of:lack unique key please check, kv:%s dbName:%s, collectionName:%s,  jsonStringPtr:"
+                     ,  KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem) -> KERNEL_NS::LibString
+                     {
+                         return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+                     }).c_str(), dbName.c_str(), collectionName.c_str()), *jsonStringPtr);
+                 return res;
+             }
+            
+            // 设置表的大多数写成功, 且journal写完成功才算成功
+            auto &&concern = _MakeMongoMajorityWriteConcern();
+            collection.write_concern(concern);
+            
+            bsoncxx::builder::basic::document fullKv;
+            for(auto &kv : uniqueKv)
+            {
+                auto &key = kv.first;
+                if(kv.second.IsBriefData())
+                {
+                    fullKv.append(bsoncxx::builder::basic::kvp(key.GetRaw(),  static_cast<std::int64_t>(kv.second.AsInt64())));
+                }
+                else if(kv.second.IsStr())
+                {
+                    auto &&str = kv.second.AsStr();
+                    fullKv.append(bsoncxx::builder::basic::kvp(key.GetRaw(), str.GetRaw()));
+                }
+            }
+
+            // 找不到则创建
+            mongocxx::options::replace opts{};
+            opts.upsert(true);  // 无匹配时插入新文档
+            auto result = collection.replace_one(fullKv.view(), bsonDoc.view(), opts);
+            bool isSuccess = false;
+            if (result)
+            {
+                // 没找到uniqueKv对应的文档因为设置了upsert, 所以会插入文档, 返回upserted_id modified_count为0
+                if (result->upserted_id())
+                {
+                    CLOG_INFO("replace data success, db:%s, collection:%s and not found unique key:%s, doc, add new doc to mongodb upserted_id:%s, modified_count:%d"
+                        ,dbName.c_str(), collectionName.c_str()
+                        , KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem) -> KERNEL_NS::LibString
+                            {
+                                return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+                            }).c_str(), result->upserted_id()->get_oid().value.to_string().c_str(), result->modified_count());
+
+                    isSuccess = true;
+                }
+                else if (result->matched_count() > 0)
+                {
+                    // matched说明找到了文档, modified_count 为1表示新旧文档不同, 发生更新, 0表示新旧文档相同不更新
+                    CLOG_INFO_ARGS(KERNEL_NS::LibString().AppendFormat("replace data success, db:%s, collection:%s, and found unique key:%s, doc, modified_count:%d, jsonStringPtr:", dbName.c_str(), collectionName.c_str()
+                        , KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem) -> KERNEL_NS::LibString
+                            {
+                                return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+                            }).c_str(), result->modified_count()), *jsonStringPtr);
+
+                    isSuccess = true;
+                }
+                else
+                {
+                    // 不太可能出现
+                    CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("replace data unknown err from db, replace fail, and doc not update to db, db:%s, collection:%s, unique key:%s modified_count:%d, jsonStringPtr:", dbName.c_str(), collectionName.c_str()
+                        , KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem) -> KERNEL_NS::LibString
+                            {
+                                return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+                            }).c_str(), result->modified_count()), *jsonStringPtr);
+
+                }
+            }
+            else
+            {
+                // 不太可能出现
+                CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("replace data unknown err from db, replace fail, and doc not update to db, db:%s, collection:%s, unique key:%s modified_count:%d, jsonStringPtr:", dbName.c_str(), collectionName.c_str()
+                    , KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem) -> KERNEL_NS::LibString
+                        {
+                            return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+                        }).c_str(), result->modified_count()), *jsonStringPtr);
+            }
+
+            res.IsSuccess = isSuccess;
+
+            return res;
+        }
+        catch (const mongocxx::exception &e)
+        {
+            CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("replace data fail exception:%s, db:%s, collection:%s, uniqueKv:%s jsonStringPtr:"
+            ,e.what(), dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)
+            {
+                return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+            }).c_str()), *jsonStringPtr);
+        }
+        catch (const std::exception &e)
+        {
+            CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("replace data fail std exception:%s, db:%s, collection:%s, uniqueKv:%s, jsonStringPtr:"
+            ,e.what(), dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)
+            {
+                return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+            }).c_str()), *jsonStringPtr);
+        }
+        catch (...)
+        {
+            CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("replace data fail unknown exception, db:%s, collection:%s, uniqueKv:%s, jsonStringPtr:"
+            , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)
+            {
+                return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+            }).c_str()), *jsonStringPtr);
+        }
+
+        return res;
+    });
+
+    // 此时jsonStringPtr已经释放
+    if(!isSuc->IsSuccess)
+    {
+        CLOG_ERROR("replace data fail, db:%s, collection:%s, uniqueKv:%s", dbName.c_str(), collectionName.c_str()
+            , KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)
+            {
+                return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+            }).c_str());
+        co_return false;
+    }
+
+    CLOG_DEBUG("replace data success, db:%s, collection:%s, uniqueKv:%s", dbName.c_str(), collectionName.c_str()
+        , KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)
+        {
+            return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+        }).c_str());
+    
+    co_return true;
+}
+//
+// KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant>> uniqueKv, std::vector<std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant>> replaceFields)
+// {
+//     if(_focusDbs.find(dbName) == _focusDbs.end())
+//     {
+//         CLOG_ERROR("ReplaceData fail, db:%s, not focus before will started, collection:%s, uniqueKv:%s"
+//             , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem) -> LibString
+//             {
+//                 return LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+//             }).c_str());
+//         
+//         co_return false;
+//     }
+//
+//     auto isSuc = co_await _eventLoopThread->SendAsync<MongoAsyncRes>([this, dbName, collectionName, uniqueKv, jsonString]()->MongoAsyncRes
+//     {
+//         MongoAsyncRes res;
+//         SmartPtr<LibString, AutoDelMethods::Release> jsonStringPtr(jsonString);
+//
+//         try
+//         {
+//             auto client = _connectionPool->acquire();
+//             auto db = client[dbName];
+//             auto collection = db[collectionName];
+//             
+//             auto &&bsonDoc = bsoncxx::from_json(*jsonStringPtr);
+//
+//             // bsonDoc 有没有 uniqueKv
+//             for (auto &iter :uniqueKv)
+//             {
+//                 if (bsonDoc.find(iter.first) == bsonDoc.end())
+//                 {
+//                     CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("Failed to replace data into collection of:jsonString lack unique key please check, dbName:%s, collectionName:%s, uniqueKv:%s, jsonStringPtr:"
+//                         , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem) -> KERNEL_NS::LibString
+//                             {
+//                                 return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+//                             }).c_str()), *jsonStringPtr);
+//                     
+//                     return  res;   
+//                 }
+//             }
+//
+//             // 唯一键检查
+//             if(!_CheckHasUniqueKey(dbName, collectionName, [&bsonDoc](const KERNEL_NS::LibString &idxName, const KERNEL_NS::LibString &field) -> bool
+//             {
+//                 auto iterKey = bsonDoc.find(field);
+//                 return iterKey != bsonDoc.end();
+//             }))
+//             {
+//                 CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("Failed to replace data into collection of:lack unique key please check, dbName:%s, collectionName:%s, jsonStringPtr:"
+//                     , dbName.c_str(), collectionName.c_str()), *jsonStringPtr);
+//                                                                             
+//                 return res;
+//             }
+//
+//             // 唯一键检查
+//              if(!_CheckHasUniqueKey(dbName, collectionName, [&uniqueKv](const KERNEL_NS::LibString &idxName, const KERNEL_NS::LibString &field) -> bool
+//              {
+//                  for(auto &kv : uniqueKv)
+//                  {
+//                      if(kv.first == field)
+//                          return true;
+//                  }
+//                  return false;
+//              }))
+//              {
+//                  CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("Failed to replace data into collection of:lack unique key please check, kv:%s dbName:%s, collectionName:%s,  jsonStringPtr:"
+//                      ,  KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem) -> KERNEL_NS::LibString
+//                      {
+//                          return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+//                      }).c_str(), dbName.c_str(), collectionName.c_str()), *jsonStringPtr);
+//                  return res;
+//              }
+//             
+//             // 设置表的大多数写成功, 且journal写完成功才算成功
+//             auto &&concern = _MakeMongoMajorityWriteConcern();
+//             collection.write_concern(concern);
+//             
+//             bsoncxx::builder::basic::document fullKv;
+//             for(auto &kv : uniqueKv)
+//             {
+//                 auto &key = kv.first;
+//                 if(kv.second.IsBriefData())
+//                 {
+//                     fullKv.append(bsoncxx::builder::basic::kvp(key.GetRaw(),  static_cast<std::int64_t>(kv.second.AsInt64())));
+//                 }
+//                 else if(kv.second.IsStr())
+//                 {
+//                     auto &&str = kv.second.AsStr();
+//                     fullKv.append(bsoncxx::builder::basic::kvp(key.GetRaw(), str.GetRaw()));
+//                 }
+//             }
+//
+//             // 找不到则创建
+//             mongocxx::options::replace opts{};
+//             opts.upsert(true);  // 无匹配时插入新文档
+//             auto result = collection.replace_one(fullKv.view(), bsonDoc.view(), opts);
+//             bool isSuccess = false;
+//             if (result)
+//             {
+//                 // 没找到uniqueKv对应的文档因为设置了upsert, 所以会插入文档, 返回upserted_id modified_count为0
+//                 if (result->upserted_id())
+//                 {
+//                     CLOG_INFO("replace data success, db:%s, collection:%s and not found unique key:%s, doc, add new doc to mongodb upserted_id:%s, modified_count:%d"
+//                         ,dbName.c_str(), collectionName.c_str()
+//                         , KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem) -> KERNEL_NS::LibString
+//                             {
+//                                 return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+//                             }).c_str(), result->upserted_id()->get_oid().value.to_string().c_str(), result->modified_count());
+//
+//                     isSuccess = true;
+//                 }
+//                 else if (result->matched_count() > 0)
+//                 {
+//                     // matched说明找到了文档, modified_count 为1表示新旧文档不同, 发生更新, 0表示新旧文档相同不更新
+//                     CLOG_INFO_ARGS(KERNEL_NS::LibString().AppendFormat("replace data success, db:%s, collection:%s, and found unique key:%s, doc, modified_count:%d, jsonStringPtr:", dbName.c_str(), collectionName.c_str()
+//                         , KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem) -> KERNEL_NS::LibString
+//                             {
+//                                 return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+//                             }).c_str(), result->modified_count()), *jsonStringPtr);
+//
+//                     isSuccess = true;
+//                 }
+//                 else
+//                 {
+//                     // 不太可能出现
+//                     CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("replace data unknown err from db, replace fail, and doc not update to db, db:%s, collection:%s, unique key:%s modified_count:%d, jsonStringPtr:", dbName.c_str(), collectionName.c_str()
+//                         , KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem) -> KERNEL_NS::LibString
+//                             {
+//                                 return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+//                             }).c_str(), result->modified_count()), *jsonStringPtr);
+//
+//                 }
+//             }
+//             else
+//             {
+//                 // 不太可能出现
+//                 CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("replace data unknown err from db, replace fail, and doc not update to db, db:%s, collection:%s, unique key:%s modified_count:%d, jsonStringPtr:", dbName.c_str(), collectionName.c_str()
+//                     , KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem) -> KERNEL_NS::LibString
+//                         {
+//                             return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+//                         }).c_str(), result->modified_count()), *jsonStringPtr);
+//             }
+//
+//             res.IsSuccess = isSuccess;
+//
+//             return res;
+//         }
+//         catch (const mongocxx::exception &e)
+//         {
+//             CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("replace data fail exception:%s, db:%s, collection:%s, uniqueKv:%s jsonStringPtr:"
+//             ,e.what(), dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)
+//             {
+//                 return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+//             }).c_str()), *jsonStringPtr);
+//         }
+//         catch (const std::exception &e)
+//         {
+//             CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("replace data fail std exception:%s, db:%s, collection:%s, uniqueKv:%s, jsonStringPtr:"
+//             ,e.what(), dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)
+//             {
+//                 return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+//             }).c_str()), *jsonStringPtr);
+//         }
+//         catch (...)
+//         {
+//             CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("replace data fail unknown exception, db:%s, collection:%s, uniqueKv:%s, jsonStringPtr:"
+//             , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)
+//             {
+//                 return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+//             }).c_str()), *jsonStringPtr);
+//         }
+//
+//         return res;
+//     });
+//
+//     // 此时jsonStringPtr已经释放
+//     if(!isSuc->IsSuccess)
+//     {
+//         CLOG_ERROR("replace data fail, db:%s, collection:%s, uniqueKv:%s", dbName.c_str(), collectionName.c_str()
+//             , KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)
+//             {
+//                 return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+//             }).c_str());
+//         co_return false;
+//     }
+//
+//     CLOG_DEBUG("replace data success, db:%s, collection:%s, uniqueKv:%s", dbName.c_str(), collectionName.c_str()
+//         , KERNEL_NS::StringUtil::ToString(uniqueKv, ',', [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &elem)
+//         {
+//             return KERNEL_NS::LibString().AppendFormat("%s:%s", elem.first.c_str(), elem.second.ToString().c_str());
+//         }).c_str());
+//     
+//     co_return true;
+// }
+//
+// KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant>> uniqueKv, KERNEL_NS::LibString binaryKeyName, KERNEL_NS::LibStreamTL *binaryData)
+// {
+//     
+// }
+//     
 #endif
 
 void MongoDbMgr::DbReady(bool isReady)
