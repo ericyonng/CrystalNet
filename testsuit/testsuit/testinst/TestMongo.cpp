@@ -592,8 +592,8 @@ private:
     virtual Int32 _OnCompsCreated() override
     {
         auto mongoDbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
-        mongoDbMgr->SetSrvHostName("xxx");
-        mongoDbMgr->SetAccountPwd("eric", "xxx");
+        mongoDbMgr->SetSrvHostName("mongoscluster.ericyonng.com");
+        mongoDbMgr->SetAccountPwd("eric", "pK38U~mTk%5E3");
 
         mongoDbMgr->FocusDb("testsuit1");
         mongoDbMgr->FocusDb("testsuit2");
@@ -623,10 +623,12 @@ private:
         mongoDbMgr->SetShardKeyInfo("testsuit8", "player", shardKeys);
         mongoDbMgr->SetShardKeyInfo("testsuit9", "player", shardKeys);
         mongoDbMgr->SetShardKeyInfo("testsuit10", "player", shardKeys);
+        mongoDbMgr->SetShardKeyInfo("testsuit11", "player", shardKeys);
 
         mongoDbMgr->CreateIndex("testsuit8", "player", "idx_player_id", {{"player_id", 1}}, true);
         mongoDbMgr->CreateIndex("testsuit9", "player", "idx_player_id_role_id", {{"player_id", 1}, {"role_id", 1}}, true);
         mongoDbMgr->CreateIndex("testsuit10", "player", "idx_player_id_name", {{"player_id", 1}, {"name", 1}}, true);
+        mongoDbMgr->CreateIndex("testsuit11", "player", "idx_player_id", {{"player_id", 1}}, true);
 
         return Status::Success;
     }
@@ -695,6 +697,28 @@ private:
             loginReq.Encode(*tl);
             ret = co_await mongodbMgr->AddData("testsuit10", "player", multikv, "LoginReq2", tl);
             CLOG_INFO("add data:%d", ret);
+
+            // 覆盖数据
+            {
+                nlohmann::json replaceJson;
+                replaceJson["player_id"] = 598878;
+                replaceJson["name"] = "biantai ming";
+                replaceJson["age"] = 500;
+                KERNEL_NS::LibString *str = new KERNEL_NS::LibString(json.dump());
+                ret = co_await mongodbMgr->ReplaceData("testsuit11", "player", {std::make_pair("player_id", KERNEL_NS::Variant(598878))}, str);
+                CLOG_INFO("ReplaceData:%d", ret);
+            }
+            {
+                std::vector<std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant>> uniqueKv;
+                std::vector<std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant>> *fields = new std::vector<std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant>>;
+                uniqueKv.emplace_back("player_id", KERNEL_NS::Variant(598878));
+                fields->emplace_back("player_id", KERNEL_NS::Variant(598878));
+                fields->emplace_back("name", KERNEL_NS::Variant("xiaoming ni daye"));
+                fields->emplace_back("role_id", KERNEL_NS::Variant(155));
+                fields->emplace_back("touxiang", KERNEL_NS::Variant(std::vector<Int32>{12, 5, 66}));
+                ret = co_await mongodbMgr->ReplaceData("testsuit11", "player", {std::make_pair("player_id", KERNEL_NS::Variant(598878))}, fields);
+                CLOG_INFO("ReplaceData:%d", ret);
+            }
         });
 
         return Status::Success;

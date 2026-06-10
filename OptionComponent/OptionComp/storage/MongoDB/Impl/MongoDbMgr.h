@@ -35,6 +35,7 @@
 #include <mongocxx/instance.hpp>
 #include <mongocxx/pool.hpp>
 #include <OptionComp/storage/MongoDB/Impl/MongoIndexInfo.h>
+#include "bsoncxx/json.hpp"
 
 KERNEL_BEGIN
 
@@ -76,9 +77,9 @@ public:
 
     // uniqueKv:唯一索引
     virtual KERNEL_NS::CoTask<bool> ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant>> uniqueKv, KERNEL_NS::LibString *jsonString) override;
-    // virtual KERNEL_NS::CoTask<bool> ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant>> uniqueKv, std::vector<std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant>> replaceFields) override;
-    // virtual KERNEL_NS::CoTask<bool> ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant>> uniqueKv, KERNEL_NS::LibString binaryKeyName, KERNEL_NS::LibStreamTL *binaryData) override;
-    //
+    virtual KERNEL_NS::CoTask<bool> ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant>> uniqueKv, std::vector<std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant>> *replaceFields) override;
+    virtual KERNEL_NS::CoTask<bool> ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant>> uniqueKv, KERNEL_NS::LibString binaryKeyName, KERNEL_NS::LibStreamTL *binaryData) override;
+    
     #endif
 
     void DbReady(bool isReady);
@@ -93,6 +94,11 @@ protected:
     virtual void _OnHostBeforeCompsWillClose() override;
     virtual void _OnHostClose() override;
     void _Clear();
+    bool _TurnDoc(const std::vector<std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant>> &fields, bsoncxx::builder::basic::document &doc);
+    bool _TurnDoc(const std::vector<KERNEL_NS::Variant> &fields, bsoncxx::builder::basic::array &doc);
+    bool _TurnDoc(const KERNEL_NS::Variant::Dict &fields, bsoncxx::builder::basic::document &doc);
+    bool _TurnSimpleToDoc(const KERNEL_NS::Variant &elem, bsoncxx::types::bson_value::value &bsonValue);
+
     template<typename LambdaType>
     bool _CheckHasUniqueKey(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, LambdaType &&checkHasField) const
     {

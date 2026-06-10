@@ -42,9 +42,11 @@ class KERNEL_EXPORT LibBase64
 {
 public:
     static LibString Encode(const LibString &src);
+    static LibString Encode(const Byte8 *data, UInt64 len);
     static bool Encode(const Byte8 *data, UInt64 len, LibString &base64Text);
     static bool Encode(const Byte8 *data, UInt64 len, Byte8 *outBuffer, UInt64 &outLen);
     static LibString Decode(const LibString &src);
+    static LibString Decode(const Byte8 *data, UInt64 len);
     static bool Decode(const Byte8 *data, UInt64 inputLen, Byte8 *buffer, UInt64 &len);
     static bool Decode(const Byte8 *data, UInt64 inputLen, LibString &plainText);
 
@@ -59,6 +61,14 @@ ALWAYS_INLINE LibString LibBase64::Encode(const LibString &src)
     Encode(src.data(), src.size(), outStr);
     return outStr;
 }
+
+ALWAYS_INLINE LibString LibBase64::Encode(const Byte8 *data, UInt64 len)
+{
+    LibString outStr;
+    Encode(data, len, outStr);
+    return outStr;
+}
+
 
 ALWAYS_INLINE bool LibBase64::Encode(const Byte8 *data, UInt64 len, LibString &base64Text)
 {
@@ -123,6 +133,13 @@ ALWAYS_INLINE LibString LibBase64::Decode(const LibString &src)
 {
     LibString outStr;
     Decode(src.data(), src.size(), outStr);
+    return outStr;
+}
+
+ALWAYS_INLINE LibString LibBase64::Decode(const Byte8 *data, UInt64 len)
+{
+    LibString outStr;
+    Decode(data, len, outStr);
     return outStr;
 }
 
