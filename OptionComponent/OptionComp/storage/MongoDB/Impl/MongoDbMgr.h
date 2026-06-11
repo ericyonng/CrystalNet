@@ -86,7 +86,11 @@ public:
     virtual KERNEL_NS::CoTask<bool> ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<KERNEL_NS::LibString> keyNames, KERNEL_NS::LibString *jsonString) override;
     virtual KERNEL_NS::CoTask<bool> ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<KERNEL_NS::LibString> keyNames, std::map<KERNEL_NS::Variant, KERNEL_NS::Variant> *replaceFields) override;
     virtual KERNEL_NS::CoTask<bool> ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::Variant, KERNEL_NS::Variant> uniqueKv, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *> *binaryKeyNameRefData) override;
-    
+
+    virtual KERNEL_NS::CoTask<bool> UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, KERNEL_NS::LibString *jsonFields, bool createIfNotExists = false) override;
+    virtual KERNEL_NS::CoTask<bool> UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::Variant, KERNEL_NS::Variant> *updateFields, bool createIfNotExists = false) override;
+    virtual KERNEL_NS::CoTask<bool> UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *> *binaryKeyNameRefData, bool createIfNotExists = false) override;
+
     #endif
 
     void DbReady(bool isReady);
@@ -104,6 +108,7 @@ protected:
     bool _TurnDoc(const std::vector<KERNEL_NS::Variant> &fields, bsoncxx::builder::basic::array &doc);
     bool _TurnDoc(const KERNEL_NS::Variant::Dict &fields, bsoncxx::builder::basic::document &doc);
     bool _TurnSimpleToDoc(const KERNEL_NS::Variant &elem, bsoncxx::types::bson_value::value &bsonValue);
+    bool _TurnDoc(const std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> &fields, bsoncxx::builder::basic::document &doc);
 
     template<typename LambdaType>
     bool _CheckHasUniqueKey(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, LambdaType &&checkHasField) const

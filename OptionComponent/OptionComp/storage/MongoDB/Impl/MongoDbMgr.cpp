@@ -48,6 +48,22 @@ namespace
             });
     }
 
+    static ALWAYS_INLINE KERNEL_NS::LibString DictContainerToString(const std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> &kv)
+    {
+        return KERNEL_NS::StringUtil::ToStringBy(kv, ",", [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &iter)->KERNEL_NS::LibString
+        {
+            return KERNEL_NS::LibString().AppendFormat("%s:%s", iter.first.c_str(), iter.second.ToString().c_str());
+        });
+    }
+
+    static ALWAYS_INLINE KERNEL_NS::LibString DictContainerToString(const std::map<KERNEL_NS::Variant, KERNEL_NS::Variant> &kv)
+    {
+        return KERNEL_NS::StringUtil::ToStringBy(kv, ",", [](const std::pair<KERNEL_NS::Variant, KERNEL_NS::Variant> &iter)->KERNEL_NS::LibString
+        {
+            return KERNEL_NS::LibString().AppendFormat("%s:%s", iter.first.ToString().c_str(), iter.second.ToString().c_str());
+        });
+    }
+
     static ALWAYS_INLINE void DelStreamContainer(std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *> *d)
     {
         KERNEL_NS::ContainerUtil::DelContainer(*d, [](KERNEL_NS::LibStreamTL *p)
@@ -1133,14 +1149,14 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KER
 {
     if (UNLIKELY(!binaryKeyNameRefData))
     {
-        CLOG_ERROR("AddData fail binaryKeyNameRefData is null, db:%s, not focus before will started, collection:%s, kv:%s, binary data:%s", dbName.c_str(), collectionName.c_str()
+        CLOG_ERROR("ReplaceData fail binaryKeyNameRefData is null, db:%s, not focus before will started, collection:%s, kv:%s, binary data:%s", dbName.c_str(), collectionName.c_str()
             , KERNEL_NS::StringUtil::ToString(uniqueKv, ',').c_str(), DictContainerToString(binaryKeyNameRefData).c_str());
         co_return false;
     }
     
     if(_focusDbs.find(dbName) == _focusDbs.end())
     {
-        CLOG_ERROR("AddData fail, db:%s, not focus before will started, collection:%s, kv:%s, binary data:%s", dbName.c_str(), collectionName.c_str()
+        CLOG_ERROR("ReplaceData fail, db:%s, not focus before will started, collection:%s, kv:%s, binary data:%s", dbName.c_str(), collectionName.c_str()
             , KERNEL_NS::StringUtil::ToString(uniqueKv, ',').c_str(), DictContainerToString(binaryKeyNameRefData).c_str());
 
         DelStreamContainer(binaryKeyNameRefData);
@@ -1178,7 +1194,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KER
                  return false;
              }))
              {
-                 CLOG_ERROR("Failed to insert data into collection of:lack unique key please check, kv:%s dbName:%s, collectionName:%s, binary data:%s"
+                 CLOG_ERROR("Failed to ReplaceData into collection of:lack unique key please check, kv:%s dbName:%s, collectionName:%s, binary data:%s"
                      ,  KERNEL_NS::StringUtil::ToString(uniqueKv, ',').c_str(), dbName.c_str(), collectionName.c_str(),DictContainerToString(binaryKeyNameRefData).c_str());
                  return res;
              }
@@ -1336,7 +1352,504 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KER
     
     co_return true;
 }
+
+KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, KERNEL_NS::LibString *jsonFields, bool createIfNotExists)
+{
+    if (UNLIKELY(!jsonFields))
+    {
+        CLOG_ERROR("UpdateData fail jsonFields is null, db:%s, not focus before will started, collection:%s, keyNames:%s"
+            , dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str());
+        co_return false;
+    }
     
+    if(!_focusDbs.contains(dbName))
+    {
+        CLOG_ERROR("UpdateData fail, db:%s, not focus before will started, collection:%s, kv:%s"
+            , dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str());
+        CRYSTAL_DELETE_SAFE(jsonFields);
+
+        co_return false;
+    }
+
+    auto isSuc = co_await _eventLoopThread->SendAsync<MongoAsyncRes>([this, createIfNotExists, dbName, collectionName, kv, jsonFields]()->MongoAsyncRes
+    {
+        MongoAsyncRes res;
+        SmartPtr<LibString, AutoDelMethods::Release> jsonStringPtr(jsonFields);
+
+        try
+        {
+            auto client = _connectionPool->acquire();
+            auto db = client[dbName];
+            auto collection = db[collectionName];
+
+            // 唯一键检查如果需要在不存在的情况下创建, kv必须包含唯一键索引
+            if(createIfNotExists)
+            {
+                 if(!_CheckHasUniqueKey(dbName, collectionName, [&kv](const KERNEL_NS::LibString &idxName, const KERNEL_NS::LibString &field) -> bool
+                 {
+                     for(auto &it : kv)
+                     {
+                         if(it.first == field)
+                             return true;
+                     }
+                     return false;
+                 }))
+                 {
+                    CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("Failed to update data into collection of:lack unique key please check, dbName:%s, collectionName:%s, kv:%s jsonStringPtr:"
+                        , dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str()), *jsonStringPtr);
+                                                                                                
+                    return res;
+                 }
+            }
+            
+            auto &&bsonDoc = bsoncxx::from_json(*jsonStringPtr);
+            
+            // 设置表的大多数写成功, 且journal写完成功才算成功
+            auto &&concern = _MakeMongoMajorityWriteConcern();
+            collection.write_concern(concern);
+            
+            bsoncxx::builder::basic::document fullKv;
+            if(!_TurnDoc(kv, fullKv))
+            {
+                CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("build full kv fail, update data into collection, kv:%s dbName:%s, collectionName:%s,  jsonStringPtr:"
+                    ,  DictContainerToString(kv).c_str(), dbName.c_str(), collectionName.c_str()), *jsonStringPtr);
+
+                return res;
+            }
+
+            // 找不到则创建
+            mongocxx::options::update opts{};
+            if(createIfNotExists)
+                opts.upsert(true);
+
+            auto result = collection.update_one(fullKv.view(), bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("$set", bsonDoc.view())), opts);
+            if (!result)
+            {
+                // 极少操作失败
+                CLOG_INFO("update data op fail, db:%s, collection:%s unique kv:%s"
+                    ,dbName.c_str(), collectionName.c_str()
+                    , DictContainerToString(kv).c_str());
+
+                return res;
+            }
+
+            if(result->upserted_id())
+            {
+                CLOG_DEBUG("update data success not found data, and and new data,  db:%s, collection:%s unique kv:%s, modified count:%d, upsert_id:%s", dbName.c_str(), collectionName.c_str()
+                    , DictContainerToString(kv).c_str(), result->modified_count(), result->upserted_id()->get_oid().value.to_string().c_str());
+
+                res.IsSuccess = true;
+                return res;
+            }
+
+            // 找不到数据
+            if(result->matched_count() == 0)
+            {
+                CLOG_WARN("update data fail: not found data, db:%s, collection:%s unique kv:%s"
+                    ,dbName.c_str(), collectionName.c_str()
+                    , DictContainerToString(kv).c_str());
+                
+                return res;
+            }
+
+            // modified_count为0表示前后无变化, > 0 表示前后有变化, 变化的数量
+            CLOG_DEBUG("update data success  db:%s, collection:%s unique kv:%s, modified count:%d", dbName.c_str(), collectionName.c_str()
+                    , DictContainerToString(kv).c_str(), result->modified_count());
+            
+            res.IsSuccess = true;
+
+            return res;
+        }
+        catch (const mongocxx::exception &e)
+        {
+            CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("update data fail exception:%s, db:%s, collection:%s, uniqueKv:%s jsonStringPtr:"
+            ,e.what(), dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str()), *jsonStringPtr);
+        }
+        catch (const std::exception &e)
+        {
+            CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("update data fail std exception:%s, db:%s, collection:%s, uniqueKv:%s, jsonStringPtr:"
+            ,e.what(), dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str()), *jsonStringPtr);
+        }
+        catch (...)
+        {
+            CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("update data fail unknown exception, db:%s, collection:%s, uniqueKv:%s, jsonStringPtr:"
+            , dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str()), *jsonStringPtr);
+        }
+
+        return res;
+    });
+
+    // 此时jsonStringPtr已经释放
+    if(!isSuc->IsSuccess)
+    {
+        CLOG_ERROR("update data fail, db:%s, collection:%s, uniqueKv:%s", dbName.c_str(), collectionName.c_str()
+            , DictContainerToString(kv).c_str());
+        co_return false;
+    }
+
+    CLOG_DEBUG("update data success, db:%s, collection:%s, uniqueKv:%s", dbName.c_str(), collectionName.c_str()
+        , DictContainerToString(kv).c_str());
+    
+    co_return true;
+}
+
+KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::Variant, KERNEL_NS::Variant> *updateFields, bool createIfNotExists)
+{
+    if (UNLIKELY(!updateFields))
+    {
+        CLOG_ERROR("UpdateData fail updateFields is null, db:%s, not focus before will started, collection:%s, kv:%s"
+            , dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str());
+        co_return false;
+    }
+    
+    if(_focusDbs.find(dbName) == _focusDbs.end())
+    {
+        CLOG_ERROR("UpdateData fail, db:%s, not focus before will started, collection:%s, kv:%s"
+            , dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str());
+        CRYSTAL_DELETE_SAFE(updateFields);
+        co_return false;
+    }
+
+    auto isSuc = co_await _eventLoopThread->SendAsync<MongoAsyncRes>([this, createIfNotExists, dbName, collectionName, kv, updateFields]()->MongoAsyncRes
+    {
+        MongoAsyncRes res;
+        SmartPtr<std::map<KERNEL_NS::Variant, KERNEL_NS::Variant>> updateFieldsPtr(updateFields);
+
+        try
+        {
+            auto client = _connectionPool->acquire();
+            auto db = client[dbName];
+            auto collection = db[collectionName];
+            
+            // 唯一键检查如果需要在不存在的情况下创建, kv必须包含唯一键索引
+            if(createIfNotExists)
+            {
+                 if(!_CheckHasUniqueKey(dbName, collectionName, [&kv](const KERNEL_NS::LibString &idxName, const KERNEL_NS::LibString &field) -> bool
+                 {
+                     for(auto &it : kv)
+                     {
+                         if(it.first == field)
+                             return true;
+                     }
+                     return false;
+                 }))
+                 {
+                    CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("Failed to update data into collection of:lack unique key please check, dbName:%s, collectionName:%s, kv:%s updateFields:"
+                        , dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str()), DictContainerToString(*updateFields));
+                                                                                                
+                    return res;
+                 }
+            }
+
+            
+            bsoncxx::builder::basic::document bsonDoc;
+            if(!_TurnDoc(*updateFields, bsonDoc))
+            {
+                CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("_TurnDoc updateFieldsPtr fail to update data into collection, kv:%s dbName:%s, collectionName:%s,  updateFields:"
+                ,  DictContainerToString(kv).c_str(), dbName.c_str(), collectionName.c_str())
+                , KERNEL_NS::StringUtil::ToString(*updateFields, ','));
+                
+                return res;
+            }
+            
+            // 设置表的大多数写成功, 且journal写完成功才算成功
+            auto &&concern = _MakeMongoMajorityWriteConcern();
+            collection.write_concern(concern);
+            
+            bsoncxx::builder::basic::document fullKv;
+            if(!_TurnDoc(kv, bsonDoc))
+            {
+                CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("_TurnDoc updateFieldsPtr fail to update data into collection, kv:%s dbName:%s, collectionName:%s,  updateFields:"
+                ,  DictContainerToString(kv).c_str(), dbName.c_str(), collectionName.c_str())
+                , KERNEL_NS::StringUtil::ToString(*updateFields, ','));
+
+                return res;
+            }
+
+            // 找不到则创建
+            mongocxx::options::update opts{};
+            if(createIfNotExists)
+                opts.upsert(true);  // 无匹配时插入新文档
+            
+            auto result = collection.update_one(fullKv.view(), bsonDoc.view(), opts);
+            if (!result)
+            {
+                // 极少操作失败
+                CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("update data op fail, db:%s, collection:%s unique kv:%s"
+                    ,dbName.c_str(), collectionName.c_str()
+                    , DictContainerToString(kv).c_str()), KERNEL_NS::StringUtil::ToString(*updateFields, ','));
+
+                return res;
+            }
+
+            if(result->upserted_id())
+            {
+                CLOG_DEBUG("update data success not found data, and and new data,  db:%s, collection:%s unique kv:%s, modified count:%d, upsert_id:%s", dbName.c_str(), collectionName.c_str()
+                    , DictContainerToString(kv).c_str(), result->modified_count(), result->upserted_id()->get_oid().value.to_string().c_str());
+
+                res.IsSuccess = true;
+                return res;
+            }
+
+            // 找不到数据
+            if(result->matched_count() == 0)
+            {
+                CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("update data fail: not found data, db:%s, collection:%s unique kv:%s"
+                ,dbName.c_str(), collectionName.c_str()
+                    , DictContainerToString(kv).c_str()), KERNEL_NS::StringUtil::ToString(*updateFields, ','));
+                
+                return res;
+            }
+
+            // modified_count为0表示前后无变化, > 0 表示前后有变化, 变化的数量
+            CLOG_DEBUG("update data success  db:%s, collection:%s unique kv:%s, modified count:%d", dbName.c_str(), collectionName.c_str()
+                    , DictContainerToString(kv).c_str(), result->modified_count());
+
+            res.IsSuccess = true;
+
+            return res;
+        }
+        catch (const mongocxx::exception &e)
+        {
+            CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("update data fail exception:%s, db:%s, collection:%s, kv:%s updateFields:"
+            ,e.what(), dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str())
+            , KERNEL_NS::StringUtil::ToString(*updateFields, ','));
+        }
+        catch (const std::exception &e)
+        {
+            CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("update data fail std exception:%s, db:%s, collection:%s, kv:%s, updateFields:"
+            ,e.what(), dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str())
+            , KERNEL_NS::StringUtil::ToString(*updateFields, ','));
+        }
+        catch (...)
+        {
+            CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("update data fail unknown exception, db:%s, collection:%s, kv:%s, updateFields:"
+            , dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str())
+            , KERNEL_NS::StringUtil::ToString(*updateFields, ','));
+        }
+
+        return res;
+    });
+
+    // 此时jsonStringPtr已经释放
+    if(!isSuc->IsSuccess)
+    {
+        CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("update data fail, db:%s, collection:%s, kv:", dbName.c_str(), collectionName.c_str())
+            , DictContainerToString(kv));
+        co_return false;
+    }
+
+    CLOG_DEBUG_ARGS(KERNEL_NS::LibString().AppendFormat("update data success, db:%s, collection:%s, kv:", dbName.c_str(), collectionName.c_str())
+        , DictContainerToString(kv));
+    
+    co_return true;
+}
+
+KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *> *binaryKeyNameRefData, bool createIfNotExists)
+{
+    if (UNLIKELY(!binaryKeyNameRefData))
+    {
+        CLOG_ERROR("UpdateData fail binaryKeyNameRefData is null, db:%s, not focus before will started, collection:%s, kv:%s, binary data:%s", dbName.c_str(), collectionName.c_str()
+            , KERNEL_NS::StringUtil::ToString(kv, ',').c_str(), DictContainerToString(binaryKeyNameRefData).c_str());
+        co_return false;
+    }
+    
+    if(_focusDbs.find(dbName) == _focusDbs.end())
+    {
+        CLOG_ERROR("UpdateData fail, db:%s, not focus before will started, collection:%s, kv:%s, binary data:%s", dbName.c_str(), collectionName.c_str()
+            , KERNEL_NS::StringUtil::ToString(kv, ',').c_str(), DictContainerToString(binaryKeyNameRefData).c_str());
+
+        DelStreamContainer(binaryKeyNameRefData);
+        
+        co_return false;
+    }
+    
+    auto isSuc = co_await _eventLoopThread->SendAsync<MongoAsyncRes>([this, dbName, collectionName, kv, binaryKeyNameRefData, createIfNotExists]()->MongoAsyncRes
+    {
+        MongoAsyncRes res;
+        SmartPtr<std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *>, AutoDelMethods::CustomDelete> steamDict(binaryKeyNameRefData);
+        steamDict.SetClosureDelegate([](void *arg)
+        {
+            DelStreamContainer(KERNEL_NS::KernelCastTo<std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *>>(arg));
+        });
+
+        try
+        {
+            auto client = _connectionPool->acquire();
+            auto db = client[dbName];
+            auto collection = db[collectionName];
+                    
+            // 设置表的大多数写成功, 且journal写完成功才算成功
+            auto &&concern = _MakeMongoMajorityWriteConcern();
+            collection.write_concern(concern);
+
+            // 唯一键检查
+            if(createIfNotExists)
+            {
+                if(!_CheckHasUniqueKey(dbName, collectionName, [&kv](const KERNEL_NS::LibString &idxName, const KERNEL_NS::LibString &field) -> bool
+                {
+                    for(auto &iter : kv)
+                    {
+                        if(iter.first == field)
+                            return true;
+                    }
+                    return false;
+                }))
+                {
+                    CLOG_ERROR("Failed to UpdateData into collection of:lack unique key please check, kv:%s dbName:%s, collectionName:%s, binary data:%s"
+                        ,  KERNEL_NS::StringUtil::ToString(kv, ',').c_str(), dbName.c_str(), collectionName.c_str(),DictContainerToString(binaryKeyNameRefData).c_str());
+                    return res;
+                }
+            }
+            
+            bsoncxx::builder::basic::document kvDoc;
+            for(auto &it : kv)
+            {
+                auto &k = it.first;
+                auto &v = it.second;
+                if(v.IsBriefData() || v.IsStr())
+                {
+                    auto middleValue = bsoncxx::types::bson_value::value(bsoncxx::types::b_null{});
+                    if(!_TurnSimpleToDoc(v, middleValue))
+                    {
+                        CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("_TurnSimpleToDoc fail value key:%s, value:", k.c_str()), v.ToString());
+                        return res;
+                    }
+                    if(middleValue.view().type() == bsoncxx::v_noabi::type::k_null)
+                    {
+                        CLOG_ERROR("Failed to update data into collection of:lack unique key please check, kv:%s dbName:%s, collectionName:%s, binary data:%s"
+                            ,  DictContainerToString(kv).c_str(), dbName.c_str(), collectionName.c_str(), DictContainerToString(binaryKeyNameRefData).c_str());
+                        
+                        return res;
+                    }
+                    
+                    kvDoc.append(bsoncxx::builder::basic::kvp(k.GetRaw(), middleValue));
+                }
+                else if(v.IsSeq())
+                {
+                    bsoncxx::builder::basic::array subArray;
+                    if(!_TurnDoc(v.AsSequence(), subArray))
+                    {
+                        CLOG_ERROR("_TurnDoc fail value type to update data into collection, kv:%s dbName:%s, collectionName:%s, binary data:%s, k:%s, vale:%s"
+                        ,  KERNEL_NS::StringUtil::ToString(kv, ',').c_str(), dbName.c_str(), collectionName.c_str(), DictContainerToString(binaryKeyNameRefData).c_str(), k.c_str(), v.ToString().c_str());
+                        
+                        return res;
+                    }
+                    
+                    kvDoc.append(bsoncxx::builder::basic::kvp(k.GetRaw(), subArray.extract()));
+                }
+                else if(v.IsDict())
+                {
+                    bsoncxx::builder::basic::document subDoc;
+                    if(!_TurnDoc(v.AsDict(), subDoc))
+                    {
+                        CLOG_ERROR("_TurnDoc dict fail value type to update data into collection, kv:%s dbName:%s, collectionName:%s, binary data:%s, k:%s, vale:%s"
+                        ,  KERNEL_NS::StringUtil::ToString(kv, ',').c_str(), dbName.c_str(), collectionName.c_str(), DictContainerToString(binaryKeyNameRefData).c_str(), k.c_str(), v.ToString().c_str());
+                        
+                        return res;
+                    }
+                    kvDoc.append(bsoncxx::builder::basic::kvp(k.GetRaw(), subDoc.extract()));
+                }
+                else
+                {
+                    CLOG_ERROR("unsurpport value type to update data into collection of:lack unique key please check, kv:%s dbName:%s, collectionName:%s, binary data:%s, k:%s, vale:%s"
+                        ,  KERNEL_NS::StringUtil::ToString(kv, ',').c_str(), dbName.c_str(), collectionName.c_str(), DictContainerToString(binaryKeyNameRefData).c_str(), k.c_str(), v.ToString().c_str());
+                    return res;
+                }
+            }
+
+            // 存储二进制数据
+            bsoncxx::builder::basic::document fullDoc;
+            for (auto &iter : *binaryKeyNameRefData)
+            {
+                auto &keyName = iter.first;
+                auto data = iter.second;
+                auto binData = bsoncxx::types::b_binary();
+                binData.sub_type = bsoncxx::binary_sub_type::k_binary;
+                binData.size = static_cast<uint32_t>(data->GetReadableSize());
+                binData.bytes = (uint8_t *) data->GetReadBegin();
+                fullDoc.append(bsoncxx::builder::basic::kvp(keyName.GetRaw(), binData));
+            }
+
+            // 找不到则创建
+            mongocxx::options::update opts{};
+            if(createIfNotExists)
+                opts.upsert(true);  // 无匹配时插入新文档
+            auto result = collection.update_one(kvDoc.view(), fullDoc.view(), opts);
+            if (!result)
+            {
+                // 极少操作失败
+                CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("update data op fail, db:%s, collection:%s unique kv:%s binary data:"
+                    ,dbName.c_str(), collectionName.c_str()
+                    , DictContainerToString(kv).c_str()), DictContainerToString(binaryKeyNameRefData));
+
+                return res;
+            }
+
+            if(result->upserted_id())
+            {
+                CLOG_DEBUG("update data success not found data, and and new data,  db:%s, collection:%s unique kv:%s, modified count:%d, upsert_id:%s", dbName.c_str(), collectionName.c_str()
+                    , DictContainerToString(kv).c_str(), result->modified_count(), result->upserted_id()->get_oid().value.to_string().c_str());
+
+                res.IsSuccess = true;
+                return res;
+            }
+
+            // 找不到数据
+            if(result->matched_count() == 0)
+            {
+                CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("update data fail: not found data, db:%s, collection:%s unique kv:%s binary data:"
+                ,dbName.c_str(), collectionName.c_str()
+                    , DictContainerToString(kv).c_str()), DictContainerToString(binaryKeyNameRefData));
+                
+                return res;
+            }
+
+            // modified_count为0表示前后无变化, > 0 表示前后有变化, 变化的数量
+            CLOG_DEBUG("update data success  db:%s, collection:%s unique kv:%s, modified count:%d", dbName.c_str(), collectionName.c_str()
+                    , DictContainerToString(kv).c_str(), result->modified_count());
+
+            res.IsSuccess = true;
+        }
+        catch (const mongocxx::exception &e)
+        {
+            auto &&kvStr = KERNEL_NS::StringUtil::ToString(kv, ',');
+            CLOG_ERROR("update data mongodb mongocxx exception: %s, dbName:%s collectionName:%s, kvStr:%s,binary data:%s"
+                , e.what(), dbName.c_str(), collectionName.c_str(), kvStr.c_str(), DictContainerToString(binaryKeyNameRefData).c_str());
+            return res;
+        }
+        catch (const std::exception &e)
+        {
+            auto &&kvStr = KERNEL_NS::StringUtil::ToString(kv, ',');
+            CLOG_ERROR("update data mongodb std exception: %s, dbName:%s collectionName:%s, kvStr:%s,binary data:%s"
+                , e.what(), dbName.c_str(), collectionName.c_str(), kvStr.c_str(), DictContainerToString(binaryKeyNameRefData).c_str());
+            return res;
+        }
+        catch (...)
+        {
+            auto &&kvStr = KERNEL_NS::StringUtil::ToString(kv, ',');
+            CLOG_ERROR("update data mongodb unknown exception: dbName:%s collectionName:%s, kvStr:%s, binary data:%s"
+                ,dbName.c_str(), collectionName.c_str(), kvStr.c_str(), DictContainerToString(binaryKeyNameRefData).c_str());
+            
+            return res;
+        }
+
+        return res;
+    });
+
+    if(!isSuc->IsSuccess)
+    {
+        auto &&kvStr = KERNEL_NS::StringUtil::ToString(kv, ',');
+        
+        CLOG_ERROR("update data fail, db:%s, collection:%s, unique kv:%s", dbName.c_str(), collectionName.c_str(), kvStr.c_str());
+        co_return false;
+    }
+
+    CLOG_DEBUG("update data success, db:%s, collection:%s, uniqueKv:%s", dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(kv, ',').c_str());
+    
+    co_return true;
+}
+
 #endif
 
 void MongoDbMgr::DbReady(bool isReady)
@@ -1619,6 +2132,57 @@ bool MongoDbMgr::_TurnSimpleToDoc(const KERNEL_NS::Variant &elem, bsoncxx::types
     }
 
     return false;
+}
+
+bool MongoDbMgr::_TurnDoc(const std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> &fields, bsoncxx::builder::basic::document &doc)
+{
+    for(auto iter : fields)
+    {
+        auto &key = iter.first;
+        auto &value = iter.second;
+        if(value.IsBriefData() || value.IsStr())
+        {
+            auto middleValue = bsoncxx::types::bson_value::value(bsoncxx::types::b_null{});
+            if(!_TurnSimpleToDoc(value, middleValue))
+            {
+                CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("_TurnSimpleToDoc value fail key:%s value:", key.c_str()), value.ToString());
+                return false;
+            }
+            if(middleValue.view().type() == bsoncxx::v_noabi::type::k_null)
+            {
+                CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("_TurnDoc middle value is null key:%s value:", key.c_str()), value.ToString());
+                return false;
+            }
+            doc.append(bsoncxx::builder::basic::kvp(key.GetRaw(), middleValue));
+        }
+        else if(value.IsSeq())
+        {
+            bsoncxx::builder::basic::array arrDoc;
+            if(!_TurnDoc(value.AsSequence(), arrDoc))
+            {
+                CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("_TurnDoc arrDoc fail is key:%s value:", key.c_str()), value.ToString());
+                return false;
+            }
+            doc.append(bsoncxx::builder::basic::kvp(key.GetRaw(), arrDoc.extract()));
+        }
+        else if(value.IsDict())
+        {
+            bsoncxx::builder::basic::document subDoc;
+            if(!_TurnDoc(value.AsDict(), subDoc))
+            {
+                CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("_TurnDoc subDoc fail is key:%s value:", key.c_str()), value.ToString());
+                return false;
+            }
+            doc.append(bsoncxx::builder::basic::kvp(key.GetRaw(), subDoc.extract()));
+        }
+        else
+        {
+            CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("_TurnDoc unsupported value type key%s, value:", key.c_str()), value.ToString());
+            return false;
+        }
+    }
+
+    return true;
 }
 
 
