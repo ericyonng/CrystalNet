@@ -691,7 +691,9 @@ private:
             loginReq.Encode(*tl);
             std::map<KERNEL_NS::Variant, KERNEL_NS::Variant> uniqueKv;
             uniqueKv.emplace(KERNEL_NS::Variant("player_id"), KERNEL_NS::Variant(5566654545646));
-            ret = co_await mongodbMgr->AddData("testsuit6", "player", uniqueKv, "LoginReq", tl);
+            auto streamDict = new std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *>();
+            streamDict->emplace("LoginReq", tl);
+            ret = co_await mongodbMgr->AddData("testsuit6", "player", uniqueKv, streamDict);
             CLOG_INFO("add data:%d, tl:%p, uniqueKv:%s", ret, tl, KERNEL_NS::StringUtil::ToString(uniqueKv, ',').c_str());
 
             // 移除数据
@@ -705,7 +707,9 @@ private:
             // 添加数据
             tl = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
             loginReq.Encode(*tl);
-            ret = co_await mongodbMgr->AddData("testsuit10", "player", multikv, "LoginReq2", tl);
+            streamDict = new std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *>();
+            streamDict->emplace("LoginReq2", tl);
+            ret = co_await mongodbMgr->AddData("testsuit10", "player", multikv, streamDict);
             CLOG_INFO("add data:%d", ret);
 
             // 覆盖数据
@@ -748,11 +752,16 @@ private:
                userInfo2->set_pwd("xiaoming-----------");
                userInfo2->set_logintoken("xxxxxxx4554");
                userInfo2->set_port(5555);
-               auto tl2 = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
-               loginReq2.Encode(*tl2);
+                
                 std::map<KERNEL_NS::Variant, KERNEL_NS::Variant> uniqueKv;
                 uniqueKv.emplace("player_id", KERNEL_NS::Variant(9999999999222LL));
-                ret = co_await mongodbMgr->ReplaceData("testsuit11", "player", uniqueKv, "Log", tl2);
+
+                tl = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                loginReq2.Encode(*tl);
+                streamDict = new std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *>();
+                streamDict->emplace("Log2", tl);
+                
+                ret = co_await mongodbMgr->ReplaceData("testsuit11", "player", uniqueKv, streamDict);
                 CLOG_INFO("ReplaceData:%d", ret);
             }
         });
