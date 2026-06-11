@@ -72,7 +72,7 @@ Int32 LoginMgr::OnLoaded(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db)
 Int32 LoginMgr::OnSave(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const
 {
     KERNEL_NS::LibString data;
-    if(UNLIKELY(!_loginInfo->ToJsonString(&(data.GetRaw()))))
+    if(UNLIKELY(!_loginInfo->ToJsonString(&data)))
     {
         g_Log->Error(LOGFMT_OBJ_TAG("serialize as json string fail user:%s"), GetUser()->ToString().c_str());
         return Status::SerializeFail;
