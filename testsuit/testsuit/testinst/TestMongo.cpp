@@ -594,6 +594,11 @@ private:
         auto mongoDbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
         mongoDbMgr->SetSrvHostName("xxx");
         mongoDbMgr->SetAccountPwd("eric", "123");
+        
+        auto &&progPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();
+        progPath.AppendFormat("/ini/service.yaml");
+        mongoDbMgr->SetConfigSource({progPath, NULL});
+        mongoDbMgr->SetConfigKeyName("MongoTestSuit");
 
         mongoDbMgr->FocusDb("testsuit1");
         mongoDbMgr->FocusDb("testsuit2");

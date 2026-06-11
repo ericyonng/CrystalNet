@@ -36,6 +36,10 @@
 #include <mongocxx/pool.hpp>
 #include <OptionComp/storage/MongoDB/Impl/MongoIndexInfo.h>
 #include "bsoncxx/json.hpp"
+#include <kernel/comp/FileMonitor/SourceWrap.h>
+#include <kernel/comp/FileMonitor/FileMonitor.h>
+#include <OptionComp/storage/MongoDB/Impl/MongodbConfig.h>
+#include <kernel/comp/FileMonitor/YamlDeserializer.h>
 
 KERNEL_BEGIN
 
@@ -60,6 +64,9 @@ public:
     virtual void SetAccountPwd(const KERNEL_NS::LibString &account, const KERNEL_NS::LibString &pwd) override;
     // 设置srv连接的域名
     virtual void SetSrvHostName(const KERNEL_NS::LibString &hostName) override;
+    // 设置配置来源
+    virtual void SetConfigSource(const KERNEL_NS::SourceWrap &source) override;
+    virtual void SetConfigKeyName(const KERNEL_NS::LibString &keyName) override;
 
     // 给表设置分片键
     virtual bool SetShardKeyInfo(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const std::vector<ShardKeyInfo> &shardKeyInfos, bool isUnique = false) override;
@@ -176,6 +183,11 @@ protected:
 
     // mongodb是不是started
     std::atomic_bool _willStarted;
+
+    // 配置来源
+    KERNEL_NS::SourceWrap _sourceWrap;
+    KERNEL_NS::LibString _mongoConfigKeyName;
+    KERNEL_NS::FileMonitor<MongodbConfig, KERNEL_NS::YamlDeserializer> *_configMonitor;
 };
 
 KERNEL_END

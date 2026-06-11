@@ -33,5 +33,6 @@
 
 #include <OptionComp/storage/MongoDB/Interface/IMongoDbMgr.h>
 #include <OptionComp/storage/MongoDB/Impl/MongoDbMgrFactory.h>
+#include <OptionComp/storage/MongoDB/Impl/MongodbConfig.h>
 
 #endif

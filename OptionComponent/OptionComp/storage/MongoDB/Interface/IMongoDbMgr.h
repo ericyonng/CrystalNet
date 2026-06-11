@@ -36,6 +36,8 @@
 
 KERNEL_BEGIN
 
+struct SourceWrap;
+
 class IMongoDbMgr : public CompHostObject
 {
     POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, IMongoDbMgr);
@@ -51,6 +53,9 @@ public:
     virtual void SetAccountPwd(const KERNEL_NS::LibString &account, const KERNEL_NS::LibString &pwd) = 0;
     // 设置srv连接的域名
     virtual void SetSrvHostName(const KERNEL_NS::LibString &hostName) = 0;
+    // 设置配置来源
+    virtual void SetConfigSource(const KERNEL_NS::SourceWrap &source) = 0;
+    virtual void SetConfigKeyName(const KERNEL_NS::LibString &keyName) = 0;
 
     // 给表设置分片键(需要在WillStart之前设置)
     virtual bool SetShardKeyInfo(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const std::vector<ShardKeyInfo> &shardKeyInfos, bool isUnique = false) = 0;

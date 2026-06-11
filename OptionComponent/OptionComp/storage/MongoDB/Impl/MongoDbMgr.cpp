@@ -280,6 +280,7 @@ MongoDbMgr::MongoDbMgr()
 ,_isDbReady{false}
 ,_dbFailErrCode{0}
 ,_willStarted{false}
+,_configMonitor(KERNEL_NS::FileMonitor<MongodbConfig, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
 {
  
 }
@@ -316,6 +317,17 @@ void MongoDbMgr::SetSrvHostName(const KERNEL_NS::LibString &hostName)
 {
     _srvHostName = hostName;
 }
+
+void MongoDbMgr::SetConfigSource(const KERNEL_NS::SourceWrap &source)
+{
+    _sourceWrap = source;
+}
+
+void MongoDbMgr::SetConfigKeyName(const KERNEL_NS::LibString &keyName)
+{
+    _mongoConfigKeyName = keyName;
+}
+
 
 bool MongoDbMgr::SetShardKeyInfo(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const std::vector<ShardKeyInfo> &shardKeyInfos, bool isUnique)
 {
@@ -1286,21 +1298,37 @@ Int32 MongoDbMgr::_OnHostInit()
 {
     try
     {
-        // 外部没有指定uri则使用srv的设置, 如果还是没有则报错
-        if(_uri.empty())
+        if ((!_sourceWrap.Path.empty()) || _sourceWrap.FromMemory)
         {
-            if(_account.empty() || _pwd.empty() || _srvHostName.empty())
+            if (!_configMonitor->Init(&_sourceWrap, _mongoConfigKeyName))
             {
-                CLOG_ERROR("have no mongodb+srv uri config, please check, account:%s, pwd:%s, srvHostName:%s", _account.c_str(), _pwd.c_str(), _srvHostName.c_str());
+                CLOG_ERROR("mongodb init config fail source wrap:%s,%p, _mongoConfigKeyName:%s"
+                    , _sourceWrap.Path.c_str(), _sourceWrap.FromMemory, _mongoConfigKeyName.c_str());
                 return Status::ConfigError;
             }
 
-            _uri.AppendFormat("mongodb+srv://%s:%s@%s/?authSource=admin&w=majority&journal=true&readConcernLevel=majority&maxPoolSize=100&connectTimeoutMS=180000&socketTimeoutMS=30000&retryWrites=true&retryReads=true&tls=false", _account.c_str(), _pwd.c_str(), _srvHostName.c_str());
+            auto current = _configMonitor->Current();
+            _uri.AppendFormat("mongodb+srv://%s:%s@%s/?authSource=admin&w=majority&journal=true&readConcernLevel=majority&maxPoolSize=100&connectTimeoutMS=180000&socketTimeoutMS=30000&retryWrites=true&retryReads=true&tls=false"
+                , current->Account.c_str(), current->Pwd.c_str(), current->SrvHostName.c_str());
+        }
+        else
+        {
+            // 外部没有指定uri则使用srv的设置, 如果还是没有则报错
+            if(_uri.empty())
+            {
+                if(_account.empty() || _pwd.empty() || _srvHostName.empty())
+                {
+                    CLOG_ERROR("have no mongodb+srv uri config, please check, account:%s, pwd:%s, srvHostName:%s", _account.c_str(), _pwd.c_str(), _srvHostName.c_str());
+                    return Status::ConfigError;
+                }
+
+                _uri.AppendFormat("mongodb+srv://%s:%s@%s/?authSource=admin&w=majority&journal=true&readConcernLevel=majority&maxPoolSize=100&connectTimeoutMS=180000&socketTimeoutMS=30000&retryWrites=true&retryReads=true&tls=false", _account.c_str(), _pwd.c_str(), _srvHostName.c_str());
+            }
         }
 
         auto uri = mongocxx::uri(_uri.GetRaw());
         _connectionPool = new mongocxx::pool(uri);
-
+        
         _eventLoopThread = new KERNEL_NS::LibEventLoopThread("MongoDbMgr", new MongodbThreadStartup(this));
         _eventLoopThread->Start();
     }
@@ -1376,6 +1404,11 @@ void MongoDbMgr::_Clear()
 {
     CRYSTAL_DELETE_SAFE(_connectionPool);
     CRYSTAL_RELEASE_SAFE(_eventLoopThread);
+    if (_configMonitor)
+    {
+        KERNEL_NS::FileMonitor<MongodbConfig, KERNEL_NS::YamlDeserializer>::Delete_FileMonitor(_configMonitor);
+        _configMonitor = NULL;
+    }
 }
 
 
