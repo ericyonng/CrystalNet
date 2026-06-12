@@ -1561,8 +1561,8 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
             }
 
             
-            bsoncxx::builder::basic::document bsonDoc;
-            if(!_TurnDoc(*updateFields, bsonDoc))
+            bsoncxx::builder::basic::document updateFieldsDoc;
+            if(!_TurnDoc(*updateFields, updateFieldsDoc))
             {
                 CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("_TurnDoc updateFieldsPtr fail to update data into collection, kv:%s dbName:%s, collectionName:%s,  updateFields:"
                 ,  DictContainerToString(kv).c_str(), dbName.c_str(), collectionName.c_str())
@@ -1575,8 +1575,12 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
             auto &&concern = _MakeMongoMajorityWriteConcern();
             collection.write_concern(concern);
             
+            // 构建 $set: { ... } 操作符文档
+            bsoncxx::builder::basic::document setDoc;
+            setDoc.append(bsoncxx::builder::basic::kvp("$set", updateFieldsDoc.view()));
+            
             bsoncxx::builder::basic::document fullKv;
-            if(!_TurnDoc(kv, bsonDoc))
+            if(!_TurnDoc(kv, fullKv))
             {
                 CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("_TurnDoc updateFieldsPtr fail to update data into collection, kv:%s dbName:%s, collectionName:%s,  updateFields:"
                 ,  DictContainerToString(kv).c_str(), dbName.c_str(), collectionName.c_str())
@@ -1590,7 +1594,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
             if(createIfNotExists)
                 opts.upsert(true);  // 无匹配时插入新文档
             
-            auto result = collection.update_one(fullKv.view(), bsonDoc.view(), opts);
+            auto result = collection.update_one(fullKv.view(), setDoc.view(), opts);
             if (!result)
             {
                 // 极少操作失败
@@ -1790,11 +1794,15 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
                 fullDoc.append(bsoncxx::builder::basic::kvp(keyName.GetRaw(), binData));
             }
 
+            // 构建 $set: { ... } 操作符文档
+            bsoncxx::builder::basic::document setDoc;
+            setDoc.append(bsoncxx::builder::basic::kvp("$set", fullDoc.view()));
+            
             // 找不到则创建
             mongocxx::options::update opts{};
             if(createIfNotExists)
                 opts.upsert(true);  // 无匹配时插入新文档
-            auto result = collection.update_one(kvDoc.view(), fullDoc.view(), opts);
+            auto result = collection.update_one(kvDoc.view(), setDoc.view(), opts);
             if (!result)
             {
                 // 极少操作失败
