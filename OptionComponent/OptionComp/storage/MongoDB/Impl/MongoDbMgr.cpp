@@ -101,196 +101,215 @@ public:
                 CLOG_INFO("waiting mongodb mgr will started");
             }
 
-            // 设置分片键
-            CLOG_INFO("ShardCollection...");
-
-            // 先拷贝必要的数据
-            _mongodbMgr->_cantAddSchemaInfo.store(true, std::memory_order_release);
-            _mongodbMgr->_schemaLock.Lock();
-            auto dbShardKeyInfos = _mongodbMgr->_dbRefcollectionRefShardKeyInfos;
-            auto dbRefCollectionRefIndexInfos = _mongodbMgr->_dbRefCollectionRefMongoIndexInfos;
-            auto allForcosDbs = _mongodbMgr->_focusDbs;
-
-            // 拉取所有库, 所有表的索引, 提取唯一索引
-            CLOG_INFO("load all db unique index...");
-
-            auto entry = _mongodbMgr->_connectionPool->acquire();
-            auto &&dataNames = entry->list_database_names();
-            for (auto &dbName : dataNames)
+            try
             {
-                if (!allForcosDbs.contains(dbName))
-                    continue;
-                
-                CLOG_INFO("load %s collections...", dbName.c_str());
-                auto db = entry[dbName];
-                auto &&collectionNames = db.list_collection_names();
-                for(auto &colName :collectionNames)
+                // 设置分片键
+                CLOG_INFO("ShardCollection...");
+
+                // 先拷贝必要的数据
+                _mongodbMgr->_cantAddSchemaInfo.store(true, std::memory_order_release);
+                _mongodbMgr->_schemaLock.Lock();
+                auto dbShardKeyInfos = _mongodbMgr->_dbRefcollectionRefShardKeyInfos;
+                auto dbRefCollectionRefIndexInfos = _mongodbMgr->_dbRefCollectionRefMongoIndexInfos;
+                auto allForcosDbs = _mongodbMgr->_focusDbs;
+
+                // 拉取所有库, 所有表的索引, 提取唯一索引
+                CLOG_INFO("load all db unique index...");
+
+                auto entry = _mongodbMgr->_connectionPool->acquire();
+                auto &&dataNames = entry->list_database_names();
+                for (auto &dbName : dataNames)
                 {
-                    auto collection = db[colName];
-                    auto listIndex = collection.list_indexes();
-                    for(auto &index : listIndex)
+                    if (!allForcosDbs.contains(dbName))
+                        continue;
+                    
+                    CLOG_INFO("load %s collections...", dbName.c_str());
+                    auto db = entry[dbName];
+                    auto &&collectionNames = db.list_collection_names();
+                    for(auto &colName :collectionNames)
                     {
-                        bool isUnique = false;
-                        
-                        auto indexName = index["name"];
-                        KERNEL_NS::LibString indexFinalName;
-                        if(indexName && (indexName.type() == bsoncxx::type::k_string))
+                        auto collection = db[colName];
+                        auto listIndex = collection.list_indexes();
+                        for(auto &index : listIndex)
                         {
-                            // 获取indexName
-                            indexFinalName = indexName.get_string().value.data();
-
-                            // _id_默认是唯一的
-                            if(indexFinalName == "_id_")
+                            bool isUnique = false;
+                            
+                            auto indexName = index["name"];
+                            KERNEL_NS::LibString indexFinalName;
+                            if(indexName && (indexName.type() == bsoncxx::type::k_string))
                             {
-                                isUnique = true;
-                                // _id默认是唯一的
-                                auto indexKey = index["key"];
-                                if(indexKey && indexKey.type() == bsoncxx::type::k_document)
-                                {
-                                    auto indexKeyDoc = indexKey.get_document();
-                                    auto iterView = indexKeyDoc.view().find("_id");
-                                    if(iterView != indexKeyDoc.view().end() && iterView->type() == bsoncxx::type::k_int32)
-                                    {
-                                        auto sortValue = iterView->get_int32().value;
-                                        CLOG_INFO("load %s:%s index:%s isUnique:%d...", dbName.c_str(), colName.c_str(), indexFinalName.c_str(), isUnique);
+                                // 获取indexName
+                                indexFinalName = indexName.get_string().value.data();
 
-                                        _mongodbMgr->_DoAddIndex(dbName, colName, "_id_", {std::make_pair("_id", sortValue)}, true);
+                                // _id_默认是唯一的
+                                if(indexFinalName == "_id_")
+                                {
+                                    isUnique = true;
+                                    // _id默认是唯一的
+                                    auto indexKey = index["key"];
+                                    if(indexKey && indexKey.type() == bsoncxx::type::k_document)
+                                    {
+                                        auto indexKeyDoc = indexKey.get_document();
+                                        auto iterView = indexKeyDoc.view().find("_id");
+                                        if(iterView != indexKeyDoc.view().end() && iterView->type() == bsoncxx::type::k_int32)
+                                        {
+                                            auto sortValue = iterView->get_int32().value;
+                                            CLOG_INFO("load %s:%s index:%s isUnique:%d...", dbName.c_str(), colName.c_str(), indexFinalName.c_str(), isUnique);
+
+                                            _mongodbMgr->_DoAddIndex(dbName, colName, "_id_", {std::make_pair("_id", sortValue)}, true);
+                                            continue;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // _id默认是唯一的
+                            auto indexKey = index["key"];
+                            std::vector<std::pair<KERNEL_NS::LibString, Int32>> fields;
+                            if(indexKey && indexKey.type() == bsoncxx::type::k_document)
+                            {
+                                auto indexKeyDoc = indexKey.get_document();
+                                auto viewIndexKey = indexKeyDoc.view();
+                                for(auto iter : viewIndexKey)
+                                {
+                                    auto viewIterKey = iter.key();
+                                    auto keyValueIter = iter.get_value();
+                                    if((keyValueIter.type() == bsoncxx::type::k_string) && (keyValueIter.get_string().value == "hashed"))
+                                    {
+                                        fields.push_back(std::make_pair(KERNEL_NS::LibString(viewIterKey.data()), -2));
+                                    }
+                                    else if(keyValueIter.type() == bsoncxx::type::k_int32)
+                                    {
+                                        fields.push_back(std::make_pair(KERNEL_NS::LibString(viewIterKey.data()), keyValueIter.get_int32().value));
+                                    }
+                                }
+                                
+                                auto iterIdView = indexKeyDoc.view().find("_id");
+                                if(iterIdView != indexKeyDoc.view().end() && iterIdView->type() == bsoncxx::type::k_int32)
+                                {
+                                    auto sortValue = iterIdView->get_int32().value;
+                                    isUnique = true;
+
+                                    if(!indexFinalName.empty())
+                                    {
+                                        CLOG_INFO("load %s:%s indexFinalName:%s isUnique:%d...", dbName.c_str(), colName.c_str(), indexFinalName.c_str(), isUnique);
+
+                                        _mongodbMgr->_DoAddIndex(dbName, colName, indexFinalName, {std::make_pair("_id", sortValue)}, true);
                                         continue;
                                     }
                                 }
                             }
-                        }
-                        
-                        // _id默认是唯一的
-                        auto indexKey = index["key"];
-                        std::vector<std::pair<KERNEL_NS::LibString, Int32>> fields;
-                        if(indexKey && indexKey.type() == bsoncxx::type::k_document)
-                        {
-                            auto indexKeyDoc = indexKey.get_document();
-                            auto viewIndexKey = indexKeyDoc.view();
-                            for(auto iter : viewIndexKey)
+                            
+                            auto checkUnique = index["unique"];
+                            if(checkUnique && checkUnique.type() == bsoncxx::type::k_bool)
                             {
-                                auto viewIterKey = iter.key();
-                                auto keyValueIter = iter.get_value();
-                                if((keyValueIter.type() == bsoncxx::type::k_string) && (keyValueIter.get_string().value == "hashed"))
+                                isUnique = checkUnique.get_bool().value;
+                                if(isUnique)
                                 {
-                                    fields.push_back(std::make_pair(KERNEL_NS::LibString(viewIterKey.data()), -2));
-                                }
-                                else if(keyValueIter.type() == bsoncxx::type::k_int32)
-                                {
-                                    fields.push_back(std::make_pair(KERNEL_NS::LibString(viewIterKey.data()), keyValueIter.get_int32().value));
+                                    _mongodbMgr->_DoAddIndex(dbName, colName, indexFinalName, fields, true);
                                 }
                             }
                             
-                            auto iterIdView = indexKeyDoc.view().find("_id");
-                            if(iterIdView != indexKeyDoc.view().end() && iterIdView->type() == bsoncxx::type::k_int32)
-                            {
-                                auto sortValue = iterIdView->get_int32().value;
-                                isUnique = true;
-
-                                if(!indexFinalName.empty())
-                                {
-                                    CLOG_INFO("load %s:%s indexFinalName:%s isUnique:%d...", dbName.c_str(), colName.c_str(), indexFinalName.c_str(), isUnique);
-
-                                    _mongodbMgr->_DoAddIndex(dbName, colName, indexFinalName, {std::make_pair("_id", sortValue)}, true);
-                                    continue;
-                                }
-                            }
+                            CLOG_INFO("load %s:%s index:%s isUnique:%d...", dbName.c_str(), colName.c_str(), indexFinalName.c_str(), isUnique);
                         }
-                        
-                        auto checkUnique = index["unique"];
-                        if(checkUnique && checkUnique.type() == bsoncxx::type::k_bool)
-                        {
-                            isUnique = checkUnique.get_bool().value;
-                            if(isUnique)
-                            {
-                                _mongodbMgr->_DoAddIndex(dbName, colName, indexFinalName, fields, true);
-                            }
-                        }
-                        
-                        CLOG_INFO("load %s:%s index:%s isUnique:%d...", dbName.c_str(), colName.c_str(), indexFinalName.c_str(), isUnique);
                     }
                 }
-            }
 
-            CLOG_INFO("load all db unique index finish.");
-            _mongodbMgr->_schemaLock.Unlock();
-            
-            for(auto iter : dbShardKeyInfos)
-            {
-                auto &dbName = iter.first;
-                // 数据库设置分片
-                CLOG_INFO("enable %s sharding...", dbName.c_str());
-                {
-                    auto entry = _mongodbMgr->_connectionPool->acquire();
-                    auto connection = MongodbConnection::Create(entry);
-                    auto isSuc = co_await connection->EnableDatabaseSharding(dbName);
-                    if (!isSuc)
-                    {
-                        CLOG_ERROR("mongodb EnableDatabaseSharding fail");
-                        _mongodbMgr->SetDbFailErr(Status::Failed);
-                        co_return;
-                    }
-                }
-                CLOG_INFO("enable db:%s sharding success.", dbName.c_str());
+                CLOG_INFO("load all db unique index finish.");
+                _mongodbMgr->_schemaLock.Unlock();
                 
-                auto &collectionShardKeys = iter.second;
-                for (auto iterCollection : collectionShardKeys)
+                for(auto iter : dbShardKeyInfos)
                 {
-                    auto &collectionName = iterCollection.first;
-                    auto &shardKeyGroup = iterCollection.second;
-                    auto entry = _mongodbMgr->_connectionPool->acquire();
-                    auto connection = MongodbConnection::Create(entry);
-                    auto isSuc = co_await connection->ShardCollection(dbName, collectionName, shardKeyGroup);
-                    if(!isSuc)
+                    auto &dbName = iter.first;
+                    // 数据库设置分片
+                    CLOG_INFO("enable %s sharding...", dbName.c_str());
                     {
-                        CLOG_ERROR("mongodb ShardCollection fail dbname:%s collectionName:%s, shard keys:%s", dbName.c_str(), collectionName.c_str(), shardKeyGroup.ToString().c_str());
-                        _mongodbMgr->SetDbFailErr(Status::Failed);
-                        co_return;
-                    }
-                }
-            }
-            CLOG_INFO("ShardCollection success.");
-
-            CLOG_INFO("CreateIndex collection count:%d...", static_cast<Int32>(dbRefCollectionRefIndexInfos.size()));
-            for(auto iter : dbRefCollectionRefIndexInfos)
-            {
-                auto &dbName = iter.first;
-                auto &collectionRefIndexNameRefInfos = iter.second;
-                for(auto iterInfo : collectionRefIndexNameRefInfos)
-                {
-                    auto &collectionName = iterInfo.first;
-                    auto &indexNameRefIndexInfo = iterInfo.second;
-
-                    for (auto iterIndex : indexNameRefIndexInfo)
-                    {
-                        auto &indexName = iterIndex.first;
-                        auto &indexInfo = iterIndex.second;
-                        
                         auto entry = _mongodbMgr->_connectionPool->acquire();
                         auto connection = MongodbConnection::Create(entry);
-
-                        auto isSuc = co_await connection->CreateIndex(dbName, collectionName, indexName, indexInfo.Fields, indexInfo.Unique);
-                        if(!isSuc)
+                        auto isSuc = co_await connection->EnableDatabaseSharding(dbName);
+                        if (!isSuc)
                         {
-                            KERNEL_NS::LibString fieldStr;
-                            for(auto &field : indexInfo.Fields)
-                            {
-                                fieldStr.AppendFormat("%s:%d, ", field.first.c_str(), field.second);
-                            }
-                            CLOG_ERROR("mongodb CreateIndex fail db name:%s, collection:%s, indexName:%s, fields:%s, unique:%d"
-                                , dbName.c_str(), collectionName.c_str(), indexName.c_str(), fieldStr.c_str(), indexInfo.Unique);
+                            CLOG_ERROR("mongodb EnableDatabaseSharding fail");
                             _mongodbMgr->SetDbFailErr(Status::Failed);
                             co_return;
                         }
                     }
-
+                    CLOG_INFO("enable db:%s sharding success.", dbName.c_str());
+                    
+                    auto &collectionShardKeys = iter.second;
+                    for (auto iterCollection : collectionShardKeys)
+                    {
+                        auto &collectionName = iterCollection.first;
+                        auto &shardKeyGroup = iterCollection.second;
+                        auto entry = _mongodbMgr->_connectionPool->acquire();
+                        auto connection = MongodbConnection::Create(entry);
+                        auto isSuc = co_await connection->ShardCollection(dbName, collectionName, shardKeyGroup);
+                        if(!isSuc)
+                        {
+                            CLOG_ERROR("mongodb ShardCollection fail dbname:%s collectionName:%s, shard keys:%s", dbName.c_str(), collectionName.c_str(), shardKeyGroup.ToString().c_str());
+                            _mongodbMgr->SetDbFailErr(Status::Failed);
+                            co_return;
+                        }
+                    }
                 }
-            }
-            CLOG_INFO("CreateIndex success.");
+                CLOG_INFO("ShardCollection success.");
 
-            CLOG_INFO("mongodb ready...");
-            _mongodbMgr->DbReady(true);
+                CLOG_INFO("CreateIndex collection count:%d...", static_cast<Int32>(dbRefCollectionRefIndexInfos.size()));
+                for(auto iter : dbRefCollectionRefIndexInfos)
+                {
+                    auto &dbName = iter.first;
+                    auto &collectionRefIndexNameRefInfos = iter.second;
+                    for(auto iterInfo : collectionRefIndexNameRefInfos)
+                    {
+                        auto &collectionName = iterInfo.first;
+                        auto &indexNameRefIndexInfo = iterInfo.second;
+
+                        for (auto iterIndex : indexNameRefIndexInfo)
+                        {
+                            auto &indexName = iterIndex.first;
+                            auto &indexInfo = iterIndex.second;
+                            
+                            auto entry = _mongodbMgr->_connectionPool->acquire();
+                            auto connection = MongodbConnection::Create(entry);
+
+                            auto isSuc = co_await connection->CreateIndex(dbName, collectionName, indexName, indexInfo.Fields, indexInfo.Unique);
+                            if(!isSuc)
+                            {
+                                KERNEL_NS::LibString fieldStr;
+                                for(auto &field : indexInfo.Fields)
+                                {
+                                    fieldStr.AppendFormat("%s:%d, ", field.first.c_str(), field.second);
+                                }
+                                CLOG_ERROR("mongodb CreateIndex fail db name:%s, collection:%s, indexName:%s, fields:%s, unique:%d"
+                                    , dbName.c_str(), collectionName.c_str(), indexName.c_str(), fieldStr.c_str(), indexInfo.Unique);
+                                _mongodbMgr->SetDbFailErr(Status::Failed);
+                                co_return;
+                            }
+                        }
+
+                    }
+                }
+                CLOG_INFO("CreateIndex success.");
+
+                CLOG_INFO("mongodb ready...");
+                _mongodbMgr->DbReady(true);
+            }
+            catch (const mongocxx::exception &e)
+            {
+                CLOG_ERROR("init mongodb info fail, exception:%s", e.what());
+                _mongodbMgr->SetDbFailErr(Status::Failed);
+            }
+            catch (const std::exception &e)
+            {
+                CLOG_ERROR("init mongodb info fail, std exception:%s", e.what());
+                _mongodbMgr->SetDbFailErr(Status::Failed);
+            }
+            catch (...)
+            {
+                CLOG_ERROR("init mongodb info fail, unknown exception");
+                _mongodbMgr->SetDbFailErr(Status::Failed);
+            }
+            
         });
     }
     virtual void Release() override

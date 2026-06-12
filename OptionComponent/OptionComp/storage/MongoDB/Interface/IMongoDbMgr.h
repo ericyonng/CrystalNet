@@ -62,6 +62,9 @@ public:
     // 设置索引(支持符合索引, 需要在WillStart之前设置) fields:字段名, 1:升序, -1降序,-2:hashed
     virtual bool CreateIndex(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const KERNEL_NS::LibString &indexName, const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &fields, bool unique = false) = 0;
 
+    // 分布式锁(表级)
+    // 分布式锁(行级)
+
 #ifdef CRYSTAL_NET_CPP20
     // 查
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, UInt64 keyValue) = 0;

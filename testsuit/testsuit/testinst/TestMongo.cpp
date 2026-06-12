@@ -630,12 +630,14 @@ private:
         mongoDbMgr->SetShardKeyInfo("testsuit9", "player", shardKeys);
         mongoDbMgr->SetShardKeyInfo("testsuit10", "player", shardKeys);
         mongoDbMgr->SetShardKeyInfo("testsuit11", "player", shardKeys);
+        mongoDbMgr->SetShardKeyInfo("testsuit12", "player", shardKeys);
 
         mongoDbMgr->CreateIndex("testsuit6", "player", "idx_player_id", {{"player_id", 1}}, true);
         mongoDbMgr->CreateIndex("testsuit8", "player", "idx_player_id", {{"player_id", 1}}, true);
         mongoDbMgr->CreateIndex("testsuit9", "player", "idx_player_id_role_id", {{"player_id", 1}, {"role_id", 1}}, true);
         mongoDbMgr->CreateIndex("testsuit10", "player", "idx_player_id_name", {{"player_id", 1}, {"name", 1}}, true);
         mongoDbMgr->CreateIndex("testsuit11", "player", "idx_player_id", {{"player_id", 1}}, true);
+        mongoDbMgr->CreateIndex("testsuit12", "player", "idx_player_id", {{"player_id", 1}}, true);
 
         return Status::Success;
     }
@@ -763,6 +765,38 @@ private:
                 
                 ret = co_await mongodbMgr->ReplaceData("testsuit11", "player", uniqueKv, streamDict);
                 CLOG_INFO("ReplaceData:%d", ret);
+            }
+
+            {
+                // 先Add
+                auto fields = new std::map<KERNEL_NS::Variant, KERNEL_NS::Variant>;
+                fields->emplace(KERNEL_NS::Variant("player_id"), KERNEL_NS::Variant(1234567890));
+                fields->emplace(KERNEL_NS::Variant("name"), KERNEL_NS::Variant("xiaoming"));
+                fields->emplace(KERNEL_NS::Variant("role_id"), KERNEL_NS::Variant(155));
+                fields->emplace(KERNEL_NS::Variant("touxiang"), KERNEL_NS::Variant(std::vector<Int32>{12, 5, 66}));
+                                
+                ret = co_await mongodbMgr->ReplaceData("testsuit12", "player", {"player_id"}, fields);
+                CLOG_INFO("ReplaceData:%d", ret);
+                
+                // 再Update
+                auto kv = std::map<KERNEL_NS::LibString, KERNEL_NS::Variant>();
+                kv.emplace("player_id", KERNEL_NS::Variant(1234567890));
+                fields = new std::map<KERNEL_NS::Variant, KERNEL_NS::Variant>;
+                fields->emplace(KERNEL_NS::Variant("name"), KERNEL_NS::Variant("daming"));
+                ret = co_await mongodbMgr->UpdateData("testsuit12", "player", kv, fields);
+                CLOG_INFO("ReplaceData:%d", ret);
+            }
+
+            {
+                // Update的时候带上Create
+            }
+
+            {
+                // Update唯一索引
+            }
+
+            {
+                // Update非唯一索引, 甚至非索引
             }
         });
 

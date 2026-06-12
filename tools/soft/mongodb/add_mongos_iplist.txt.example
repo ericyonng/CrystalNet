@@ -1,0 +1,69 @@
+# MongoDB 分片集群 - 新增 mongos 节点列表
+# 用法: 配合 add_mongos.sh 使用, 用于向已有分片集群扩展 mongos 路由节点
+# 格式: 类型 复制集前缀 IP地址/域名 端口
+#
+# 字段说明:
+#   类型       - config(用于构建configDB连接串) 或 mongos(要新增的路由节点)
+#   复制集前缀  - 复制集名前缀, 必须与目标集群一致, config 复制集名 = 前缀_config
+#   IP地址     - 支持 IPv4 / IPv6 / 域名
+#   端口       - 节点端口号
+#
+# 注意:
+#   1. config 行用于构建 configDB 连接串, 不会启动新的 config 节点
+#   2. mongos 行标识要新增的路由节点
+#   3. 以#开头的行和空行会被跳过
+#   4. IPv6 地址不需要加方括号
+#   5. 新增 mongos 节点的数据目录命名: {DB_NAME}_mongos_{序号}
+#   6. 复制集前缀在同一类型组内必须一致
+#
+# ============================================================
+# 示例1: 向 IPv4 集群新增 mongos 节点
+# ============================================================
+# sh add_mongos.sh add_mongos_iplist.txt admin eric123 /root/mongo_install /root/mongo_data /root/mongodb_script/keyfile mydb
+
+# 已有 config 节点 (用于构建 configDB 连接串)
+config testsuit_rs 192.168.1.1 27010
+config testsuit_rs 192.168.1.2 27010
+config testsuit_rs 192.168.1.3 27010
+
+# 新增 mongos 路由节点
+mongos testsuit_rs 192.168.1.10 27017
+mongos testsuit_rs 192.168.1.11 27017
+
+# ============================================================
+# 示例2: 使用默认 keyfile 和 DB_NAME
+# ============================================================
+# sh add_mongos.sh add_mongos_iplist.txt admin eric123 /root/mongo_install /root/mongo_data
+# (keyfile 默认 /root/mongodb_script/keyfile, DB_NAME 默认 admin)
+
+# config testsuit_rs 192.168.1.1 27010
+# config testsuit_rs 192.168.1.2 27010
+# config testsuit_rs 192.168.1.3 27010
+# mongos testsuit_rs 192.168.1.12 27017
+# mongos testsuit_rs 192.168.1.13 27017
+
+# ============================================================
+# 示例3: IPv6 环境
+# ============================================================
+# config testsuit_rs 2001:db8::1 27010
+# config testsuit_rs 2001:db8::2 27010
+# config testsuit_rs 2001:db8::3 27010
+# mongos testsuit_rs 2001:db8::10 27017
+# mongos testsuit_rs 2001:db8::11 27017
+
+# ============================================================
+# 示例4: 域名环境
+# ============================================================
+# config testsuit_rs config1.example.com 27010
+# config testsuit_rs config2.example.com 27010
+# config testsuit_rs config3.example.com 27010
+# mongos testsuit_rs mongos3.example.com 27017
+# mongos testsuit_rs mongos4.example.com 27017
+
+# ============================================================
+# 示例5: 单 mongos 扩展
+# ============================================================
+# config testsuit_rs 192.168.1.1 27010
+# config testsuit_rs 192.168.1.2 27010
+# config testsuit_rs 192.168.1.3 27010
+# mongos testsuit_rs 192.168.1.20 27017
