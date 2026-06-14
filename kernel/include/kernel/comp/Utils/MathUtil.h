@@ -35,6 +35,7 @@
 #include <kernel/common/BaseType.h>
 #include <kernel/common/BaseMacro.h>
 #include <kernel/comp/LibString.h>
+#include <limits>
 
 KERNEL_BEGIN
 
@@ -50,6 +51,10 @@ public:
     static Int64 GetLcm(Int64 a, Int64 b);
     // 数据大小转换
     static LibString ToFmtDataSize(Int64 bytes);
+
+    // 浮点数相等
+    template<typename T>
+    static bool IsEqual(T a, T b, T eps = std::numeric_limits<T>::epsilon());
 };
 
 // 为了能在编译期计算不能修改函数参数,constexpr 内的表达式都必须是常量表达式, 否则会阻止编译期计算
@@ -90,6 +95,16 @@ ALWAYS_INLINE Int64 MathUtil::GetGcd(Int64 a, Int64 b)
 ALWAYS_INLINE Int64 MathUtil::GetLcm(Int64 a, Int64 b)
 {
     return a * b / GetGcd(a, b);
+}
+
+template<typename T>
+ALWAYS_INLINE bool MathUtil::IsEqual(T a, T b, T eps)
+{
+    auto diff = a - b;
+    if(diff > -eps && diff < eps)
+        return true;
+
+    return false;
 }
 
 KERNEL_END

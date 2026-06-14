@@ -74,21 +74,22 @@ public:
     virtual bool FocusDb(const KERNEL_NS::LibString &dbName) override;
 
     #ifdef CRYSTAL_NET_CPP20
-    virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, UInt64 keyValue) override;
-    virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, KERNEL_NS::LibString keyValue) override;
+    // 查任意数据, Variant支持json/二进制数据(LibStreamTL/LibStreamMT等)
+    virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *fieldNameRefVariant, bool ignoreOid = false) override;
 
     virtual KERNEL_NS::CoTask<bool> AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString *jsonString) override;
-    virtual KERNEL_NS::CoTask<bool> AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::Variant, KERNEL_NS::Variant> uniqueKv, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *> *binaryKeyNameRefData) override;
+    virtual KERNEL_NS::CoTask<bool> AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> uniqueKv, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *> *binaryKeyNameRefData) override;
+    virtual KERNEL_NS::CoTask<bool> AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> uniqueKv, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *keyRefVariant) override;
 
-    virtual KERNEL_NS::CoTask<bool> DelData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::Variant, KERNEL_NS::Variant> uniqueKv) override;
+    virtual KERNEL_NS::CoTask<bool> DelData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> uniqueKv) override;
 
     // uniqueKv:唯一索引
     virtual KERNEL_NS::CoTask<bool> ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<KERNEL_NS::LibString> keyNames, KERNEL_NS::LibString *jsonString) override;
-    virtual KERNEL_NS::CoTask<bool> ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<KERNEL_NS::LibString> keyNames, std::map<KERNEL_NS::Variant, KERNEL_NS::Variant> *replaceFields) override;
-    virtual KERNEL_NS::CoTask<bool> ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::Variant, KERNEL_NS::Variant> uniqueKv, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *> *binaryKeyNameRefData) override;
+    virtual KERNEL_NS::CoTask<bool> ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<KERNEL_NS::LibString> keyNames, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *replaceFields) override;
+    virtual KERNEL_NS::CoTask<bool> ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> uniqueKv, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *> *binaryKeyNameRefData) override;
 
     virtual KERNEL_NS::CoTask<bool> UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, KERNEL_NS::LibString *jsonFields, bool createIfNotExists = false) override;
-    virtual KERNEL_NS::CoTask<bool> UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::Variant, KERNEL_NS::Variant> *updateFields, bool createIfNotExists = false) override;
+    virtual KERNEL_NS::CoTask<bool> UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *updateFields, bool createIfNotExists = false) override;
     virtual KERNEL_NS::CoTask<bool> UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *> *binaryKeyNameRefData, bool createIfNotExists = false) override;
 
     #endif
@@ -109,6 +110,11 @@ protected:
     bool _TurnDoc(const KERNEL_NS::Variant::Dict &fields, bsoncxx::builder::basic::document &doc);
     bool _TurnSimpleToDoc(const KERNEL_NS::Variant &elem, bsoncxx::types::bson_value::value &bsonValue);
     bool _TurnDoc(const std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> &fields, bsoncxx::builder::basic::document &doc);
+    // k_oid:转成string
+    // k_date:Int64
+    // k_timestamp:UInt32
+    // k_decimal128:转string（定点数）
+    bool _TurnVariant(const bsoncxx::types::bson_value::view &bsonValue, KERNEL_NS::Variant &var);
 
     template<typename LambdaType>
     bool _CheckHasUniqueKey(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, LambdaType &&checkHasField) const

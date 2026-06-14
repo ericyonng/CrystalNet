@@ -73,6 +73,9 @@ void VariantRtti::InitRttiTypeNames()
         _rttiTypeRefString.insert(std::make_pair(VT_BRIEF_FLOAT, "Float"));
         _rttiTypeRefString.insert(std::make_pair(VT_BRIEF_DOUBLE, "Double"));
         _rttiTypeRefString.insert(std::make_pair(VT_STRING_DEF, "string"));
+        _rttiTypeRefString.insert(std::make_pair(VT_BRIEF_BINARY, "Binary"));
+        _rttiTypeRefString.insert(std::make_pair(VT_BRIEF_BINARY_STREAM_TL, "LibStreamTL"));
+        _rttiTypeRefString.insert(std::make_pair(VT_BRIEF_BINARY_STREAM_MT, "LibStreamMT"));
 
         _rttiTypeRefString.insert(std::make_pair(VT_DICTIONARY_DEF, "dictionary"));
         _rttiTypeRefString.insert(std::make_pair(VT_SEQUENCE_DEF, "sequence"));
@@ -334,7 +337,25 @@ LibString Variant::AsStr() const
         else if(IsSignedBriefData())
             return StringUtil::Num2Str(_raw._briefData._int64Data);
         else if(IsPtr())
+        {
+            if(IsStreamTL())
+            {
+                return LibString("LibSteamTL:").AppendFormat("0x%llx", _raw._briefData._uint64Data);
+            }
+
+            if(IsStreamMT())
+            {
+                return LibString("LibSteamMT:").AppendFormat("0x%llx", _raw._briefData._uint64Data);
+            }
+
+            if(IsBinary())
+            {
+                return LibString("Binary:").AppendFormat("0x%llx", _raw._briefData._uint64Data);
+            }
+            
             return LibString().AppendFormat("0x%llx", _raw._briefData._uint64Data);
+        }
+        
         return StringUtil::Num2Str(_raw._briefData._uint64Data);
     }
     

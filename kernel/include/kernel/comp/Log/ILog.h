@@ -51,6 +51,7 @@
 #include <kernel/comp/Delegate/LibDelegate.h>
 #include <kernel/comp/Utils/RttiUtil.h>
 #include <kernel/comp/Utils/SystemUtil.h>
+#include <kernel/comp/Utils/DirectoryUtil.h>
 #include <kernel/comp/Log/LogMacro.h>
 #include <kernel/comp/Log/LogCfg.h>
 
@@ -162,7 +163,7 @@ protected:
     static LibString _BuildTraceInfo();
     
     template<typename... Args>
-    void _Common6(const Byte8 *tag, Int32 codeLine, Int32 levelId, Args&&... args)
+    void _Common6(const Byte8 *tag, const char *fileName, Int32 codeLine, Int32 levelId, Args&&... args)
     {
         if(UNLIKELY(!IsLogOpen()))
             return;
@@ -185,7 +186,10 @@ protected:
         LogData *newLogData = LogData::New_LogData();
         newLogData->_logTime.UpdateTime();
         auto &logInfo = newLogData->_logInfo;
-        logInfo.AppendFormat("%s<%s>[%s][line:%d][tid:%llu][%s]: ", newLogData->_logTime.ToString().c_str(), levelCfg->LevelName.c_str(), (tag ? tag : ""), codeLine, tid, traceInfo.c_str());
+        
+        logInfo.AppendFormat("%s<%s>[%s][%s:%d][tid:%llu][%s]: ", newLogData->_logTime.ToString().c_str(), levelCfg->LevelName.c_str(), (tag ? tag : "")
+            , KERNEL_NS::DirectoryUtil::GetFileNameInPath(fileName).c_str(), codeLine, tid, traceInfo.c_str());
+        
         logInfo.Append(std::forward<Args>(args)...);
         logInfo.AppendEnd();
 
@@ -196,37 +200,37 @@ protected:
 template<typename... Args>
 ALWAYS_INLINE void ILog::Info2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, Args&&... args)
 {
-    _Common6(tag, codeLine, LogLevel::Info, std::forward<Args>(args)...);
+    _Common6(tag, fileName, codeLine, LogLevel::Info, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
 ALWAYS_INLINE void ILog::Debug2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, Args&&... args)
 {
-    _Common6(tag, codeLine, LogLevel::Debug, std::forward<Args>(args)...);
+    _Common6(tag, fileName, codeLine, LogLevel::Debug, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
 ALWAYS_INLINE void ILog::Warn2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, Args&&... args)
 {
-    _Common6(tag, codeLine, LogLevel::Warn, std::forward<Args>(args)...);
+    _Common6(tag, fileName, codeLine, LogLevel::Warn, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
 ALWAYS_INLINE void ILog::Error2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, Args&&... args)
 {
-    _Common6(tag, codeLine, LogLevel::Error, std::forward<Args>(args)...);
+    _Common6(tag, fileName, codeLine, LogLevel::Error, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
 ALWAYS_INLINE void ILog::FailSql(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, Args&&... args)
 {
-    _Common6(tag, codeLine, LogLevel::FailSql, std::forward<Args>(args)...);
+    _Common6(tag, fileName, codeLine, LogLevel::FailSql, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
 ALWAYS_INLINE void ILog::DumpSql(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, Args&&... args)
 {
-    _Common6(tag, codeLine, LogLevel::DumpSql, std::forward<Args>(args)...);
+    _Common6(tag, fileName, codeLine, LogLevel::DumpSql, std::forward<Args>(args)...);
 }
 
 template<typename ObjType>

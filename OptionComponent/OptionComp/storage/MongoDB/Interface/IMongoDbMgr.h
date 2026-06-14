@@ -24,6 +24,7 @@
  * Date: 2025-10-14 14:15:00
  * Author: Eric Yonng
  * Description: mongodb数据库管理
+ * 1. 默认开启read/write重试, 通过srv连接会选择新的mongos, 只重试一次, 如果仍然失败那么接口返回失败, 业务自行处理失败情况
 */
 
 #ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_INTERFACE_IMONGODB_MGR_H__
@@ -66,29 +67,43 @@ public:
     // 分布式锁(行级)
 
 #ifdef CRYSTAL_NET_CPP20
-    // 查
-    virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, UInt64 keyValue) = 0;
-    virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, KERNEL_NS::LibString keyValue) = 0;
+    // 查json数据 查一条数据 fieldNameRefVariant 外部释放,query内部不释放
+    // 特殊转换: 
+    // 如果存储的是简单的数据例如整数浮点数字符串等, variant返回的就是对应的简单数据
+    // 如果存储的是二进制数据, 那么variant也是二进制数据通过LibStreamTl返回(判断Variant IsSteamTL/或者IsBinary)
+    // 如果存的是数组, 那么Variant就是个Variant数组, 查到数据后业务层自行解析该数组
+    // 如果存的是字典, 那么Variant就是Variant字典, 解析时候按照实际数据解析
+    // 具体的转换规则可以看:_TurnVariant
+    // Variant 释放的时, 如果是二进制数据需要自己手动释放LibStreamTL,避免内存泄露
+    // 若fieldNameRefVariant有指定字段名的, 只会查询数据的指定的几个字段,如果是空的, 则查完整数据
+    // ignoreOid:是否忽略返回MongoDb _id字段
+    virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *fieldNameRefVariant, bool ignoreOid = false) = 0;
 
     // jsonString 内部会释放(会自动检查唯一索引)
     virtual KERNEL_NS::CoTask<bool> AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString *jsonString) = 0;
-    // uniqueKv:唯一索引
-    virtual KERNEL_NS::CoTask<bool> AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::Variant, KERNEL_NS::Variant> uniqueKv,  std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *> *binaryKeyNameRefData) = 0;
-    virtual KERNEL_NS::CoTask<bool> DelData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::Variant, KERNEL_NS::Variant> uniqueKv) = 0;
+    // uniqueKv:唯一索引 添加一条数据
+    virtual KERNEL_NS::CoTask<bool> AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> uniqueKv,  std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *> *binaryKeyNameRefData) = 0;
+    // 添加一条数据, Variant包含二进制数据等
+    virtual KERNEL_NS::CoTask<bool> AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> uniqueKv, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *keyRefVariant) = 0;
 
+    // 删一条数据
+    virtual KERNEL_NS::CoTask<bool> DelData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> uniqueKv) = 0;
+
+    // 覆盖一条数据
     virtual KERNEL_NS::CoTask<bool> ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<KERNEL_NS::LibString> keyNames, KERNEL_NS::LibString *jsonString) = 0;
-    // replaceFields内部释放
-    virtual KERNEL_NS::CoTask<bool> ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<KERNEL_NS::LibString> keyNames, std::map<KERNEL_NS::Variant, KERNEL_NS::Variant> *replaceFields) = 0;
+    // replaceFields内部释放 覆盖一条数据
+    virtual KERNEL_NS::CoTask<bool> ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<KERNEL_NS::LibString> keyNames, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *replaceFields) = 0;
     // uniqueKv:唯一索引
     // {
     //     uniqueKv ...
     //     BinaryKeyName:BinarayData
     // }
-    virtual KERNEL_NS::CoTask<bool> ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::Variant, KERNEL_NS::Variant> uniqueKv, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *> *binaryKeyNameRefData) = 0;
+    // 覆盖一条数据
+    virtual KERNEL_NS::CoTask<bool> ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> uniqueKv, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *> *binaryKeyNameRefData) = 0;
 
-    // 增量更新, kv 可以是非唯一索引, updateFields:序列化的json字符串, createIfNotExists:为true, 那么kv和updateFields会自动合并生成新的数据
+    // 增量更新, kv 可以是非唯一索引, updateFields:序列化的json字符串, createIfNotExists:为true, 那么kv和updateFields会自动合并生成新的数据 更新一条数据
     virtual KERNEL_NS::CoTask<bool> UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, KERNEL_NS::LibString *jsonFields, bool createIfNotExists = false) = 0;
-    virtual KERNEL_NS::CoTask<bool> UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::Variant, KERNEL_NS::Variant> *updateFields, bool createIfNotExists = false) = 0;
+    virtual KERNEL_NS::CoTask<bool> UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *updateFields, bool createIfNotExists = false) = 0;
     virtual KERNEL_NS::CoTask<bool> UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *> *binaryKeyNameRefData, bool createIfNotExists = false) = 0;
 
 

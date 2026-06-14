@@ -32,9 +32,10 @@
 #include <kernel/comp/Variant/VariantArithmetic.h>
 #include <kernel/comp/Variant/VariantTraits.h>
 
-KERNEL_BEGIN
+#include "kernel/comp/Utils/MathUtil.h"
 
-Variant VariantTraits::add(const Variant &left, const Variant &right)
+KERNEL_BEGIN
+    Variant VariantTraits::add(const Variant &left, const Variant &right)
 {
     Variant ret;
     VariantTraits::assign(ret, left);
@@ -662,8 +663,7 @@ bool VariantTraits::eq(const Variant &left, const Variant &right)
         if((left.IsDouble() || left.IsFloat()) ||
             (right.IsDouble() || right.IsFloat()))
         {
-            // TODO:浮点数精度问题
-            return  left.AsDouble() == right.AsDouble();
+            return MathUtil::IsEqual(left.AsDouble(), right.AsDouble());
         }
 
         return (left.GetRaw()._briefData._uint64Data ==

@@ -35,7 +35,7 @@ DNS 智能解析匹配到"境外"去了，几个可能原因：
 
 ```bash
 # 同时查权威服务器，看有没有境内记录
-dig SRV _mongodb._tcp.mongoscluster.ericyonng.com @f1g1ns1.dnspod.net
+dig SRV _mongodb._tcp.xxx @f1g1ns1.dnspod.net
 ```
 
 如果权威服务器也只返回 mongos2 / mongos4，说明控制台配置就是缺的。
@@ -70,7 +70,7 @@ cat /etc/resolv.conf
 
 ```bash
 # 从出问题的机器直接 dig 看解析到谁
-dig SRV _mongodb._tcp.mongoscluster.ericyonng.com +short
+dig SRV _mongodb._tcp.xxx.com +short
 ```
 
 返回结果后告诉我，以及你 `/etc/resolv.conf` 里的 nameserver 是什么。
@@ -97,10 +97,10 @@ Let me give them the Windows equivalents.
 
 ```powershell
 # PowerShell
-Resolve-DnsName -Type SRV _mongodb._tcp.mongoscluster.ericyonng.com
+Resolve-DnsName -Type SRV _mongodb._tcp.xxx.com
 
 # 或者 cmd
-nslookup -type=SRV _mongodb._tcp.mongoscluster.ericyonng.com
+nslookup -type=SRV _mongodb._tcp.xxx.com
 ```
 
 ---
@@ -120,7 +120,7 @@ ipconfig /all | findstr "DNS"
 ### 验证权威服务器有几条记录
 
 ```powershell
-nslookup -type=SRV _mongodb._tcp.mongoscluster.ericyonng.com f1g1ns1.dnspod.net
+nslookup -type=SRV _mongodb._tcp.xxx.com f1g1ns1.dnspod.net
 ```
 
 ---

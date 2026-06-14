@@ -68,13 +68,13 @@ public:
         VT_SIGHED           = 0x01LLU,             // 有符号
         VT_UNSIGHED         = 0x0LLU,              // 无符号
 
-        // 类型信息
+        // 类型信息(有24bit用来标识具体的数据类型)
         VT_BRIEF_DATA       = 0x01000000LLU,                // 基本数据类型
         VT_STRING           = VT_BRIEF_DATA << 1,           // 字符串类型
         VT_DICTIONARY       = VT_STRING << 1,               // map字典类型
         VT_SEQUENCE         = VT_DICTIONARY << 1,           // sequence类型
 
-        // 简单类型的具体类型枚举
+        // 简单类型的具体类型枚举(最大24bit)
         VT_BRIEF_SIGHED_DATA        = VT_BRIEF_DATA     | VT_SIGHED,                        // 有符号简单数据类型
         VT_BRIEF_UNSIGHED_DATA      = VT_BRIEF_DATA     | VT_UNSIGHED,                      // 无符号简单数据类型
         VT_BRIEF_BOOL       = VT_BRIEF_SIGHED_DATA      | (0x1LLU << 1),                     // bool类型
@@ -91,6 +91,10 @@ public:
         VT_BRIEF_UINT64     = VT_BRIEF_UNSIGHED_DATA    | (0x1LLU << 12),                    // UINT64
         VT_BRIEF_FLOAT      = VT_BRIEF_SIGHED_DATA      | (0x1LLU << 13),                    // float
         VT_BRIEF_DOUBLE     = VT_BRIEF_SIGHED_DATA      | (0x1LLU << 14),                    // double
+        // binary/streamtl/streammt本质上还是ptr
+        VT_BRIEF_BINARY     = VT_BRIEF_PTR              | (0x1LLU << 15),                    // Binary数据 默认使用LibStreamTl存储
+        VT_BRIEF_BINARY_STREAM_TL = VT_BRIEF_BINARY     | (0x1LLU << 16),                    // Binary数据, 中的StreamTL,
+        VT_BRIEF_BINARY_STREAM_MT = VT_BRIEF_BINARY     | (0x1LLU << 17),                    // Binary数据, 中的StreamMT,
 
         // 字符串类型
         VT_STRING_DEF       = VT_STRING | VT_SIGHED,        // 默认的字符串类型
@@ -346,6 +350,8 @@ public:
     explicit Variant(const ULong &ulongVal);
     template <typename _T>
     explicit Variant(const _T * const &ptrVal);
+    explicit Variant(const LibStreamTL * const &streamTL);
+    explicit Variant(const LibStreamMT * const &streamMT);
     explicit Variant(const Int64 &int64Val);
     explicit Variant(const UInt64 &uint64Val);
     explicit Variant(const Float &floatVal);
@@ -401,6 +407,9 @@ public:
     bool IsLong() const;
     bool IsULong() const;
     bool IsPtr() const;
+    bool IsBinary() const;
+    bool IsStreamTL() const;
+    bool IsStreamMT() const;
     bool IsInt64() const;
     bool IsUInt64() const;
     bool IsFloat() const;
@@ -423,6 +432,10 @@ public:
     Variant &BecomeLong();
     Variant &BecomeULong();
     Variant &BecomePtr();
+    Variant &BecomeBinary();
+    Variant &BecomeStreamTL();
+    Variant &BecomeStreamMT();
+
     Variant &BecomeInt64();
     Variant &BecomeUInt64();
     Variant &BecomeFloat();
@@ -445,6 +458,8 @@ public:
     ULong   AsULong() const;
     template <typename _T>
     _T *    AsPtr() const;
+    LibStreamTL *AsStreamTL() const;
+    LibStreamMT *AsStreamMT() const;
     Int64   AsInt64() const;
     UInt64  AsUInt64() const;
     Float   AsFloat() const;
@@ -464,6 +479,8 @@ public:
     operator ULong () const;
     template <typename _T>
     operator _T * () const;
+    operator LibStreamTL * () const;
+    operator LibStreamMT * () const;
     operator Int64 () const;
     operator UInt64 () const;
     operator Float() const;
@@ -591,6 +608,8 @@ public:
     Variant &operator =(Float val);
     Variant &operator =(const Double &val);
     Variant &operator =(const LibString &val);
+    Variant &operator =(const LibStreamTL * const &ptr);
+    Variant &operator =(const LibStreamMT * const &ptr);
 
     Variant &operator =(const Variant::Sequence &val);
     template<typename _Ty>
@@ -967,6 +986,27 @@ ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_PTR>()
     _raw._type = VariantRtti::VT_BRIEF_PTR;
     _raw._briefData._uint64Data = 0;
 }
+
+template<>
+ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_BINARY>()
+{
+    _raw._type = VariantRtti::VT_BRIEF_BINARY;
+    _raw._briefData._uint64Data = 0;
+}
+
+template<>
+ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_BINARY_STREAM_TL>()
+{
+    _raw._type = VariantRtti::VT_BRIEF_BINARY_STREAM_TL;
+    _raw._briefData._uint64Data = 0;
+}
+template<>
+ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_BINARY_STREAM_MT>()
+{
+    _raw._type = VariantRtti::VT_BRIEF_BINARY_STREAM_MT;
+    _raw._briefData._uint64Data = 0;
+}
+
 template<>
 ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_INT64>()
 {

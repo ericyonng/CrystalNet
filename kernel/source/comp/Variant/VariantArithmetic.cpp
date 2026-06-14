@@ -74,6 +74,9 @@ void VariantArithmetic::Performs(Variant &left, const Variant &right, int type)
             break;
 
         case VariantRtti::VT_BRIEF_PTR:
+        case VariantRtti::VT_BRIEF_BINARY:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_TL:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_MT:
             VariantArithmetic::_Performs_ptr_any(left, right, type);
             break;
 
@@ -140,6 +143,9 @@ void VariantArithmetic::_Performs_bool_any(
             break;
 
         case VariantRtti::VT_BRIEF_PTR:
+        case VariantRtti::VT_BRIEF_BINARY:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_TL:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_MT:
             left = _Performs_raw_operation(left.AsPtr<void>(), right.AsPtr<void>(), type);
             break;
 
@@ -200,6 +206,9 @@ void VariantArithmetic::_Performs_byte8_any(
             break;
 
         case VariantRtti::VT_BRIEF_PTR:
+        case VariantRtti::VT_BRIEF_BINARY:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_TL:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_MT:
             left = _Performs_raw_operation(left.AsPtr<void>(), right.AsPtr<void>(), type);
             break;
 
@@ -257,6 +266,9 @@ void VariantArithmetic::_Performs_uint8_any(
             break;
 
         case VariantRtti::VT_BRIEF_PTR:
+        case VariantRtti::VT_BRIEF_BINARY:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_TL:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_MT:
             left = _Performs_raw_operation(left.AsPtr<void>(), right.AsPtr<void>(), type);
             break;
 
@@ -311,6 +323,9 @@ void VariantArithmetic::_Performs_int16_any(
             break;
 
         case VariantRtti::VT_BRIEF_PTR:
+        case VariantRtti::VT_BRIEF_BINARY:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_TL:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_MT:
             left = _Performs_raw_operation(left.AsPtr<void>(), right.AsPtr<void>(), type);
             break;
 
@@ -362,6 +377,9 @@ void VariantArithmetic::_Performs_uint16_any(
             break;
 
         case VariantRtti::VT_BRIEF_PTR:
+        case VariantRtti::VT_BRIEF_BINARY:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_MT:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_TL:
             left = _Performs_raw_operation(left.AsPtr<void>(), right.AsPtr<void>(), type);
             break;
 
@@ -410,6 +428,9 @@ void VariantArithmetic::_Performs_int32_any(
             break;
 
         case VariantRtti::VT_BRIEF_PTR:
+        case VariantRtti::VT_BRIEF_BINARY:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_TL:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_MT:
             left = _Performs_raw_operation(left.AsPtr<void>(), right.AsPtr<void>(), type);
             break;
 
@@ -455,6 +476,9 @@ void VariantArithmetic::_Performs_uint32_any(
             break;
 
         case VariantRtti::VT_BRIEF_PTR:
+        case VariantRtti::VT_BRIEF_BINARY:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_TL:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_MT:
             left = _Performs_raw_operation(left.AsPtr<void>(), right.AsPtr<void>(), type);
             break;
 
@@ -497,6 +521,9 @@ void VariantArithmetic::_Performs_long_any(
             break;
 
         case VariantRtti::VT_BRIEF_PTR:
+        case VariantRtti::VT_BRIEF_BINARY:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_TL:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_MT:
             left = _Performs_raw_operation(left.AsPtr<void>(), right.AsPtr<void>(), type);
             break;
 
@@ -536,6 +563,9 @@ void VariantArithmetic::_Performs_ulong_any(
             break;
 
         case VariantRtti::VT_BRIEF_PTR:
+        case VariantRtti::VT_BRIEF_BINARY:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_TL:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_MT:
             left = _Performs_raw_operation(left.AsPtr<void>(), right.AsPtr<void>(), type);
             break;
 
@@ -572,6 +602,9 @@ void VariantArithmetic::_Performs_ptr_any(
         case VariantRtti::VT_BRIEF_LONG:
         case VariantRtti::VT_BRIEF_ULONG:
         case VariantRtti::VT_BRIEF_PTR:
+        case VariantRtti::VT_BRIEF_BINARY:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_TL:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_MT:
             left = _Performs_raw_operation(left.AsPtr<void>(), right.AsPtr<void>(), type);
             break;
 
@@ -608,6 +641,9 @@ void VariantArithmetic::_Performs_int64_any(
         case VariantRtti::VT_BRIEF_LONG:
         case VariantRtti::VT_BRIEF_ULONG:
         case VariantRtti::VT_BRIEF_PTR:
+        case VariantRtti::VT_BRIEF_BINARY:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_TL:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_MT:
         case VariantRtti::VT_BRIEF_INT64:
             left = _Performs_raw_operation(left.AsInt64(), right.AsInt64(), type);
             break;
@@ -641,6 +677,9 @@ void VariantArithmetic::_Performs_uint64_any(
         case VariantRtti::VT_BRIEF_LONG:
         case VariantRtti::VT_BRIEF_ULONG:
         case VariantRtti::VT_BRIEF_PTR:
+        case VariantRtti::VT_BRIEF_BINARY:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_TL:
+        case VariantRtti::VT_BRIEF_BINARY_STREAM_MT:
         case VariantRtti::VT_BRIEF_INT64:
         case VariantRtti::VT_BRIEF_UINT64:
             left = _Performs_raw_operation(left.AsUInt64(), right.AsUInt64(), type);

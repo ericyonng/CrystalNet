@@ -32,5 +32,6 @@
 #pragma once
 
 #include <kernel/comp/Variant/Variant.h>
+#include <kernel/comp/Variant/VariantHelper.h>
 
 #endif

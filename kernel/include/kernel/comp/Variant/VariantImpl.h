@@ -120,6 +120,20 @@ ALWAYS_INLINE Variant::Variant(const _T * const &ptrVal)
     ::memcpy(&_raw._briefData._uint64Data, &ptrVal, sizeof(_T *));
 }
 
+ALWAYS_INLINE Variant::Variant(const LibStreamTL * const &streamTL)
+{
+    _raw._type = VariantRtti::VT_BRIEF_BINARY_STREAM_TL;
+    _raw._briefData._uint64Data = 0;
+    ::memcpy(&_raw._briefData._uint64Data, &streamTL, sizeof(LibStreamTL *));
+}
+
+ALWAYS_INLINE Variant::Variant(const LibStreamMT * const &streamMT)
+{
+    _raw._type = VariantRtti::VT_BRIEF_BINARY_STREAM_MT;
+    _raw._briefData._uint64Data = 0;
+    ::memcpy(&_raw._briefData._uint64Data, &streamMT, sizeof(LibStreamMT *));
+}
+
 ALWAYS_INLINE Variant::Variant(const Int64 &int64Val)
 {
     _raw._type = VariantRtti::VT_BRIEF_INT64;
@@ -392,6 +406,21 @@ ALWAYS_INLINE bool Variant::IsPtr() const
     return (_raw._type & VariantRtti::VT_BRIEF_PTR) == VariantRtti::VT_BRIEF_PTR;
 }
 
+ALWAYS_INLINE bool Variant::IsBinary() const
+{
+    return (_raw._type & VariantRtti::VT_BRIEF_BINARY) == VariantRtti::VT_BRIEF_BINARY;
+}
+
+ALWAYS_INLINE bool Variant::IsStreamTL() const
+{
+    return (_raw._type & VariantRtti::VT_BRIEF_BINARY_STREAM_TL) == VariantRtti::VT_BRIEF_BINARY_STREAM_TL;
+}
+
+ALWAYS_INLINE bool Variant::IsStreamMT() const
+{
+    return (_raw._type & VariantRtti::VT_BRIEF_BINARY_STREAM_MT) == VariantRtti::VT_BRIEF_BINARY_STREAM_MT;
+}
+
 ALWAYS_INLINE bool Variant::IsInt64() const
 {
     return (_raw._type & VariantRtti::VT_BRIEF_INT64) == VariantRtti::VT_BRIEF_INT64;
@@ -492,6 +521,21 @@ ALWAYS_INLINE Variant &Variant::BecomePtr()
     return Become<VariantRtti::VT_BRIEF_PTR>();
 }
 
+ALWAYS_INLINE Variant &Variant::BecomeBinary()
+{
+    return Become<VariantRtti::VT_BRIEF_BINARY>();
+}
+
+ALWAYS_INLINE Variant &Variant::BecomeStreamTL()
+{
+    return Become<VariantRtti::VT_BRIEF_BINARY_STREAM_TL>();
+}
+
+ALWAYS_INLINE Variant &Variant::BecomeStreamMT()
+{
+    return Become<VariantRtti::VT_BRIEF_BINARY_STREAM_MT>();
+}
+
 ALWAYS_INLINE Variant &Variant::BecomeInt64()
 {
     return Become<VariantRtti::VT_BRIEF_INT64>();
@@ -585,6 +629,16 @@ ALWAYS_INLINE _T *Variant::AsPtr() const
     return reinterpret_cast<_T *>(AsUInt64());
 }
 
+ALWAYS_INLINE LibStreamTL *Variant::AsStreamTL() const
+{
+    return reinterpret_cast<LibStreamTL *>(AsUInt64());
+}
+
+ALWAYS_INLINE LibStreamMT *Variant::AsStreamMT() const
+{
+    return reinterpret_cast<LibStreamMT *>(AsUInt64());
+}
+
 ALWAYS_INLINE Float Variant::AsFloat() const
 {
     return static_cast<Float>(AsDouble());
@@ -655,6 +709,16 @@ template <typename _T>
 ALWAYS_INLINE Variant::operator _T * () const
 {
     return AsPtr<_T>();
+}
+
+ALWAYS_INLINE Variant::operator LibStreamTL * () const
+{
+    return AsStreamTL();
+}
+
+ALWAYS_INLINE Variant::operator LibStreamMT * () const
+{
+    return AsStreamMT();
 }
 
 ALWAYS_INLINE Variant::operator Int64 () const
@@ -1366,6 +1430,24 @@ ALWAYS_INLINE Variant &Variant::operator =(const LibString &val)
     {
         *strData = val;
     }
+
+    return *this;
+}
+
+ALWAYS_INLINE Variant &Variant::operator =(const LibStreamTL * const &ptr)
+{
+    BecomeStreamTL();
+    _raw._briefData._uint64Data = 0;
+    ::memcpy(&_raw._briefData._uint64Data, &ptr, sizeof(LibStreamTL *));
+
+    return *this;
+}
+
+ALWAYS_INLINE Variant &Variant::operator =(const LibStreamMT * const &ptr)
+{
+    BecomeStreamMT();
+    _raw._briefData._uint64Data = 0;
+    ::memcpy(&_raw._briefData._uint64Data, &ptr, sizeof(LibStreamMT *));
 
     return *this;
 }
