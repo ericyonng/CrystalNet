@@ -157,19 +157,10 @@ KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> Mongo
         auto &&now = LibTime::Now();
         auto &&expireTime = now + lockSlice;
         
-        // 原子性获取锁的 filter:
-        // 1. expireAt 字段不存在 (锁不存在)
-        // 2. expireAt < now (锁已过期)
+        // 原子性获取锁的 filter: 只匹配 owner 是自己持有的锁
         bsoncxx::builder::basic::document filterDoc;
         filterDoc.append(bsoncxx::builder::basic::kvp("_id", lockName.GetRaw()));
-        filterDoc.append(bsoncxx::builder::basic::kvp("$or", bsoncxx::builder::basic::make_array(
-            bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("expireAt", bsoncxx::builder::basic::make_document(
-                bsoncxx::builder::basic::kvp("$exists", false)
-            ))),
-            bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("expireAt", bsoncxx::builder::basic::make_document(
-                bsoncxx::builder::basic::kvp("$lt", static_cast<std::int64_t>(now.GetMilliTimestamp()))  // 已过期
-            )))
-        )));
+        filterDoc.append(bsoncxx::builder::basic::kvp("owner", ownerId.GetRaw()));
         
         // 更新操作: 设置 owner 和新的过期时间
         bsoncxx::builder::basic::document updateDoc;
@@ -182,41 +173,18 @@ KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> Mongo
         options.return_document(mongocxx::options::return_document::k_after);
         
         auto result = locksDb.find_one_and_update(filterDoc.view(), updateDoc.view(), options);
-        if (result)
-        {
-            auto doc = result->view();
-            auto ownerIter = doc.find("owner");
-            
-            // 如果 owner 是我们设置的，说明获取成功
-            if (ownerIter != doc.end())
-            {
-                std::string setOwner = ownerIter->get_string().value.data();
-                if (setOwner == ownerId)
-                {
-                    lock->Acquired = true;
-                    CLOG_DEBUG("lock %s acquired by %s", lockName.c_str(), ownerId.c_str());
-                    return lock;
-                }
-            }
-            
-            // 能走到这里说明 owner 不是我们设置的（并发情况）
-            std::string currentOwner = (ownerIter != doc.end()) ? ownerIter->get_string().value.data() : "unknown";
-            CLOG_DEBUG("lock %s already held by %s, waiting...", lockName.c_str(), currentOwner.c_str());
-        }
-        else
-        {
-            // result 为空表示没有匹配任何文档（理论上不应该发生，因为有 upsert:true）
-            lock->Acquired = true;
-            CLOG_WARN("lock %s acquired by %s (upserted)", lockName.c_str(), ownerId.c_str());
-        }
+        // return_document: k_after + upsert: true → result 永远不会为空
+        // 匹配到: 续期成功; 未匹配到: upsert 创建新文档返回
+        lock->Acquired = true;
+        CLOG_DEBUG("lock %s acquired by %s", lockName.c_str(), ownerId.c_str());
     }
     catch (const mongocxx::exception &e)
     {
-        // 锁存在且未过期
+        // 锁已被其他进程持有
         if (e.code().value() == 11000)
         {
             lock->Acquired = false;
-            CLOG_DEBUG("TryAcquireLock failed lock not expire:%s, lockName:%s, ownerId:%s", e.what(), lockName.c_str(), ownerId.c_str());
+            CLOG_DEBUG("TryAcquireLock failed lock already held by another:%s, lockName:%s, ownerId:%s", e.what(), lockName.c_str(), ownerId.c_str());
         }
         else
         {
