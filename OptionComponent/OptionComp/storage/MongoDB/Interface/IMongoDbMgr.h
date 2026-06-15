@@ -34,6 +34,7 @@
 
 #include <kernel/comp/CompObject/CompObjectInc.h>
 #include <OptionComp/storage/MongoDB/Impl/ShardKeyInfo.h>
+#include <kernel/comp/TimeSlice.h>
 
 KERNEL_BEGIN
 
@@ -67,6 +68,13 @@ public:
     // 分布式锁(行级)
 
 #ifdef CRYSTAL_NET_CPP20
+    // 尝试获取分布式锁 (使用 findOneAndUpdate + upsert 原子操作)
+    // 逻辑: 如果锁不存在则创建; 如果锁存在但已过期则更新; 如果锁存在且未过期则失败 lockName:目标(可以组合不同的字符串, 来实现不同功能的分布式锁), ownerId:锁id
+    virtual CoTask<bool> TryAcquireLock(KERNEL_NS::LibString lockTargetId, KERNEL_NS::LibString lockId, KERNEL_NS::TimeSlice slice = KERNEL_NS::TimeSlice::FromSeconds(30)) = 0;
+    
+    // 释放分布式锁
+    virtual CoTask<> ReleaseLock(const KERNEL_NS::LibString &lockTargetId, const KERNEL_NS::LibString &lockId) = 0;
+    
     // 查json数据 查一条数据 fieldNameRefVariant 外部释放,query内部不释放
     // 特殊转换: 
     // 如果存储的是简单的数据例如整数浮点数字符串等, variant返回的就是对应的简单数据

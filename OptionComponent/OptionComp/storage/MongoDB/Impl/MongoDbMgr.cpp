@@ -33,6 +33,8 @@
 #include <OptionComp/storage/MongoDB/Impl/MongodbConnection.h>
 #include <OptionComp/storage/MongoDB/Impl/MongoAsyncRes.h>
 
+#include "ShardingLock.h"
+
 
 namespace 
 {
@@ -510,6 +512,106 @@ bool MongoDbMgr::FocusDb(const KERNEL_NS::LibString &dbName)
 }
 
 #ifdef CRYSTAL_NET_CPP20
+CoTask<bool> MongoDbMgr::TryAcquireLock(KERNEL_NS::LibString lockTargetId, KERNEL_NS::LibString lockId, KERNEL_NS::TimeSlice slice)
+{
+    auto isSuc = co_await _eventLoopThread->SendAsync<MongoAsyncRes>([this, lockTargetId, lockId, slice]()->MongoAsyncRes
+    {
+        MongoAsyncRes res;
+
+        try
+        {
+            auto client = _connectionPool->acquire();
+            auto  connection = KERNEL_NS::MongodbConnection::Create(client);
+            auto lockInfo = connection->TryAcquireLock(lockTargetId, lockId, slice);
+            res.IsSuccess = lockInfo->Acquired;
+        }
+        catch (const mongocxx::exception &e)
+        {
+            CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("TryAcquireLock mongodb mongocxx exception: %s, lockTargetId:%s lockId:%s, slice:%lld(ms):"
+                , e.what(), lockTargetId.c_str(), lockId.c_str()), slice.GetTotalMilliSeconds());
+            return res;
+        }
+        catch (const std::exception &e)
+        {
+            CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("TryAcquireLock mongodb std exception: %s, lockTargetId:%s lockId:%s, slice:%lld(ms):"
+                , e.what(), lockTargetId.c_str(), lockId.c_str()), slice.GetTotalMilliSeconds());
+            return res;
+        }
+        catch (...)
+        {
+            CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("TryAcquireLock mongodb unknown exception, lockTargetId:%s lockId:%s, slice:%lld(ms):"
+                , lockTargetId.c_str(), lockId.c_str()), slice.GetTotalMilliSeconds());
+            
+            return res;
+        }
+
+        return res;
+    });
+
+    if(!isSuc->IsSuccess)
+    {
+        CLOG_DEBUG_ARGS(KERNEL_NS::LibString().AppendFormat("TryAcquireLock mongodb fail, lockTargetId:%s lockId:%s, slice:%lld(ms):"
+            , lockTargetId.c_str(), lockId.c_str()), slice.GetTotalMilliSeconds());
+        
+        co_return false;
+    }
+
+    CLOG_DEBUG_ARGS(KERNEL_NS::LibString().AppendFormat("TryAcquireLock mongodb success, lockTargetId:%s lockId:%s, slice:%lld(ms):"
+    , lockTargetId.c_str(), lockId.c_str()), slice.GetTotalMilliSeconds());
+    
+    co_return true;
+}
+    
+// 释放分布式锁
+CoTask<> MongoDbMgr::ReleaseLock(const KERNEL_NS::LibString &lockTargetId, const KERNEL_NS::LibString &lockId)
+{
+   auto isSuc = co_await _eventLoopThread->SendAsync<MongoAsyncRes>([this, lockTargetId, lockId]()->MongoAsyncRes
+   {
+       MongoAsyncRes res;
+
+       try
+       {
+           auto client = _connectionPool->acquire();
+           auto  connection = KERNEL_NS::MongodbConnection::Create(client);
+           KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> shardingLock = ShardingLock::NewThreadLocal_ShardingLock();
+           shardingLock->Acquired = true;
+           shardingLock->LockId = lockId;
+           shardingLock->LockCollection = lockTargetId;
+           connection->ReleaseLock(shardingLock);
+           res.IsSuccess = true;
+       }
+       catch (const mongocxx::exception &e)
+       {
+           CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("ReleaseLock mongodb mongocxx exception: %s, lockTargetId:%s lockId:%s"
+               , e.what(), lockTargetId.c_str(), lockId.c_str()));
+           return res;
+       }
+       catch (const std::exception &e)
+       {
+           CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("ReleaseLock mongodb std exception: %s, lockTargetId:%s lockId:%s"
+               , e.what(), lockTargetId.c_str(), lockId.c_str()));
+           return res;
+       }
+       catch (...)
+       {
+           CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("ReleaseLock mongodb known exception: lockTargetId:%s lockId:%s"
+               , lockTargetId.c_str(), lockId.c_str()));
+        
+           return res;
+       }
+
+       return res;
+   });
+
+    if(!isSuc->IsSuccess)
+    {
+        CLOG_DEBUG_ARGS(KERNEL_NS::LibString().AppendFormat("ReleaseLock mongodb fail, lockTargetId:%s lockId:%s"
+            , lockTargetId.c_str(), lockId.c_str()));
+    }
+
+    CLOG_DEBUG_ARGS(KERNEL_NS::LibString().AppendFormat("ReleaseLock mongodb success, lockTargetId:%s lockId:%s"
+    , lockTargetId.c_str(), lockId.c_str()));
+}
 
 KERNEL_NS::CoTask<bool> MongoDbMgr::Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *fieldNameRefVariant, bool ignoreOid)
 {

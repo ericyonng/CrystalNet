@@ -141,7 +141,7 @@ KERNEL_NS::CoTask<bool> MongodbConnection::EnableDatabaseSharding(KERNEL_NS::Lib
     co_return false;
 }
 
-KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> MongodbConnection::TryAcquireLock(const KERNEL_NS::LibString &lockName, const KERNEL_NS::LibString &ownerId)
+KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> MongodbConnection::TryAcquireLock(const KERNEL_NS::LibString &lockName, const KERNEL_NS::LibString &ownerId, const KERNEL_NS::TimeSlice &lockSlice)
 {
     KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> lock = ShardingLock::NewThreadLocal_ShardingLock();
     lock->LockId = ownerId;
@@ -155,7 +155,7 @@ KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> Mongo
     {
         auto locksDb = _entry["config"]["_sharding_locks"];
         auto &&now = LibTime::Now();
-        auto &&expireTime = now + KERNEL_NS::TimeSlice::FromSeconds(30);
+        auto &&expireTime = now + lockSlice;
         
         // 原子性获取锁的 filter:
         // 1. expireAt 字段不存在 (锁不存在)
@@ -173,6 +173,7 @@ KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> Mongo
         
         // 更新操作: 设置 owner 和新的过期时间
         bsoncxx::builder::basic::document updateDoc;
+        updateDoc.append(bsoncxx::builder::basic::kvp("_id", lockName.GetRaw()));
         updateDoc.append(bsoncxx::builder::basic::kvp("owner", ownerId.GetRaw()));
         updateDoc.append(bsoncxx::builder::basic::kvp("expireAt", static_cast<std::int64_t>(expireTime.GetMilliTimestamp())));
         
@@ -181,7 +182,6 @@ KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> Mongo
         options.return_document(mongocxx::options::return_document::k_after);
         
         auto result = locksDb.find_one_and_update(filterDoc.view(), updateDoc.view(), options);
-        
         if (result)
         {
             auto doc = result->view();
@@ -212,7 +212,16 @@ KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> Mongo
     }
     catch (const mongocxx::exception &e)
     {
-        CLOG_ERROR("TryAcquireLock failed:%s, lockName:%s, ownerId:%s", e.what(), lockName.c_str(), ownerId.c_str());
+        // 锁存在且未过期
+        if (e.code().value() == 11000)
+        {
+            lock->Acquired = false;
+            CLOG_DEBUG("TryAcquireLock failed lock not expire:%s, lockName:%s, ownerId:%s", e.what(), lockName.c_str(), ownerId.c_str());
+        }
+        else
+        {
+            CLOG_ERROR("TryAcquireLock failed:%s, lockName:%s, ownerId:%s", e.what(), lockName.c_str(), ownerId.c_str());
+        }
     }
     catch (const std::exception &e)
     {

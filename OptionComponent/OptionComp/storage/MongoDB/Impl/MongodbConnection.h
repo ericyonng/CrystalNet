@@ -55,8 +55,8 @@ public:
     KERNEL_NS::CoTask<bool> EnableDatabaseSharding(KERNEL_NS::LibString dbName);
 
     // 尝试获取分布式锁 (使用 findOneAndUpdate + upsert 原子操作)
-    // 逻辑: 如果锁不存在则创建; 如果锁存在但已过期则更新; 如果锁存在且未过期则失败
-    KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> TryAcquireLock(const KERNEL_NS::LibString &lockName, const KERNEL_NS::LibString &ownerId);
+    // 逻辑: 如果锁不存在则创建; 如果锁存在但已过期则更新; 如果锁存在且未过期则失败 lockName:目标, ownerId:锁id
+    KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> TryAcquireLock(const KERNEL_NS::LibString &lockName, const KERNEL_NS::LibString &ownerId, const KERNEL_NS::TimeSlice &lockSlice = KERNEL_NS::TimeSlice::FromSeconds(30));
     
     // 释放分布式锁
     void ReleaseLock(KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> &lock);

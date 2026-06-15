@@ -74,6 +74,13 @@ public:
     virtual bool FocusDb(const KERNEL_NS::LibString &dbName) override;
 
     #ifdef CRYSTAL_NET_CPP20
+    // 尝试获取分布式锁 (使用 findOneAndUpdate + upsert 原子操作)
+    // 逻辑: 如果锁不存在则创建; 如果锁存在但已过期则更新; 如果锁存在且未过期则失败 lockName:目标, ownerId:锁id
+    virtual CoTask<bool> TryAcquireLock(KERNEL_NS::LibString lockTargetId, KERNEL_NS::LibString lockId, KERNEL_NS::TimeSlice slice = KERNEL_NS::TimeSlice::FromSeconds(30)) override;
+    
+    // 释放分布式锁
+    virtual CoTask<> ReleaseLock(const KERNEL_NS::LibString &lockTargetId, const KERNEL_NS::LibString &lockId) override;
+    
     // 查任意数据, Variant支持json/二进制数据(LibStreamTL/LibStreamMT等)
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *fieldNameRefVariant, bool ignoreOid = false) override;
 

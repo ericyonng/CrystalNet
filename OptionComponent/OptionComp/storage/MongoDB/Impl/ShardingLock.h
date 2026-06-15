@@ -40,7 +40,7 @@ struct ShardingLock
     POOL_CREATE_OBJ_DEFAULT(ShardingLock);
     
     KERNEL_NS::LibString LockId;           // 锁 ID
-    KERNEL_NS::LibString LockCollection;   // 锁目标 (dbName.collName 或 dbName)
+    KERNEL_NS::LibString LockCollection;   // 锁目标 (dbName.collName 或 dbName 或dbName.collectionName.data uid)
     bool Acquired = false;                  // 是否成功获取锁
 };
 

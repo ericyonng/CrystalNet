@@ -650,6 +650,18 @@ private:
         {
             auto mongodbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
 
+            // 分布式锁
+            {
+                auto &&lockId = KERNEL_NS::GuidUtil::GenStr();
+                auto targetId = KERNEL_NS::LibString().AppendFormat("testsuit6_player_5566654545646");
+                auto ret = co_await mongodbMgr->TryAcquireLock(targetId, lockId, KERNEL_NS::TimeSlice::FromHours(1));
+                CLOG_INFO("TryAcquireLock 1:%d", ret);
+                ret = co_await mongodbMgr->TryAcquireLock(KERNEL_NS::LibString().AppendFormat("testsuit6_player_5566654545646"), lockId);
+                CLOG_INFO("TryAcquireLock 2:%d", ret);
+                co_await mongodbMgr->ReleaseLock(targetId, lockId);
+                co_await mongodbMgr->ReleaseLock(targetId, lockId);
+            }
+
             std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kvD2;
             kvD2.emplace("player_id", KERNEL_NS::Variant(88888LL));
             auto ret = co_await mongodbMgr->DelData("testsuit6", "player", kvD2);
