@@ -653,13 +653,24 @@ private:
             // 分布式锁
             {
                 auto &&lockId = KERNEL_NS::GuidUtil::GenStr();
-                auto targetId = KERNEL_NS::LibString().AppendFormat("testsuit6_player_5566654545646");
+                auto targetId = KERNEL_NS::LibString().AppendFormat("testsuit6_player_5566654545646666");
                 auto ret = co_await mongodbMgr->TryAcquireLock(targetId, lockId, KERNEL_NS::TimeSlice::FromHours(1));
                 CLOG_INFO("TryAcquireLock 1:%d", ret);
-                ret = co_await mongodbMgr->TryAcquireLock(KERNEL_NS::LibString().AppendFormat("testsuit6_player_5566654545646"), lockId);
+                ret = co_await mongodbMgr->TryAcquireLock(KERNEL_NS::LibString().AppendFormat("testsuit6_player_5566654545646666"), lockId);
                 CLOG_INFO("TryAcquireLock 2:%d", ret);
-                co_await mongodbMgr->ReleaseLock(targetId, lockId);
-                co_await mongodbMgr->ReleaseLock(targetId, lockId);
+                // co_await mongodbMgr->ReleaseLock(targetId, lockId);
+                // co_await mongodbMgr->ReleaseLock(targetId, lockId);
+            }
+            {
+                auto &&lockId1 = KERNEL_NS::GuidUtil::GenStr();
+                auto targetId = KERNEL_NS::LibString().AppendFormat("testsuit6_player_55666545456462");
+                auto ret = co_await mongodbMgr->TryAcquireLock(targetId, lockId1, KERNEL_NS::TimeSlice::FromHours(1));
+                CLOG_INFO("TryAcquireLock 1:%d", ret);
+                auto &&lockId = KERNEL_NS::GuidUtil::GenStr();
+                ret = co_await mongodbMgr->TryAcquireLock(KERNEL_NS::LibString().AppendFormat("testsuit6_player_55666545456462"), lockId);
+                CLOG_INFO("TryAcquireLock 2:%d", ret);
+                co_await mongodbMgr->ReleaseLock(targetId, lockId1);
+                co_await mongodbMgr->ReleaseLock(targetId, lockId1);
             }
 
             std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kvD2;

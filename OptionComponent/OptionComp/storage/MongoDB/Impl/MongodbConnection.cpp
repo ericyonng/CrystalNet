@@ -157,10 +157,21 @@ KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> Mongo
         auto &&now = LibTime::Now();
         auto &&expireTime = now + lockSlice;
         
-        // 原子性获取锁的 filter: 只匹配 owner 是自己持有的锁
+        // 原子性获取锁的 filter:
+        // 1. owner 是自己 → 续期
+        // 2. expireAt 不存在 → 锁记录异常, 抢占
+        // 3. expireAt 已过期 → 抢占过期锁
         bsoncxx::builder::basic::document filterDoc;
         filterDoc.append(bsoncxx::builder::basic::kvp("_id", lockName.GetRaw()));
-        filterDoc.append(bsoncxx::builder::basic::kvp("owner", ownerId.GetRaw()));
+        filterDoc.append(bsoncxx::builder::basic::kvp("$or", bsoncxx::builder::basic::make_array(
+            bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("owner", ownerId.GetRaw())),
+            bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("expireAt", bsoncxx::builder::basic::make_document(
+                bsoncxx::builder::basic::kvp("$exists", false)
+            ))),
+            bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("expireAt", bsoncxx::builder::basic::make_document(
+                bsoncxx::builder::basic::kvp("$lt", static_cast<std::int64_t>(now.GetMilliTimestamp()))
+            )))
+        )));
         
         // 更新操作: 设置 owner 和新的过期时间
         bsoncxx::builder::basic::document updateDoc;
@@ -174,7 +185,7 @@ KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> Mongo
         
         auto result = locksDb.find_one_and_update(filterDoc.view(), updateDoc.view(), options);
         // return_document: k_after + upsert: true → result 永远不会为空
-        // 匹配到: 续期成功; 未匹配到: upsert 创建新文档返回
+        // 匹配到: owner匹配则续期 / 锁已过期则抢占; 未匹配到: upsert 创建新文档(首次获取)
         lock->Acquired = true;
         CLOG_DEBUG("lock %s acquired by %s", lockName.c_str(), ownerId.c_str());
     }
