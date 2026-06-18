@@ -34,19 +34,19 @@
 #include <algorithm>
 
 KERNEL_BEGIN
-    LibEventLoopThreadPool::LibEventLoopThreadPool()
+    LibEventLoopThreadPool::LibEventLoopThreadPool(const Byte8 *poolName)
     :_maxNum(2 * LibCpuInfo::GetInstance()->GetCpuCoreCnt())    // 默认是CPU核数的2倍
 ,_workingNum{0}
 ,_rrIndex{0}
 ,_start{false}
 ,_close{false}
 ,_disablePost{false}
-,_poolName("LibEventLoopThreadPool")
+,_poolName(poolName)
 {
     _threads.resize(_maxNum, NULL);
 }
 
-LibEventLoopThreadPool::LibEventLoopThreadPool(Int32 minNum, Int32 maxNum)
+LibEventLoopThreadPool::LibEventLoopThreadPool(Int32 minNum, Int32 maxNum, const Byte8 *poolName)
     :_maxNum(maxNum >= minNum ? maxNum : minNum)
 ,_workingNum(minNum < maxNum ? minNum : maxNum)
 ,_rrIndex{0}
@@ -55,7 +55,7 @@ LibEventLoopThreadPool::LibEventLoopThreadPool(Int32 minNum, Int32 maxNum)
 ,_disablePost{false}
 {
     _threads.resize(_maxNum, NULL);
-    _poolName = "LibEventLoopThreadPool";
+    _poolName = poolName;
 }
 
 LibEventLoopThreadPool::~LibEventLoopThreadPool()
@@ -76,7 +76,7 @@ void LibEventLoopThreadPool::Start()
     for(Int32 idx = 0; idx < workingNum; ++idx)
     {
         auto t = _threads[idx];
-        if(t == NULL)
+        if(t)
             continue;
         
         _threads[idx] = new LibEventLoopThread(_poolName);

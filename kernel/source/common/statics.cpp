@@ -38,5 +38,7 @@ KERNEL_END
 KERNEL_NS::ILog *g_Log = NULL;
 KERNEL_NS::MemoryPool *g_MemoryPool = NULL;
 // 用来干杂活的(例如监控文件, 打印监控信息等)
-KERNEL_NS::LibEventLoopThreadPool *g_LibEventLoopThreadPool = NULL;
+KERNEL_NS::LibEventLoopThreadPool *g_EventLoopHeavyTaskThreadPool = NULL;
+KERNEL_EXPORT KERNEL_NS::LibEventLoopThreadPool *g_EventLoopEasyTaskThreadPool = NULL;
+
 

@@ -32,6 +32,7 @@
 #include <kernel/comp/Utils/StringUtil.h>
 #include <OptionComp/storage/MongoDB/Impl/MongodbConnection.h>
 #include <OptionComp/storage/MongoDB/Impl/MongoAsyncRes.h>
+#include <kernel/comp/Utils/HashUtil.h>
 
 #include "ShardingLock.h"
 
@@ -347,7 +348,6 @@ MongoDbMgr::MongoDbMgr()
  :IMongoDbMgr(KERNEL_NS::RttiUtil::GetTypeId<MongoDbMgr>())
 ,_cantAddSchemaInfo{false}
 ,_connectionPool(NULL)
-,_eventLoopThread(NULL)
 ,_isDbReady{false}
 ,_dbFailErrCode{0}
 ,_willStarted{false}
@@ -514,7 +514,8 @@ bool MongoDbMgr::FocusDb(const KERNEL_NS::LibString &dbName)
 #ifdef CRYSTAL_NET_CPP20
 CoTask<bool> MongoDbMgr::TryAcquireLock(KERNEL_NS::LibString lockTargetId, KERNEL_NS::LibString lockId, KERNEL_NS::TimeSlice slice)
 {
-    auto isSuc = co_await _eventLoopThread->SendAsync<MongoAsyncRes>([this, lockTargetId, lockId, slice]()->MongoAsyncRes
+    const auto hashValue = HashUtil::Hash64(lockId.c_str(), lockId.length());
+    auto isSuc = co_await g_EventLoopEasyTaskThreadPool->SendAsync<MongoAsyncRes>([this, lockTargetId, lockId, slice]()->MongoAsyncRes
     {
         MongoAsyncRes res;
 
@@ -546,6 +547,10 @@ CoTask<bool> MongoDbMgr::TryAcquireLock(KERNEL_NS::LibString lockTargetId, KERNE
         }
 
         return res;
+    }, [hashValue](std::vector<LibEventLoopThread *> &threads) -> KERNEL_NS::Poller *
+    {
+        auto index = hashValue % threads.size();
+        return threads[index]->GetPollerNoAsync();
     });
 
     if(!isSuc->IsSuccess)
@@ -565,7 +570,9 @@ CoTask<bool> MongoDbMgr::TryAcquireLock(KERNEL_NS::LibString lockTargetId, KERNE
 // 释放分布式锁
 CoTask<> MongoDbMgr::ReleaseLock(const KERNEL_NS::LibString &lockTargetId, const KERNEL_NS::LibString &lockId)
 {
-   auto isSuc = co_await _eventLoopThread->SendAsync<MongoAsyncRes>([this, lockTargetId, lockId]()->MongoAsyncRes
+   const auto hashValue = HashUtil::Hash64(lockId.c_str(), lockId.length());
+
+   auto isSuc = co_await g_EventLoopEasyTaskThreadPool->SendAsync<MongoAsyncRes>([this, lockTargetId, lockId]()->MongoAsyncRes
    {
        MongoAsyncRes res;
 
@@ -601,7 +608,11 @@ CoTask<> MongoDbMgr::ReleaseLock(const KERNEL_NS::LibString &lockTargetId, const
        }
 
        return res;
-   });
+   }, [hashValue](std::vector<LibEventLoopThread *> &threads) -> KERNEL_NS::Poller *
+    {
+        auto index = hashValue % threads.size();
+        return threads[index]->GetPollerNoAsync();
+    });
 
     if(!isSuc->IsSuccess)
     {
@@ -626,7 +637,8 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::Query(KERNEL_NS::LibString dbName, KERNEL_NS
         CLOG_ERROR("query data fail, db:%s, not focus before will started, collection:%s, kv:%s", dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str());
         co_return false;
     }
-    
+
+    const auto hashValue = HashUtil::Hash64(lockId.c_str(), lockId.length());
     auto isSuc = co_await _eventLoopThread->SendAsync<MongoAsyncRes>([this, ignoreOid, dbName, collectionName, kv, fieldNameRefVariant]()->MongoAsyncRes
     {
         MongoAsyncRes res;
@@ -2232,6 +2244,30 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
 
     CLOG_DEBUG("update data success, db:%s, collection:%s, uniqueKv:%s", dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(kv, ',').c_str());
     
+    co_return true;
+}
+
+KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, MongoSerializeInfo> *keyNameRefData, bool createIfNotExists)
+{
+    // TODO:
+    co_return true;
+}
+
+KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> uniqueKv, std::map<KERNEL_NS::LibString, MongoSerializeInfo> *keyNameRefData)
+{
+    // TODO:
+    co_return true;
+}
+
+KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> uniqueKv,  std::map<KERNEL_NS::LibString, MongoSerializeInfo> *keyNameRefData)
+{
+    // TODO:
+    co_return true;
+}
+
+KERNEL_NS::CoTask<bool> MongoDbMgr::Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, MongoSerializeInfo> *fieldNameRefVariant, bool ignoreOid)
+{
+    // TODO:
     co_return true;
 }
 

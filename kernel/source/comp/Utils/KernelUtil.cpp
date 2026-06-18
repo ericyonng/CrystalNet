@@ -243,11 +243,19 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
 
     // 正式启动
     ThreadTool::OnStart();
-    
+
+    // cpu 核心, 开cpuCount个线程, 挂起
+    const auto cpuCount = g_cpu->GetCpuCoreCnt();
+    g_EventLoopEasyTaskThreadPool = new LibEventLoopThreadPool(cpuCount, cpuCount, "EventLoopEasyTaskThreadPool");
+    g_EventLoopEasyTaskThreadPool->Start();
+
     // cpu 核心
-    g_LibEventLoopThreadPool = new LibEventLoopThreadPool(0, g_cpu->GetCpuCoreCnt());
+    auto heaveThreadCount = g_cpu->GetCpuCoreCnt() / 2;
+    if (heaveThreadCount == 0)
+        heaveThreadCount = 1;
+    g_EventLoopHeavyTaskThreadPool = new LibEventLoopThreadPool(0, heaveThreadCount, "EventLoopHeavyTaskThreadPool");
     // 线程池
-    g_LibEventLoopThreadPool->Start();
+    g_EventLoopHeavyTaskThreadPool->Start();
     
     // 文件监控
     g_FileChangeManager = new FileChangeManager();
@@ -410,9 +418,19 @@ void KernelUtil::Destroy()
 
     g_FileChangeManager->WillClose();
 
-    g_LibEventLoopThreadPool->Close();
-    g_LibEventLoopThreadPool->Release();
-    g_LibEventLoopThreadPool = NULL;
+    if (g_EventLoopHeavyTaskThreadPool)
+    {
+        g_EventLoopHeavyTaskThreadPool->Close();
+        g_EventLoopHeavyTaskThreadPool->Release();
+        g_EventLoopHeavyTaskThreadPool = NULL;
+    }
+
+    if (g_EventLoopEasyTaskThreadPool)
+    {
+        g_EventLoopEasyTaskThreadPool->Close();
+        g_EventLoopEasyTaskThreadPool->Release();
+        g_EventLoopEasyTaskThreadPool = NULL;
+    }
 
     // 文件监控数据最后销毁, 避免数据出问题 战术性泄露
     // g_FileChangeManager->Release();

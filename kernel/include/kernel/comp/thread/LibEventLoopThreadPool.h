@@ -45,8 +45,8 @@ class LibEventLoopThread;
 class KERNEL_EXPORT LibEventLoopThreadPool
 {
 public:
-    LibEventLoopThreadPool();
-    LibEventLoopThreadPool(Int32 minNum, Int32 maxNum);
+    LibEventLoopThreadPool(const Byte8 *poolName = "LibEventLoopThreadPool");
+    LibEventLoopThreadPool(Int32 minNum, Int32 maxNum, const Byte8 *poolName = "LibEventLoopThreadPool");
     ~LibEventLoopThreadPool();
     
     void Release() const
@@ -103,6 +103,34 @@ public:
 
         auto poller = _SelectPoller(priorityToUsingNewThread);
 
+        co_return co_await poller->template SendAsync<ResType, LambdaType>(std::forward<LambdaType>(lamb));
+    }
+
+    template<typename ResType, typename LambdaType, typename SelectThreadLambdaType>
+    requires requires(LambdaType lambda, SelectThreadLambdaType selectLamb, std::vector<LibEventLoopThread *> threads, ResType res)
+    {
+        // 可移动
+        requires std::move_constructible<ResType>;
+        
+        {lambda()} -> std::convertible_to<ResType>;
+
+        // 返回是poller, 传入是threads
+        {selectLamb(threads)} -> std::convertible_to<KERNEL_NS::Poller *>;
+
+        // res必须有Release接口
+        res.Release();
+    
+        // res必须有ToString接口
+        res.ToString();
+    }
+    CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> SendAsync(LambdaType &&lamb, SelectThreadLambdaType &&selectLamb,  bool priorityToUsingNewThread = false)
+    {
+        if(UNLIKELY(_disablePost.load(std::memory_order_acquire)))
+        {
+            co_return KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>();
+        }
+
+        auto poller = selectLamb(_threads);
         co_return co_await poller->template SendAsync<ResType, LambdaType>(std::forward<LambdaType>(lamb));
     }
     #endif

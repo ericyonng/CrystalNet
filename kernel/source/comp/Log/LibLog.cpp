@@ -181,11 +181,11 @@ bool LibLog::Init(const Byte8 *logConfigFile, const Byte8 *logCfgDir, YamlMemory
             }
 
             // 日志着盘线程绑定关系
-            const auto workingNum = g_LibEventLoopThreadPool->GetWorkerNum();
-            auto &threads= g_LibEventLoopThreadPool->GetThreads();
+            const auto workingNum = g_EventLoopHeavyTaskThreadPool->GetWorkerNum();
+            auto &threads= g_EventLoopHeavyTaskThreadPool->GetThreads();
             if(workingNum <= specifyLog->GetThreadRelationId())
             {
-                g_LibEventLoopThreadPool->MakeThreadEnough(specifyLog->GetThreadRelationId() + 1);
+                g_EventLoopHeavyTaskThreadPool->MakeThreadEnough(specifyLog->GetThreadRelationId() + 1);
             }
             auto realRelationId = specifyLog->GetThreadRelationId() % threads.size();
             if(_threadRelationLogs.size() <= realRelationId)
@@ -261,7 +261,7 @@ void LibLog::Start()
         }
     }
 
-    auto &threads = g_LibEventLoopThreadPool->GetThreads();
+    auto &threads = g_EventLoopHeavyTaskThreadPool->GetThreads();
     const Int32 threadCount = static_cast<Int32>(_flushLocks.size());
     for(Int32 idx = 0; idx < threadCount; ++idx)
     {
@@ -414,7 +414,7 @@ void LibLog::ForceLogToDiskAll()
     FlushAll();
 
     const UInt64 currentThreadId = SystemUtil::GetCurrentThreadId();
-    auto &threads = g_LibEventLoopThreadPool->GetThreads();
+    auto &threads = g_EventLoopHeavyTaskThreadPool->GetThreads();
     while(true)
     {
         SystemUtil::ThreadSleep(0);

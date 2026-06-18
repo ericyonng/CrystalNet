@@ -139,7 +139,7 @@ void TestYaml::Run()
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestYaml, "LogTimerInterval:%s"), testMonitor.Current()->LogCommon.LogTimerInterval.ToString().c_str());
     }
 
-    g_LibEventLoopThreadPool->Send([monitor = &testMonitor]()
+    g_EventLoopHeavyTaskThreadPool->Send([monitor = &testMonitor]()
     {
         auto currentCfgs = monitor->Current();
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestYaml, "path:%s"), currentCfgs->FinalLogPath.c_str());

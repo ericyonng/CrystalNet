@@ -65,7 +65,7 @@ void FileChangeManager::Release()
 
 void FileChangeManager::_InitWorker()
 {
-    g_LibEventLoopThreadPool->Send([this]()
+    g_EventLoopHeavyTaskThreadPool->Send([this]()
     {
        KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<>
        {

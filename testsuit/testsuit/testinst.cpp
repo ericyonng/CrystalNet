@@ -112,6 +112,7 @@
 #include <testsuit/testinst/TestYaml.h>
 #include <testsuit/testinst/TestCoLocker.h>
 #include <testsuit/testinst/TestLibConfig.h>
+#include <testsuit/testinst/TestHash.h>
 
 // void *operator new(size_t bytes)
 // {
@@ -307,13 +308,14 @@ void TestInst::Run(int argc, char const *argv[])
     // TestJson::Run();
     // TestIdGenerator::Run();
     // TestLoadShareLibrary::Run();
-    TestMongo::Run();
+    // TestMongo::Run();
     // TestSort::Run();
     // TestEventLoopThread::Run();
     // TestLockFree::Run();
     // TestYaml::Run();
     // TestCoLocker::Run();
     // TestLibConfig::Run();
+    TestHash::Run();
     
     // write a large file
     // do

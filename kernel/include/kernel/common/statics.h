@@ -34,7 +34,6 @@
 
 #include <kernel/kernel_export.h>
 #include <kernel/common/BaseMacro.h>
-#include <string>
 
 KERNEL_BEGIN
 
@@ -53,6 +52,9 @@ KERNEL_END
 // 底层默认认为g_Log已经在上层初始化过,所以可以安全使用
 extern KERNEL_EXPORT KERNEL_NS::ILog *g_Log;
 extern KERNEL_EXPORT KERNEL_NS::MemoryPool *g_MemoryPool;
-extern KERNEL_EXPORT KERNEL_NS::LibEventLoopThreadPool *g_LibEventLoopThreadPool;
+// 给重度业务使用, 比如读写文件, 文件监控等
+extern KERNEL_EXPORT KERNEL_NS::LibEventLoopThreadPool *g_EventLoopHeavyTaskThreadPool;
+// 给轻度业务使用(线程池初始化到core数量, 一开始就创建满编线程)
+extern KERNEL_EXPORT KERNEL_NS::LibEventLoopThreadPool *g_EventLoopEasyTaskThreadPool;
 
 #endif

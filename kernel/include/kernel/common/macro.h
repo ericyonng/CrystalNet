@@ -610,4 +610,9 @@ __pragma(message(#__VA_ARGS__))
 _Pragma(KERNEL_STRINGIZE(message(#__VA_ARGS__)))
 #endif
 
+// 64bit x, 高r位挪到低r位
+#ifndef CRYSTAL_ROTL64
+ #define CRYSTAL_ROTL64(x, r) ((x << r) | (x >> (64 - r)))
+#endif
+
 #endif
