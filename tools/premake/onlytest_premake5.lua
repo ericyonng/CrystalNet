@@ -477,6 +477,7 @@ project "testsuit_onlytest"
 		"../../testsuit/",
 		"../../testsuit/testsuit_pch/",
 		"../../3rd/mysql/win/include/",
+		"../../3rd/xxhash/include/",
 		"../../OptionComponent/",
 		"../../protocols/cplusplus/",
     }

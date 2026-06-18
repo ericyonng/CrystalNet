@@ -30,6 +30,8 @@
 
 #pragma once
 
+#include <kernel/comp/Utils/HashUtil.h>
+
 ALWAYS_INLINE std::ostream &operator <<(std::ostream &o, const KERNEL_NS::Variant &var)
 {
     const KERNEL_NS::LibString &str = var.ToString();
@@ -1827,7 +1829,11 @@ struct hash<KERNEL_NS::Variant>
                 return ::std::_Hash_representation(
                     raw._briefData._doubleData == 0.0f ? 0.0f : raw._briefData._doubleData);
                 #else
-                return ::std::_Hash_impl::hash(raw._briefData._doubleData);
+                    #if CRYSTAL_CUR_COMP == CRYSTAL_COMP_GCC
+                        return ::std::_Hash_impl::hash(raw._briefData._doubleData);
+                    #else // Non-GCC comp
+                        return std::hash<double>()(raw._briefData._doubleData);
+                    #endif
                 #endif
             else
                 return static_cast<size_t>(raw._briefData._uint64Data);
@@ -1836,17 +1842,8 @@ struct hash<KERNEL_NS::Variant>
         {
             const KERNEL_NS::Variant::Raw &raw = var.GetRaw();
             const KERNEL_NS::LibString * const &str = raw._obj._strData;
-            #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-            if (str && !str->empty())
-                return ::std::_Hash_array_representation(str->data(), str->size());
-            else
-                return ::std::_Hash_representation(nullptr);
-            #else
-            if (str && !str->empty())
-                return ::std::_Hash_impl::hash(str->data(), str->size());
-            else
-                return ::std::_Hash_impl::hash(nullptr, 0);
-            #endif
+            return (str && (!str->empty())) ? KERNEL_NS::HashUtil::Hash64(str->data(), str->size())
+                    : KERNEL_NS::HashUtil::Hash64(NULL, 0);
         }
         else if (var.IsSeq())
         {

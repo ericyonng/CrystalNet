@@ -144,6 +144,8 @@
 
 - 根据iplist.txt文件一键部署mongodb分片集群, 见mongodb部署指南.md: [MongoDB部署](https://github.com/ericyonng/CrystalNet/tree/main/tools/soft/mongodb "MongoDB部署指南") 脚本:install_mongo_shard_cluster.sh
 
+- 引入hash算法, 在HashUtil, 提供高性能，低冲突的HashUtil::Hash64(...), (测试13GB+ /s 的吞吐量)
+
   
   
   

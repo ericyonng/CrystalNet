@@ -228,6 +228,7 @@ function include_libfs(do_post_build, add_protobuflib)
 		ROOT_DIR .. "/3rd/curl/include/",
 		ROOT_DIR .. "3rd/lua/include/",
 		ROOT_DIR .. "/3rd/yaml/include/",
+		ROOT_DIR .. "/3rd/xxhash/include/",
     }
 
 	libdirs { 
@@ -241,8 +242,10 @@ function include_libfs(do_post_build, add_protobuflib)
 		ROOT_DIR .. "3rd/lua/",
 	}
 
-    -- 使用curl,yaml 静态库
-	defines { "CURL_STATICLIB", "YAML_CPP_STATIC_DEFINE" }
+    -- 引入官方 xxHash 用于对比 (header-only, 单TU内联)
+    -- 注意: 必须在 pch.h 之后, 且仅在此 TU 定义 XXH_INLINE_ALL
+    -- 使用curl,yaml 静态库,xxhash 全内联
+	defines { "CURL_STATICLIB", "YAML_CPP_STATIC_DEFINE", "XXH_INLINE_ALL"}
 
     -- files
     -- files {

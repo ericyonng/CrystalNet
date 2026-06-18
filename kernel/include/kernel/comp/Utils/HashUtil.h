@@ -35,8 +35,6 @@
 #include <kernel/common/macro.h>
 #include <kernel/common/BaseType.h>
 
-#include "kernel/comp/LibString.h"
-
 KERNEL_BEGIN
 
 class KERNEL_EXPORT HashAlgorithm
@@ -67,12 +65,12 @@ public:
       Default = MurmurHash3,
   };
 
-    /**
-     * Get hash algorithm enum string.
-     * @param[in] hashAlgo - the hash algorithm.
-     * @return LLBC_CString - the enum string.
-     */
-    static LibString GetEnumStr(int hashAlgo);
+    // /**
+    //  * Get hash algorithm enum string.
+    //  * @param[in] hashAlgo - the hash algorithm.
+    //  * @return LLBC_CString - the enum string.
+    //  */
+    // static LibString GetEnumStr(int hashAlgo);
 };
 
 struct KERNEL_EXPORT HashValue128bit
@@ -105,10 +103,13 @@ public:
      */
     static UInt32 Hash(HashAlgorithm::ENUMS hashAlgo, const void *bytes, size_t size);
 
-    // 128bit版本 MurmurHash3
-    static UInt64 Hash64(const void *bytes, size_t size);
+    // 128bit版本 MurmurHash3(不推荐)
     static void Hash128(const void *bytes, size_t size, HashValue128bit &hashValue);
     static HashValue128bit Hash128(const void *bytes, size_t size);
+
+    // xxHash64: 高性能低冲突的 64bit 哈希, 固定内部 seed=0 保证跨进程/跨平台确定性输出 比MurmurHash3好
+    // https://github.com/Cyan4973/xxHash
+    static UInt64 Hash64(const void *bytes, size_t size);
 
 private:
     /**
@@ -159,6 +160,8 @@ private:
 private:
     static  UInt64 getblock64 (const UInt64 * p, Int32 i);
     static UInt64 fmix64 ( UInt64 k );
+    static UInt64 XxRound64(UInt64 acc, UInt64 input);
+    static UInt64 XxMergeRound64(UInt64 acc, UInt64 val);
 };
 
 template <HashAlgorithm::ENUMS HashAlgo>
@@ -211,14 +214,6 @@ ALWAYS_INLINE UInt32 HashUtil::Hash(HashAlgorithm::ENUMS hashAlgo, const void *b
     else
         return 0;
 }
-
-ALWAYS_INLINE UInt64 HashUtil::Hash64(const void *bytes, size_t size)
-{
-    HashValue128bit hashValue;
-    Hash128(bytes, size, hashValue);
-    return hashValue.Hi;
-}
-
 
 ALWAYS_INLINE UInt64 HashUtil::getblock64 (const UInt64 * p, Int32 i )
 {
@@ -319,6 +314,112 @@ ALWAYS_INLINE HashValue128bit HashUtil::Hash128(const void *bytes, size_t size)
     HashValue128bit hashValue;
     Hash128(bytes, size, hashValue);
     return hashValue;
+}
+
+ALWAYS_INLINE UInt64 HashUtil::XxRound64(UInt64 acc, UInt64 input)
+{
+    constexpr UInt64 PRIME64_1 = 0x9E3779B185EBCA87LLU;
+    constexpr UInt64 PRIME64_2 = 0xC2B2AE3D27D4EB4FLLU;
+
+    acc += input * PRIME64_2;
+    acc = CRYSTAL_ROTL64(acc, 31);
+    acc *= PRIME64_1;
+    return acc;
+}
+
+ALWAYS_INLINE UInt64 HashUtil::XxMergeRound64(UInt64 acc, UInt64 val)
+{
+    constexpr UInt64 PRIME64_1 = 0x9E3779B185EBCA87LLU;
+    constexpr UInt64 PRIME64_4 = 0x85EBCA77C2B2AE63LLU;
+
+    val = XxRound64(0, val);
+    acc ^= val;
+    acc = acc * PRIME64_1 + PRIME64_4;
+    return acc;
+}
+
+ALWAYS_INLINE UInt64 HashUtil::Hash64(const void *bytes, size_t size)
+{
+    // 固定 seed=0, 保证跨进程/跨平台确定性输出
+    constexpr UInt64 PRIME64_1 = 0x9E3779B185EBCA87LLU;
+    constexpr UInt64 PRIME64_2 = 0xC2B2AE3D27D4EB4FLLU;
+    constexpr UInt64 PRIME64_3 = 0x165667B19E3779F9LLU;
+    constexpr UInt64 PRIME64_4 = 0x85EBCA77C2B2AE63LLU;
+    constexpr UInt64 PRIME64_5 = 0x27D4EB2F165667C5LLU;
+
+    const U8 *p = reinterpret_cast<const U8 *>(bytes);
+    const U8 *const end = p + size;
+    UInt64 h64;
+
+    if (size >= 32)
+    {
+        UInt64 v1 = PRIME64_1 + PRIME64_2;
+        UInt64 v2 = PRIME64_2;
+        UInt64 v3 = 0;
+        UInt64 v4 = 0 - PRIME64_1;
+
+        const UInt64 *blocks = reinterpret_cast<const UInt64 *>(p);
+        const Int32 nblocks = static_cast<Int32>(size / 32);
+        for (Int32 i = 0; i < nblocks; ++i)
+        {
+            v1 = XxRound64(v1, getblock64(blocks, i * 4 + 0));
+            v2 = XxRound64(v2, getblock64(blocks, i * 4 + 1));
+            v3 = XxRound64(v3, getblock64(blocks, i * 4 + 2));
+            v4 = XxRound64(v4, getblock64(blocks, i * 4 + 3));
+        }
+        p += static_cast<size_t>(nblocks) * 32;
+
+        h64 = CRYSTAL_ROTL64(v1, 1) + CRYSTAL_ROTL64(v2, 7)
+            + CRYSTAL_ROTL64(v3, 12) + CRYSTAL_ROTL64(v4, 18);
+
+        h64 = XxMergeRound64(h64, v1);
+        h64 = XxMergeRound64(h64, v2);
+        h64 = XxMergeRound64(h64, v3);
+        h64 = XxMergeRound64(h64, v4);
+    }
+    else
+    {
+        h64 = PRIME64_5;
+    }
+
+    // 与官方 XXH64_endian_align 对齐: 两个分支之后统一 h64 += len
+    h64 += size;
+
+    while (end - p >= 8)
+    {
+        UInt64 k1 = getblock64(reinterpret_cast<const UInt64 *>(p), 0);
+        k1 = XxRound64(0, k1);
+        h64 ^= k1;
+        h64 = CRYSTAL_ROTL64(h64, 27) * PRIME64_1 + PRIME64_4;
+        p += 8;
+    }
+
+    if (end - p >= 4)
+    {
+        UInt32 k1 = static_cast<UInt32>(p[0])
+                  | (static_cast<UInt32>(p[1]) << 8)
+                  | (static_cast<UInt32>(p[2]) << 16)
+                  | (static_cast<UInt32>(p[3]) << 24);
+        h64 ^= static_cast<UInt64>(k1) * PRIME64_1;
+        h64 = CRYSTAL_ROTL64(h64, 23) * PRIME64_2 + PRIME64_3;
+        p += 4;
+    }
+
+    while (p < end)
+    {
+        h64 ^= static_cast<UInt64>(*p) * PRIME64_5;
+        h64 = CRYSTAL_ROTL64(h64, 11) * PRIME64_1;
+        ++p;
+    }
+
+    // avalanche
+    h64 ^= h64 >> 33;
+    h64 *= PRIME64_2;
+    h64 ^= h64 >> 29;
+    h64 *= PRIME64_3;
+    h64 ^= h64 >> 32;
+
+    return h64;
 }
 
 

@@ -46,10 +46,10 @@ static KERNEL_NS::LibString __g_HashAlgoEnumStrs[KERNEL_NS::HashAlgorithm::End +
     "Unknown"
 };
 
-LibString HashAlgorithm::GetEnumStr(int hashAlgo)
-{
-    return hashAlgo >= Begin && hashAlgo < End ? __g_HashAlgoEnumStrs[hashAlgo] : __g_HashAlgoEnumStrs[HashAlgorithm::End];
-}
+// LibString HashAlgorithm::GetEnumStr(int hashAlgo)
+// {
+//     return hashAlgo >= Begin && hashAlgo < End ? __g_HashAlgoEnumStrs[hashAlgo] : __g_HashAlgoEnumStrs[HashAlgorithm::End];
+// }
 
 UInt32 HashUtil::BKDRHash(const void * bytes, size_t size)
 {

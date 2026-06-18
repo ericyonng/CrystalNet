@@ -33,4 +33,11 @@ class TestHash
 {
 public:
  static void Run();
+
+private:
+ static void TestKnownVectors();
+ static void TestCollisionRate();
+ static void TestPerformance();
+ static void TestDeterminism();
+ static void TestAgainstOfficial();   // 与官方 XXH64 逐字节对比
 };

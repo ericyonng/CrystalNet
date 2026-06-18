@@ -638,7 +638,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::Query(KERNEL_NS::LibString dbName, KERNEL_NS
         co_return false;
     }
 
-    const auto hashValue = HashUtil::Hash64(lockId.c_str(), lockId.length());
+    // const auto hashValue = HashUtil::Hash64(lockId.c_str(), lockId.length());
     auto isSuc = co_await _eventLoopThread->SendAsync<MongoAsyncRes>([this, ignoreOid, dbName, collectionName, kv, fieldNameRefVariant]()->MongoAsyncRes
     {
         MongoAsyncRes res;
