@@ -20,52 +20,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2026-06-18 11:40:04
+// Date: 2026-06-21 16:06:20
 // Author: Eric Yonng
 // Description:
 
 
-#ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGO_SERIALIZE_INFO_H__
-#define __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGO_SERIALIZE_INFO_H__
+#ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGO_DATA_SERIALIZE_H__
+#define __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGO_DATA_SERIALIZE_H__
 
 #pragma once
 
-#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/common/BaseMacro.h>
+#include <bsoncxx/builder/basic/document.hpp>
+#include <kernel/comp/LibString.h>
+#include <bsoncxx/v_noabi/bsoncxx/types/bson_value/value.hpp>
 
 KERNEL_BEGIN
 
-class MongoSerializeInfoType
+struct MongoSerializeInfo;
+
+class MongoDataSerialize
 {
 public:
-    enum ENUMS : Int32
-    {
-        UNKNOWN = 0,
-        BOOL,
-        INT64,
-        DOUBLE,
-        STRING,
-        JSON,
-        BINARY,
-    };
-};
-
-// 序列化方法: LibStream中存的是什么数据
-struct MongoSerializeInfo
-{
-    POOL_CREATE_OBJ_DEFAULT(MongoSerializeInfo);
-
-    MongoSerializeInfo(Int32 dataType, LibStream<_Build::TL> *stream)
-        :DataType(dataType)
-        ,_stream(stream)
-    {
-        
-    }
-    // MongoSerializeInfoType LibStream中存的是什么数据, 从db查询回来, 这个类型作为写入stream的数据类型, 作为什么数据类型写入
-    Int32 DataType = MongoSerializeInfoType::JSON;
-
-    LibStream<_Build::TL> *_stream = NULL;
+    static bool AppendSerialize(bsoncxx::builder::basic::document &doc, const KERNEL_NS::LibString &keyName, const MongoSerializeInfo &data);
+    static bool Deserialize(const bsoncxx::types::bson_value::view &bsonValue, MongoSerializeInfo &data);
+    static Int32 GetSuitableSerializeType(const bsoncxx::v_noabi::type &bsonType);
 };
 
 KERNEL_END
+
 
 #endif

@@ -41,6 +41,7 @@
 
 #include <protocols/protocols.h>
 
+#include "OptionComp/storage/MongoDB/Impl/MongoDataSerialize.h"
 #include "OptionComp/storage/MongoDB/Impl/MongoDbMgrFactory.h"
 #include "OptionComp/storage/MongoDB/Interface/IMongoDbMgr.h"
 #include "service/common/macro.h"
@@ -632,6 +633,7 @@ private:
         mongoDbMgr->SetShardKeyInfo("testsuit10", "player", shardKeys);
         mongoDbMgr->SetShardKeyInfo("testsuit11", "player", shardKeys);
         mongoDbMgr->SetShardKeyInfo("testsuit12", "player", shardKeys);
+        mongoDbMgr->SetShardKeyInfo("testsuit13", "player", shardKeys);
 
         mongoDbMgr->CreateIndex("testsuit6", "player", "idx_player_id", {{"player_id", 1}}, true);
         mongoDbMgr->CreateIndex("testsuit8", "player", "idx_player_id", {{"player_id", 1}}, true);
@@ -639,6 +641,7 @@ private:
         mongoDbMgr->CreateIndex("testsuit10", "player", "idx_player_id_name", {{"player_id", 1}, {"name", 1}}, true);
         mongoDbMgr->CreateIndex("testsuit11", "player", "idx_player_id", {{"player_id", 1}}, true);
         mongoDbMgr->CreateIndex("testsuit12", "player", "idx_player_id", {{"player_id", 1}}, true);
+        mongoDbMgr->CreateIndex("testsuit13", "player", "idx_player_id", {{"player_id", 1}}, true);
 
         return Status::Success;
     }
@@ -650,6 +653,232 @@ private:
         {
             auto mongodbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
 
+            // update
+            {
+                auto kd = new std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo>();
+                std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
+                auto playerId = 1558989LLU;
+                kv.emplace("player_id", KERNEL_NS::Variant(playerId));
+                mongodbMgr->DelData("testsuit13", "player", kv);
+                
+                {
+                    auto stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    stream->WriteInt64(playerId);
+                    kd->emplace("player_id", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::INT64, stream});
+                    
+                    stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    stream->WriteBool(true);
+                    kd->emplace("IsSexy", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::BOOL, stream});
+                    
+                    stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    stream->WriteDouble(5.669);
+                    kd->emplace("Coe", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::DOUBLE, stream});
+
+                    stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    stream->Write(KERNEL_NS::LibString("zhang san"));
+                    kd->emplace("name", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::STRING, stream});
+                    
+                    nlohmann::json doc;
+                    doc["ItemId"] = 15889;
+                    doc["Time"] = 54546545645;
+                    doc["Arr"] = {1, 5, 3};
+                    doc["Str"] = "hello world";
+                    auto &&dump = doc.dump();
+                    stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    stream->Write(dump.data(), static_cast<Int64>(dump.length()));
+                    kd->emplace("doc", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::JSON, stream});
+
+                    SERVICE_NS::LoginReq req;
+                    auto info = req.mutable_loginuserinfo();
+                    info->set_accountname("dafasdfa");
+                    info->set_appid("dafasdfa");
+                    stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    req.Encode(*stream);
+                    kd->emplace("LoginData", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::BINARY, stream});
+
+                    auto ret = co_await mongodbMgr->UpdateData("testsuit13", "player", kv, kd, true);
+                    CLOG_INFO("UpdateData:%d", ret);
+                }
+            }
+
+            {
+                auto kd = new std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo>();
+
+                {
+                    auto stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    auto playerId = 155898956LLU;
+                    stream->WriteInt64(playerId);
+                    kd->emplace("player_id", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::INT64, stream});
+                    
+                    stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    stream->WriteBool(false);
+                    kd->emplace("IsSexy", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::BOOL, stream});
+                    
+                    stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    stream->WriteDouble(5593.6666666);
+                    kd->emplace("Coe", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::DOUBLE, stream});
+
+                    stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    stream->Write(KERNEL_NS::LibString("li si"));
+                    kd->emplace("name", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::STRING, stream});
+                    
+                    nlohmann::json doc;
+                    doc["ItemId"] = 8;
+                    doc["Time"] = 98;
+                    doc["Arr"] = {8, 6, 13};
+                    doc["Str"] = "hello world";
+                    auto &&dump = doc.dump();
+                    stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    stream->Write(dump.data(), static_cast<Int64>(dump.length()));
+                    kd->emplace("doc", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::JSON, stream});
+
+                    SERVICE_NS::LoginReq req;
+                    auto info = req.mutable_loginuserinfo();
+                    info->set_accountname("89");
+                    info->set_appid("dafa");
+                    stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    req.Encode(*stream);
+                    kd->emplace("LoginData", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::BINARY, stream});
+
+                    std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
+                    kv.emplace("player_id", KERNEL_NS::Variant(playerId));
+                    auto ret = co_await mongodbMgr->ReplaceData("testsuit13", "player", kv, kd);
+                    CLOG_INFO("ReplaceData:%d", ret);
+                }
+            }
+
+            {
+                auto kd = new std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo>();
+
+                {
+                    auto stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    auto playerId = 355898956LLU;
+                    stream->WriteInt64(playerId);
+                    kd->emplace("player_id", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::INT64, stream});
+                    
+                    stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    stream->WriteBool(true);
+                    kd->emplace("IsSexy", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::BOOL, stream});
+                    
+                    stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    stream->WriteDouble(53.6666666);
+                    kd->emplace("Coe", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::DOUBLE, stream});
+
+                    stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    stream->Write(KERNEL_NS::LibString("li bai"));
+                    kd->emplace("name", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::STRING, stream});
+                    
+                    nlohmann::json doc;
+                    doc["ItemId"] = 18;
+                    doc["Time"] = 980;
+                    doc["Arr"] = {8, 16, 13};
+                    doc["Str"] = "hello world";
+                    auto &&dump = doc.dump();
+                    stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    stream->Write(dump.data(), static_cast<Int64>(dump.length()));
+                    kd->emplace("doc", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::JSON, stream});
+
+                    SERVICE_NS::LoginReq req;
+                    auto info = req.mutable_loginuserinfo();
+                    info->set_accountname("6666444");
+                    info->set_appid("dafa");
+                    stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    req.Encode(*stream);
+                    kd->emplace("LoginData", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::BINARY, stream});
+
+                    std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
+                    kv.emplace("player_id", KERNEL_NS::Variant(playerId));
+                    auto ret = co_await mongodbMgr->AddData("testsuit13", "player", kv, kd);
+                    CLOG_INFO("AddData:%d", ret);
+                }
+            }
+
+             {
+                auto kd = new std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo>();
+
+                {
+                    const auto playerId = 1558989LLU;
+                    auto stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    kd->emplace("player_id", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::INT64, stream});
+                    
+                    stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    kd->emplace("IsSexy", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::BOOL, stream});
+                    
+                    stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    kd->emplace("Coe", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::DOUBLE, stream});
+
+                    stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    kd->emplace("name", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::STRING, stream});
+                    
+                    stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    kd->emplace("doc", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::JSON, stream});
+
+                    stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+                    kd->emplace("LoginData", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::BINARY, stream});
+
+                    std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
+                    kv.emplace("player_id", KERNEL_NS::Variant(playerId));
+                    auto ret = co_await mongodbMgr->Query("testsuit13", "player", kv, kd);
+
+                    for(auto iter : *kd)
+                    {
+                        auto &key = iter.first;
+                        auto &info = iter.second;
+                        switch (info.DataType)
+                        {
+                        case KERNEL_NS::MongoSerializeInfoType::BOOL:
+                            {
+                                auto value = info._stream->ReadBool();
+                                CLOG_INFO("key:%s, value:%d", key.c_str(), value);
+                                break;
+                            }
+                        case KERNEL_NS::MongoSerializeInfoType::INT64:
+                            {
+                                auto value = info._stream->ReadInt64();
+                                CLOG_INFO("key:%s, value:%lld", key.c_str(), value);
+                                break;
+                            }
+                        case KERNEL_NS::MongoSerializeInfoType::DOUBLE:
+                            {
+                                auto value = info._stream->ReadDouble();
+                                CLOG_INFO("key:%s, value:%llf", key.c_str(), value);
+                                break;
+                            }
+                        case KERNEL_NS::MongoSerializeInfoType::STRING:
+                            {
+                                KERNEL_NS::LibString value;
+                                info._stream->Read(value);
+                                CLOG_INFO("key:%s, value:%s", key.c_str(), value.c_str());
+                                break;
+                            }
+                        case KERNEL_NS::MongoSerializeInfoType::JSON:
+                            {
+                                KERNEL_NS::LibString value;
+                                info._stream->Read(value);
+                                CLOG_INFO("key:%s, value:%s", key.c_str(), value.c_str());
+                                break;
+                            }
+                        case KERNEL_NS::MongoSerializeInfoType::BINARY:
+                            {
+                                if(key == "LoginData")
+                                {
+                                    SERVICE_NS::LoginReq req;
+                                    req.Decode(*info._stream);
+                                    CLOG_INFO("key:%s, req:%s", key.c_str(), req.ToJsonString().c_str());
+                                }
+                                break;
+                            }
+                            default:
+                            {
+                                CLOG_WARN("key:%s, unsurppoted data", key.c_str());
+                            }
+                        }
+                        
+                    }
+                    CLOG_INFO("Query:%d kd:", ret);
+                }
+            }
+            
             // 分布式锁
             {
                 auto &&lockId = KERNEL_NS::GuidUtil::GenStr();
@@ -1011,6 +1240,8 @@ private:
               auto &&strData = KERNEL_NS::StringUtil::ToString(*retData, ',');
               CLOG_INFO_ARGS(KERNEL_NS::LibString().AppendFormat("testsuit12 query:%d", ret), strData);
             }
+
+            
         });
 
         return Status::Success;

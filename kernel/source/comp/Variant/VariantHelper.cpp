@@ -63,4 +63,10 @@ void VariantHelper::Del(const Variant &var)
     }
 }
 
+size_t VariantHelper::CalculateHash(const Variant &var)
+{
+    std::hash<Variant> hasher;
+    return hasher(var);
+}
+
 KERNEL_END

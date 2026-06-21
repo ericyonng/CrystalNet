@@ -187,6 +187,8 @@ public:
     Float ReadFloat() const;
     Double ReadDouble();
     Double ReadDouble() const;
+    bool ReadBool() const;
+    bool ReadBool();
 
     template<typename T>
     LibStream<BuildType> &operator >>(T &out);
@@ -201,8 +203,10 @@ public:
     bool Write(const ObjType &obj);
     bool Write(const LibString &str);
     bool Write(const std::string &str);
+    bool Write(const std::string_view &str);
 
     bool WriteInt8(Byte8 n);
+    bool WriteBool(bool n);
     bool WriteInt16(Int16 n);
     bool WriteInt32(Int32 n);
     bool WriteFloat(Float n);
@@ -1157,6 +1161,24 @@ ALWAYS_INLINE Double LibStream<BuildType>::ReadDouble() const
 }
 
 template<typename BuildType>
+ALWAYS_INLINE bool LibStream<BuildType>::ReadBool() const
+{
+    LibStream<_Build::TL> *newSteam = LibStream<_Build::TL>::NewThreadLocal_LibStream();
+    newSteam->Attach(_buff, _size, _readPos, _writePos);
+    auto value = newSteam->ReadBool();
+    LibStream<_Build::TL>::DeleteThreadLocal_LibStream(newSteam);
+    return value;
+}
+
+template<typename BuildType>
+ALWAYS_INLINE bool LibStream<BuildType>::ReadBool()
+{
+    bool value = false;
+    Read(value);
+    return value;  
+}
+
+template<typename BuildType>
 template<typename T>
 ALWAYS_INLINE LibStream<BuildType> &LibStream<BuildType>::operator >>(T &out)
 {
@@ -1207,10 +1229,32 @@ ALWAYS_INLINE bool LibStream<BuildType>::Write(const std::string &str)
 }
 
 template<typename BuildType>
+ALWAYS_INLINE bool LibStream<BuildType>::Write(const std::string_view &str)
+{
+    static const UInt64 lenSize = sizeof(UInt64);
+    const UInt64 bytes = str.size();
+    if(UNLIKELY(!_MatchBuffToWriteBy(lenSize + bytes)))
+        return false;
+
+    _Write(&bytes, lenSize);
+    _Write(str.data(), bytes);
+
+    return true;
+}
+
+
+template<typename BuildType>
 ALWAYS_INLINE bool LibStream<BuildType>::WriteInt8(Byte8 n)
 {
     return Write(n);
 }
+
+template<typename BuildType>
+ALWAYS_INLINE bool LibStream<BuildType>::WriteBool(bool n)
+{
+    return Write(n);
+}
+
 
 template<typename BuildType>
 ALWAYS_INLINE bool LibStream<BuildType>::WriteInt16(Int16 n)

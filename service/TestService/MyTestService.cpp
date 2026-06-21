@@ -39,6 +39,7 @@
 #include <service/TestService/ServiceFactory.h>
 #include <service/TestService/MyTestService.h>
 #include <kernel/comp/LibStringYaml.h>
+#include <kernel/comp/SmartPtr.h>
 
 SERVICE_BEGIN
     // 配置项
@@ -128,6 +129,44 @@ void MyTestService::Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_
 
     _opcodeRefHandler.insert(std::make_pair(opcodeId, deleg));
 }
+
+void MyTestService::SubscribeCo(Int32 opcodeId, KERNEL_NS::IDelegate<KERNEL_NS::CoTask<>, KERNEL_NS::LibPacket *&> *deleg)
+{
+    auto msgHandler = _GetMsgCoHandler(opcodeId);
+    if(UNLIKELY(msgHandler))
+    {
+        KERNEL_NS::LibString opcodeInfo;
+        _GetOpcodeInfo(opcodeId, opcodeInfo);
+        g_Log->Warn(LOGFMT_OBJ_TAG("repeate msg handler opcodeInfo:%s, old owner:%s, old callback:%s, new owner:%s, new callback:%s")
+                , opcodeInfo.c_str(), msgHandler->GetOwnerRtti().c_str(), msgHandler->GetCallbackRtti().c_str(), deleg->GetOwnerRtti().c_str(), deleg->GetCallbackRtti().c_str());
+        
+        msgHandler->Release();
+        _opcodeRefCoHandler.erase(opcodeId);
+    }
+
+    if(UNLIKELY(!_CheckOpcodeEnable(opcodeId)))
+    {
+        KERNEL_NS::LibString opcodeInfo;
+        _GetOpcodeInfo(opcodeId, opcodeInfo);
+
+        g_Log->Warn(LOGFMT_OBJ_TAG("subscribe a disable opcode opcode info:%s, new owner:%s, new callback:%s"), opcodeInfo.c_str(), deleg->GetOwnerRtti().c_str(), deleg->GetCallbackRtti().c_str());
+        deleg->Release();
+        return;
+    }
+
+    // TODO:订阅协程消息回调
+    KERNEL_NS::SmartPtr<KERNEL_NS::IDelegate<KERNEL_NS::CoTask<>, KERNEL_NS::LibPacket *&>> ptr = deleg;
+    auto delgWraper = [ptr](KERNEL_NS::LibPacket *&packet)->KERNEL_NS::CoTask<>
+    {
+        KERNEL_NS::LibPacket *cpy = packet;
+        KERNEL_NS::SmartPtr<KERNEL_NS::LibPacket, KERNEL_NS::AutoDelMethods::Release> packetWraper = cpy;
+        packet = NULL;
+        co_await ptr->Invoke(cpy);
+    };
+    auto wrapperDelg = KERNEL_CREATE_CLOSURE_DELEGATE(delgWraper, KERNEL_NS::CoTask<>, KERNEL_NS::LibPacket *&);
+    _opcodeRefCoHandler.insert(std::make_pair(opcodeId, wrapperDelg));
+}
+
 
 void MyTestService::_OnServiceClear()
 {
@@ -489,8 +528,29 @@ void MyTestService::_OnRecvMsg(KERNEL_NS::PollerEvent *msg)
         auto handler = _GetMsgHandler(opcode);
         if(UNLIKELY(!handler))
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("a packet with unknown opcode handler packet:%s"), packet->ToString().c_str());
-            packet->ReleaseUsingPool();
+            auto coHandler = _GetMsgCoHandler(opcode);
+            if(!coHandler)
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("a packet with unknown opcode handler packet:%s"), packet->ToString().c_str());
+                packet->ReleaseUsingPool();
+                continue;
+            }
+
+#ifdef ENABLE_PERFORMANCE_RECORD
+            const auto packetId = packet->GetPacketId();
+            auto &&outputLogFunc = [sessionId, packetId, opcode](UInt64 costMs){
+                const auto opcodeInfo = Opcodes::GetOpcodeInfo(opcode);
+                g_Log->Warn(LOGFMT_NON_OBJ_TAG(MyTestService, "sessionId:%llu, packetid:%lld, opcode:%d,[%s], costMs:%llu ms. "),  sessionId, packetId, opcode, opcodeInfo ? opcodeInfo->_opcodeName.c_str() : "Unknown Opcode.", costMs);
+            };
+                
+            PERFORMANCE_RECORD_DEF(pr, outputLogFunc, 10);
+#endif
+            coHandler->Invoke(packet);
+            if(UNLIKELY(packet))
+            {
+                packet->ReleaseUsingPool();
+            }
+            AddConsumePackets(1);
             continue;
         }
 
@@ -587,6 +647,7 @@ void MyTestService::_Clear()
 {
     KERNEL_NS::ContainerUtil::DelContainer<Int32, KERNEL_NS::IProtocolStack *, KERNEL_NS::AutoDelMethods::Release>(_stackTypeRefProtocolStack);
     KERNEL_NS::ContainerUtil::DelContainer<Int32, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *, KERNEL_NS::AutoDelMethods::Release>(_opcodeRefHandler);
+    KERNEL_NS::ContainerUtil::DelContainer<Int32, KERNEL_NS::IDelegate<KERNEL_NS::CoTask<>, KERNEL_NS::LibPacket *&> *, KERNEL_NS::AutoDelMethods::Release>(_opcodeRefCoHandler);
     
     if(_eventMgr && (_dbLoadedEventStub != INVALID_LISTENER_STUB))
         _eventMgr->RemoveListenerX(_dbLoadedEventStub);

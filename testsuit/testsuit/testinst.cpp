@@ -308,14 +308,14 @@ void TestInst::Run(int argc, char const *argv[])
     // TestJson::Run();
     // TestIdGenerator::Run();
     // TestLoadShareLibrary::Run();
-    // TestMongo::Run();
+    TestMongo::Run();
     // TestSort::Run();
     // TestEventLoopThread::Run();
     // TestLockFree::Run();
     // TestYaml::Run();
     // TestCoLocker::Run();
     // TestLibConfig::Run();
-    TestHash::Run();
+    // TestHash::Run();
     
     // write a large file
     // do

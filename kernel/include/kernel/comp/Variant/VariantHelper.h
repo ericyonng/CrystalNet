@@ -41,6 +41,7 @@ class KERNEL_EXPORT VariantHelper
 {
 public:
     static void Del(const Variant &var);
+    static size_t CalculateHash(const Variant &var);
 };
 
 KERNEL_END

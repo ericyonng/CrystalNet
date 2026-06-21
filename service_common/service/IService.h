@@ -35,6 +35,7 @@
 #include <kernel/comp/CompObject/CompHostObject.h>
 #include <kernel/comp/LibList.h>
 #include <kernel/comp/Delegate/LibDelegate.h>
+#include <kernel/comp/Coroutines/CoTask.h>
 
 #include <service_common/common/common.h>
 #include <service_common/service/ServiceOption.h>
@@ -162,6 +163,8 @@ public:
     template<typename ObjType>
     void Subscribe(Int32 opcodeId, ObjType *obj, void (ObjType::*Handler)(KERNEL_NS::LibPacket *&));
     virtual void Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *deleg) = 0;
+    // 协程协议
+    virtual void SubscribeCo(Int32 opcodeId, KERNEL_NS::IDelegate<KERNEL_NS::CoTask<>, KERNEL_NS::LibPacket *&> *deleg) = 0;
     // 订阅包消息回调, 注意packetId会覆盖旧的, 但是正常来说新创建的绘画sessionId总会是新的
     void RegisterPacketMsg(UInt64 sessionId, Int64 packetId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *delg);
     // 取消订阅包消息回调
