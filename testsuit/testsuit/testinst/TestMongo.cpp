@@ -41,6 +41,8 @@
 
 #include <protocols/protocols.h>
 
+#include "OptionComp/Command/Impl/CommandMgrFactory.h"
+#include "OptionComp/Command/Interface/ICommandMgr.h"
 #include "OptionComp/storage/MongoDB/Impl/MongoDataSerialize.h"
 #include "OptionComp/storage/MongoDB/Impl/MongoDbMgrFactory.h"
 #include "OptionComp/storage/MongoDB/Interface/IMongoDbMgr.h"
@@ -589,6 +591,7 @@ private:
     virtual void OnRegisterComps() override
     {
         RegisterComp<KERNEL_NS::MongoDbMgrFactory>();
+        RegisterComp<KERNEL_NS::CommandMgrFactory>();
     }
 
     virtual Int32 _OnCompsCreated() override
@@ -648,6 +651,13 @@ private:
 
     virtual Int32 _OnHostStart() override
     {
+        auto commandMgr = GetComp<KERNEL_NS::ICommandMgr>();
+        auto poller = KERNEL_NS::TlsUtil::GetPoller();
+        commandMgr->AddCommand("quit", [poller]()
+        {
+            poller->QuitLoop();
+        });
+        
         // 添加数据
         KERNEL_NS::RunRightNow([this]()->KERNEL_NS::CoTask<>
         {
@@ -1261,7 +1271,7 @@ void TestMongo::Run()
         auto testObj = TestMongoHost::New_TestMongoHost();
         testObj->Init();
         testObj->Start();
-
+        
         poller->EventLoop();
 
         testObj->WillClose();

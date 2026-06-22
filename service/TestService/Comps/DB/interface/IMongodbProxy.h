@@ -29,9 +29,11 @@
 #pragma once
 
 #include <service/common/BaseComps/GlobalSys/GlobalSys.h>
+#include <kernel/comp/Coroutines/CoTask.h>
 
 SERVICE_BEGIN
 
+// mongodb代理
 class IMongodbProxy : public IGlobalSys
 {
     POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, IMongodbProxy);
@@ -39,7 +41,22 @@ class IMongodbProxy : public IGlobalSys
 public:
     IMongodbProxy(UInt64 objTypeId) : IGlobalSys(objTypeId){}
 
-    virtual void MaskDirty()
+    // 外部依赖注册(等待外部依赖退出后mongodb才退出)
+    virtual void RegisterDependence(ILogicSys *obj) = 0;
+    virtual void UnRegisterDependence(const ILogicSys *obj) = 0;
+
+    // 标脏
+    virtual void MaskLogicNumberKeyAddDirty(const ILogicSys *logic, UInt64 key) = 0;
+    virtual void MaskLogicNumberKeyModifyDirty(const ILogicSys *logic, UInt64 key) = 0;
+    virtual void MaskLogicNumberKeyDeleteDirty(const ILogicSys *logic, UInt64 key) = 0;
+    virtual void MaskLogicStringKeyAddDirty(const ILogicSys *logic, const KERNEL_NS::LibString &key) = 0;
+    virtual void MaskLogicStringKeyModifyDirty(const ILogicSys *logic, const KERNEL_NS::LibString &key) = 0;
+    virtual void MaskLogicStringKeyDeleteDirty(const ILogicSys *logic, const KERNEL_NS::LibString &key) = 0;
+
+    // 等待落库完成
+    virtual KERNEL_NS::CoTask<> Purge() = 0;
+    // 等待logic落库完成
+    virtual KERNEL_NS::CoTask<> Purge(const ILogicSys *logic) = 0;
 };
 
 SERVICE_END

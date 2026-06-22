@@ -103,8 +103,11 @@ public:
     virtual KERNEL_NS::CoTask<bool> ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> uniqueKv, std::map<KERNEL_NS::LibString, MongoSerializeInfo> *keyNameRefData) override;
     virtual KERNEL_NS::CoTask<bool> AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> uniqueKv,  std::map<KERNEL_NS::LibString, MongoSerializeInfo> *keyNameRefData) override;
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, MongoSerializeInfo> *fieldNameRefData, bool ignoreOid = false) override;
-    
+
+
     #endif
+
+    virtual Int64 GetPendingRequestCount() const override;
 
     void DbReady(bool isReady);
     void SetDbFailErr(Int32 err);
@@ -208,6 +211,9 @@ protected:
     KERNEL_NS::SourceWrap _sourceWrap;
     KERNEL_NS::LibString _mongoConfigKeyName;
     KERNEL_NS::FileMonitor<MongodbConfig, KERNEL_NS::YamlDeserializer> *_configMonitor;
+
+    std::atomic_bool _isEnable;
+    std::atomic<Int64> _pendingRequests;
 };
 
 KERNEL_END

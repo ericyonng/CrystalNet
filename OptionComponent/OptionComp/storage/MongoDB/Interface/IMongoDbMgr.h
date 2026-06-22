@@ -137,6 +137,9 @@ public:
 
     // 被关注的db, 如果不在关注列表, 不提供服务, 在willStart之前需要关注数据库
     virtual bool FocusDb(const KERNEL_NS::LibString &dbName) = 0;
+
+    // 多少个请求未完成
+    virtual Int64 GetPendingRequestCount() const = 0;
 };
 
 KERNEL_END

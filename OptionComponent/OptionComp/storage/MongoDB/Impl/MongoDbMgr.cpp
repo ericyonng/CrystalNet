@@ -36,6 +36,7 @@
 
 #include "OptionComp/storage/MongoDB/Impl/ShardingLock.h"
 #include "OptionComp/storage/MongoDB/Impl/MongoDataSerialize.h"
+#include <kernel/comp/ObjLife.h>
 
 
 namespace 
@@ -140,7 +141,8 @@ namespace
 }
 
 KERNEL_BEGIN
-    mongocxx::instance MongoDbMgr::_instance;
+
+mongocxx::instance MongoDbMgr::_instance;
 
 class MongodbThreadStartup
 {
@@ -150,6 +152,8 @@ public:
         // 启用分片, 并设置分片键, 失败则返回错误给MongoDBMgr
         KERNEL_NS::PostCaller([mongodbMgr]()->KERNEL_NS::CoTask<>
         {
+            ObjLife<std::atomic<Int64>> lifeCtl(mongodbMgr->_pendingRequests);
+
             // 等待mongodbmgr will started
             while (true)
             {
@@ -391,6 +395,8 @@ MongoDbMgr::MongoDbMgr()
 ,_dbFailErrCode{0}
 ,_willStarted{false}
 ,_configMonitor(KERNEL_NS::FileMonitor<MongodbConfig, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
+,_isEnable{true}
+,_pendingRequests{0}
 {
  
 }
@@ -553,6 +559,14 @@ bool MongoDbMgr::FocusDb(const KERNEL_NS::LibString &dbName)
 #ifdef CRYSTAL_NET_CPP20
 CoTask<bool> MongoDbMgr::TryAcquireLock(KERNEL_NS::LibString lockTargetId, KERNEL_NS::LibString lockId, KERNEL_NS::TimeSlice slice)
 {
+    if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
+    {
+        CLOG_WARN("TryAcquireLock fail mongodb will close lockTargetId:%s, lockId:%s", lockTargetId.c_str(), lockId.c_str());
+        co_return false;
+    }
+    
+    ObjLife<std::atomic<Int64>> lifeCtl(_pendingRequests);
+    
     const auto hashValue = HashUtil::Hash64(lockId.c_str(), lockId.length());
     auto isSuc = co_await g_EventLoopEasyTaskThreadPool->SendAsync<MongoAsyncRes>([this, lockTargetId, lockId, slice]()->MongoAsyncRes
     {
@@ -609,8 +623,15 @@ CoTask<bool> MongoDbMgr::TryAcquireLock(KERNEL_NS::LibString lockTargetId, KERNE
 // 释放分布式锁
 CoTask<> MongoDbMgr::ReleaseLock(const KERNEL_NS::LibString &lockTargetId, const KERNEL_NS::LibString &lockId)
 {
+    if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
+    {
+        CLOG_WARN("ReleaseLock fail mongodb will close lockTargetId:%s, lockId:%s", lockTargetId.c_str(), lockId.c_str());
+        co_return;
+    }
+    
+    ObjLife<std::atomic<Int64>> lifeCtl(_pendingRequests);
+    
    const auto hashValue = HashUtil::Hash64(lockId.c_str(), lockId.length());
-
    auto isSuc = co_await g_EventLoopEasyTaskThreadPool->SendAsync<MongoAsyncRes>([this, lockTargetId, lockId]()->MongoAsyncRes
    {
        MongoAsyncRes res;
@@ -665,6 +686,14 @@ CoTask<> MongoDbMgr::ReleaseLock(const KERNEL_NS::LibString &lockTargetId, const
 
 KERNEL_NS::CoTask<bool> MongoDbMgr::Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *fieldNameRefVariant, bool ignoreOid)
 {
+    if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
+    {
+        CLOG_WARN("mongodb will close db:%s, collection:%s, kv:%s", dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str());
+        co_return false;
+    }
+    
+    ObjLife<std::atomic<Int64>> lifeCtl(_pendingRequests);
+
     if(UNLIKELY(!fieldNameRefVariant))
     {
         CLOG_ERROR("query data fieldNameRefJsonString is null when query, db:%s, collection:%s, kv:%s", dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str());
@@ -795,6 +824,15 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::Query(KERNEL_NS::LibString dbName, KERNEL_NS
 
 KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString *jsonString)
 {
+    if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
+    {
+        CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s"
+            , dbName.c_str(), collectionName.c_str()), jsonString? *jsonString : KERNEL_NS::LibString() );
+        co_return false;
+    }
+    
+    ObjLife<std::atomic<Int64>> lifeCtl(_pendingRequests);
+
     if (UNLIKELY(!jsonString))
     {
         CLOG_ERROR("AddData fail, db:%s, not focus before will started, collection:%s, jsonString is null", dbName.c_str(), collectionName.c_str());
@@ -892,6 +930,15 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
 
 KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> uniqueKv, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *> *binaryKeyNameRefData)
 {
+    if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
+    {
+        CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, kv:%s, binaryKeyNameRefData:", dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',').c_str())
+            , binaryKeyNameRefData ? DictContainerToString(binaryKeyNameRefData) : KERNEL_NS::LibString() );
+        co_return false;
+    }
+    
+    ObjLife<std::atomic<Int64>> lifeCtl(_pendingRequests);
+
     if (UNLIKELY(!binaryKeyNameRefData))
     {
         CLOG_ERROR("AddData fail, db:%s, not focus before will started, collection:%s, kv:%s, binary data dict is null"
@@ -1028,6 +1075,15 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
 
 KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> uniqueKv, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *keyRefVariant)
 {
+    if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
+    {
+        CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, kv:%s, keyRefVariant:", dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',').c_str())
+            , keyRefVariant ? DictContainerToString(*keyRefVariant) : KERNEL_NS::LibString() );
+        co_return false;
+    }
+    
+    ObjLife<std::atomic<Int64>> lifeCtl(_pendingRequests);
+
     if (UNLIKELY(!keyRefVariant))
     {
         CLOG_ERROR("AddData fail, db:%s, not focus before will started, collection:%s, kv:%s, binary data dict is null"
@@ -1162,6 +1218,15 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
 
 KERNEL_NS::CoTask<bool> MongoDbMgr::DelData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> uniqueKv)
 {
+    if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
+    {
+        CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, kv:%s"
+            , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',').c_str()));
+        co_return false;
+    }
+    
+    ObjLife<std::atomic<Int64>> lifeCtl(_pendingRequests);
+
     if(_focusDbs.find(dbName) == _focusDbs.end())
     {
         CLOG_ERROR("DelData fail, db:%s, not focus before will started, collection:%s, uniqueKv:%s"
@@ -1243,6 +1308,15 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::DelData(KERNEL_NS::LibString dbName, KERNEL_
 
 KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<KERNEL_NS::LibString> keyNames, KERNEL_NS::LibString *jsonString)
 {
+    if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
+    {
+        CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, jsonString:"
+            , dbName.c_str(), collectionName.c_str()), jsonString ? *jsonString : KERNEL_NS::LibString());
+        co_return false;
+    }
+    
+    ObjLife<std::atomic<Int64>> lifeCtl(_pendingRequests);
+
     if (UNLIKELY(!jsonString))
     {
         CLOG_ERROR("ReplaceData fail json string is null, db:%s, not focus before will started, collection:%s, keyNames:%s"
@@ -1415,6 +1489,15 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KER
 
 KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::vector<KERNEL_NS::LibString> keyNames, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *replaceFields)
 {
+    if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
+    {
+        CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, keyNames:%s, replaceFields:"
+            , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(keyNames, ',').c_str()), replaceFields ? DictContainerToString(*replaceFields) : KERNEL_NS::LibString());
+        co_return false;
+    }
+    
+    ObjLife<std::atomic<Int64>> lifeCtl(_pendingRequests);
+
     if (UNLIKELY(!replaceFields))
     {
         CLOG_ERROR("ReplaceData fail replaceFields is null, db:%s, not focus before will started, collection:%s, uniqueKv:%s"
@@ -1609,6 +1692,15 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KER
 
 KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> uniqueKv, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *> *binaryKeyNameRefData)
 {
+    if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
+    {
+        CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, uniqueKv:%s, replaceFields:"
+            , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',').c_str()), binaryKeyNameRefData ? DictContainerToString(binaryKeyNameRefData) : KERNEL_NS::LibString());
+        co_return false;
+    }
+    
+    ObjLife<std::atomic<Int64>> lifeCtl(_pendingRequests);
+
     if (UNLIKELY(!binaryKeyNameRefData))
     {
         CLOG_ERROR("ReplaceData fail binaryKeyNameRefData is null, db:%s, not focus before will started, collection:%s, kv:%s, binary data:%s", dbName.c_str(), collectionName.c_str()
@@ -1821,6 +1913,15 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KER
 
 KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, KERNEL_NS::LibString *jsonFields, bool createIfNotExists)
 {
+    if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
+    {
+        CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, kv:%s, jsonFields:"
+            , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(kv, ',').c_str()), jsonFields ? *jsonFields : KERNEL_NS::LibString());
+        co_return false;
+    }
+    
+    ObjLife<std::atomic<Int64>> lifeCtl(_pendingRequests);
+
     if (UNLIKELY(!jsonFields))
     {
         CLOG_ERROR("UpdateData fail jsonFields is null, db:%s, not focus before will started, collection:%s, keyNames:%s"
@@ -1965,6 +2066,15 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
 
 KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *updateFields, bool createIfNotExists)
 {
+    if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
+    {
+        CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, kv:%s, updateFields:"
+            , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(kv, ',').c_str()), updateFields ? DictContainerToString(*updateFields) : KERNEL_NS::LibString());
+        co_return false;
+    }
+    
+    ObjLife<std::atomic<Int64>> lifeCtl(_pendingRequests);
+
     if (UNLIKELY(!updateFields))
     {
         CLOG_ERROR("UpdateData fail updateFields is null, db:%s, not focus before will started, collection:%s, kv:%s"
@@ -2125,6 +2235,15 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
 
 KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *> *binaryKeyNameRefData, bool createIfNotExists)
 {
+    if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
+    {
+        CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, kv:%s, binaryKeyNameRefData:"
+            , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(kv, ',').c_str()), binaryKeyNameRefData ? DictContainerToString(binaryKeyNameRefData) : KERNEL_NS::LibString());
+        co_return false;
+    }
+    
+    ObjLife<std::atomic<Int64>> lifeCtl(_pendingRequests);
+
     if (UNLIKELY(!binaryKeyNameRefData))
     {
         CLOG_ERROR("UpdateData fail binaryKeyNameRefData is null, db:%s, not focus before will started, collection:%s, kv:%s, binary data:%s", dbName.c_str(), collectionName.c_str()
@@ -2338,6 +2457,15 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
 
 KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, MongoSerializeInfo> *keyNameRefData, bool createIfNotExists)
 {
+    if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
+    {
+        CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, kv:%s, keyNameRefData:"
+            , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(kv, ',').c_str()), keyNameRefData ? DictContainerToString(keyNameRefData) : KERNEL_NS::LibString());
+        co_return false;
+    }
+    
+    ObjLife<std::atomic<Int64>> lifeCtl(_pendingRequests);
+
     if (UNLIKELY(!keyNameRefData))
     {
         CLOG_ERROR("UpdateData fail binaryKeyNameRefData is null, db:%s, not focus before will started, collection:%s, kv:%s, binary data:%s", dbName.c_str(), collectionName.c_str()
@@ -2552,6 +2680,15 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
 
 KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> uniqueKv, std::map<KERNEL_NS::LibString, MongoSerializeInfo> *keyNameRefData)
 {
+    if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
+    {
+        CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, kv:%s, keyNameRefData:"
+            , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',').c_str()), keyNameRefData ? DictContainerToString(keyNameRefData) : KERNEL_NS::LibString());
+        co_return false;
+    }
+    
+    ObjLife<std::atomic<Int64>> lifeCtl(_pendingRequests);
+
     if (UNLIKELY(!keyNameRefData))
     {
         CLOG_ERROR("ReplaceData fail binaryKeyNameRefData is null, db:%s, not focus before will started, collection:%s, kv:%s, binary data:%s", dbName.c_str(), collectionName.c_str()
@@ -2765,6 +2902,15 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KER
 
 KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> uniqueKv,  std::map<KERNEL_NS::LibString, MongoSerializeInfo> *keyNameRefData)
 {
+    if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
+    {
+        CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, kv:%s, keyNameRefData:"
+            , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',').c_str()), keyNameRefData ? DictContainerToString(keyNameRefData) : KERNEL_NS::LibString());
+        co_return false;
+    }
+    
+    ObjLife<std::atomic<Int64>> lifeCtl(_pendingRequests);
+
     if (UNLIKELY(!keyNameRefData))
     {
         CLOG_ERROR("AddData fail, db:%s, not focus before will started, collection:%s, kv:%s, data dict is null"
@@ -2902,6 +3048,15 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
 
 KERNEL_NS::CoTask<bool> MongoDbMgr::Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, MongoSerializeInfo> *fieldNameRefData, bool ignoreOid)
 {
+    if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
+    {
+        CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, kv:%s, fieldNameRefData:"
+            , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(kv, ',').c_str()), fieldNameRefData ? DictContainerToString(fieldNameRefData) : KERNEL_NS::LibString());
+        co_return false;
+    }
+    
+    ObjLife<std::atomic<Int64>> lifeCtl(_pendingRequests);
+
     if(UNLIKELY(!fieldNameRefData))
     {
         CLOG_ERROR("query data fieldNameRefJsonString is null when query, db:%s, collection:%s, kv:%s", dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str());
@@ -3042,6 +3197,11 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::Query(KERNEL_NS::LibString dbName, KERNEL_NS
 
 #endif
 
+Int64 MongoDbMgr::GetPendingRequestCount() const
+{
+    return _pendingRequests.load(std::memory_order_acquire);
+}
+
 void MongoDbMgr::DbReady(bool isReady)
 {
     _isDbReady.store(isReady, std::memory_order_release);
@@ -3141,6 +3301,8 @@ Int32 MongoDbMgr::_OnHostWillStart()
         KERNEL_NS::SystemUtil::ThreadSleep(1000);
         CLOG_INFO("waiting mongodb, ready...");
     }
+
+    MaskReady(true);
     return Status::Success;
 }
 
@@ -3156,6 +3318,24 @@ void MongoDbMgr::_OnHostBeforeCompsWillClose()
 
 void MongoDbMgr::_OnHostClose()
 {
+    // 关闭新增请求
+    _isEnable.store(false, std::memory_order_release);
+    
+    // 等待请求全部完成
+    if(_pendingRequests.load(std::memory_order_acquire) != 0)
+    {
+        do
+        {
+            if(_pendingRequests.load(std::memory_order_acquire) == 0)
+                break;
+
+            CLOG_WARN("mongodb wait request complete...");
+            KERNEL_NS::SystemUtil::ThreadSleep(1000);
+        }
+        while (true);
+    }
+
+    MaskReady(false);
     _Clear();
 }
 
