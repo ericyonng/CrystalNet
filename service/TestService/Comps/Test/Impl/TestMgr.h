@@ -35,6 +35,7 @@
 #include <unordered_map>
 #include <service/common/ServiceConfig.h>
 #include <service/common/Configs/AddrConfig.h>
+#include <kernel/comp/Coroutines/CoTask.h>
 
 SERVICE_BEGIN
 
@@ -66,7 +67,7 @@ protected:
 private:
     void _Clear();
 
-    void _OnTestOpcodeReq(KERNEL_NS::LibPacket *&packet);
+    KERNEL_NS::CoTask<> _OnTestOpcodeReq(KERNEL_NS::LibPacket *&packet);
     void _OnTestOpcodeRes(KERNEL_NS::LibPacket *&packet);
     void _OnTestRpcReq(KERNEL_NS::LibPacket *&packet);
 
@@ -104,6 +105,8 @@ private:
 
     std::unordered_map<UInt64, TestMgrData *> _datas;
     UInt64 _maxId;
+    Int64 _recvId;
+    Int64 _sendId;
 };
 
 SERVICE_END

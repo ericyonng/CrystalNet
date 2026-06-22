@@ -115,10 +115,6 @@ protected:
     KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *_GetMsgHandler(Int32 opcode);
     const KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *_GetMsgHandler(Int32 opcode) const;
 
-    // 获取消息处理器
-    KERNEL_NS::IDelegate<KERNEL_NS::CoTask<>, KERNEL_NS::LibPacket *&> *_GetMsgCoHandler(Int32 opcode);
-    const KERNEL_NS::IDelegate<KERNEL_NS::CoTask<>, KERNEL_NS::LibPacket *&> *_GetMsgCoHandler(Int32 opcode) const;
-
     virtual void _OnEventLoopStart() override;
 
 private:
@@ -146,7 +142,6 @@ private:
 
     // 协议消息处理器
     std::unordered_map<Int32, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *> _opcodeRefHandler;
-    std::unordered_map<Int32, KERNEL_NS::IDelegate<KERNEL_NS::CoTask<>, KERNEL_NS::LibPacket *&> *> _opcodeRefCoHandler;
 
     KERNEL_NS::LibString _rsaPubKey;
     KERNEL_NS::LibString _rsaPrivKey;
@@ -182,17 +177,6 @@ ALWAYS_INLINE const KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *MyTestS
 {
     auto iter = _opcodeRefHandler.find(opcode);
     return iter == _opcodeRefHandler.end() ? NULL : iter->second;
-}
-
-ALWAYS_INLINE KERNEL_NS::IDelegate<KERNEL_NS::CoTask<>, KERNEL_NS::LibPacket *&> *MyTestService::_GetMsgCoHandler(Int32 opcode)
-{
-    auto iter = _opcodeRefCoHandler.find(opcode);
-    return iter == _opcodeRefCoHandler.end() ? NULL : iter->second;
-}
-ALWAYS_INLINE const KERNEL_NS::IDelegate<KERNEL_NS::CoTask<>, KERNEL_NS::LibPacket *&> *MyTestService::_GetMsgCoHandler(Int32 opcode) const
-{
-    auto iter = _opcodeRefCoHandler.find(opcode);
-    return iter == _opcodeRefCoHandler.end() ? NULL : iter->second;
 }
 
 SERVICE_END

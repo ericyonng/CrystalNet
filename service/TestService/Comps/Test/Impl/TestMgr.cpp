@@ -61,6 +61,8 @@ TestMgr::TestMgr()
 ,_testSendPackageBytes(0)
 ,_testSendPackTimeoutMilliseconds(0)
 ,_maxId(0)
+,_recvId(0)
+,_sendId(0)
 {
 }
 
@@ -156,7 +158,7 @@ void TestMgr::OnRegisterComps()
 Int32 TestMgr::_OnGlobalSysInit()
 {
     // 注册协议
-    GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_TestOpcodeReq, this, &TestMgr::_OnTestOpcodeReq);
+    GetService()->SubscribeCo(Opcodes::OpcodeConst::OPCODE_TestOpcodeReq, this, &TestMgr::_OnTestOpcodeReq);
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_TestOpcodeRes, this, &TestMgr::_OnTestOpcodeRes);
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_TestRpcReq, this, &TestMgr::_OnTestRpcReq);
     
@@ -209,17 +211,21 @@ void TestMgr::_Clear()
     GetEventMgr()->RemoveListenerX(_quiteService);
 }
 
-void TestMgr::_OnTestOpcodeReq(KERNEL_NS::LibPacket *&packet)
+KERNEL_NS::CoTask<> TestMgr::_OnTestOpcodeReq(KERNEL_NS::LibPacket *&packet)
 {
     if(_isStopTest)
-        return;
+        co_return;
 
     auto req = packet->GetCoder<TestOpcodeReq>();
+    ++_recvId;
+    ++_sendId;
 
     TestOpcodeRes res;
     res.set_content(req->content());
     res.set_testid(req->testid());
     Send(packet->GetSessionId(), Opcodes::OpcodeConst::OPCODE_TestOpcodeRes, res, packet->GetPacketId());
+
+    co_return;
 }
 
 void TestMgr::_OnTestRpcReq(KERNEL_NS::LibPacket *&packet)

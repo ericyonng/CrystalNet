@@ -163,6 +163,8 @@ public:
     template<typename ObjType>
     void Subscribe(Int32 opcodeId, ObjType *obj, void (ObjType::*Handler)(KERNEL_NS::LibPacket *&));
     virtual void Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *deleg) = 0;
+    template<typename ObjType>
+    void SubscribeCo(Int32 opcodeId, ObjType *obj, KERNEL_NS::CoTask<> (ObjType::*Handler)(KERNEL_NS::LibPacket *&));
     // 协程协议
     virtual void SubscribeCo(Int32 opcodeId, KERNEL_NS::IDelegate<KERNEL_NS::CoTask<>, KERNEL_NS::LibPacket *&> *deleg) = 0;
     // 订阅包消息回调, 注意packetId会覆盖旧的, 但是正常来说新创建的绘画sessionId总会是新的
@@ -358,6 +360,13 @@ ALWAYS_INLINE void IService::Subscribe(Int32 opcodeId, ObjType *obj, void (ObjTy
 {
     auto delg = KERNEL_NS::DelegateFactory::Create(obj, Handler);
     Subscribe(opcodeId, delg);
+}
+
+template<typename ObjType>
+ALWAYS_INLINE void IService::SubscribeCo(Int32 opcodeId, ObjType *obj, KERNEL_NS::CoTask<> (ObjType::*Handler)(KERNEL_NS::LibPacket *&))
+{
+    auto delg = KERNEL_NS::DelegateFactory::Create(obj, Handler);
+    SubscribeCo(opcodeId, delg); 
 }
 
 ALWAYS_INLINE const std::set<const KERNEL_NS::CompObject *> &IService::GetALlFocusServiceModule() const
