@@ -243,6 +243,11 @@ ALWAYS_INLINE TimeSlice TimeSlice::FromNanoSeconds(Int64 nanoseconds)
     return TimeSlice(nanoseconds);
 }
 
+ALWAYS_INLINE TimeSlice TimeSlice::FromFmt(const LibString &fmtSlice)
+{
+    return TimeSlice(fmtSlice);
+}
+
 KERNEL_END
 
 #endif

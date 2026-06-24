@@ -56,6 +56,9 @@ public:
     virtual void SetAccountPwd(const KERNEL_NS::LibString &account, const KERNEL_NS::LibString &pwd) = 0;
     // 设置srv连接的域名
     virtual void SetSrvHostName(const KERNEL_NS::LibString &hostName) = 0;
+    // 手动设置复制集名, 有配置项优先使用配置
+    virtual void SetReplicaSetName(const KERNEL_NS::LibString &rs) = 0;
+
     // 设置配置来源
     virtual void SetConfigSource(const KERNEL_NS::SourceWrap &source) = 0;
     virtual void SetConfigKeyName(const KERNEL_NS::LibString &keyName) = 0;

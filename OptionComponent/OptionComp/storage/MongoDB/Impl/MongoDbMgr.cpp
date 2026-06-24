@@ -434,6 +434,11 @@ void MongoDbMgr::SetSrvHostName(const KERNEL_NS::LibString &hostName)
     _srvHostName = hostName;
 }
 
+void MongoDbMgr::SetReplicaSetName(const KERNEL_NS::LibString &rs)
+{
+    _replicaSetName = rs;
+}
+
 void MongoDbMgr::SetConfigSource(const KERNEL_NS::SourceWrap &source)
 {
     _sourceWrap = source;
@@ -3227,7 +3232,12 @@ Int32 MongoDbMgr::_OnHostInit()
 
             auto current = _configMonitor->Current();
             _uri.AppendFormat("mongodb+srv://%s:%s@%s/?authSource=admin&w=majority&journal=true&readConcernLevel=majority&maxPoolSize=100&connectTimeoutMS=180000&socketTimeoutMS=30000&retryWrites=true&retryReads=true&tls=false"
-                , current->Account.c_str(), current->Pwd.c_str(), current->SrvHostName.c_str());
+                , current->Account.c_str(), KERNEL_NS::UrlCoder::Encode(current->Pwd).c_str(), current->SrvHostName.c_str());
+
+            if(!current->ReplicaSetName.empty())
+            {
+                _uri.AppendFormat("&replicaSet=%s", current->ReplicaSetName.c_str());
+            }
         }
         else
         {
@@ -3236,11 +3246,17 @@ Int32 MongoDbMgr::_OnHostInit()
             {
                 if(_account.empty() || _pwd.empty() || _srvHostName.empty())
                 {
-                    CLOG_ERROR("have no mongodb+srv uri config, please check, account:%s, pwd:%s, srvHostName:%s", _account.c_str(), _pwd.c_str(), _srvHostName.c_str());
+                    CLOG_ERROR("have no mongodb+srv uri config, please check, account:%s, pwd:%s, srvHostName:%s, _replicaSetName:%s", _account.c_str(), _pwd.c_str(), _srvHostName.c_str(), _replicaSetName.c_str());
                     return Status::ConfigError;
                 }
 
-                _uri.AppendFormat("mongodb+srv://%s:%s@%s/?authSource=admin&w=majority&journal=true&readConcernLevel=majority&maxPoolSize=100&connectTimeoutMS=180000&socketTimeoutMS=30000&retryWrites=true&retryReads=true&tls=false", _account.c_str(), _pwd.c_str(), _srvHostName.c_str());
+                _uri.AppendFormat("mongodb+srv://%s:%s@%s/?authSource=admin&w=majority&journal=true&readConcernLevel=majority&maxPoolSize=100&connectTimeoutMS=180000&socketTimeoutMS=30000&retryWrites=true&retryReads=true&tls=false"
+                    , _account.c_str(), KERNEL_NS::UrlCoder::Encode(_pwd).c_str(), _srvHostName.c_str());
+
+                if(!_replicaSetName.empty())
+                {
+                    _uri.AppendFormat("&replicaSet=%s", _replicaSetName.c_str());
+                }
             }
         }
 

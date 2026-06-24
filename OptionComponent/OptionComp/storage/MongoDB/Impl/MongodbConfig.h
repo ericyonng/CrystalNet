@@ -57,6 +57,10 @@ struct MongodbConfig
     KERNEL_NS::LibString SrvHostName;
     KERNEL_NS::LibString Account;
     KERNEL_NS::LibString Pwd;
+    // 若指定复制集名, 则运行在复制集模式, 如果没有默认分片集群模式
+    KERNEL_NS::LibString ReplicaSetName;
+    // PurgeInterval
+    KERNEL_NS::TimeSlice PurgeInterval;
 };
 
 KERNEL_END
@@ -74,6 +78,8 @@ namespace YAML
             node["SrvHostName"] = rhs.SrvHostName;
             node["Account"] = rhs.Account;
             node["Pwd"] = rhs.Pwd;
+            node["ReplicaSetName"] = rhs.ReplicaSetName;
+            node["PurgeInterval"] = rhs.PurgeInterval;
             return node;
         }
 
@@ -95,6 +101,14 @@ namespace YAML
             auto &pwdNode = node["Pwd"];
             if(pwdNode.IsDefined() && (!pwdNode.IsNull()))
                 rhs.Pwd = pwdNode.as<std::string>();
+
+            auto &replicaSetNameNode = node["ReplicaSetName"];
+            if(replicaSetNameNode.IsDefined() && (!replicaSetNameNode.IsNull()))
+                rhs.ReplicaSetName = replicaSetNameNode.as<std::string>();
+
+            auto &purgeIntervalNode = node["PurgeInterval"];
+            if(purgeIntervalNode.IsDefined() && (!purgeIntervalNode.IsNull()))
+                rhs.PurgeInterval = purgeIntervalNode.as<KERNEL_NS::TimeSlice>();
             
             return true;
         }

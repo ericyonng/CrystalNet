@@ -64,6 +64,9 @@ public:
     virtual void SetAccountPwd(const KERNEL_NS::LibString &account, const KERNEL_NS::LibString &pwd) override;
     // 设置srv连接的域名
     virtual void SetSrvHostName(const KERNEL_NS::LibString &hostName) override;
+    // 设置复制集名
+    virtual void SetReplicaSetName(const KERNEL_NS::LibString &rs) override;
+
     // 设置配置来源
     virtual void SetConfigSource(const KERNEL_NS::SourceWrap &source) override;
     virtual void SetConfigKeyName(const KERNEL_NS::LibString &keyName) override;
@@ -186,6 +189,9 @@ protected:
     KERNEL_NS::LibString _pwd;
     // mongodb + srv 连接域名
     KERNEL_NS::LibString _srvHostName;
+    // 手动设置的复制集名 有配置的时候优先使用配置项
+    KERNEL_NS::LibString _replicaSetName;
+    
     // db => 表 => 分片键
     std::unordered_map<KERNEL_NS::LibString, std::unordered_map<KERNEL_NS::LibString, ShardKeyInfoGroup>> _dbRefcollectionRefShardKeyInfos;
     // db => 表 => 索引信息(indexname => 索引信息)

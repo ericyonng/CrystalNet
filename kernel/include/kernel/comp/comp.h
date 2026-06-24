@@ -41,6 +41,7 @@
 #include <kernel/comp/LibStringOut.h>
 #include <kernel/comp/LibTime.h>
 #include <kernel/comp/TimeSlice.h>
+#include <kernel/comp/TimeSliceYaml.h>
 #include <kernel/comp/AutoDel.h>
 #include <kernel/comp/BinaryArray.h>
 #include <kernel/comp/LibStack.h>

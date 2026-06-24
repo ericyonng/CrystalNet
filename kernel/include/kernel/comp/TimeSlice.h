@@ -129,6 +129,7 @@ public:
     static TimeSlice FromMilliSeconds(Int64 milliseconds);
     static TimeSlice FromMicroSeconds(Int64 microseconds);
     static TimeSlice FromNanoSeconds(Int64 nanoseconds);
+    static TimeSlice FromFmt(const LibString &fmtSlice);
 
     static const TimeSlice &ZeroSlice()
     {

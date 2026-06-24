@@ -1,0 +1,102 @@
+// MIT License
+// 
+// Copyright (c) 2020 ericyonng<120453674@qq.com>
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+// 
+// Date: 2026-06-24 22:06:31
+// Author: Eric Yonng
+// Description:
+
+#pragma once
+
+#include <Comps/DB/interface/IMongodbProxy.h>
+#include <OptionComp/storage/MongoDB/MongoDBComp.h>
+
+SERVICE_BEGIN
+
+class StorageMode
+{
+public:
+    enum ENUMS
+    {
+        ADD_DATA,
+        UPDATE_DATA,
+        REPLACE_DATA,
+        DEL_DATA,
+    };
+};
+
+class MongodbProxy : public IMongodbProxy
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(IMongodbProxy, MongodbProxy);
+    
+public:
+    MongodbProxy();
+    virtual ~MongodbProxy() override;
+    
+    void Release() override;
+    virtual void OnRegisterComps() override;
+    virtual void DefaultMaskReady(bool isReady) override {}
+
+    virtual void RegisterDependence(ILogicSys *obj) override;
+    virtual void UnRegisterDependence(const ILogicSys *obj) override;
+
+    // 标脏
+    virtual void MaskLogicNumberKeyAddDirty(const ILogicSys *logic, UInt64 key) override;
+    virtual void MaskLogicNumberKeyModifyDirty(const ILogicSys *logic, UInt64 key) override;
+    virtual void MaskLogicNumberKeyDeleteDirty(const ILogicSys *logic, UInt64 key) override;
+    
+    virtual void MaskLogicStringKeyAddDirty(const ILogicSys *logic, const KERNEL_NS::LibString &key) override;
+    virtual void MaskLogicStringKeyModifyDirty(const ILogicSys *logic, const KERNEL_NS::LibString &key) override;
+    virtual void MaskLogicStringKeyDeleteDirty(const ILogicSys *logic, const KERNEL_NS::LibString &key) override;
+
+    // 等待落库完成
+    virtual KERNEL_NS::CoTask<> Purge() override;
+    // 等待logic落库完成
+    virtual KERNEL_NS::CoTask<> Purge(const ILogicSys *logic) override;
+
+protected:
+    Int32 _OnGlobalSysInit() override;
+    Int32 _OnGlobalSysCompsCreated() override;
+
+    Int32 _OnHostStart() override;
+    void _OnGlobalSysClose() override;
+
+    void _CloseServiceEvent(KERNEL_NS::LibEvent *ev);
+
+    void _Clear();
+
+private:
+    // 关服时需要执行所有数据落地
+    KERNEL_NS::ListenerStub _closeServiceStub;
+
+    // 所有表建立的标脏回调, 系统退出时移除
+    std::map<const ILogicSys *, KERNEL_NS::LibDirtyHelper<UInt64, UInt64> *> _logicRefNumberDirtyHelper;
+    std::map<const ILogicSys *, KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *> _logicRefStringDirtyHelper;
+    // 脏表队列
+    std::map<const ILogicSys *, bool> _dirtyLogicRefIsNumberKey;
+
+    // 定时purge数据
+    KERNEL_NS::LibTimer *_purgeTimer;
+
+    KERNEL_NS::FileMonitor<KERNEL_NS::MongodbConfig, KERNEL_NS::YamlDeserializer> *_options;
+};
+
+SERVICE_END

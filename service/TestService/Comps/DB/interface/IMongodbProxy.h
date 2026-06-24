@@ -45,10 +45,13 @@ public:
     virtual void RegisterDependence(ILogicSys *obj) = 0;
     virtual void UnRegisterDependence(const ILogicSys *obj) = 0;
 
+    // TODO:提供load数据接口直接外部调用Load接口(协程)
+
     // 标脏
     virtual void MaskLogicNumberKeyAddDirty(const ILogicSys *logic, UInt64 key) = 0;
     virtual void MaskLogicNumberKeyModifyDirty(const ILogicSys *logic, UInt64 key) = 0;
     virtual void MaskLogicNumberKeyDeleteDirty(const ILogicSys *logic, UInt64 key) = 0;
+    
     virtual void MaskLogicStringKeyAddDirty(const ILogicSys *logic, const KERNEL_NS::LibString &key) = 0;
     virtual void MaskLogicStringKeyModifyDirty(const ILogicSys *logic, const KERNEL_NS::LibString &key) = 0;
     virtual void MaskLogicStringKeyDeleteDirty(const ILogicSys *logic, const KERNEL_NS::LibString &key) = 0;
