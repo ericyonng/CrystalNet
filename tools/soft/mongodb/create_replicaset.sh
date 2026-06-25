@@ -12,8 +12,8 @@
 # IP_LIST_FILE: 节点列表文件(复制集名 IP 端口)
 # TARGET_USER: 管理员用户名
 # TARGET_PWD: 管理员密码
-# WORK_PATH: 数据库运行路径(数据目录父路径, 如 /root/mongo_data)
-# INSTALL_PATH: 数据库安装路径(mongodb程序目录, 如 /root/mongo_install)
+# WORK_PATH: 数据库运行路径(mongod程序包安装路径, 如 /root/mongo_install)
+# INSTALL_PATH: 数据库安装路径(数据目录父路径, 如 /root/mongo_data)
 #
 # 复制集名从 iplist.txt 中读取(所有行必须一致), 不作为命令行参数
 
@@ -46,12 +46,12 @@ if [ -z "${TARGET_PWD}" ]; then
 fi
 
 if [ -z "${WORK_PATH}" ]; then
-    echo "错误：WORK_PATH(工作路径) 为空"
+    echo "错误：WORK_PATH(工作路径/数据库运行路径) 为空"
     exit 1
 fi
 
 if [ -z "${INSTALL_PATH}" ]; then
-    echo "错误：INSTALL_PATH(安装路径) 为空"
+    echo "错误：INSTALL_PATH(安装路径/数据库安装路径) 为空"
     exit 1
 fi
 
@@ -207,15 +207,15 @@ echo "pack TGZ_FILE_NAME:${TGZ_FILE_NAME} success."
 TARGET_SCRIPT_PATH=/root/mongodb_script
 
 # 辅助函数: 判断目标机器是否已安装 mongodb
-# 检测方式: which mongod 可用 或 INSTALL_PATH/mongodb-linux-x86_64-rhel88-8.0.6/bin/mongod 存在
+# 检测方式: which mongod 可用 或 WORK_PATH/mongodb-linux-x86_64-rhel88-8.0.6/bin/mongod 存在
 is_mongo_installed() {
     local ip=$1
-    local INSTALL_PATH_CLEAN=${INSTALL_PATH%/}
+    local WORK_PATH_CLEAN=${WORK_PATH%/}
     if is_local_host "${ip}" "${LOCAL_IP_LIST}"; then
         if which mongod &>/dev/null && [ -x "$(which mongod)" ]; then
             return 0
         fi
-        if [ -d "${INSTALL_PATH_CLEAN}" ] && [ -x "${INSTALL_PATH_CLEAN}/mongodb-linux-x86_64-rhel88-8.0.6/bin/mongod" ]; then
+        if [ -d "${WORK_PATH_CLEAN}" ] && [ -x "${WORK_PATH_CLEAN}/mongodb-linux-x86_64-rhel88-8.0.6/bin/mongod" ]; then
             return 0
         fi
         return 1
@@ -223,7 +223,7 @@ is_mongo_installed() {
         if ssh root@${ip} "which mongod &>/dev/null && [ -x \"\$(which mongod)\""; then
             return 0
         fi
-        if ssh root@${ip} "[ -d '${INSTALL_PATH_CLEAN}' ] && [ -x '${INSTALL_PATH_CLEAN}/mongodb-linux-x86_64-rhel88-8.0.6/bin/mongod' ]"; then
+        if ssh root@${ip} "[ -d '${WORK_PATH_CLEAN}' ] && [ -x '${WORK_PATH_CLEAN}/mongodb-linux-x86_64-rhel88-8.0.6/bin/mongod' ]"; then
             return 0
         fi
         return 1
@@ -265,7 +265,7 @@ for ip in "${!ALL_IPS[@]}"; do
                 echo "本地节点 ip:${ip} 未安装 mongodb, 执行 init_package 和 init_env..."
                 . ${SCRIPT_PATH}/init_package.sh ${TMP_DIR}/${TGZ_FILE_NAME} ${TARGET_SCRIPT_PATH}
 
-                . ${TARGET_SCRIPT_PATH}/init_env.sh ${TARGET_SCRIPT_PATH} ${INSTALL_PATH} || {
+                . ${TARGET_SCRIPT_PATH}/init_env.sh ${TARGET_SCRIPT_PATH} ${WORK_PATH} || {
                     echo "错误：本地:$ip init_env.sh 失败" >&2
                     exit 1
                 }
@@ -331,7 +331,7 @@ for ip in "${!ALL_IPS[@]}"; do
                     exit 1
                 }
 
-                ssh root@${ip} "source ~/.bash_profile 2>/dev/null; sh ${TARGET_SCRIPT_PATH}/init_env.sh ${TARGET_SCRIPT_PATH} ${INSTALL_PATH}" || {
+                ssh root@${ip} "source ~/.bash_profile 2>/dev/null; sh ${TARGET_SCRIPT_PATH}/init_env.sh ${TARGET_SCRIPT_PATH} ${WORK_PATH}" || {
                     echo "错误：${ip} ${TARGET_SCRIPT_PATH}/init_env.sh 失败" >&2
                     exit 1
                 }
@@ -366,7 +366,7 @@ PRIMARY_NODE="${NODE_ARRAY[0]}"
 PRIMARY_IP=$(echo "${PRIMARY_NODE}" | awk '{print $1}')
 PRIMARY_PORT=$(echo "${PRIMARY_NODE}" | awk '{print $2}')
 PRIMARY_DB_SUBDIR="${RS_NAME}_1"
-PRIMARY_DB_PATH="${WORK_PATH}/${PRIMARY_DB_SUBDIR}"
+PRIMARY_DB_PATH="${INSTALL_PATH}/${PRIMARY_DB_SUBDIR}"
 
 echo "主节点: $(format_host_port ${PRIMARY_IP} ${PRIMARY_PORT}), RS_NAME: ${RS_NAME}"
 echo "主节点数据目录: ${PRIMARY_DB_PATH}"
@@ -376,14 +376,14 @@ echo "主节点数据目录: ${PRIMARY_DB_PATH}"
 # 复制集场景: SHARDING_CLUSTER_ROLE="", IS_MONGOS="", MONGOS_CONFIG_ADDR="", REGISTER_HOST=iplist原始IP/域名
 # LOCAL_REGISTER_HOST 使用 iplist 中的原始 IP/域名, 保证复制集成员注册地址一致
 if is_local_host "${PRIMARY_IP}" "${LOCAL_IP_LIST}"; then
-    sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${WORK_PATH} $(get_local_ip_by_type "${PRIMARY_IP}" "${LOCAL_IP_LIST}") ${PRIMARY_PORT} ${PRIMARY_DB_SUBDIR} ${RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile "" "" "" "${PRIMARY_IP}" || {
+    sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} ${TARGET_PWD} ${INSTALL_PATH} $(get_local_ip_by_type "${PRIMARY_IP}" "${LOCAL_IP_LIST}") ${PRIMARY_PORT} ${PRIMARY_DB_SUBDIR} ${RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile "" "" "" "${PRIMARY_IP}" || {
         echo "错误：主节点 init_primary 失败" >&2
         exit 1
     }
 else
     # 拷贝keyfile到远程
     scp_to_host ${PRIMARY_IP} ${KEYFILE_PATH} ${TARGET_SCRIPT_PATH}/keyfile 2>/dev/null
-    ssh root@${PRIMARY_IP} "source ~/.bash_profile 2>/dev/null; sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} \"${TARGET_PWD}\" ${WORK_PATH} ${PRIMARY_IP} ${PRIMARY_PORT} ${PRIMARY_DB_SUBDIR} ${RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile \"\" \"\" \"\" \"${PRIMARY_IP}\"" || {
+    ssh root@${PRIMARY_IP} "source ~/.bash_profile 2>/dev/null; sh ${TARGET_SCRIPT_PATH}/init_primary.sh ${TARGET_SCRIPT_PATH} ${TARGET_USER} \"${TARGET_PWD}\" ${INSTALL_PATH} ${PRIMARY_IP} ${PRIMARY_PORT} ${PRIMARY_DB_SUBDIR} ${RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile \"\" \"\" \"\" \"${PRIMARY_IP}\"" || {
         echo "错误：主节点 ${PRIMARY_IP} init_primary 失败" >&2
         exit 1
     }
@@ -432,7 +432,7 @@ for i in "${!NODE_ARRAY[@]}"; do
     node_port=$(echo "${item}" | awk '{print $2}')
     # 从节点序号从2开始(主节点为1)
     node_db_subdir="${RS_NAME}_$(($i + 1))"
-    node_db_path="${WORK_PATH}/${node_db_subdir}"
+    node_db_path="${INSTALL_PATH}/${node_db_subdir}"
 
     echo ""
     echo "--- 启动从节点 [$i]: $(format_host_port ${ip} ${node_port}), 数据目录: ${node_db_path} ---"
@@ -530,12 +530,12 @@ for i in "${!NODE_ARRAY[@]}"; do
 done
 echo ""
 echo "数据目录:"
-echo "  ${WORK_PATH}/${RS_NAME}_1  (主节点)"
+echo "  ${INSTALL_PATH}/${RS_NAME}_1  (主节点)"
 for i in "${!NODE_ARRAY[@]}"; do
     if [ $i -eq 0 ]; then
         continue
     fi
-    echo "  ${WORK_PATH}/${RS_NAME}_$(($i + 1))  (从节点 $i)"
+    echo "  ${INSTALL_PATH}/${RS_NAME}_$(($i + 1))  (从节点 $i)"
 done
 echo ""
 echo "连接方式:"
