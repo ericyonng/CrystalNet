@@ -1,23 +1,24 @@
 #!/usr/bin/env bash
 # @author EricYonng<120453674@qq.com>
-# 向已有MongoDB复制集扩展节点,对分片集群中的复制集扩展节点, 单纯复制集模式请使用replicaset_add_node.sh
-# 用法: sh add_replica_node.sh <iplist.txt> <用户名> <密码> <软件包安装路径> <数据库数据路径> <keyfile绝对路径> <mongod主节点地址> <mongod主节点端口> <数据库名>
+# 向已有 MongoDB 复制集(非分片集群)扩展节点
+# 用法: sh replicaset_add_node.sh <iplist.txt> <用户名> <密码> <软件包安装路径> <数据库数据路径> <keyfile绝对路径> <mongod主节点地址> <mongod主节点端口>
 #
-# iplist.txt 格式: 类型 复制集前缀 IP 端口
-#   支持的类型: shard1, shard2, ..., config
+# iplist.txt 格式(2字段): IP地址/域名 端口
 #   示例:
-#     shard1 testsuit_rs 192.168.1.10 27011
-#     shard1 testsuit_rs 192.168.1.11 27011
+#     192.168.1.10 27017
+#     192.168.1.11 27017
 #
-# IP_LIST_FILE: 节点IP列表文件
+# IP_LIST_FILE: 新增节点IP列表文件
 # TARGET_USER: 已有复制集的管理员用户名
 # TARGET_PWD: 已有复制集的管理员密码
 # INSTALL_PATH: mongodb程序目录
-# DATA_PATH: mongodb数据库数据目录
+# DATA_PATH: mongodb数据库数据目录(数据目录父路径)
 # KEYFILE_PATH: 已有复制集的keyfile绝对路径
 # MONGOD_PRIMARY_ADDR: 复制集主节点地址（IP/域名）
 # MONGOD_PRIMARY_PORT: 复制集主节点端口
-# DB_NAME: 数据库名称（用于目录命名，如 mydb_shard1_4）
+#
+# 注意: 复制集名从主节点自动获取(rs.conf()._id), 无需命令行传入
+#       数据目录命名: ${DATA_PATH}/${RS_NAME}_${序号}, 与 create_replicaset.sh 保持一致
 
 # 当前脚本路径
 SCRIPT_PATH="$(cd $(dirname $0); pwd)"
@@ -31,7 +32,6 @@ DATA_PATH=$5
 KEYFILE_PATH=$6
 MONGOD_PRIMARY_ADDR=$7
 MONGOD_PRIMARY_PORT=$8
-DB_NAME=$9
 
 ##############################
 # 参数校验
@@ -81,11 +81,6 @@ if [ -z "${MONGOD_PRIMARY_PORT}" ]; then
     exit 1
 fi
 
-if [ -z "${DB_NAME}" ]; then
-    echo "错误：DB_NAME 为空"
-    exit 1
-fi
-
 # 加载公共函数库
 . ${SCRIPT_PATH}/common/common_define.sh
 . ${SCRIPT_PATH}/common/funcs.sh
@@ -101,101 +96,7 @@ echo "DATA_PATH          : ${DATA_PATH}"
 echo "KEYFILE_PATH       : ${KEYFILE_PATH}"
 echo "MONGOD_PRIMARY_ADDR: ${MONGOD_PRIMARY_ADDR}"
 echo "MONGOD_PRIMARY_PORT: ${MONGOD_PRIMARY_PORT}"
-echo "DB_NAME            : ${DB_NAME}"
 echo "=========================================="
-
-##############################
-# 解析 iplist.txt 获取新节点信息
-##############################
-NEW_NODE_ARRAY=()      # 节点数组, 元素格式: "ip port"
-RS_PREFIX=""           # 复制集前缀
-RS_NAME=""             # 完整复制集名
-NODE_ROLE=""           # shardsvr 或 configsvr
-NODE_TYPE=""           # 节点类型 (shardN 或 config)
-
-# 读取iplist
-IP_LIST_ARRAY=()
-read_file_to_array ${IP_LIST_FILE} IP_LIST_ARRAY || {
-    echo "错误：read_file_to_array 失败 IP_LIST_FILE: ${IP_LIST_FILE}" >&2
-    exit 1
-}
-
-if [ ${#IP_LIST_ARRAY[@]} -eq 0 ]; then
-    echo "错误：IP_LIST_ARRAY 为空"
-    exit 1
-fi
-
-# 解析每行
-for index in "${!IP_LIST_ARRAY[@]}"; do
-    elem="${IP_LIST_ARRAY[$index]}"
-
-    # 过滤空行和注释行
-    if [ -z "${elem}" ] || [[ "$elem" =~ ^[[:space:]]*$ ]]; then
-        continue
-    fi
-    trimmed=$(echo "${elem}" | sed 's/^[[:space:]]*//')
-    if [[ "$trimmed" =~ ^# ]]; then
-        continue
-    fi
-
-    fields=($(echo "${elem}" | awk '{print $1, $2, $3, $4}'))
-    node_type="${fields[0]}"
-    rs_prefix="${fields[1]}"
-    ip="${fields[2]}"
-    node_port="${fields[3]}"
-
-    if [ -z "${node_type}" ] || [ -z "${rs_prefix}" ] || [ -z "${ip}" ] || [ -z "${node_port}" ]; then
-        echo "警告：跳过无效行(需要4字段: 类型 复制集前缀 IP 端口): ${elem}"
-        continue
-    fi
-
-    # 校验节点类型
-    if [[ "${node_type}" =~ ^shard[0-9]+$ ]]; then
-        NODE_ROLE="shardsvr"
-    elif [ "${node_type}" = "config" ]; then
-        NODE_ROLE="configsvr"
-    else
-        echo "警告：add_replica_node 只支持 shard1/shard2/... 和 config 类型, 跳过: ${node_type}"
-        continue
-    fi
-
-    # 复制集前缀和类型取第一个非空值
-    if [ -z "${RS_PREFIX}" ]; then
-        RS_PREFIX="${rs_prefix}"
-        NODE_TYPE="${node_type}"
-        RS_NAME="${rs_prefix}_${node_type}"
-    else
-        # 校验复制集前缀一致性
-        if [ "${RS_PREFIX}" != "${rs_prefix}" ]; then
-            echo "错误：复制集前缀不一致: 已有 '${RS_PREFIX}', 当前行 '${rs_prefix}'" >&2
-            exit 1
-        fi
-        # 校验节点类型一致性 (同一次扩展只能针对同一复制集)
-        if [ "${NODE_TYPE}" != "${node_type}" ]; then
-            echo "错误：节点类型不一致: 已有 '${NODE_TYPE}', 当前行 '${node_type}'" >&2
-            exit 1
-        fi
-    fi
-
-    NEW_NODE_ARRAY+=("${ip} ${node_port}")
-    echo "解析新节点: type=${node_type}, ip=${ip}, port=${node_port}"
-done
-
-if [ ${#NEW_NODE_ARRAY[@]} -eq 0 ]; then
-    echo "错误：没有有效的节点"
-    exit 1
-fi
-
-echo ""
-echo "========== 扩展信息 =========="
-echo "复制集名称: ${RS_NAME}"
-echo "节点角色: ${NODE_ROLE}"
-echo "数据库名称: ${DB_NAME}"
-echo "新节点数量: ${#NEW_NODE_ARRAY[@]}"
-for i in "${!NEW_NODE_ARRAY[@]}"; do
-    echo "  [${i}] ${NEW_NODE_ARRAY[$i]}"
-done
-echo "=============================="
 
 ##############################
 # 本机IP地址获取
@@ -216,6 +117,64 @@ LOCAL_IPV4=$(get_local_ipv4 "${LOCAL_IP_LIST}")
 LOCAL_IPV6=$(get_local_ipv6 "${LOCAL_IP_LIST}")
 
 ##############################
+# 解析 iplist.txt 获取新节点信息
+##############################
+NEW_NODE_ARRAY=()      # 节点数组, 元素格式: "ip port"
+
+# 读取iplist
+IP_LIST_ARRAY=()
+read_file_to_array ${IP_LIST_FILE} IP_LIST_ARRAY || {
+    echo "错误：read_file_to_array 失败 IP_LIST_FILE: ${IP_LIST_FILE}" >&2
+    exit 1
+}
+
+if [ ${#IP_LIST_ARRAY[@]} -eq 0 ]; then
+    echo "错误：IP_LIST_ARRAY 为空"
+    exit 1
+fi
+
+# 解析每行 (复制集模式: 2字段 IP 端口, 无需 node_type)
+for index in "${!IP_LIST_ARRAY[@]}"; do
+    elem="${IP_LIST_ARRAY[$index]}"
+
+    # 过滤空行和注释行
+    if [ -z "${elem}" ] || [[ "$elem" =~ ^[[:space:]]*$ ]]; then
+        continue
+    fi
+    trimmed=$(echo "${elem}" | sed 's/^[[:space:]]*//')
+    if [[ "$trimmed" =~ ^# ]]; then
+        continue
+    fi
+
+    fields=($(echo "${elem}" | awk '{print $1, $2}'))
+    ip="${fields[0]}"
+    node_port="${fields[1]}"
+
+    if [ -z "${ip}" ] || [ -z "${node_port}" ]; then
+        echo "警告：跳过无效行(需要2字段: IP 端口): ${elem}"
+        continue
+    fi
+
+    NEW_NODE_ARRAY+=("${ip} ${node_port}")
+    echo "解析新节点: ip=${ip}, port=${node_port}"
+done
+
+if [ ${#NEW_NODE_ARRAY[@]} -eq 0 ]; then
+    echo "错误：没有有效的节点"
+    exit 1
+fi
+
+echo ""
+echo "========== 扩展信息 =========="
+echo "新节点数量: ${#NEW_NODE_ARRAY[@]}"
+for i in "${!NEW_NODE_ARRAY[@]}"; do
+    ip=$(echo "${NEW_NODE_ARRAY[$i]}" | awk '{print $1}')
+    node_port=$(echo "${NEW_NODE_ARRAY[$i]}" | awk '{print $2}')
+    echo "  [${i}] $(format_host_port ${ip} ${node_port})"
+done
+echo "=============================="
+
+##############################
 # 辅助函数
 ##############################
 exec_on_host() {
@@ -228,13 +187,10 @@ exec_on_host() {
     fi
 }
 
-# 判断目标机器是否已安装 mongodb (使用通用检测方式: which mongod 或常见安装路径)
+# 判断目标机器是否已安装 mongodb
 is_mongo_installed() {
     local ip=$1
-    # 移除 INSTALL_PATH 末尾的斜杠
     local INSTALL_PATH_CLEAN=${INSTALL_PATH%/}
-    # 优先使用 which mongod 检测，其次检查用户传入的 INSTALL_PATH
-    # 分两步检测避免 bash -c 中的命令替换问题
     if is_local_host "${ip}" "${LOCAL_IP_LIST}"; then
         if which mongod &>/dev/null && [ -x "$(which mongod)" ]; then
             return 0
@@ -314,24 +270,14 @@ echo "主节点连接验证成功."
 
 # 获取复制集名称
 echo "获取复制集配置..."
-RS_CONFIG=$(mongosh --host ${PRIMARY_HOST_PORT} -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --quiet --eval "JSON.stringify(rs.conf())")
+RS_NAME=$(mongosh --host ${PRIMARY_HOST_PORT} -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --quiet --eval "rs.conf()._id")
 
-# 验证复制集名称匹配
-ACTUAL_RS_NAME=$(echo "${RS_CONFIG}" | mongosh --quiet --eval 'printjson' 2>/dev/null | grep -o '"_id"[[:space:]]*:[^,}]*' | head -1 | sed 's/.*"\([^"]*\)".*/\1/')
-
-if [ -z "${ACTUAL_RS_NAME}" ]; then
-    # 尝试另一种方式获取复制集名称
-    ACTUAL_RS_NAME=$(mongosh --host ${PRIMARY_HOST_PORT} -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --quiet --eval "rs.conf()._id")
+if [ -z "${RS_NAME}" ]; then
+    echo "错误：无法获取复制集名称, 请检查主节点状态"
+    exit 1
 fi
 
-echo "复制集名称: ${ACTUAL_RS_NAME}"
-
-# 校验复制集名称是否匹配
-if [ -n "${ACTUAL_RS_NAME}" ] && [ "${ACTUAL_RS_NAME}" != "${RS_NAME}" ]; then
-    echo "警告：iplist.txt 中的复制集名称 '${RS_NAME}' 与实际 '${ACTUAL_RS_NAME}' 不一致"
-    echo "将使用实际复制集名称: ${ACTUAL_RS_NAME}"
-    RS_NAME="${ACTUAL_RS_NAME}"
-fi
+echo "复制集名称: ${RS_NAME}"
 
 # 获取当前成员数量，计算新节点 _id
 MEMBER_COUNT=$(mongosh --host ${PRIMARY_HOST_PORT} -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --quiet --eval "rs.conf().members.length")
@@ -376,7 +322,6 @@ for ip in "${!ALL_IPS[@]}"; do
             if is_mongo_installed ${ip}; then
                 echo "本地节点 ip:${ip} 已安装 mongodb, 跳过安装."
                 mkdir -p ${TARGET_SCRIPT_PATH}
-                # 检查源 keyfile 是否存在
                 if [ ! -f "${KEYFILE_PATH}" ]; then
                     echo "错误: 源 keyfile 不存在: ${KEYFILE_PATH}" >&2
                     exit 1
@@ -394,7 +339,6 @@ for ip in "${!ALL_IPS[@]}"; do
                     echo "错误：本地:$ip init_env.sh 失败" >&2
                     exit 1
                 }
-                # init_env 之后 keyfile 应该已经存在
             fi
             is_ip_init_dict[$ip]=1
         fi
@@ -406,7 +350,6 @@ for ip in "${!ALL_IPS[@]}"; do
                     echo "错误：${ip} 创建 ${TARGET_SCRIPT_PATH} 失败" >&2
                     exit 1
                 }
-                # 检查源 keyfile 是否存在
                 if [ ! -f "${KEYFILE_PATH}" ]; then
                     echo "错误: 源 keyfile 不存在: ${KEYFILE_PATH}" >&2
                     exit 1
@@ -420,9 +363,14 @@ for ip in "${!ALL_IPS[@]}"; do
                 echo "远程 ${ip} keyfile 已准备: ${TARGET_SCRIPT_PATH}/keyfile"
             else
                 echo "远程节点 ip:${ip} 未安装 mongodb, 执行 init_package 和 init_env..."
-                echo "创建目录: TMP_DIR:${TMP_DIR} ..."
+                # 安全检查: 确保路径深度足够(至少2层)，防止误删危险目录
+                TMP_DIR_DEPTH=$(echo "${TMP_DIR}" | tr -cd '/' | wc -c)
+                if [ ${TMP_DIR_DEPTH} -lt 2 ] || [ -z "${TMP_DIR}" ]; then
+                    echo "错误： TMP_DIR 路径不安全: ${TMP_DIR}" >&2
+                    exit 1
+                fi
                 ssh root@${ip} "rm -rf ${TMP_DIR}" || {
-                    echo "错误：移除 ${TMP_DIR} 失败" >&2
+                    echo "错误： 移除 ${TMP_DIR} 失败" >&2
                     exit 1
                 }
                 ssh root@${ip} "mkdir -p ${TMP_DIR}" || {
@@ -479,7 +427,7 @@ for item in "${NEW_NODE_ARRAY[@]}"; do
     node_id=$((MEMBER_COUNT + NODE_INDEX))
     # 计算新节点编号：从已有成员数量 + 1 开始，保证连续性
     node_db_num=$((MEMBER_COUNT + NODE_INDEX + 1))
-    node_db_subdir="${DB_NAME}_${NODE_TYPE}_${node_db_num}"
+    node_db_subdir="${RS_NAME}_${node_db_num}"
     # 移除 DATA_PATH 末尾的斜杠，避免路径中出现双斜杠
     DATA_PATH_CLEAN=${DATA_PATH%/}
     node_db_path="${DATA_PATH_CLEAN}/${node_db_subdir}"
@@ -518,18 +466,20 @@ for item in "${NEW_NODE_ARRAY[@]}"; do
     fi
 
     # 准备启动脚本参数
+    # create_mongodb_inst.sh 参数: SCRIPT_PATH LOCAL_TARGET_DB_PATH LOCAL_TARGET_IP LOCAL_TARGET_PORT LOCAL_REPL_SET_NAME LOCAL_KEYFILE_PATH LOCAL_SHARDING_CLUSTER_ROLE IS_MONGOS MONGOS_CONFIG_ADDR IS_NO_AUTH
+    # 复制集模式: SHARDING_CLUSTER_ROLE=""(空, 无分片角色), IS_MONGOS="", MONGOS_CONFIG_ADDR="", IS_NO_AUTH=""(启用认证)
     local_ip_for_bind=$(get_local_ip_by_type "${ip}" "${LOCAL_IP_LIST}")
 
     if is_local_host "${ip}" "${LOCAL_IP_LIST}"; then
-        echo "执行本地启动: create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${node_db_path} ${local_ip_for_bind} ${node_port} ${RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile ${NODE_ROLE}"
-        sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${node_db_path} "${local_ip_for_bind}" ${node_port} "${RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile ${NODE_ROLE} || {
+        echo "执行本地启动: create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${node_db_path} ${local_ip_for_bind} ${node_port} ${RS_NAME} ${TARGET_SCRIPT_PATH}/keyfile"
+        sh ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${node_db_path} "${local_ip_for_bind}" ${node_port} "${RS_NAME}" ${TARGET_SCRIPT_PATH}/keyfile "" || {
             echo "错误：新节点 $(format_host_port ${ip} ${node_port}) 启动失败" >&2
             echo "请检查日志: ${node_db_path}/mongod.log" >&2
             exit 1
         }
     else
         echo "执行远程启动 ${ip}: create_mongodb_inst.sh ..."
-        ssh root@${ip} "source ~/.bash_profile 2>/dev/null; bash -u ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${node_db_path} ${ip} ${node_port} \"${RS_NAME}\" ${TARGET_SCRIPT_PATH}/keyfile ${NODE_ROLE} 2>&1" || {
+        ssh root@${ip} "source ~/.bash_profile 2>/dev/null; bash -u ${TARGET_SCRIPT_PATH}/create_mongodb_inst.sh ${TARGET_SCRIPT_PATH} ${node_db_path} ${ip} ${node_port} \"${RS_NAME}\" ${TARGET_SCRIPT_PATH}/keyfile \"\" 2>&1" || {
             echo "错误：新节点 $(format_host_port ${ip} ${node_port}) 启动失败" >&2
             echo "请检查日志: ${node_db_path}/mongod.log" >&2
             exit 1
@@ -606,10 +556,11 @@ echo "=========================================="
 echo "MongoDB 复制集扩展节点完成!"
 echo "=========================================="
 echo "复制集名称: ${RS_NAME}"
-echo "节点角色: ${NODE_ROLE}"
 echo "新增节点:"
 for item in "${NEW_NODE_ARRAY[@]}"; do
-    echo "  $(format_host_port $(echo "${item}" | awk '{print $1}') $(echo "${item}" | awk '{print $2}'))"
+    ip=$(echo "${item}" | awk '{print $1}')
+    node_port=$(echo "${item}" | awk '{print $2}')
+    echo "  $(format_host_port ${ip} ${node_port})"
 done
 echo ""
 echo "主节点: ${PRIMARY_HOST_PORT}"

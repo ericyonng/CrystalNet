@@ -1,0 +1,48 @@
+# MongoDB 复制集启动配置文件
+# 格式: 复制集名 IP地址/域名 端口 配置文件绝对路径
+#
+# 字段说明:
+#   复制集名            - 复制集名称(所有行必须一致), 如 mydb_rs
+#   IP地址/域名         - 支持 IPv4 / IPv6 / 域名
+#   端口                - mongod 监听端口号
+#   配置文件绝对路径    - mongod.conf 的完整路径(对应机器上的绝对路径)
+#
+# 支持的地址格式:
+#   IPv4   - 192.168.1.1
+#   IPv6   - 2001:db8::1 (不需要加方括号, 脚本会自动处理)
+#   域名   - mongo1.example.com
+#
+# 注意:
+#   1. 所有行的复制集名必须一致, 否则脚本报错退出
+#   2. 配置文件必须存在于对应的机器上
+#   3. 远程节点的配置文件路径应该是远程机器上的绝对路径
+#   4. IPv6 地址不需要加方括号, 直接填写原始地址即可
+#   5. 以 # 开头的行和空行会被跳过
+#
+# ============================================================
+# 示例1: IPv4 环境 - 3节点复制集
+# ============================================================
+mydb_rs 192.168.1.1 27017 /root/mongo_data/mydb_rs_1/mongod.conf
+mydb_rs 192.168.1.2 27017 /root/mongo_data/mydb_rs_2/mongod.conf
+mydb_rs 192.168.1.3 27017 /root/mongo_data/mydb_rs_3/mongod.conf
+
+# ============================================================
+# 示例2: IPv6 环境 - 3节点复制集
+# ============================================================
+# mydb_rs 2001:db8::1 27017 /root/mongo_data/mydb_rs_1/mongod.conf
+# mydb_rs 2001:db8::2 27017 /root/mongo_data/mydb_rs_2/mongod.conf
+# mydb_rs 2001:db8::3 27017 /root/mongo_data/mydb_rs_3/mongod.conf
+
+# ============================================================
+# 示例3: 域名环境 - 3节点复制集
+# ============================================================
+# mydb_rs mongo1.example.com 27017 /root/mongo_data/mydb_rs_1/mongod.conf
+# mydb_rs mongo2.example.com 27017 /root/mongo_data/mydb_rs_2/mongod.conf
+# mydb_rs mongo3.example.com 27017 /root/mongo_data/mydb_rs_3/mongod.conf
+
+# ============================================================
+# 示例4: 单机多实例环境 - 3节点复制集(同机器不同端口)
+# ============================================================
+# mydb_rs 127.0.0.1 27017 /root/mongo_data/mydb_rs_1/mongod.conf
+# mydb_rs 127.0.0.1 27018 /root/mongo_data/mydb_rs_2/mongod.conf
+# mydb_rs 127.0.0.1 27019 /root/mongo_data/mydb_rs_3/mongod.conf

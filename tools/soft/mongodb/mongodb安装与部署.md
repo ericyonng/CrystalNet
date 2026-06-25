@@ -61,13 +61,23 @@
 
     
 
-* 一键部署3节点单机复制集脚本
+* 相关运维脚本
 
   * ```shell
-    rm -rf /root/mongo_repliset
-    sh ./create_mongo_repliset.sh rs0 127.0.0.1 28017 xiaoming 123789 /root/mongo_repliset
+    # 创建复制集
+    sh create_replicaset.sh <iplist.txt> <用户名> <密码> <工作路径(数据运行路径)> <安装路径(数据库安装路径)>
+    # 启动复制集
+    sh start_replicaset.sh <start_iplist.txt> <账号> <密码> <软件安装路径>
+    # 关停复制集
+    sh stop_replicaset.sh <iplist.txt> <用户名> <密码>
+    # 添加复制集节点
+    sh replicaset_add_node.sh <iplist.txt> <用户名> <密码> <软件包安装路径> <数据库数据路径> <keyfile绝对路径> <mongod主节点地址> <mongod主节点端口>
+    # 备份
+    sh mongod_replicaset_dump.sh <主节点地址> <主节点port> <账号> <密码> <生成dump的绝对路径名> <db名> <collectionName>
+    # 恢复
+    sh mongod_replicaset_restore.sh <主节点地址> <主节点port> <账号> <密码> <dump的绝对路径名>
     
     ```
 
-* 
+    
 
