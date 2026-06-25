@@ -597,8 +597,8 @@ private:
     virtual Int32 _OnCompsCreated() override
     {
         auto mongoDbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
-        mongoDbMgr->SetSrvHostName("xxx");
-        mongoDbMgr->SetAccountPwd("eric", "123");
+        // mongoDbMgr->SetSrvHostName("xxx");
+        // mongoDbMgr->SetAccountPwd("eric", "123");
         
         auto &&progPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();
         progPath.AppendFormat("/ini/service.yaml");
@@ -616,27 +616,27 @@ private:
         mongoDbMgr->FocusDb("testsuit9");
         mongoDbMgr->FocusDb("testsuit10");
 
-        std::vector<KERNEL_NS::ShardKeyInfo> shardKeys;
-        KERNEL_NS::ShardKeyInfo info;
-        info.KeyName = "player_id";
-        info.ValueType = KERNEL_NS::ShardKeyType::HASHED;
-        // hashed不能做唯一索引否则会失败
-        // info.IsUnique = true;
-        shardKeys.push_back(info);
-        mongoDbMgr->SetShardKeyInfo("testsuit2", "player", shardKeys);
-        shardKeys.clear();
-        info.KeyName = "player_id";
-        info.ValueType = KERNEL_NS::ShardKeyType::HASHED;
-        // hashed不能做唯一索引否则会失败
-        // info.IsUnique = true;
-        shardKeys.push_back(info);
-        mongoDbMgr->SetShardKeyInfo("testsuit6", "player", shardKeys);
-        mongoDbMgr->SetShardKeyInfo("testsuit8", "player", shardKeys);
-        mongoDbMgr->SetShardKeyInfo("testsuit9", "player", shardKeys);
-        mongoDbMgr->SetShardKeyInfo("testsuit10", "player", shardKeys);
-        mongoDbMgr->SetShardKeyInfo("testsuit11", "player", shardKeys);
-        mongoDbMgr->SetShardKeyInfo("testsuit12", "player", shardKeys);
-        mongoDbMgr->SetShardKeyInfo("testsuit13", "player", shardKeys);
+        // std::vector<KERNEL_NS::ShardKeyInfo> shardKeys;
+        // KERNEL_NS::ShardKeyInfo info;
+        // info.KeyName = "player_id";
+        // info.ValueType = KERNEL_NS::ShardKeyType::HASHED;
+        // // hashed不能做唯一索引否则会失败
+        // // info.IsUnique = true;
+        // shardKeys.push_back(info);
+        // mongoDbMgr->SetShardKeyInfo("testsuit2", "player", shardKeys);
+        // shardKeys.clear();
+        // info.KeyName = "player_id";
+        // info.ValueType = KERNEL_NS::ShardKeyType::HASHED;
+        // // hashed不能做唯一索引否则会失败
+        // // info.IsUnique = true;
+        // shardKeys.push_back(info);
+        // mongoDbMgr->SetShardKeyInfo("testsuit6", "player", shardKeys);
+        // mongoDbMgr->SetShardKeyInfo("testsuit8", "player", shardKeys);
+        // mongoDbMgr->SetShardKeyInfo("testsuit9", "player", shardKeys);
+        // mongoDbMgr->SetShardKeyInfo("testsuit10", "player", shardKeys);
+        // mongoDbMgr->SetShardKeyInfo("testsuit11", "player", shardKeys);
+        // mongoDbMgr->SetShardKeyInfo("testsuit12", "player", shardKeys);
+        // mongoDbMgr->SetShardKeyInfo("testsuit13", "player", shardKeys);
 
         mongoDbMgr->CreateIndex("testsuit6", "player", "idx_player_id", {{"player_id", 1}}, true);
         mongoDbMgr->CreateIndex("testsuit8", "player", "idx_player_id", {{"player_id", 1}}, true);

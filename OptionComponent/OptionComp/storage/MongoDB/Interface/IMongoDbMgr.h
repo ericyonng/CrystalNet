@@ -36,6 +36,9 @@
 #include <OptionComp/storage/MongoDB/Impl/ShardKeyInfo.h>
 #include <kernel/comp/TimeSlice.h>
 #include <OptionComp/storage/MongoDB/Impl/MongoSerializeInfo.h>
+#include <OptionComp/storage/MongoDB/Impl/MongodbConfig.h>
+#include <kernel/comp/FileMonitor/FileMonitor.h>
+
 
 KERNEL_BEGIN
 
@@ -143,6 +146,9 @@ public:
 
     // 多少个请求未完成
     virtual Int64 GetPendingRequestCount() const = 0;
+
+    // 获取配置
+    virtual const KERNEL_NS::FileMonitor<MongodbConfig, KERNEL_NS::YamlDeserializer> *GetConfig() const = 0;
 };
 
 KERNEL_END

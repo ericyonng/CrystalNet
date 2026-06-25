@@ -3207,6 +3207,11 @@ Int64 MongoDbMgr::GetPendingRequestCount() const
     return _pendingRequests.load(std::memory_order_acquire);
 }
 
+const KERNEL_NS::FileMonitor<MongodbConfig, KERNEL_NS::YamlDeserializer> *MongoDbMgr::GetConfig() const
+{
+    return _configMonitor;
+}
+
 void MongoDbMgr::DbReady(bool isReady)
 {
     _isDbReady.store(isReady, std::memory_order_release);

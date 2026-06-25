@@ -111,6 +111,7 @@ public:
     #endif
 
     virtual Int64 GetPendingRequestCount() const override;
+    virtual const KERNEL_NS::FileMonitor<MongodbConfig, KERNEL_NS::YamlDeserializer> *GetConfig() const override;
 
     void DbReady(bool isReady);
     void SetDbFailErr(Int32 err);
