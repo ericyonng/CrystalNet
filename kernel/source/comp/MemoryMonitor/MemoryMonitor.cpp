@@ -129,19 +129,22 @@ void MemoryMonitor::_DoWork()
 
     auto centerMemoryCollector = CenterMemoryCollector::GetInstance();
 
-    g_Log->MemMonitor("Begin Proc:%d memory monitor log batchNum:%llu, System Total Mem Size:%llu, System Available Mem Size:%llu\n", pid, ++batchNum, totalSystemSize, sysAvail);
+    if(g_Log)
+        CLOG_MEM_MONITOR("Begin Proc:%d memory monitor log batchNum:%llu, System Total Mem Size:%llu, System Available Mem Size:%llu\n", pid, ++batchNum, totalSystemSize, sysAvail);
 
     // linux 进程信息
     #if CRYSTAL_TARGET_PLATFORM_LINUX
-        g_Log->MemMonitor("Proc Info:\n[FDSize:%llu, Peak Memory Occupied:%llu KB, Current Occupied:%llu KB]\n"
+    if(g_Log)
+    {
+        CLOG_MEM_MONITOR("Proc Info:\n[FDSize:%llu, Peak Memory Occupied:%llu KB, Current Occupied:%llu KB]\n"
                         "[Peak Malloc Phisic Mem:%llu KB, Current Used Physic Mem:%llu KB]\n"
                         "[Data Segment:%llu KB, Stack Segment::%llu KB, Exe Code:%llu KB]\n"
                         "[Libarary:%llu KB, Swap::%llu KB, PageTable:%llu KB]\n"
                         , procInfo._fdSize, procInfo._vmPeak, procInfo._vmSize
                         , procInfo._vmHwm, procInfo._vmRss
                         , procInfo._vmData, procInfo._vmStk, procInfo._vmExe
-                        , procInfo._vmLib, procInfo._vmSwap, procInfo._vmPTE
-                        );
+                        , procInfo._vmLib, procInfo._vmSwap, procInfo._vmPTE);
+    }
     #endif
 
     // 已打印的不打,未打印的append上去,一旦发生变化,需要重新便利
@@ -163,14 +166,17 @@ void MemoryMonitor::_DoWork()
         ++idx;
         statics->Unlock();
 
-        g_Log->MemMonitor("%s\n", cache.c_str());
+        if(g_Log)
+            CLOG_MEM_MONITOR("%s\n", cache.c_str());
     }
 
     const auto &centerCollectorInfo = centerMemoryCollector->ToString();
-    g_Log->MemMonitor("centerCollectorInfo:%s", centerCollectorInfo.c_str());
-
-    g_Log->MemMonitor("End Proc:%d memory monitor log batchNum:%llu Total Pool Alloc Buffer Bytes:%llu, Memory monitor Use Time: %llu(micro seconds) one frame.\n"
+    if(g_Log)
+    {
+        CLOG_MEM_MONITOR("centerCollectorInfo:%s", centerCollectorInfo.c_str());
+        CLOG_MEM_MONITOR("End Proc:%d memory monitor log batchNum:%llu Total Pool Alloc Buffer Bytes:%llu, Memory monitor Use Time: %llu(micro seconds) one frame.\n"
                     , pid, batchNum, totalBufferBytes, cpuCounter.Update().ElapseMicroseconds(startCounter));
+    }
 }
 
 KERNEL_END

@@ -20,41 +20,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2026-06-06 00:06:29
+// Date: 2026-06-27 16:06:11
 // Author: Eric Yonng
-// Description:
+// Description: so 内部的数据, 不暴露到全局符号, 避免卸载的时候跨so遗留变量问题
+
 
 #pragma once
 
 #include <service/common/macro.h>
+#include <kernel/common/BaseMacro.h>
 
 KERNEL_BEGIN
-    class LibEvent;
 class LibTimer;
 KERNEL_END
 
-SERVICE_BEGIN
-class IPluginGlobal;
-
-SERVICE_END
-
-#include <kernel/comp/Coroutines/CoTask.h>
-
-class PluginLogic
+class ALWAYS_HIDDEN SoInnerGlobal
 {
 public:
-    // 比较重的任务不允许放在插件集启动, 应该放在程序集(因为如果比较久, 会卡住线程影响业务)
-    static void OnPluginStartup();
-    static void OnNotifyClosePlugin();
-    static void OnPluginTestEvent(KERNEL_NS::LibEvent *ev);
-    static void OnPluginTestEvent2(KERNEL_NS::LibEvent *ev);
-    static void OnPluginTestEvent3(KERNEL_NS::LibEvent *ev);
-
-    static KERNEL_NS::CoTask<Int32> GetRandInt();
-
-    static void OnPluginTestTimer(KERNEL_NS::LibTimer *t);
-
-    static KERNEL_NS::CoTask<> TestAddTask();
-
-    static bool &IsTestAddTas();
+    // 测试定时器
+    static SO_INNER_THREAD_LOCAL KERNEL_NS::LibTimer *_timer;
 };

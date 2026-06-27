@@ -220,17 +220,23 @@ void PluginMgr::_OnHotfixPlugin(KERNEL_NS::PollerEvent *ev)
             CLOG_INFO("plugin execute remove when coroutines are all completed service:%s module id:%llu, library name:%s"
                 , GetService()->ToString().c_str(), oldModuleId, removeInfo->_shareLibraryLoader->GetLibraryPath().c_str());
 
+            _NotifyClosePlugin(removeInfo->_shareLibraryLoader);
             _delayRemoveInfos.pop_back();
             PluginDelayRemoveInfo::DeleteThreadLocal_PluginDelayRemoveInfo(removeInfo);
         }
         else
         {
             CLOG_WARN("plugin execute remove but plugin coroutine not completed, and will wait coroutine completed coroutine count:%d, oldModuleId:%llu service:%s", static_cast<Int32>(coroutineSet.size()), oldModuleId, GetService()->ToString().c_str());
+            _NotifyClosePlugin(removeInfo->_shareLibraryLoader);
             _StartDelayRemovePluginTimer();
         }
     }
     else
     {
+        // 通知关闭
+        if(removeInfo->_shareLibraryLoader)
+            _NotifyClosePlugin(removeInfo->_shareLibraryLoader);
+
         PluginDelayRemoveInfo::DeleteThreadLocal_PluginDelayRemoveInfo(removeInfo);
     }
 
@@ -258,13 +264,14 @@ bool PluginMgr::_InitPluginModule(KERNEL_NS::ShareLibraryLoader *shareLibrary, I
         auto initPtr = shareLibrary->LoadSym<InitPluginPtr>(KERNEL_NS::LibString("InitPlugin"));
         auto startPtr = shareLibrary->LoadSym<StartPluginPtr>(KERNEL_NS::LibString("StartPlugin"));
         auto startCompletePtr = shareLibrary->LoadSym<StartPluginCompletePtr>(KERNEL_NS::LibString("StartPluginComplete"));
+        auto notifyQuitPluginPtr = shareLibrary->LoadSym<NotifyQuitPluginPtr>(KERNEL_NS::LibString("NotifyQuitPlugin"));
         auto willClosePtr = shareLibrary->LoadSym<WillClosePluginPtr>(KERNEL_NS::LibString("WillClosePlugin"));
         auto closePluginPtr = shareLibrary->LoadSym<ClosePluginPtr>(KERNEL_NS::LibString("ClosePlugin"));
         auto setPluginMgrPtr = shareLibrary->LoadSym<SetPluginMgrPtr>(KERNEL_NS::LibString("SetPluginMgr"));
         auto setPluginGlobalPtr = shareLibrary->LoadSym<SetPluginGlobalPtr>(KERNEL_NS::LibString("SetPluginGlobal"));
         auto getPluginModuleIdPtr = shareLibrary->LoadSym<GetPluginModuleIdPtr>(KERNEL_NS::LibString("GetPluginModuleId"));
 
-        if((!initPtr) || (!startPtr) || (!startCompletePtr) || (!willClosePtr) || (!closePluginPtr) ||(!setPluginMgrPtr) || (!getPluginModuleIdPtr))
+        if((!initPtr) || (!startPtr) || (!startCompletePtr) || (!notifyQuitPluginPtr) || (!willClosePtr) || (!closePluginPtr) ||(!setPluginMgrPtr) || (!getPluginModuleIdPtr))
         {
             CLOG_ERROR("load sym fail");
             return false;
@@ -294,6 +301,7 @@ bool PluginMgr::_InitPluginModule(KERNEL_NS::ShareLibraryLoader *shareLibrary, I
         if(pluginRet != Status::Success)
         {
             CLOG_ERROR("init fail st:%d", pluginRet);
+            _NotifyClosePlugin(shareLibrary);
             _WillClosePlugin(shareLibrary);
             _ClosePlugin(shareLibrary);
             return false;
@@ -303,6 +311,7 @@ bool PluginMgr::_InitPluginModule(KERNEL_NS::ShareLibraryLoader *shareLibrary, I
         if (st != Status::Success)
         {
             CLOG_ERROR("pluginGlobal start fail st:%d", st);
+            _NotifyClosePlugin(shareLibrary);
             _WillClosePlugin(shareLibrary);
             _ClosePlugin(shareLibrary);
             return false;
@@ -311,6 +320,7 @@ bool PluginMgr::_InitPluginModule(KERNEL_NS::ShareLibraryLoader *shareLibrary, I
         if(pluginRet != Status::Success)
         {
             CLOG_ERROR("start fail st:%d", pluginRet);
+            _NotifyClosePlugin(shareLibrary);
             _WillClosePlugin(shareLibrary);
             _ClosePlugin(shareLibrary);
             return false;
@@ -387,6 +397,30 @@ void PluginMgr::_CompletePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary)
         {
             CLOG_ERROR("plugin start complete unknown err service:%s", GetService()->ToString().c_str());
         }
+    }
+}
+
+void PluginMgr::_NotifyClosePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary)
+{
+    try
+    {
+        auto notifyClose = shareLibrary->LoadSym<NotifyQuitPluginPtr>(KERNEL_NS::LibString("NotifyQuitPlugin"));
+        if((!notifyClose))
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("load sym fail"));
+            return;
+        }
+    
+        (*notifyClose)();
+        CLOG_INFO("notify close plugin share lib at:%p", shareLibrary->GetLibrary());
+    }
+    catch (const std::exception &e)
+    {
+        CLOG_ERROR("notify close plugin fail exception:%s", e.what());
+    }
+    catch (...)
+    {
+        CLOG_ERROR("notify close plugin unknown exception");
     }
 }
 
@@ -666,6 +700,10 @@ void PluginMgr::_OnQuitServiceEventDefault(KERNEL_NS::LibEvent *ev)
             CLOG_INFO("plugin execute remove when coroutines are all completed service:%s module id:%llu, library name:%s quit service, sharelib:%p, load at:%p, plugin global:%p"
                 , GetService()->ToString().c_str(), oldModuleId, removeInfo->_shareLibraryLoader->GetLibraryPath().c_str(), removeInfo->_shareLibraryLoader, removeInfo->_shareLibraryLoader->GetLibrary(), removeInfo->_pluginGlobal);
 
+            // 通知关闭
+            if(removeInfo->_shareLibraryLoader)
+                _NotifyClosePlugin(removeInfo->_shareLibraryLoader);
+            
             _delayRemoveInfos.pop_back();
 
             // 先移除组件
@@ -679,6 +717,10 @@ void PluginMgr::_OnQuitServiceEventDefault(KERNEL_NS::LibEvent *ev)
         {
             CLOG_WARN("plugin execute remove but plugin coroutine not completed, and will wait coroutine completed coroutine count:%d, oldModuleId:%llu service:%s quit service sharelib:%p, load at:%p, plugin global:%p"
                 , static_cast<Int32>(coroutineSet.size()), oldModuleId, GetService()->ToString().c_str(), removeInfo->_shareLibraryLoader, removeInfo->_shareLibraryLoader->GetLibrary(), removeInfo->_pluginGlobal);
+
+            // 通知关闭
+            if(removeInfo->_shareLibraryLoader)
+                _NotifyClosePlugin(removeInfo->_shareLibraryLoader);
             _StartDelayRemovePluginTimer();
         }
     }
@@ -689,6 +731,11 @@ void PluginMgr::_OnQuitServiceEventDefault(KERNEL_NS::LibEvent *ev)
         PopComp(shareLoader);
         
         CLOG_INFO("plugin global not exists...");
+
+        // 通知关闭
+        if(removeInfo->_shareLibraryLoader)
+            _NotifyClosePlugin(removeInfo->_shareLibraryLoader);
+        
         PluginDelayRemoveInfo::DeleteThreadLocal_PluginDelayRemoveInfo(removeInfo);
 
         GetService()->MaskServiceModuleQuitFlag(this);

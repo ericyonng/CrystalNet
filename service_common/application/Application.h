@@ -77,6 +77,7 @@ public:
     void SetMaxEventType(Int32 maxEventType);
     Int32 GetMaxEventType() const;
 
+    // 关服
     void SinalFinish(Int32 err = Status::Success) override;
 
 protected:
@@ -112,14 +113,18 @@ private:
     // 检测程序退出
     void _OnKillMonitorTimeOut(KERNEL_NS::LibTimer *timer);
 
+    void _OnMonitorTimeOut(KERNEL_NS::LibTimer *timer);
+
 private:
     KERNEL_NS::LibString _memoryIni;                        // 内存配置表内容
     ApplicationConfig _appConfig;                           // app配置
     KERNEL_NS::FileMonitor<ApplicationConfig, KERNEL_NS::YamlDeserializer> *_appCfg;
     KERNEL_NS::SourceWrap _appConfigSource;
 
-    // 监控线程
-    KERNEL_NS::LibEventLoopThread *_monitor;
+    // 监控定时
+    KERNEL_NS::LibTimer *_startScanTimer;
+    KERNEL_NS::LibTimer *_monitorTimer;
+    KERNEL_NS::LibTimer *_memoryTimer;
 
     // 退出程序监控定时
     KERNEL_NS::LibTimer *_killMonitorTimer;

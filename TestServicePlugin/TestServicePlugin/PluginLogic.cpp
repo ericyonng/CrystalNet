@@ -33,9 +33,9 @@
 #include <TestServicePlugin/PluginEntry.h>
 #include <kernel/comp/Delegate/LibDelegate.h>
 #include <Comps/Plugin/Plugin.h>
+#include <TestServicePlugin/SoInnerGlobal.h>
 
 #include "ExternPluginMgr.h"
-
 
 void PluginLogic::OnPluginStartup()
 {
@@ -48,7 +48,8 @@ void PluginLogic::OnPluginStartup()
     auto timer = g_PluginGlobal->AddTimer();
     timer->SetTimeOutHandler(&PluginLogic::OnPluginTestTimer);
     timer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(5));
-
+    SoInnerGlobal::_timer = timer;
+    
     KERNEL_NS::PostCaller([]()->KERNEL_NS::CoTask<>
     {
         KERNEL_NS::SmartPtr<KERNEL_NS::TaskParamRefWrapper, KERNEL_NS::AutoDelMethods::Release> param = KERNEL_NS::TaskParamRefWrapper::NewThreadLocal_TaskParamRefWrapper();
@@ -65,6 +66,18 @@ void PluginLogic::OnPluginStartup()
             , moduleId, param->_params->_moduleId, randNum, setCount);
     });
 }
+
+void PluginLogic::OnNotifyClosePlugin()
+{
+    CLOG_INFO_GLOBAL(PluginLogic, "OnNotifyClosePlugin");
+    if(SoInnerGlobal::_timer)
+    {
+        CLOG_INFO_GLOBAL(PluginLogic, "remove timer:%p", SoInnerGlobal::_timer);
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(SoInnerGlobal::_timer);
+        SoInnerGlobal::_timer = NULL;
+    }
+}
+
 
 void PluginLogic::OnPluginTestEvent(KERNEL_NS::LibEvent *ev)
 {
@@ -103,9 +116,7 @@ KERNEL_NS::CoTask<Int32> PluginLogic::GetRandInt()
 
 void PluginLogic::OnPluginTestTimer(KERNEL_NS::LibTimer *t)
 {
-    KERNEL_NS::LibString info;
-    info.AppendFormat("=> plugin test timer hello world service:%s", g_PluginMgr->GetService()->ToString().c_str());
-    g_PluginGlobal->TestHello(info);
+    CLOG_INFO_GLOBAL(PluginLogic, "plugin test timer hello world service:%s", g_PluginMgr->GetService()->ToString().c_str());
 
     if(!IsTestAddTas())
     {
@@ -130,7 +141,7 @@ KERNEL_NS::CoTask<> PluginLogic::TestAddTask()
     // 当前连接数
     KERNEL_NS::PostCaller([]()->KERNEL_NS::CoTask<>
     {
-        co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(120));
+        co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(6));
 
         CLOG_INFO_GLOBAL(PluginLogic, "plugin module:%llu, test session new test count", GetPluginModuleId());
         

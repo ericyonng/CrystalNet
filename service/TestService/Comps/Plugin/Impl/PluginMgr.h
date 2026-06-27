@@ -63,6 +63,7 @@ private:
 
     bool _InitPluginModule(KERNEL_NS::ShareLibraryLoader *shareLibrary, IPluginGlobal *&newPluginGlobal);
     void _CompletePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary);
+    void _NotifyClosePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary);
     void _WillClosePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary);
     void _ClosePlugin(KERNEL_NS::ShareLibraryLoader *shareLibrary);
     void _Clear();

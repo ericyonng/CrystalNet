@@ -20,41 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2026-06-06 00:06:29
+// Date: 2026-06-27 16:06:27
 // Author: Eric Yonng
 // Description:
+#include <pch.h>
+#include <TestServicePlugin/SoInnerGlobal.h>
 
-#pragma once
+SO_INNER_THREAD_LOCAL KERNEL_NS::LibTimer *SoInnerGlobal::_timer = NULL;
 
-#include <service/common/macro.h>
-
-KERNEL_BEGIN
-    class LibEvent;
-class LibTimer;
-KERNEL_END
-
-SERVICE_BEGIN
-class IPluginGlobal;
-
-SERVICE_END
-
-#include <kernel/comp/Coroutines/CoTask.h>
-
-class PluginLogic
-{
-public:
-    // 比较重的任务不允许放在插件集启动, 应该放在程序集(因为如果比较久, 会卡住线程影响业务)
-    static void OnPluginStartup();
-    static void OnNotifyClosePlugin();
-    static void OnPluginTestEvent(KERNEL_NS::LibEvent *ev);
-    static void OnPluginTestEvent2(KERNEL_NS::LibEvent *ev);
-    static void OnPluginTestEvent3(KERNEL_NS::LibEvent *ev);
-
-    static KERNEL_NS::CoTask<Int32> GetRandInt();
-
-    static void OnPluginTestTimer(KERNEL_NS::LibTimer *t);
-
-    static KERNEL_NS::CoTask<> TestAddTask();
-
-    static bool &IsTestAddTas();
-};

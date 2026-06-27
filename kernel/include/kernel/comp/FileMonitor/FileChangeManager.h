@@ -45,6 +45,9 @@
 
 KERNEL_BEGIN
 
+class LibTimer;
+class CoLocker;
+
 class KERNEL_EXPORT FileChangeManager : public CompObject
 {
     POOL_CREATE_OBJ_DEFAULT_P1(CompObject, FileChangeManager);
@@ -55,6 +58,7 @@ public:
     void Release() override;
 
 public:
+    // 为外部提供 FileChangeManager 所在线程, 外部需要投递到FileChangeManager所在线程执行相关无锁任务
     Poller *GetPoller();
 
     std::unordered_map<KERNEL_NS::LibString, FileMonitorInfo *> &GetFilePathRefFileObj();
@@ -62,7 +66,7 @@ public:
 
 private:
     // 监控 5秒一次
-    void _InitWorker();
+    bool _InitWorker();
 
     Int32 _OnInit() override;
     // start 可以启动线程，再此之前都不可以启动线程
@@ -70,15 +74,19 @@ private:
     void _OnWillClose() override;
 
     void _OnClose() override;
+
+    void _DoWork();
     
 private:
     std::unordered_map<KERNEL_NS::LibString, FileMonitorInfo *> _filePathRefFileObj;
+    std::atomic_bool _isStart;
     std::atomic_bool _isQuit;
     std::atomic_bool _isWorking;
-    std::atomic_bool _isStart;
 
-    // 工作线程
     std::atomic<Poller *> _workerPoller;
+
+    // 使用定时器监控文件变更
+    KERNEL_NS::CoLocker *_locker;
 };
 
 

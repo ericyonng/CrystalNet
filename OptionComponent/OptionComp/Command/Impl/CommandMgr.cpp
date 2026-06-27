@@ -55,8 +55,12 @@ CommandMgr::CommandMgr()
     ,_eventLoopThread(NULL)
     ,_isWorking{false}
     ,_inWaiting{false}
+    ,_isLinuxMode(false)
+    ,_timer(KERNEL_NS::LibTimer::NewThreadLocal_LibTimer())
 {
-    
+#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+    _isLinuxMode = true;
+#endif
 }
 
 
@@ -72,9 +76,7 @@ void CommandMgr::Release()
 
 void CommandMgr::DefaultMaskReady(bool isReady)
 {
-#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
     MaskReady(isReady);
-#endif
 }
 
 void CommandMgr::AddCommand(const LibString &cmd, IDelegate<void> *callback)
@@ -135,18 +137,27 @@ void CommandMgr::AddRegularCommand(const LibString &cmd, IDelegate<void, const K
 
 Int32 CommandMgr::_OnHostInit()
 {
-    _eventLoopThread = new LibEventLoopThread([this]()
+    _timer->SetTimeOutHandler(this, &CommandMgr::_OnTimeOut);
+    _scanPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();
+
+    // linux下载主线程使用定时器扫描
+    if(_isLinuxMode)
     {
-        // 只有windows下才有接收command, linux下是脱离终端的后台进程, 关闭了终端输入输出
-        KERNEL_NS::PostCaller([this]()->CoTask<>
+        _timer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(5));
+    }
+
+    // windows下使用独立的线程
+    else
+    {
+        _eventLoopThread = new LibEventLoopThread([this]()
         {
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-            co_await _WindowsWork();
-#else
-            co_await _LinuxWork();
-#endif
-        });
-    }, "CommandMonitor");
+            // 只有windows下才有接收command, linux下是脱离终端的后台进程, 关闭了终端输入输出
+            KERNEL_NS::PostCaller([this]()->CoTask<>
+            {
+                co_await _WindowsWork();
+            });
+        }, "CommandMonitor");
+    }
 
     CLOG_INFO("Comand init success");
     return Status::Success;
@@ -165,70 +176,69 @@ Int32 CommandMgr::_OnHostWillStart()
 
 Int32 CommandMgr::_OnHostStart()
 {
-    if(!_eventLoopThread)
-        return Status::Success;
-    
-    _eventLoopThread->Start();
-    auto poller = _eventLoopThread->GetPollerNoAsync();
-    while (!poller)
+    if(_eventLoopThread)
     {
-        KERNEL_NS::SystemUtil::ThreadSleep(1000);
-        poller = _eventLoopThread->GetPollerNoAsync();
+        _eventLoopThread->Start();
 
-        CLOG_INFO("waiting command thread started...");
-    }
-
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    // 定时10秒唤醒std::getline
-    KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<>
-    {
-        auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
-
-        timer->SetTimeOutHandler([this](KERNEL_NS::LibTimer *t)
+        auto poller = _eventLoopThread->GetPollerNoAsync();
+        while (!poller)
         {
-            t->Cancel();
-            
-            KERNEL_NS::PostCaller([this, t]()->CoTask<>
+            KERNEL_NS::SystemUtil::ThreadSleep(1000);
+            poller = _eventLoopThread->GetPollerNoAsync();
+
+            CLOG_INFO("waiting command thread started...");
+        }
+
+        // 定时10秒唤醒std::getline
+        KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<>
+        {
+            auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+
+            timer->SetTimeOutHandler([this](KERNEL_NS::LibTimer *t)
             {
-                CLOG_INFO_GLOBAL(CommandMgr, "wake up getline to let poller event handle other things...");
-                // 唤醒
-                _WakeupCin();
-
-                // 等待唤醒结束
-                co_await CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
-
-                CLOG_INFO_GLOBAL(CommandMgr, "wait getline turn blocking...");
-
-                Int32 waitCount = 0;
-                while (!_inWaiting.load(std::memory_order_acquire))
+                t->Cancel();
+            
+                KERNEL_NS::PostCaller([this, t]()->CoTask<>
                 {
+                    CLOG_INFO_GLOBAL(CommandMgr, "wake up getline to let poller event handle other things...");
+                    // 唤醒
+                    _WakeupCin();
+
+                    // 等待唤醒结束
                     co_await CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
-                    ++waitCount;
 
-                    if ((waitCount % 10) == 0)
+                    CLOG_INFO_GLOBAL(CommandMgr, "wait getline turn blocking...");
+
+                    Int32 waitCount = 0;
+                    while (!_inWaiting.load(std::memory_order_acquire))
                     {
-                        CLOG_INFO_GLOBAL(CommandMgr, "wait getline turn blocking over: %d...", waitCount);
+                        co_await CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
+                        ++waitCount;
+
+                        if ((waitCount % 10) == 0)
+                        {
+                            CLOG_INFO_GLOBAL(CommandMgr, "wait getline turn blocking over: %d...", waitCount);
+                        }
                     }
-                }
 
-                CLOG_INFO_GLOBAL(CommandMgr, "getline turn blocking, you can input commands.");
+                    CLOG_INFO_GLOBAL(CommandMgr, "getline turn blocking, you can input commands.");
 
-                // 重新定时
-                t->Schedule(KERNEL_NS::TimeSlice::FromSeconds(30));
+                    // 重新定时
+                    t->Schedule(KERNEL_NS::TimeSlice::FromSeconds(30));
+                });
             });
+
+            timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t)
+            {
+                KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+            });
+
+            // 30秒唤醒一次getline让eventloop去干其他活儿
+            timer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(30));
+
+            co_return;
         });
-
-        timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t)
-        {
-            KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
-        });
-
-        // 30秒唤醒一次getline让eventloop去干其他活儿
-        timer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(30));
-
-        co_return;
-    });
-#endif
+    }
 
     CLOG_INFO("Comand started.");
     return Status::Success;
@@ -236,37 +246,35 @@ Int32 CommandMgr::_OnHostStart()
 
 void CommandMgr::_OnHostBeforeCompsWillClose()
 {
-    if(!_eventLoopThread)
+    if(_eventLoopThread)
     {
-        return;
-    }
-    
-    auto poller = _eventLoopThread->GetPollerNoAsync();
-    for(Int32 idx = 0; idx < 10; ++idx)
-    {
-        if(poller)
-            break;
-        
-        KERNEL_NS::SystemUtil::ThreadSleep(1000);
-        poller = _eventLoopThread->GetPollerNoAsync();
-        CLOG_INFO("waiting command thread poller...");
-        if(poller)
-            break;
-    }
-
-    if(poller)
-    {
-        poller->QuitLoop();
-
-        while (_isWorking.load(std::memory_order_acquire))
+        auto poller = _eventLoopThread->GetPollerNoAsync();
+        for(Int32 idx = 0; idx < 10; ++idx)
         {
-            _WakeupCin();
-            CLOG_INFO("Waiting command thread quit...");
-            SystemUtil::ThreadSleep(1000);
+            if(poller)
+                break;
+        
+            KERNEL_NS::SystemUtil::ThreadSleep(1000);
+            poller = _eventLoopThread->GetPollerNoAsync();
+            CLOG_INFO("waiting command thread poller...");
+            if(poller)
+                break;
         }
+
+        if(poller)
+        {
+            poller->QuitLoop();
+
+            while (_isWorking.load(std::memory_order_acquire))
+            {
+                _WakeupCin();
+                CLOG_INFO("Waiting command thread quit...");
+                SystemUtil::ThreadSleep(1000);
+            }
+        }
+        _eventLoopThread->Close();
     }
-    _eventLoopThread->Close();
-    MaskReady(false);
+
     CLOG_INFO("Comand thread closed.");
 }
 
@@ -278,6 +286,12 @@ void CommandMgr::_OnHostClose()
 
 void CommandMgr::_Clear()
 {
+    if(_timer)
+    {
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(_timer);
+        _timer = NULL;
+    }
+    
     _threadIdRefCmdContainer.clear();
     CRYSTAL_RELEASE_SAFE(_eventLoopThread);
 }
@@ -324,13 +338,12 @@ void CommandMgr::_WakeupCin() const
 #endif
 }
 
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
 KERNEL_NS::CoTask<> CommandMgr::_WindowsWork()
 {
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
     CLOG_INFO("command monitor thread started");
 
     _isWorking.store(true, std::memory_order_release);
-    MaskReady(true);
     auto poller = KERNEL_NS::TlsUtil::GetPoller();
     while (!poller->IsQuit())
     {
@@ -401,87 +414,68 @@ KERNEL_NS::CoTask<> CommandMgr::_WindowsWork()
     }
 
     CLOG_INFO("Comand thread quit.");
-
+#endif
+    
     co_return;
 }
 
-#else
-
-KERNEL_NS::CoTask<> CommandMgr::_LinuxWork()
+void CommandMgr::_OnTimeOut(KERNEL_NS::LibTimer *t)
 {
-    CLOG_INFO("command monitor thread started monitor file command");
+    // 拷贝出来的cmd不释放
+    _lck.Lock();
+    auto cmdContainer = _threadIdRefCmdContainer;
+    for(auto &iter : cmdContainer)
+        iter.second.IsNoRelease = true;
+    _lck.Unlock();
 
-    auto poller = KERNEL_NS::TlsUtil::GetPoller();
-    auto &&scanPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();
-    _isWorking.store(true, std::memory_order_release);
-    while (!poller->IsQuit())
+    CLOG_DEBUG("command scan in path:%s", _scanPath.c_str());
+    
+    KERNEL_NS::DirectoryUtil::TraverseDirRecursively(_scanPath, [&cmdContainer](const FindFileInfo &fileInfo, bool &isContinue) mutable  ->bool
     {
-        // 5秒扫描一次
-        _isWorking.store(false, std::memory_order_release);
-        co_await CoDelay(KERNEL_NS::TimeSlice::FromSeconds(5));
-        _isWorking.store(true, std::memory_order_release);
-
-        // 拷贝出来的cmd不释放
-        _lck.Lock();
-        auto cmdContainer = _threadIdRefCmdContainer;
-        for(auto &iter : cmdContainer)
-            iter.second.IsNoRelease = true;
-        _lck.Unlock();
-
-        CLOG_DEBUG("command scan in path:%s", scanPath.c_str());
-        
-        KERNEL_NS::DirectoryUtil::TraverseDirRecursively(scanPath, [&cmdContainer](const FindFileInfo &fileInfo, bool &isContinue) mutable  ->bool
-        {
-            if (!KERNEL_NS::FileUtil::IsFile(fileInfo))
-                return true;
-
-            bool isRunRegular = false;
-            // 优先执行正则匹配
-            for(auto &iter : cmdContainer)
-            {
-                auto &containerInfo = iter.second;
-                for(auto &iter : containerInfo._regularKeywordRefCallback)
-                {
-                    auto &first = iter.first;
-                    auto cb = iter.second;
-                    if(KERNEL_NS::StringUtil::IsMatch(fileInfo._fileName, first))
-                    {
-                        isRunRegular = true;
-                        CLOG_INFO("invoke command(filename):%s, input:%s", first.c_str(), fileInfo._fileName.c_str());
-                        cb->Invoke(fileInfo._fileName);
-                        CLOG_INFO("invoke command(filename):%s finished", first.c_str());
-                        break;
-                    }
-                }
-            }
-
-            if(!isRunRegular)
-            {
-                for(auto &iterContainer : cmdContainer)
-                {
-                    auto &containerInfo = iterContainer.second;
-                    auto iter = containerInfo._cmdRefCallback.find(fileInfo._fileName);
-                    if(iter == containerInfo._cmdRefCallback.end())
-                    {
-                        // CLOG_DEBUG("unknown command:%s", fileInfo._fileName.c_str());
-                        continue;
-                    }
-
-                    CLOG_INFO("invoke cmd:%s...", fileInfo._fileName.c_str());
-                    auto cb = iter->second;
-                    cb->Invoke();
-                    CLOG_INFO("invoke cmd:%s finished.", fileInfo._fileName.c_str());
-                }
-            }
-
+        if (!KERNEL_NS::FileUtil::IsFile(fileInfo))
             return true;
-        }, 1);
-    }
 
-    _isWorking.store(false, std::memory_order_release);
-    CLOG_INFO("command monitor thread will quit");
+        bool isRunRegular = false;
+        // 优先执行正则匹配
+        for(auto &iter : cmdContainer)
+        {
+            auto &containerInfo = iter.second;
+            for(auto &iter : containerInfo._regularKeywordRefCallback)
+            {
+                auto &first = iter.first;
+                auto cb = iter.second;
+                if(KERNEL_NS::StringUtil::IsMatch(fileInfo._fileName, first))
+                {
+                    isRunRegular = true;
+                    CLOG_INFO("invoke command(filename):%s, input:%s", first.c_str(), fileInfo._fileName.c_str());
+                    cb->Invoke(fileInfo._fileName);
+                    CLOG_INFO("invoke command(filename):%s finished", first.c_str());
+                    break;
+                }
+            }
+        }
+
+        if(!isRunRegular)
+        {
+            for(auto &iterContainer : cmdContainer)
+            {
+                auto &containerInfo = iterContainer.second;
+                auto iter = containerInfo._cmdRefCallback.find(fileInfo._fileName);
+                if(iter == containerInfo._cmdRefCallback.end())
+                {
+                    // CLOG_DEBUG("unknown command:%s", fileInfo._fileName.c_str());
+                    continue;
+                }
+
+                CLOG_INFO("invoke cmd:%s...", fileInfo._fileName.c_str());
+                auto cb = iter->second;
+                cb->Invoke();
+                CLOG_INFO("invoke cmd:%s finished.", fileInfo._fileName.c_str());
+            }
+        }
+
+        return true;
+    }, 1);
 }
-#endif
-
 
 KERNEL_END

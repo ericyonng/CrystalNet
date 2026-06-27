@@ -71,6 +71,13 @@ extern "C"
         CLOG_INFO_GLOBAL(PluginWrap, "plugin start completed");
     }
 
+    void NotifyQuitPlugin()
+    {
+        CLOG_INFO_GLOBAL(PluginWrap, "plugin notify quit");
+
+        PluginLogic::OnNotifyClosePlugin();
+    }
+
     // 预关闭插件集
     void WillClosePlugin()
     {

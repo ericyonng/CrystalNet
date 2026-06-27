@@ -107,22 +107,8 @@ bool LibEventLoopThread::HalfClose()
 
 void LibEventLoopThread::FinishClose()
 {
-    auto poller = _thread->GetPollerNoAsync();
-    if (!poller)
-    {
-        for (Int32 idx = 0; idx < 2; ++idx)
-        {
-            KERNEL_NS::SystemUtil::ThreadSleep(1000);
-            poller = _thread->GetPollerNoAsync();
-            if (g_Log && g_Log->IsEnable(LogLevel::Warn))
-                g_Log->Warn(LOGFMT_OBJ_TAG("thread:%s, poller not ready"), _thread->ToString().c_str());
-
-            if (poller)
-                break;
-        }
-    }
-
     // 退出事件循环
+    auto poller = _thread->GetPollerNoAsync();
     if (poller)
         poller->QuitLoop();
 

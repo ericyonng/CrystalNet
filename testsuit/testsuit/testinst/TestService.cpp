@@ -80,6 +80,13 @@ public:
         // // 设置路径
         // hotfixMonitor->SetRootPath(KERNEL_NS::DirectoryUtil::GetFileDirInPath(GetAppPath()).strip());
 
+        // 注册关服命令
+        auto commandMgr = GetComp<KERNEL_NS::ICommandMgr>();
+        commandMgr->AddCommand("quit", [this]()
+        {
+            SinalFinish(Status::Success);
+        });
+
         return Status::Success;
     }
     

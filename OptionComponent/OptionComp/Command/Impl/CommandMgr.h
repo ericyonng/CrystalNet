@@ -34,6 +34,7 @@
 
 #include <OptionComp/Command/Interface/ICommandMgr.h>
 #include <kernel/comp/Coroutines/CoTask.h>
+#include <kernel/comp/Timer/LibTimer.h>
 
 KERNEL_BEGIN
 
@@ -78,19 +79,23 @@ private:
 
     void _WakeupCin() const;
 
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
     KERNEL_NS::CoTask<> _WindowsWork();
-#else
-    KERNEL_NS::CoTask<> _LinuxWork();
-#endif
+
+    // 定时扫描, 在Linux下启动
+    void _OnTimeOut(KERNEL_NS::LibTimer *t);
     
     std::unordered_map<UInt64, CommandThreadContainer> _threadIdRefCmdContainer;
-    // std::unordered_map<LibString, IDelegate<void> *> _cmdRefCallback;
-    // std::unordered_map<LibString, IDelegate<void, const KERNEL_NS::LibString &> *> _regularKeywordRefCallback;
+    
     SpinLock _lck;
+    // windows下使用线程
     KERNEL_NS::LibEventLoopThread *_eventLoopThread;
     std::atomic_bool _isWorking;
     std::atomic_bool _inWaiting;
+    bool _isLinuxMode;
+
+    // linux下使用定时器, 在主线程上定时扫描
+    KERNEL_NS::LibTimer *_timer;
+    KERNEL_NS::LibString _scanPath;
 };
 
 KERNEL_END

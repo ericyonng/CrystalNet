@@ -615,4 +615,9 @@ _Pragma(KERNEL_STRINGIZE(message(#__VA_ARGS__)))
  #define CRYSTAL_ROTL64(x, r) ((x << r) | (x >> (64 - r)))
 #endif
 
+// so内部变量
+#ifndef SO_INNER_THREAD_LOCAL
+ #define SO_INNER_THREAD_LOCAL ALWAYS_HIDDEN DEF_THREAD_LOCAL_DECLEAR
+#endif
+
 #endif

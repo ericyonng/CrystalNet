@@ -140,7 +140,7 @@ void PluginGlobal::_OnHostBeforeCompsWillClose()
 }
 void PluginGlobal::_OnHostClose()
 {
-    
+    CLOG_INFO("plugin global release completed.");
 }
 
 void PluginGlobal::_Clear()

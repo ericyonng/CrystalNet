@@ -62,7 +62,9 @@ SERVICE_COMMON_BEGIN
 Application::Application()
 :IApplication(KERNEL_NS::RttiUtil::GetTypeId<Application>())
 ,_appCfg(KERNEL_NS::FileMonitor<ApplicationConfig, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
-,_monitor(NULL)
+,_startScanTimer(NULL)
+,_monitorTimer(NULL)
+,_memoryTimer(NULL)
 ,_killMonitorTimer(NULL)
 ,_statisticsInfo(StatisticsInfo::New_StatisticsInfo())
 ,_statisticsInfoCache(StatisticsInfo::New_StatisticsInfo())
@@ -145,80 +147,6 @@ Int32 Application::_OnHostInit()
         g_Log->Error(LOGFMT_OBJ_TAG("iapplication on houst init fail errcode:%d"), errCode);
         return errCode;
     }
-
-    // 监控线程
-    _monitor = new KERNEL_NS::LibEventLoopThread("AppMonitor", KERNEL_NS::DefaultThreadStartUp::Create([this](){
-
-            // 等待所有组件启动
-            KERNEL_NS::CompObject *notReadyComp = NULL;
-            for(;!IsAllCompsReady(notReadyComp);)
-            {
-                CLOG_INFO_GLOBAL(Application, "app monitor wait for all comps ready, current not ready comp:%s.", notReadyComp->GetObjName().c_str());
-                KERNEL_NS::SystemUtil::ThreadSleep(1000);
-
-                if(_monitor->GetThread()->IsDestroy())
-                    break;
-
-                if(GetErrCode() != Status::Success)
-                {// 某些组件初始化失败
-                    CLOG_ERROR_GLOBAL(Application,"comp start fail errCode:%d", GetErrCode());
-                    break;
-                }
-            }
-
-            // 所有都启动了, 设置ready
-            if(!_monitor->GetThread()->IsDestroy())
-                MaskReady(true);
-
-        // 下一帧执行
-        KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<> {
-            if(LIKELY(GetErrCode() == Status::Success))
-            {
-                CLOG_INFO_GLOBAL(Application, "all comps are ready system info:%s.", ToString().c_str());
-
-                // 性能监控 1秒一次
-                KERNEL_NS::SmartPtr<KERNEL_NS::LibTimer, KERNEL_NS::AutoDelMethods::CustomDelete> monitorTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
-                monitorTimer.SetClosureDelegate([](void *p){
-                    auto timer = reinterpret_cast<KERNEL_NS::LibTimer *>(p);
-                    KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(timer);
-                });
-                monitorTimer->SetTimeOutHandler([this](KERNEL_NS::LibTimer *t){
-                    _OnMonitorThreadFrame();
-                });
-                monitorTimer->Schedule(1000);
-
-                // 内存监控 60秒一次
-                KERNEL_NS::SmartPtr<KERNEL_NS::LibTimer, KERNEL_NS::AutoDelMethods::CustomDelete> memoryMonitorTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
-                memoryMonitorTimer.SetClosureDelegate([](void *p){
-                    auto timer = reinterpret_cast<KERNEL_NS::LibTimer *>(p);
-                    KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(timer);
-                });
-                KERNEL_NS::SmartPtr<KERNEL_NS::IDelegate<void>, KERNEL_NS::AutoDelMethods::Release> workHandler = KERNEL_NS::MemoryMonitor::GetInstance()->MakeWorkTask();
-                memoryMonitorTimer->SetTimeOutHandler([&workHandler](KERNEL_NS::LibTimer *t){
-                    workHandler->Invoke();
-                });
-                memoryMonitorTimer->Schedule(KERNEL_NS::MemoryMonitor::GetInstance()->GetMilliSecInterval());
-
-                auto poller = KERNEL_NS::TlsUtil::GetPoller();
-                while (!poller->IsQuit())
-                {
-                    co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromMilliSeconds(100));
-
-                    // 内存日志信号触发则立即答应日志
-                    if(KERNEL_NS::SignalHandleUtil::ExchangeSignoTriggerFlag(_memoryLogSigno, false))
-                        workHandler->Invoke();
-                }
-
-                workHandler->Invoke();
-            }
-            else
-            {
-                // 启动失败则退出
-                CLOG_INFO_GLOBAL(Application, "application %s will close errCode:%d", ToString().c_str(), GetErrCode());
-                SinalFinish(GetErrCode());
-            }
-        });
-    }));
     
     #ifndef DISABLE_OPCODES
     errCode = Opcodes::Init();
@@ -292,10 +220,15 @@ Int32 Application::_OnCompsCreated()
     auto killMonitor = GetComp<IKillMonitorMgr>();
     killMonitor->SetTimerMgr(_poller->GetTimerMgr());
     killMonitor->SetDeadthDetectionFile(_path + KERNEL_NS::LibString().AppendFormat(".kill_%d", _processId));
-
+    
     _killMonitorTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
     _killMonitorTimer->SetTimeOutHandler(this, &Application::_OnKillMonitorTimeOut);
     _killMonitorTimer->Schedule(2000);
+
+    _startScanTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    _startScanTimer->SetTimeOutHandler(this, &Application::_OnMonitorTimeOut);
+    _startScanTimer->Schedule(1000);
+    
 
     // 内存清理设置
     auto tlsComps = KERNEL_NS::TlsUtil::GetTlsCompsOwner();
@@ -331,8 +264,6 @@ Int32 Application::_OnHostStart()
         return errCode;
     }
 
-    _monitor->Start();
-
     g_Log->Info(LOGFMT_OBJ_TAG("application started."));
     return Status::Success;
 }
@@ -356,14 +287,13 @@ void Application::_OnHostWillClose()
 
 void Application::_OnHostClose()
 {
-    if(LIKELY(_monitor))
-    {
-        if(LIKELY(_monitor->HalfClose()))
-        {
-            _monitor->FinishClose();
-        }
-    }
-
+    if(_startScanTimer)
+        _startScanTimer->Cancel();
+    if(_monitorTimer)
+        _monitorTimer->Cancel();
+    if(_memoryTimer)
+        _memoryTimer->Cancel();
+    
     CompObject *notDownComp = NULL;
     for(;!IsAllCompsDown(notDownComp);)
     {
@@ -375,12 +305,32 @@ void Application::_OnHostClose()
 
     _Clear();
     KERNEL_NS::IApplication::_OnHostClose();
+
+    // 退出先打一次内存
+    KERNEL_NS::SmartPtr<KERNEL_NS::IDelegate<void>, KERNEL_NS::AutoDelMethods::Release> workHandler = KERNEL_NS::MemoryMonitor::GetInstance()->MakeWorkTask();
+    workHandler->Invoke();
 }
 
 void Application::_Clear()
 {
-    CRYSTAL_DELETE_SAFE(_monitor);
+    if(_startScanTimer)
+    {
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(_startScanTimer);
+        _startScanTimer = NULL;
+    }
 
+    if(_monitorTimer)
+    {
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(_monitorTimer);
+        _monitorTimer = NULL;
+    }
+
+    if(_memoryTimer)
+    {
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(_memoryTimer);
+        _memoryTimer = NULL;
+    }
+    
     if(_statisticsInfoCache)
     {
         StatisticsInfo::Delete_StatisticsInfo(_statisticsInfoCache);
@@ -513,15 +463,20 @@ void Application::_OnQuitApplicationEvent(KERNEL_NS::PollerEvent *ev)
 void Application::_DoCloseApp()
 {
     g_Log->Info(LOGFMT_OBJ_TAG("application will quit app:\n%s"), IntroduceStr().c_str());
+
+    if(_startScanTimer)
+        _startScanTimer->Cancel();
+    if(_monitorTimer)
+        _monitorTimer->Cancel();
+    if(_memoryTimer)
+        _memoryTimer->Cancel();
+    
     _poller->Disable();
     _poller->QuitLoop();
 
-    // 先关闭监控
-    if(LIKELY(_monitor))
-    {
-        if(LIKELY(_monitor->HalfClose()))
-            _monitor->FinishClose();
-    }
+    // 退出先打一次内存
+    KERNEL_NS::SmartPtr<KERNEL_NS::IDelegate<void>, KERNEL_NS::AutoDelMethods::Release> workHandler = KERNEL_NS::MemoryMonitor::GetInstance()->MakeWorkTask();
+    workHandler->Invoke();
 }
 
 
@@ -535,6 +490,87 @@ void Application::_OnKillMonitorTimeOut(KERNEL_NS::LibTimer *timer)
         _DoCloseApp();
     }
 }
+
+void Application::_OnMonitorTimeOut(KERNEL_NS::LibTimer *timer)
+{
+    if(GetErrCode() != Status::Success)
+    {// 某些组件初始化失败
+        CLOG_ERROR_GLOBAL(Application,"comp start fail errCode:%d", GetErrCode());
+        timer->Cancel();
+
+        // 关服
+        SinalFinish(GetErrCode());
+        return;
+    }
+    
+    // 等待所有组件启动
+    auto poller = KERNEL_NS::TlsUtil::GetPoller();
+    KERNEL_NS::CompObject *notReadyComp = NULL;
+    if(!IsAllCompsReady(notReadyComp))
+    {
+        CLOG_INFO_GLOBAL(Application, "app monitor wait for all comps ready, current not ready comp:%s.", notReadyComp->GetObjName().c_str());
+        return;
+    }
+
+    if(poller->IsQuit())
+    {
+        CLOG_INFO_GLOBAL(Application, "app quit");
+        timer->Cancel();
+        return;
+    }
+
+    // 所有都启动了, 设置ready
+    if(!poller->IsQuit())
+        MaskReady(true);
+
+    // 没问题开启监控
+    if(LIKELY(GetErrCode() == Status::Success))
+    {
+        CLOG_INFO_GLOBAL(Application, "all comps are ready system info:%s.", ToString().c_str());
+
+        // 性能监控 1秒一次
+        _monitorTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+        _monitorTimer->SetTimeOutHandler([this](KERNEL_NS::LibTimer *t){
+            _OnMonitorThreadFrame();
+        });
+        _monitorTimer->Schedule(1000);
+
+        // 内存监控日志
+        _memoryTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+        KERNEL_NS::SmartPtr<KERNEL_NS::IDelegate<void>, KERNEL_NS::AutoDelMethods::Release> workHandler = KERNEL_NS::MemoryMonitor::GetInstance()->MakeWorkTask();
+        _memoryTimer->SetTimeOutHandler([workHandler](KERNEL_NS::LibTimer *t){
+            workHandler->Invoke();
+        });
+        _memoryTimer->Schedule(KERNEL_NS::MemoryMonitor::GetInstance()->GetMilliSecInterval());
+
+        // 监控内存日志信号触发立即响应输出日志
+        auto responseMemorySignal = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+        responseMemorySignal->GetMgr()->TakeOverLifeTime(responseMemorySignal, [](KERNEL_NS::LibTimer *t)
+        {
+            KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+        });
+        auto memoryLogSigno = _memoryLogSigno;
+        responseMemorySignal->SetTimeOutHandler([workHandler, memoryLogSigno](KERNEL_NS::LibTimer *t)
+        {
+            // 内存日志信号触发则立即答应日志
+            if(KERNEL_NS::SignalHandleUtil::ExchangeSignoTriggerFlag(memoryLogSigno, false))
+                workHandler->Invoke();
+        });
+        responseMemorySignal->Schedule(100);
+
+        // 起服先打一次
+        workHandler->Invoke();
+    }
+    else
+    {
+        // 启动失败则退出
+        CLOG_INFO_GLOBAL(Application, "application %s will close errCode:%d", ToString().c_str(), GetErrCode());
+        SinalFinish(GetErrCode());
+    }
+
+    timer->Cancel();
+}
+
 
 
 SERVICE_COMMON_END

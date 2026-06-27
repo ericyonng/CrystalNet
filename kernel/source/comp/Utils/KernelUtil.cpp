@@ -418,55 +418,87 @@ void KernelUtil::Destroy()
 
     g_FileChangeManager->WillClose();
 
+    auto beginTime = KERNEL_NS::LibTime::Now();
+    CRYSTAL_TRACE("will release heavy thread pool time:%lld ...", beginTime.GetMilliTimestamp())
     if (g_EventLoopHeavyTaskThreadPool)
     {
         g_EventLoopHeavyTaskThreadPool->Close();
         g_EventLoopHeavyTaskThreadPool->Release();
         g_EventLoopHeavyTaskThreadPool = NULL;
     }
+    auto endTime = KERNEL_NS::LibTime::Now();
+    CRYSTAL_TRACE("will release heavy thread pool time:%lld completed cost:%lld(ms).", endTime.GetMilliTimestamp(), (endTime - beginTime).GetTotalMilliSeconds())
 
+    beginTime = KERNEL_NS::LibTime::Now();
+    CRYSTAL_TRACE("will release easy thread pool time:%lld ...", beginTime.GetMilliTimestamp())
     if (g_EventLoopEasyTaskThreadPool)
     {
         g_EventLoopEasyTaskThreadPool->Close();
         g_EventLoopEasyTaskThreadPool->Release();
         g_EventLoopEasyTaskThreadPool = NULL;
     }
+    endTime = KERNEL_NS::LibTime::Now();
+    CRYSTAL_TRACE("release easy thread pool time:%lld completed cost:%lld(ms).", endTime.GetMilliTimestamp(), (endTime - beginTime).GetTotalMilliSeconds())
 
     // 文件监控数据最后销毁, 避免数据出问题 战术性泄露
     // g_FileChangeManager->Release();
     // g_FileChangeManager = NULL;
     
     // gc停止
+    beginTime = KERNEL_NS::LibTime::Now();
+    CRYSTAL_TRACE("will release garbage thread time:%lld ...", beginTime.GetMilliTimestamp())
     KERNEL_NS::GarbageThread::GetInstence()->Close();
+    endTime = KERNEL_NS::LibTime::Now();
+    CRYSTAL_TRACE("release garbage thread time:%lld completed cost:%lld(ms).", endTime.GetMilliTimestamp(), (endTime - beginTime).GetTotalMilliSeconds())
 
     // CRYSTAL_TRACE("kernel will destroy main thread resource.");
     
     // 销毁资源
+    beginTime = KERNEL_NS::LibTime::Now();
+    CRYSTAL_TRACE("will release main thread resource time:%lld ...", beginTime.GetMilliTimestamp())
     ThreadTool::OnDestroy();
+    endTime = KERNEL_NS::LibTime::Now();
+    CRYSTAL_TRACE("release main thread resource time:%lld completed cost:%lld(ms).", endTime.GetMilliTimestamp(), (endTime - beginTime).GetTotalMilliSeconds())
 
     // CRYSTAL_TRACE("kernel will close center memory collector.");
 
     // 关闭中央收集器
+    beginTime = KERNEL_NS::LibTime::Now();
+    CRYSTAL_TRACE("will close center memory collector time:%lld ...", beginTime.GetMilliTimestamp())
     KERNEL_NS::CenterMemoryCollector::GetInstance()->WillClose();
+    endTime = KERNEL_NS::LibTime::Now();
+    CRYSTAL_TRACE("close center memory collector time:%lld completed cost:%lld(ms).", endTime.GetMilliTimestamp(), (endTime - beginTime).GetTotalMilliSeconds())
 
     // CRYSTAL_TRACE("kernel will destroy memory pool.");
 
     // 关闭内存池全局内存池晚于所有对象销毁
+    beginTime = KERNEL_NS::LibTime::Now();
+    CRYSTAL_TRACE("will destroy memory pool time:%lld ...", beginTime.GetMilliTimestamp())
     if(g_MemoryPool)
         g_MemoryPool->Destroy();
     g_MemoryPool = NULL;
+    endTime = KERNEL_NS::LibTime::Now();
+    CRYSTAL_TRACE("destroy memory pool time:%lld completed cost:%lld(ms).", endTime.GetMilliTimestamp(), (endTime - beginTime).GetTotalMilliSeconds())
 
     // tls销毁
+    beginTime = KERNEL_NS::LibTime::Now();
+    CRYSTAL_TRACE("will destroy util tls handle time:%lld ...", beginTime.GetMilliTimestamp())
     if(KERNEL_NS::BitUtil::IsSet(flags, KernelFlags::INIT_TLS))
         KERNEL_NS::TlsUtil::DestroyUtilTlsHandle();
+    endTime = KERNEL_NS::LibTime::Now();
+    CRYSTAL_TRACE("destroy util tls handle time:%lld completed cost:%lld(ms).", endTime.GetMilliTimestamp(), (endTime - beginTime).GetTotalMilliSeconds())
 
     // CRYSTAL_TRACE("kernel close center memory collector.");
 
+    beginTime = KERNEL_NS::LibTime::Now();
+    CRYSTAL_TRACE("close center memory collector time:%lld ...", beginTime.GetMilliTimestamp())
     KERNEL_NS::CenterMemoryCollector::GetInstance()->Close();
+    endTime = KERNEL_NS::LibTime::Now();
+    CRYSTAL_TRACE("close center memory collector time:%lld completed cost:%lld(ms).", endTime.GetMilliTimestamp(), (endTime - beginTime).GetTotalMilliSeconds())
 
     g_KernelInit.store(false, std::memory_order_release);
     s_KernelStart.store(false, std::memory_order_release);
-    
+
     // CRYSTAL_TRACE("kernel destroy finish.");
 }
 

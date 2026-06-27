@@ -41,6 +41,8 @@ extern "C"
     typedef Int32 (*StartPluginPtr)();
     // 启动完成 比较重的任务不允许放在插件集启动, 应该放在程序集(因为如果比较久, 会卡住线程影响业务)
     typedef void (*StartPluginCompletePtr)();
+    // 通知关闭, 此时插件集相关定时等, 需要终止
+    typedef void (*NotifyQuitPluginPtr)();
     // 插件集即将关闭 比较重的任务不允许放在插件集结束, 应该放在程序集(因为如果比较久, 会卡住线程影响业务)
     typedef void (*WillClosePluginPtr)();
     // 插件集关闭 比较重的任务不允许放在插件集结束, 应该放在程序集(因为如果比较久, 会卡住线程影响业务)
@@ -61,6 +63,8 @@ extern "C"
     // 插件集启动完成
     extern TEST_PLUGIN_EXPORT void StartPluginComplete();
 
+    // 通知即将关闭 => 预关闭 => 释放
+    extern TEST_PLUGIN_EXPORT void NotifyQuitPlugin();
     // 预关闭插件集
     extern TEST_PLUGIN_EXPORT void WillClosePlugin();
 
