@@ -110,7 +110,7 @@ void ThreadTool::OnDestroy()
     if(currentThreadId != SystemUtil::GetCurProcessMainThreadId())
         TlsUtil::ClearTlsResource();
 
-    // 释放线程局部存储资源
+    // 释放线程局部存储资源 所有tlsstack由 centerMemroyCollector托管, 不释放
     if(centerMemroyCollector->GetWorkerThreadId() == currentThreadId)
         TlsUtil::DestroyTlsStack();
 }

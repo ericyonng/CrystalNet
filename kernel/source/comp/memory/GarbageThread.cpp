@@ -28,8 +28,12 @@
 
 #include <pch.h>
 #include <kernel/comp/memory/GarbageThread.h>
-#include <kernel/comp/memory/GarbageThreadTask.h>
 #include <kernel/comp/thread/LibThread.h>
+#include <kernel/comp/Lock/Impl/CoLocker.h>
+#include <kernel/comp/thread/LibEventLoopThreadPool.h>
+
+#include "kernel/comp/Coroutines/Runner.h"
+#include <memory>
 
 KERNEL_BEGIN
 
@@ -40,10 +44,11 @@ GarbageThread::GarbageThread(UInt64 gcIntervalMs)
     ,_swapRegisters(new std::map<void *, IDelegate<void> *>)
     ,_toPurge(new std::set<void *>)
     ,_purgeSwap(new std::set<void *>)
-    ,_thread(new LibThread)
-    ,_gcIntervalMs(gcIntervalMs)
+    ,_gcIntervalMs{0}
+    ,_isQuit{false}
+    ,_isWorking{false}
 {
-
+    _gcIntervalMs.store(gcIntervalMs, std::memory_order_release);
 }
 
 GarbageThread::~GarbageThread()
@@ -66,17 +71,37 @@ void GarbageThread::Start()
 {
     if(_isStart.exchange(true, std::memory_order_acq_rel))
     {
-        CRYSTAL_TRACE("garbage thread already start");
+        CRYSTAL_TRACE("garbage thread already start")
         return;
     }
 
-    // TODO:启动线程
-    auto deleg = DelegateFactory::Create(this, &GarbageThread::_Work);
-    auto newTask = GarbageThreadTask::New_GarbageThreadTask(_thread, deleg, _gcIntervalMs, _gcTaskLck);
-    _thread->AddTask(newTask);
-    _thread->SetThreadName("GarbageThread");
+    _lck = new KERNEL_NS::CoLocker();
+    g_EventLoopEasyTaskThreadPool->Send([this]()
+    {
+        KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<>
+        {
+            CRYSTAL_TRACE("garbage task started.")
+            auto poller = KERNEL_NS::TlsUtil::GetPoller();
+            _isWorking.store(true, std::memory_order_release);
+            for(;;)
+            {
+                if ( UNLIKELY(poller->IsQuit() || _isQuit.load(std::memory_order_acquire)) )
+                {
+                    _Work();
+                    break;
+                }
+                
+                _Work();
 
-    _thread->Start();
+                // 休息一会儿
+                co_await _lck->TimeWait(_gcIntervalMs.load(std::memory_order_acquire));
+            }
+
+            _isWorking.store(false, std::memory_order_release);
+
+            CRYSTAL_TRACE("garbage task quit.")
+        });
+    });
 }
 
 void GarbageThread::Close()
@@ -84,10 +109,21 @@ void GarbageThread::Close()
     if(!_isStart.exchange(false, std::memory_order_acq_rel))
         return;
 
-    // TODO:关闭线程
-    _thread->HalfClose();
-    _gcTaskLck.Sinal();
-    _thread->FinishClose();
+    // 退出
+    _isQuit.store(true, std::memory_order_release);
+    if(_lck)
+        _lck->Broadcast();
+
+    if(_isWorking.load(std::memory_order_acquire))
+    {
+        while (_isWorking.load(std::memory_order_acquire))
+        {
+            KERNEL_NS::SystemUtil::ThreadSleep(1000);
+            CRYSTAL_TRACE("waiting garbage quit thread pool...")
+        }
+    }
+
+    CRYSTAL_TRACE("waiting garbage quit thread pool completed.")
 
     // 清理资源
     _toRegisterLck.Lock();
@@ -111,7 +147,7 @@ void GarbageThread::Close()
 
     _toRegisterLck.Unlock();
 
-    CRYSTAL_DELETE_SAFE(_thread);
+    CRYSTAL_DELETE_SAFE(_lck);
 }
 
 void GarbageThread::Release()
@@ -121,8 +157,9 @@ void GarbageThread::Release()
 
 GarbageThread *GarbageThread::GetInstence()
 {
-    static GarbageThread *instence = new GarbageThread();
-    return instence;
+    // 战略性泄露, 不释放, 因为其他模块可能在程序结束时候调用UnRegister, 不确定时序先后所以不宜释放
+    static GarbageThread *instance = new GarbageThread();
+    return instance;
 }
 
 void GarbageThread::_Work()

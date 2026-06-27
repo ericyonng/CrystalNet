@@ -38,11 +38,11 @@
 #include <atomic>
 
 #include <kernel/comp/Lock/Impl/SpinLock.h>
-#include <kernel/comp/Lock/Impl/ConditionLocker.h>
 #include <kernel/comp/Tls/Defs.h>
 #include <kernel/comp/SmartPtr.h>
 
 #include <kernel/comp/LibString.h>
+#include <kernel/comp/Coroutines/CoTask.h>
 
 KERNEL_BEGIN
 
@@ -61,6 +61,8 @@ class BinaryArray;
 template<TlsStackSize::SizeType TlsSizeType>
 class TlsStack;
 
+class CoLocker;
+
 class KERNEL_EXPORT CenterMemoryCollector
 {
 public:
@@ -70,9 +72,9 @@ public:
     static CenterMemoryCollector *GetInstance();
 
     void Start();
+    // 在线程池之前走willclose
     void WillClose();
     void Close();
-    void WaitClose();
     void OnThreadQuit(UInt64 threadId);
 
     // 每个线程都需要注册到收集器 tlsStack在Collector释放
@@ -107,7 +109,7 @@ public:
     CenterMemoryThreadInfo *GetThreadInfo(UInt64 threadId);
 
 private:
-    void _OnWorker(LibThread *thread);
+    KERNEL_NS::CoTask<> _OnWorker();
     void _DoWorker();
     void _OnThreadDown();
 
@@ -119,14 +121,12 @@ private:
     
     SpinLock _registerGuard;                             
     std::unordered_map<UInt64, CenterMemoryThreadInfo *> _threadIdRefThreadInfo;
-    LibThread *_worker;
 
     std::atomic<UInt64> _currentPendingBlockTotalNum;   // 当前总数量
     std::atomic<UInt64> _historyPendingBlockTotalNum;   // 历史总数量
     UInt64 _blockNumForPurgeLimit;                      // 当数量超过时候需要唤醒工作线程 默认 128 * 1024
-    Int64 _workIntervalMs;                             // 扫描时间间隔 默认100ms扫描一次
-
-    ConditionLocker _guard;                             
+    std::atomic<Int64> _workIntervalMs;                             // 扫描时间间隔 默认100ms扫描一次
+    CoLocker *_lck; // 同步
 
     std::atomic<UInt64> _recycleMemoryBufferInfoCount;      // 回收内存块信息
     std::atomic<UInt64> _historyRecycleMemoryBufferInfoCount;      // 历史回收内存块信息
@@ -141,6 +141,8 @@ private:
     mutable SpinLock _topnGuard;
     BinaryArray<SmartPtr<CenterMemoryTopnThreadInfo>, CenterMemoryTopnThreadInfoComp> *_threadAllocTopn; // 内存分配排行榜
     mutable BinaryArray<SmartPtr<CenterMemoryTopnThreadInfo>, CenterMemoryTopnThreadInfoComp> *_threadAllocTopnSwap; // 内存分配排行榜副本 外部只读取副本
+
+    std::atomic<UInt64> _workerThreadId;
 };
 
 ALWAYS_INLINE bool CenterMemoryCollector::IsWorking() const
@@ -150,7 +152,7 @@ ALWAYS_INLINE bool CenterMemoryCollector::IsWorking() const
 
 ALWAYS_INLINE void CenterMemoryCollector::SetWorkerIntervalMs(Int64 ms)
 {
-    _workIntervalMs = ms;
+    _workIntervalMs.store(ms, std::memory_order_release);
 }
 
 ALWAYS_INLINE void CenterMemoryCollector::SetBlockNumForPurgeLimit(UInt64 blockNumForPurgeLimit)

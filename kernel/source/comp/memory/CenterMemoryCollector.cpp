@@ -44,19 +44,22 @@
 
 #include <kernel/comp/Log/log.h>
 #include <kernel/comp/memory/CenterMemoryCollector.h>
+#include <kernel/comp/thread/LibEventLoopThreadPool.h>
+
+#include "kernel/comp/Coroutines/Runner.h"
+#include <kernel/comp/Lock/Impl/CoLocker.h>
 
 KERNEL_BEGIN
-
-CenterMemoryCollector::CenterMemoryCollector()
+    CenterMemoryCollector::CenterMemoryCollector()
 :_isDestroy{false}
 ,_isWorking{false}
 ,_willQuitThreadCount{0}
 ,_totalRegisterThreadCount{0}
-,_worker(NULL)
 ,_currentPendingBlockTotalNum{0}
 ,_historyPendingBlockTotalNum{0}
 ,_blockNumForPurgeLimit(128 * 1024)
-,_workIntervalMs(100)
+,_workIntervalMs{0}
+,_lck(new CoLocker())
 ,_recycleMemoryBufferInfoCount{0}
 ,_historyRecycleMemoryBufferInfoCount{0}
 ,_recycleForPurgeLimit(128 * 1024)
@@ -66,20 +69,21 @@ CenterMemoryCollector::CenterMemoryCollector()
 ,_lastScanTotalAllocBytes(0)
 ,_threadAllocTopn(new BinaryArray<SmartPtr<CenterMemoryTopnThreadInfo>, CenterMemoryTopnThreadInfoComp>)
 ,_threadAllocTopnSwap(new BinaryArray<SmartPtr<CenterMemoryTopnThreadInfo>, CenterMemoryTopnThreadInfoComp>)
+,_workerThreadId{0}
 {
+    _workIntervalMs.store(100, std::memory_order_release);
 }
 
 CenterMemoryCollector::~CenterMemoryCollector()
 {
-    if(_worker)
-        CRYSTAL_RELEASE_SAFE(_worker);
-
     ContainerUtil::DelContainer(_threadIdRefThreadInfo);
 
     if(_threadAllocTopn)
         CRYSTAL_DELETE_SAFE(_threadAllocTopn);
     if(_threadAllocTopnSwap)
         CRYSTAL_DELETE_SAFE(_threadAllocTopnSwap);
+
+    CRYSTAL_DELETE_SAFE(_lck);
 }
 
 CenterMemoryCollector *CenterMemoryCollector::GetInstance()
@@ -91,10 +95,15 @@ CenterMemoryCollector *CenterMemoryCollector::GetInstance()
 void CenterMemoryCollector::Start()
 {
     _isWorking.store(true, std::memory_order_release);
-    _worker = new LibThread();
-    _worker->SetThreadName(KERNEL_NS::LibString().AppendFormat("CenterCollector"));
-    _worker->AddTask(this, &CenterMemoryCollector::_OnWorker);
-    _worker->Start();
+
+    g_EventLoopEasyTaskThreadPool->Send([this]()
+    {
+        KERNEL_NS::PostCaller([this]()->CoTask<>
+        {
+            _workerThreadId.store(KERNEL_NS::SystemUtil::GetCurrentThreadId(), std::memory_order_release);
+            co_await _OnWorker();
+        });
+    });
 }
 
 void CenterMemoryCollector::WillClose()
@@ -102,35 +111,24 @@ void CenterMemoryCollector::WillClose()
     if(_isDestroy.exchange(true, std::memory_order_acq_rel))
         return;
 
-    if(_worker && _worker->HalfClose())
-        _worker->FinishClose();
+    if(_lck)
+        _lck->Broadcast();
+
+    if(_isWorking.load(std::memory_order_acquire))
+    {
+        while (_isWorking.load(std::memory_order_acquire))
+        {
+            KERNEL_NS::SystemUtil::ThreadSleep(1000);
+            CRYSTAL_TRACE("waiting center memory collect quit thread pool...")
+        }
+    }
+
+    CRYSTAL_TRACE("waiting center memory collect quit thread pool completed.")
 }
 
 void CenterMemoryCollector::Close()
 {
 
-}
-
-void CenterMemoryCollector::WaitClose()
-{
-    const auto threadId = SystemUtil::GetCurrentThreadId();
-    if(_worker && threadId == _worker->GetTheadId())
-        return;
-
-    // 超过数量则自动关闭
-    _willQuitThreadCount.fetch_add(1, std::memory_order_release);
-    if(_willQuitThreadCount.load(std::memory_order_acquire) >= _totalRegisterThreadCount.load(std::memory_order_acquire))
-        WillClose();
-
-    while(IsWorking())
-    {
-        if (g_Log)
-            g_Log->Warn(LOGFMT_OBJ_TAG("waiting for center memory close current thread id:%llu..."), threadId);
-        SystemUtil::ThreadSleep(1000);
-    }
-
-    if(g_Log)
-        g_Log->Info(LOGFMT_OBJ_TAG("center memory is closed current thread id:%llu..."), threadId);
 }
 
 void CenterMemoryCollector::OnThreadQuit(UInt64 threadId)
@@ -154,7 +152,8 @@ void CenterMemoryCollector::RegisterThreadInfo(UInt64 threadId, TlsStack<TLS_STA
 
         _threadIdRefThreadInfo.insert(std::make_pair(threadId, newInfo));
 
-        if((_worker == NULL) || threadId != _worker->GetTheadId())
+        const auto workerThreadId = _workerThreadId.load(std::memory_order_acquire);
+        if((workerThreadId == 0) || threadId != workerThreadId)
             _totalRegisterThreadCount.fetch_add(1, std::memory_order_release);
     }
     _registerGuard.Unlock();
@@ -178,7 +177,7 @@ void CenterMemoryCollector::PushBlock(UInt64 freeThreadId, MemoryBlock *block)
     _historyPendingBlockTotalNum.fetch_add(1, std::memory_order_release);
 
     if(UNLIKELY(_currentPendingBlockTotalNum.load(std::memory_order_acquire) >= _blockNumForPurgeLimit))
-        _guard.Sinal();
+        _lck->Sinal();
 }
 
 void CenterMemoryCollector::Recycle(UInt64 recycleNum, MergeMemoryBufferInfo *bufferInfoListHead, MergeMemoryBufferInfo *bufferInfoListTail)
@@ -192,7 +191,7 @@ void CenterMemoryCollector::Recycle(UInt64 recycleNum, MergeMemoryBufferInfo *bu
     _historyRecycleMemoryBufferInfoCount.fetch_add(recycleNum, std::memory_order_release);
 
     if(UNLIKELY(_recycleMemoryBufferInfoCount.load(std::memory_order_acquire) >= _recycleForPurgeLimit))
-        _guard.Sinal();
+        _lck->Sinal();
 }
 
 LibString CenterMemoryCollector::ToString() const
@@ -246,27 +245,18 @@ LibString CenterMemoryCollector::ToString() const
     return info;
 }
 
-void CenterMemoryCollector::_OnWorker(LibThread *thread)
+CoTask<> CenterMemoryCollector::_OnWorker()
 {
-    auto poller = KERNEL_NS::TlsUtil::GetPoller();
-    poller->PrepareLoop();
-
     _isWorking.store(true, std::memory_order_release);
-    while(!thread->IsDestroy())
+    while(!_isDestroy.load(std::memory_order_acquire))
     {
-        _guard.Lock();
-        _guard.TimeWait(_workIntervalMs);
-        _guard.Unlock();
-
+        co_await _lck->TimeWait(_workIntervalMs.load(std::memory_order_acquire));
+        
         _DoWorker();
     }
 
     _DoWorker();
-
-    poller->OnLoopEnd();
-
     _OnThreadDown();
-
     _isWorking.store(false, std::memory_order_release);
 }
 
@@ -339,6 +329,6 @@ void CenterMemoryCollector::_OnThreadDown()
 
 UInt64 CenterMemoryCollector::GetWorkerThreadId() const
 {
-    return _worker ? _worker->GetTheadId() : 0;
+    return _workerThreadId.load(std::memory_order_acquire);
 }
 KERNEL_END

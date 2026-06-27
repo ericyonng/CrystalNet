@@ -23,7 +23,7 @@
  * 
  * Date: 2020-12-06 19:55:32
  * Author: Eric Yonng
- * Description: 
+ * Description: 线程池一定要晚于gc释放
 */
 
 #ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_MEMMORY_GARBAGE_THREAD_H__
@@ -36,7 +36,6 @@
 #include <atomic>
 
 #include <kernel/comp/Lock/Impl/SpinLock.h>
-#include <kernel/comp/Lock/Impl/ConditionLocker.h>
 #include <kernel/comp/Delegate/LibDelegate.h>
 
 // GC间隔时间 100ms 清理一次
@@ -46,6 +45,7 @@
 KERNEL_BEGIN
 
 class LibThread;
+class CoLocker;
 
 class KERNEL_EXPORT GarbageThread
 {
@@ -94,10 +94,10 @@ private:
     std::set<void *> *_toPurge;
     std::set<void *> *_purgeSwap;
 
-    // 线程对象
-    LibThread *_thread;
-    UInt64 _gcIntervalMs;
-    ConditionLocker _gcTaskLck;
+    std::atomic<UInt64> _gcIntervalMs;
+    KERNEL_NS::CoLocker *_lck;
+    std::atomic_bool _isQuit;
+    std::atomic_bool _isWorking;
 };
 
 template<typename ObjType>
@@ -128,7 +128,7 @@ ALWAYS_INLINE void GarbageThread::SetIntervalMs(UInt64 gcIntervalMs)
     if(gcIntervalMs == 0)
         return;
 
-    _gcIntervalMs = gcIntervalMs;
+    _gcIntervalMs.store(gcIntervalMs, std::memory_order_release);
 }
 
 
