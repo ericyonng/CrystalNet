@@ -246,14 +246,25 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
 
     // cpu 核心, 开cpuCount个线程, 挂起
     const auto cpuCount = g_cpu->GetCpuCoreCnt();
-    g_EventLoopEasyTaskThreadPool = new LibEventLoopThreadPool(cpuCount, cpuCount, "EventLoopEasyTaskThreadPool");
+
+    // 低配机器特殊处理(easy数量是cpu数量的一半, heavy是4分之一)
+    Int32 easyTaskCount = cpuCount;
+    Int32 heavyTaskCount = cpuCount;
+    if(cpuCount < 8)
+    {
+        easyTaskCount = cpuCount / 2;
+        if(easyTaskCount == 0)
+            easyTaskCount = 1;
+
+        heavyTaskCount = cpuCount / 4;
+        if(heavyTaskCount == 0)
+            heavyTaskCount = 1;
+    }
+    g_EventLoopEasyTaskThreadPool = new LibEventLoopThreadPool(easyTaskCount, easyTaskCount, "EventLoopEasyTaskThreadPool");
     g_EventLoopEasyTaskThreadPool->Start();
 
     // cpu 核心
-    auto heaveThreadCount = g_cpu->GetCpuCoreCnt() / 2;
-    if (heaveThreadCount == 0)
-        heaveThreadCount = 1;
-    g_EventLoopHeavyTaskThreadPool = new LibEventLoopThreadPool(0, heaveThreadCount, "EventLoopHeavyTaskThreadPool");
+    g_EventLoopHeavyTaskThreadPool = new LibEventLoopThreadPool(0, heavyTaskCount, "EventLoopHeavyTaskThreadPool");
     // 线程池
     g_EventLoopHeavyTaskThreadPool->Start();
     
