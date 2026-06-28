@@ -48,7 +48,7 @@ KERNEL_BEGIN
     case MongoSerializeInfoType::INT64:
         {
             Int64 *value = reinterpret_cast<Int64 *>(data._stream->GetReadBegin());
-            doc.append(bsoncxx::builder::basic::kvp(keyName.GetRaw(), *value));
+            doc.append(bsoncxx::builder::basic::kvp(keyName.GetRaw(), static_cast<std::int64_t>(*value)));
             break;
         }
     case MongoSerializeInfoType::DOUBLE:
