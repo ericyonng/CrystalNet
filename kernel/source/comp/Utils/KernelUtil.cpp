@@ -249,7 +249,9 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
 
     // 低配机器特殊处理(easy数量是cpu数量的一半, heavy是4分之一)
     Int32 easyTaskCount = cpuCount;
-    Int32 heavyTaskCount = cpuCount;
+    Int32 heavyTaskCount = cpuCount / 2;
+    if(heavyTaskCount == 0)
+        heavyTaskCount = 1;
     if(cpuCount < 8)
     {
         easyTaskCount = cpuCount / 2;
