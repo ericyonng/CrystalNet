@@ -35,7 +35,8 @@
 
 
 KERNEL_BEGIN
-    bool MongoDataSerialize::AppendSerialize(bsoncxx::builder::basic::document& doc, const KERNEL_NS::LibString &keyName, const MongoSerializeInfo& data)
+
+bool MongoDataSerialize::AppendSerialize(bsoncxx::builder::basic::document& doc, const KERNEL_NS::LibString &keyName, const MongoSerializeInfo& data)
 {
     switch (data.DataType)
     {

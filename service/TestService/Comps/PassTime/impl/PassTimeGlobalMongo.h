@@ -20,38 +20,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2026-06-18 11:40:04
+// Date: 2026-06-28 23:06:20
 // Author: Eric Yonng
-// Description:
+// Description: 定义跨天全局表mongodb存储
 
-
-#ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGO_SERIALIZE_INFO_H__
-#define __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGO_SERIALIZE_INFO_H__
 
 #pragma once
 
-#include <kernel/comp/memory/ObjPoolMacro.h>
-#include <OptionComp/storage/MongoDB/Impl/MongoSerializeInfoType.h>
+#include <Comps/DB/impl/IMongodbStorageInfo.h>
 
-KERNEL_BEGIN
+SERVICE_BEGIN
 
-// 序列化方法: LibStream中存的是什么数据
-struct MongoSerializeInfo
+class PassTimeGlobalMongo : public IMongodbStorageInfo
 {
-    POOL_CREATE_OBJ_DEFAULT(MongoSerializeInfo);
+    POOL_CREATE_OBJ_DEFAULT_P1(IMongodbStorageInfo, PassTimeGlobalMongo);
+public:
+    PassTimeGlobalMongo();
+    ~PassTimeGlobalMongo() override;
 
-    MongoSerializeInfo(Int32 dataType, LibStream<_Build::TL> *stream)
-        :DataType(dataType)
-        ,_stream(stream)
-    {
-        
-    }
-    // MongoSerializeInfoType LibStream中存的是什么数据, 从db查询回来, 这个类型作为写入stream的数据类型, 作为什么数据类型写入
-    Int32 DataType = MongoSerializeInfoType::JSON;
-
-    LibStream<_Build::TL> *_stream = NULL;
+    virtual void Release() override;
 };
 
-KERNEL_END
-
-#endif
+SERVICE_END

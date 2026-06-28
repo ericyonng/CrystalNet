@@ -20,38 +20,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2026-06-18 11:40:04
+// Date: 2026-06-28 23:06:19
 // Author: Eric Yonng
 // Description:
 
 
-#ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGO_SERIALIZE_INFO_H__
-#define __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGO_SERIALIZE_INFO_H__
+#include <pch.h>
+#include <Comps/PassTime/impl/PassTimeGlobalMongoFactory.h>
+#include <Comps/PassTime/impl/PassTimeGlobalMongo.h>
 
-#pragma once
+SERVICE_BEGIN
 
-#include <kernel/comp/memory/ObjPoolMacro.h>
-#include <OptionComp/storage/MongoDB/Impl/MongoSerializeInfoType.h>
-
-KERNEL_BEGIN
-
-// 序列化方法: LibStream中存的是什么数据
-struct MongoSerializeInfo
+KERNEL_NS::CompFactory *PassTimeGlobalMongoFactory::FactoryCreate()
 {
-    POOL_CREATE_OBJ_DEFAULT(MongoSerializeInfo);
+    return KERNEL_NS::ObjPoolWrap<PassTimeGlobalMongoFactory>::NewByAdapter(_buildType.V);
+}
 
-    MongoSerializeInfo(Int32 dataType, LibStream<_Build::TL> *stream)
-        :DataType(dataType)
-        ,_stream(stream)
-    {
-        
-    }
-    // MongoSerializeInfoType LibStream中存的是什么数据, 从db查询回来, 这个类型作为写入stream的数据类型, 作为什么数据类型写入
-    Int32 DataType = MongoSerializeInfoType::JSON;
-
-    LibStream<_Build::TL> *_stream = NULL;
-};
-
-KERNEL_END
-
-#endif
+void PassTimeGlobalMongoFactory::Release()
+{
+    KERNEL_NS::ObjPoolWrap<PassTimeGlobalMongoFactory>::DeleteByAdapter(_buildType.V, this);
+}
+    
+KERNEL_NS::CompObject *PassTimeGlobalMongoFactory::Create() const
+{
+    CREATE_MONGO_STORAGE_COMP(comp, PassTimeGlobalMongo);
+    return comp;
+}
+SERVICE_END

@@ -30,8 +30,11 @@
 
 #include <service/common/BaseComps/GlobalSys/GlobalSys.h>
 #include <kernel/comp/Coroutines/CoTask.h>
+#include <Comps/DB/impl/IMongodbStorageInfo.h>
 
 SERVICE_BEGIN
+
+// 每个系统提供的持久化信息
 
 // mongodb代理
 class IMongodbProxy : public IGlobalSys
@@ -47,10 +50,10 @@ public:
 
     // TODO:提供load数据接口直接外部调用Load接口(协程)
 
-    // 标脏
-    virtual void MaskLogicNumberKeyAddDirty(const ILogicSys *logic, UInt64 key) = 0;
-    virtual void MaskLogicNumberKeyModifyDirty(const ILogicSys *logic, UInt64 key) = 0;
-    virtual void MaskLogicNumberKeyDeleteDirty(const ILogicSys *logic, UInt64 key) = 0;
+    // 标脏 mongodb只支持int64
+    virtual void MaskLogicNumberKeyAddDirty(const ILogicSys *logic, Int64 key) = 0;
+    virtual void MaskLogicNumberKeyModifyDirty(const ILogicSys *logic, Int64 key) = 0;
+    virtual void MaskLogicNumberKeyDeleteDirty(const ILogicSys *logic, Int64 key) = 0;
     
     virtual void MaskLogicStringKeyAddDirty(const ILogicSys *logic, const KERNEL_NS::LibString &key) = 0;
     virtual void MaskLogicStringKeyModifyDirty(const ILogicSys *logic, const KERNEL_NS::LibString &key) = 0;

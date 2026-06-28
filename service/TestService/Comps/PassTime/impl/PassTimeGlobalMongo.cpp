@@ -20,38 +20,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2026-06-18 11:40:04
+// Date: 2026-06-28 23:06:28
 // Author: Eric Yonng
 // Description:
 
 
-#ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGO_SERIALIZE_INFO_H__
-#define __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGO_SERIALIZE_INFO_H__
-
-#pragma once
-
-#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <pch.h>
+#include <Comps/PassTime/impl/PassTimeGlobalMongo.h>
+#include <Comps/PassTime/impl/PassTimeGlobalMongoFactory.h>
+#include <kernel/comp/Utils/RttiUtil.h>
 #include <OptionComp/storage/MongoDB/Impl/MongoSerializeInfoType.h>
 
-KERNEL_BEGIN
+SERVICE_BEGIN
 
-// 序列化方法: LibStream中存的是什么数据
-struct MongoSerializeInfo
+PassTimeGlobalMongo::PassTimeGlobalMongo()
+    :IMongodbStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<PassTimeGlobalMongo>())
 {
-    POOL_CREATE_OBJ_DEFAULT(MongoSerializeInfo);
+    _dbName = "TestSuit";
 
-    MongoSerializeInfo(Int32 dataType, LibStream<_Build::TL> *stream)
-        :DataType(dataType)
-        ,_stream(stream)
-    {
-        
-    }
-    // MongoSerializeInfoType LibStream中存的是什么数据, 从db查询回来, 这个类型作为写入stream的数据类型, 作为什么数据类型写入
-    Int32 DataType = MongoSerializeInfoType::JSON;
+    // 唯一索引信息
+    _uniqueIndexFields.emplace_back("PassTimeId", MongodbIndexFieldValue::HASHED);
 
-    LibStream<_Build::TL> *_stream = NULL;
-};
+    // 存储类型(json 文档对象)
+    _fieldNameRefStorageType["PassTimeId"] = KERNEL_NS::MongoSerializeInfoType::INT64;
+    _fieldNameRefStorageType["LastPassTime"] = KERNEL_NS::MongoSerializeInfoType::INT64;
+}
 
-KERNEL_END
+PassTimeGlobalMongo::~PassTimeGlobalMongo()
+{
+    
+}
 
-#endif
+void PassTimeGlobalMongo::Release()
+{
+    PassTimeGlobalMongo::DeleteByAdapter_PassTimeGlobalMongo(PassTimeGlobalMongoFactory::_buildType.V, this);
+}
+
+SERVICE_END

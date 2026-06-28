@@ -36,6 +36,7 @@
 #include <Comps/PassTime/impl/PassTimeGlobalFactory.h>
 #include <Comps/PassTime/impl/PassTimeGlobalStorageFactory.h>
 #include <Comps/config/config.h>
+#include <Comps/PassTime/impl/PassTimeGlobalMongoFactory.h>
 
 SERVICE_BEGIN
 
@@ -61,7 +62,7 @@ void PassTimeGlobal::Release()
 
 void PassTimeGlobal::OnRegisterComps()
 {
-    RegisterComp<PassTimeGlobalStorageFactory>();
+    RegisterComp<PassTimeGlobalMongoFactory>();
 }
 
 Int32 PassTimeGlobal::OnLoaded(UInt64 key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db)

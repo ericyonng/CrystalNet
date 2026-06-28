@@ -36,10 +36,12 @@ class StorageMode
 public:
     enum ENUMS
     {
-        ADD_DATA,
+        BEGIN = 1,
+        ADD_DATA = BEGIN,
         UPDATE_DATA,
-        REPLACE_DATA,
         DEL_DATA,
+        REPLACE_DATA,
+        MAX_TYPE,
     };
 };
 
@@ -55,14 +57,14 @@ public:
     virtual void OnRegisterComps() override;
     virtual void DefaultMaskReady(bool isReady) override {}
 
+    // 添加依赖
     virtual void RegisterDependence(ILogicSys *obj) override;
     virtual void UnRegisterDependence(const ILogicSys *obj) override;
 
     // 标脏
-    virtual void MaskLogicNumberKeyAddDirty(const ILogicSys *logic, UInt64 key) override;
-    virtual void MaskLogicNumberKeyModifyDirty(const ILogicSys *logic, UInt64 key) override;
-    virtual void MaskLogicNumberKeyDeleteDirty(const ILogicSys *logic, UInt64 key) override;
-    
+    virtual void MaskLogicNumberKeyAddDirty(const ILogicSys *logic, Int64 key) override;
+    virtual void MaskLogicNumberKeyModifyDirty(const ILogicSys *logic, Int64 key) override;
+    virtual void MaskLogicNumberKeyDeleteDirty(const ILogicSys *logic, Int64 key) override;
     virtual void MaskLogicStringKeyAddDirty(const ILogicSys *logic, const KERNEL_NS::LibString &key) override;
     virtual void MaskLogicStringKeyModifyDirty(const ILogicSys *logic, const KERNEL_NS::LibString &key) override;
     virtual void MaskLogicStringKeyDeleteDirty(const ILogicSys *logic, const KERNEL_NS::LibString &key) override;
@@ -80,23 +82,43 @@ protected:
     void _OnGlobalSysClose() override;
 
     void _CloseServiceEvent(KERNEL_NS::LibEvent *ev);
+    void _OnPurgeTimer(KERNEL_NS::LibTimer *t);
+
+    void _CheckQuit();
 
     void _Clear();
 
+    void _InitDirtyHelper(KERNEL_NS::LibDirtyHelper<Int64, UInt64> *dirtyHelper);
+    void _InitDirtyHelper(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper);
+
+    // 多字段的脏回调 params和dirtyHelper均可能失效,需要注意
+    KERNEL_NS::CoTask<> _OnNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<Int64, UInt64> *dirtyHelper, Int64 &key, KERNEL_NS::Variant *params);
+    KERNEL_NS::CoTask<> _OnNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<Int64, UInt64> *dirtyHelper, Int64 &key, KERNEL_NS::Variant *params);
+    KERNEL_NS::CoTask<> _OnNumberDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<Int64, UInt64> *dirtyHelper, Int64 &key, KERNEL_NS::Variant *params);
+    KERNEL_NS::CoTask<> _OnNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<Int64, UInt64> *dirtyHelper, Int64 &key, KERNEL_NS::Variant *params);
+
+    KERNEL_NS::CoTask<> _OnStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params);
+    KERNEL_NS::CoTask<> _OnStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params);
+    KERNEL_NS::CoTask<> _OnStringDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params);
+    KERNEL_NS::CoTask<> _OnStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params);
+
+    KERNEL_NS::CoTask<> _DorPurgeNumber(const ILogicSys *sys);
+    KERNEL_NS::CoTask<> _DorPurgeString(const ILogicSys *sys);
 private:
     // 关服时需要执行所有数据落地
     KERNEL_NS::ListenerStub _closeServiceStub;
 
     // 所有表建立的标脏回调, 系统退出时移除
-    std::map<const ILogicSys *, KERNEL_NS::LibDirtyHelper<UInt64, UInt64> *> _logicRefNumberDirtyHelper;
+    std::map<const ILogicSys *, KERNEL_NS::LibDirtyHelper<Int64, UInt64> *> _logicRefNumberDirtyHelper;
     std::map<const ILogicSys *, KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *> _logicRefStringDirtyHelper;
     // 脏表队列
     std::map<const ILogicSys *, bool> _dirtyLogicRefIsNumberKey;
-
+    
     // 定时purge数据
     KERNEL_NS::LibTimer *_purgeTimer;
-
     KERNEL_NS::FileMonitor<KERNEL_NS::MongodbConfig, KERNEL_NS::YamlDeserializer> *_options;
+    // 是否正在检查退出
+    bool _checkQuit;
 };
 
 SERVICE_END

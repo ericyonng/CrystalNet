@@ -149,6 +149,13 @@ public:
 
     // 获取配置
     virtual const KERNEL_NS::FileMonitor<MongodbConfig, KERNEL_NS::YamlDeserializer> *GetConfig() const = 0;
+
+    // 模块依赖注册与反注册, 避免依赖还没结束就销毁mongodb
+    virtual void RegisterDependence(const CompObject *module) = 0;
+    virtual void UnRegisterDependence(const CompObject *module) = 0;
+    virtual bool HasDependence() const = 0;
+    virtual KERNEL_NS::LibString DependenceInfo() const = 0;
+    virtual const std::set<const CompObject *> &GetDependenceComps() const = 0;
 };
 
 KERNEL_END

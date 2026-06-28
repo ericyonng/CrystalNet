@@ -648,7 +648,7 @@ void MysqlMgr::PurgeEndWith(KERNEL_NS::IDelegate<void, Int32> *handler)
         if(iterStringKey != _logicRefStringDirtyHelper.end())
         {
             // 传入参数
-            auto dirtyHelper = iterNumberKey->second;
+            auto dirtyHelper = iterStringKey->second;
             auto &allMasks = dirtyHelper->GetAllMasks();
             for(auto iter : allMasks)
             {

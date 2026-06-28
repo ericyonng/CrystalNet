@@ -39,6 +39,7 @@
 #include <kernel/comp/Variant/variant_inc.h>
 #include <kernel/comp/Utils/ContainerUtil.h>
 #include <kernel/comp/LibString.h>
+#include <kernel/comp/Coroutines/CoTask.h>
 
 KERNEL_BEGIN
 
@@ -184,6 +185,9 @@ public:
     void SetHandler(Int32 dirtyType, IDelegate<void, LibDirtyHelper<KeyType, MaskValue> *, KeyType &, Variant *> *handler);
     void SetHandler(Int32 dirtyType, const IDelegate<void, LibDirtyHelper<KeyType, MaskValue> *, KeyType &, Variant *> *handler);
 
+    void SetHandler(Int32 dirtyType, IDelegate<CoTask<>, LibDirtyHelper<KeyType, MaskValue> *, KeyType &, Variant *> *handler);
+    void SetHandler(Int32 dirtyType, const IDelegate<CoTask<>, LibDirtyHelper<KeyType, MaskValue> *, KeyType &, Variant *> *handler);
+
     // // 操作
     Variant *MaskDirty(KeyType k, Int32 dirtyType, bool fillParams = false);
     void Clear(KeyType k, Int32 dirtyType);
@@ -193,7 +197,6 @@ public:
     DirtyMask<KeyType, MaskValue> *GetMask(KeyType k);
 
     std::map<KeyType, DirtyMask<KeyType, MaskValue> *> &GetAllMasks();
-    
 
     bool HasDirty() const;
     bool HasDirty(const KeyType &k) const;
@@ -201,6 +204,64 @@ public:
     UInt64 GetLoaded() const;
     // 脏标记需要在回调中移除,否则一直在
     Int64 Purge(LibString *errorLog = NULL);
+    // 返回调用回调次数
+    CoTask<Int64> PurgeCo(LibString *errorLog = NULL)
+    {
+        Int64 handled = 0;
+        
+        // 拷贝
+        auto copyMask = _keyRefMask;
+        _keyRefMask.clear();
+
+        for(auto &iter : copyMask)
+        {
+            auto mask = iter.second;
+            if(UNLIKELY(!mask))
+            {
+                if(errorLog)
+                    errorLog->AppendFormat("zero mask in dirty queue key:").Append(iter.first);
+                continue;
+            }
+
+            for(Int32 i = 0; i < _dirtyTypeAmount; ++i)
+            {
+                if(!BitUtil::IsSet(mask->_mask, i))
+                    continue;
+
+                auto handler = _dirtyTypeRefCoHandler[i];
+                if(LIKELY(handler))
+                {
+                    auto &variantDict = mask->_dirtyTypeRefVariant;
+                    auto &k = (KeyType &)(iter.first);
+                    co_await handler->Invoke(this, k, variantDict[i]);
+                    ++handled;
+                }
+                else
+                {
+                    mask->ClearFlag(i);
+                }
+            }
+
+            // 没有脏之后移除, 还有脏表示下次还需要继续
+            if(LIKELY(!mask->_mask))
+            {
+                DirtyMask<KeyType, MaskValue>::DeleteThreadLocal_DirtyMask(mask);
+            }
+            else
+            {
+                if(_keyRefMask.find(iter.first) == _keyRefMask.end())
+                {
+                    _keyRefMask.insert(std::make_pair(iter.first, iter.second));
+                }
+                else
+                {
+                    DirtyMask<KeyType, MaskValue>::DeleteThreadLocal_DirtyMask(mask);
+                }
+            }
+        }
+
+        co_return handled;
+    }
 
 private:
     void _AfterPurge();
@@ -212,6 +273,7 @@ private:
     std::map<KeyType, DirtyMask<KeyType, MaskValue> *> _keyRefMask;
     // DirtyType => handler
     std::vector<IDelegate<void, LibDirtyHelper<KeyType, MaskValue> *, KeyType &, Variant *> *> _dirtyTypeRefHandler;      // dirtyType 按顺序执行
+    std::vector<IDelegate<CoTask<>, LibDirtyHelper<KeyType, MaskValue> *, KeyType &, Variant *> *> _dirtyTypeRefCoHandler;      // dirtyType 按顺序执行
 
     // 延迟执行 只有_keyRefMask 中没有才会添加到delay队列
     std::vector<DirtyHelperDelayOp<KeyType, MaskValue> *> _delayOperations;
@@ -287,6 +349,25 @@ ALWAYS_INLINE void LibDirtyHelper<KeyType, MaskValue>::SetHandler(Int32 dirtyTyp
         CRYSTAL_DELETE_SAFE(h);
     _dirtyTypeRefHandler[dirtyType] = const_cast<IDelegate<void, LibDirtyHelper<KeyType, MaskValue> *, KeyType &, Variant *> *>(handler);
 }
+
+template<typename KeyType, typename MaskValue>
+ALWAYS_INLINE void LibDirtyHelper<KeyType, MaskValue>::SetHandler(Int32 dirtyType, IDelegate<CoTask<>, LibDirtyHelper<KeyType, MaskValue> *, KeyType &, Variant *> *handler)
+{
+    auto h = _dirtyTypeRefCoHandler[dirtyType];
+    if(UNLIKELY(h))
+        CRYSTAL_DELETE_SAFE(h);
+    _dirtyTypeRefCoHandler[dirtyType] = handler;
+}
+
+template<typename KeyType, typename MaskValue>
+ALWAYS_INLINE void LibDirtyHelper<KeyType, MaskValue>::SetHandler(Int32 dirtyType, const IDelegate<CoTask<>, LibDirtyHelper<KeyType, MaskValue> *, KeyType &, Variant *> *handler)
+{
+    auto h = _dirtyTypeRefCoHandler[dirtyType];
+    if(UNLIKELY(h))
+        CRYSTAL_DELETE_SAFE(h);
+    _dirtyTypeRefCoHandler[dirtyType] = const_cast<IDelegate<CoTask<>, LibDirtyHelper<KeyType, MaskValue> *, KeyType &, Variant *> *>(handler);
+}
+
 
 template<typename KeyType, typename MaskValue>
 ALWAYS_INLINE Variant *LibDirtyHelper<KeyType, MaskValue>::MaskDirty(KeyType k, Int32 dirtyType, bool fillParams)

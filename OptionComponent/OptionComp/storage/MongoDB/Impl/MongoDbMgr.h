@@ -116,6 +116,13 @@ public:
     void DbReady(bool isReady);
     void SetDbFailErr(Int32 err);
 
+    // 模块依赖注册与反注册, 避免依赖还没结束就销毁mongodb
+    virtual void RegisterDependence(const CompObject *module) override;
+    virtual void UnRegisterDependence(const CompObject *module) override;
+    virtual bool HasDependence() const override;
+    virtual KERNEL_NS::LibString DependenceInfo() const override;
+    virtual const std::set<const CompObject *> &GetDependenceComps() const override;
+
 protected:
     virtual Int32 _OnHostInit() override;
     virtual Int32 _OnCompsCreated() override;
@@ -221,6 +228,8 @@ protected:
 
     std::atomic_bool _isEnable;
     std::atomic<Int64> _pendingRequests;
+
+    std::set<const CompObject *> _dependencies;
 };
 
 KERNEL_END

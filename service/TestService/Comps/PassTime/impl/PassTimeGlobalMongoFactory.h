@@ -20,38 +20,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2026-06-18 11:40:04
+// Date: 2026-06-28 23:06:51
 // Author: Eric Yonng
-// Description:
+// Description: 定义mongodb存储工厂
 
-
-#ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGO_SERIALIZE_INFO_H__
-#define __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGO_SERIALIZE_INFO_H__
 
 #pragma once
 
-#include <kernel/comp/memory/ObjPoolMacro.h>
-#include <OptionComp/storage/MongoDB/Impl/MongoSerializeInfoType.h>
 
-KERNEL_BEGIN
+#include <kernel/comp/CompObject/CompFactory.h>
+#include <service/common/macro.h>
 
-// 序列化方法: LibStream中存的是什么数据
-struct MongoSerializeInfo
+SERVICE_BEGIN
+
+class PassTimeGlobalMongoFactory : public KERNEL_NS::CompFactory
 {
-    POOL_CREATE_OBJ_DEFAULT(MongoSerializeInfo);
+public:
+    static constexpr KERNEL_NS::_Build::TL _buildType{};
 
-    MongoSerializeInfo(Int32 dataType, LibStream<_Build::TL> *stream)
-        :DataType(dataType)
-        ,_stream(stream)
-    {
-        
-    }
-    // MongoSerializeInfoType LibStream中存的是什么数据, 从db查询回来, 这个类型作为写入stream的数据类型, 作为什么数据类型写入
-    Int32 DataType = MongoSerializeInfoType::JSON;
+    static KERNEL_NS::CompFactory *FactoryCreate();
 
-    LibStream<_Build::TL> *_stream = NULL;
+    virtual void Release() override;
+    
+public:
+    virtual KERNEL_NS::CompObject *Create() const override;
 };
 
-KERNEL_END
-
-#endif
+SERVICE_END

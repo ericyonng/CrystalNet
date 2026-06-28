@@ -210,10 +210,10 @@ MysqlCommonOptions:
   DefaultStringKeyOriginSize: 64
   
 MongoTestSuit:
-  SrvHostName: www.xxx.com
+  SrvHostName: rscluster.ericyonng.com
   Account: eric
   # 使用明文, 不用使用url编码, 拼接的时候会自动url编码
-  Pwd: 123456
+  Pwd: pK38U~mTk^3
   # 如果指定了复制集则mongodb驱动会直连复制集
   ReplicaSetName: rs0
   # 定时清脏落地时间间隔

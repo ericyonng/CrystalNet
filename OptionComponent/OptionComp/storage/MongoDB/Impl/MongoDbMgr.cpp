@@ -3222,6 +3222,33 @@ void MongoDbMgr::SetDbFailErr(Int32 err)
     _dbFailErrCode.store(err, std::memory_order_release);
 }
 
+void MongoDbMgr::RegisterDependence(const CompObject *module)
+{
+    _dependencies.insert(module);
+    CLOG_DEBUG("Register mongo dependence module:%s", module->GetObjName().c_str());
+}
+
+void MongoDbMgr::UnRegisterDependence(const CompObject *module)
+{
+    _dependencies.erase(module);
+    CLOG_DEBUG("UnRegister mongo dependence module:%s", module->GetObjName().c_str());
+}
+
+bool MongoDbMgr::HasDependence() const
+{
+    return !_dependencies.empty();
+}
+
+KERNEL_NS::LibString MongoDbMgr::DependenceInfo() const
+{
+    return KERNEL_NS::StringUtil::ToString(_dependencies, ',');
+}
+
+const std::set<const CompObject *> &MongoDbMgr::GetDependenceComps() const
+{
+    return _dependencies;
+}
+
 Int32 MongoDbMgr::_OnHostInit()
 {
     try
@@ -3339,24 +3366,7 @@ void MongoDbMgr::_OnHostBeforeCompsWillClose()
 
 void MongoDbMgr::_OnHostClose()
 {
-    // 关闭新增请求
     _isEnable.store(false, std::memory_order_release);
-    
-    // 等待请求全部完成
-    if(_pendingRequests.load(std::memory_order_acquire) != 0)
-    {
-        do
-        {
-            if(_pendingRequests.load(std::memory_order_acquire) == 0)
-                break;
-
-            CLOG_WARN("mongodb wait request complete...");
-            KERNEL_NS::SystemUtil::ThreadSleep(1000);
-        }
-        while (true);
-    }
-
-    MaskReady(false);
     _Clear();
 }
 

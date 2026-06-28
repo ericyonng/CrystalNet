@@ -152,7 +152,7 @@ public:
 public:
     UInt64 GetId() const;
     Int32 GetType() const;
-    Int32 GetKernelObjType() const;
+    bool IsKernelObjType(KernelObjectType::ENUMS type) const;
     void SetKernelObjType(Int32 type);
     UInt64 GetEntityId() const;
     void SetEntityId(UInt64 entityId);
@@ -251,14 +251,16 @@ ALWAYS_INLINE Int32 IObject::GetType() const
     return _type;
 }
 
-ALWAYS_INLINE Int32 IObject::GetKernelObjType() const
+ALWAYS_INLINE bool IObject::IsKernelObjType(KernelObjectType::ENUMS type) const
 {
-    return _kernelObjType;   
+    const Int32 bits = 1 << type;
+    return  (_kernelObjType & bits) == bits;
 }
+
 
 ALWAYS_INLINE void IObject::SetKernelObjType(Int32 type)
 {
-    _kernelObjType = type;
+    _kernelObjType |= (1 << type);
 }
 
 ALWAYS_INLINE UInt64 IObject::GetEntityId() const

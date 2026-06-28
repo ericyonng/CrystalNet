@@ -20,38 +20,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2026-06-18 11:40:04
+// Date: 2026-06-28 22:06:41
 // Author: Eric Yonng
 // Description:
+#include <pch.h>
+#include <Comps/DB/impl/IMongodbStorageInfo.h>
+#include <kernel/comp/Utils/RttiUtil.h>
 
+SERVICE_BEGIN
 
-#ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGO_SERIALIZE_INFO_H__
-#define __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGO_SERIALIZE_INFO_H__
-
-#pragma once
-
-#include <kernel/comp/memory/ObjPoolMacro.h>
-#include <OptionComp/storage/MongoDB/Impl/MongoSerializeInfoType.h>
-
-KERNEL_BEGIN
-
-// 序列化方法: LibStream中存的是什么数据
-struct MongoSerializeInfo
+IMongodbStorageInfo::IMongodbStorageInfo(UInt64 objTypeId)
+    :CompObject(objTypeId)
 {
-    POOL_CREATE_OBJ_DEFAULT(MongoSerializeInfo);
+    
+}
 
-    MongoSerializeInfo(Int32 dataType, LibStream<_Build::TL> *stream)
-        :DataType(dataType)
-        ,_stream(stream)
-    {
-        
-    }
-    // MongoSerializeInfoType LibStream中存的是什么数据, 从db查询回来, 这个类型作为写入stream的数据类型, 作为什么数据类型写入
-    Int32 DataType = MongoSerializeInfoType::JSON;
+IMongodbStorageInfo::~IMongodbStorageInfo()
+{
+    
+}
 
-    LibStream<_Build::TL> *_stream = NULL;
-};
-
-KERNEL_END
-
-#endif
+SERVICE_END
