@@ -192,7 +192,7 @@ void TestHash::TestAgainstOfficial()
 
     Int32 passCnt = 0;
     Int32 failCnt = 0;
-    UInt64 testNull = KERNEL_NS::HashUtil::Hash64(NULL, 0);
+    // UInt64 testNull = KERNEL_NS::HashUtil::Hash64(NULL, 0);
 
     auto checkOne = [&](const char *name, const void *data, size_t len)
     {

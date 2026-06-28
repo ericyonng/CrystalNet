@@ -851,7 +851,7 @@ private:
                         case KERNEL_NS::MongoSerializeInfoType::DOUBLE:
                             {
                                 auto value = info._stream->ReadDouble();
-                                CLOG_INFO("key:%s, value:%llf", key.c_str(), value);
+                                CLOG_INFO("key:%s, value:%lf", key.c_str(), value);
                                 break;
                             }
                         case KERNEL_NS::MongoSerializeInfoType::STRING:

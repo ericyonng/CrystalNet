@@ -72,13 +72,13 @@ namespace
         });
     }
 
-    static ALWAYS_INLINE KERNEL_NS::LibString DictContainerToString(const std::map<KERNEL_NS::Variant, KERNEL_NS::Variant> &kv)
-    {
-        return KERNEL_NS::StringUtil::ToStringBy(kv, ",", [](const std::pair<KERNEL_NS::Variant, KERNEL_NS::Variant> &iter)->KERNEL_NS::LibString
-        {
-            return KERNEL_NS::LibString().AppendFormat("%s:%s", iter.first.ToString().c_str(), iter.second.ToString().c_str());
-        });
-    }
+    // static ALWAYS_INLINE KERNEL_NS::LibString DictContainerToString(const std::map<KERNEL_NS::Variant, KERNEL_NS::Variant> &kv)
+    // {
+    //     return KERNEL_NS::StringUtil::ToStringBy(kv, ",", [](const std::pair<KERNEL_NS::Variant, KERNEL_NS::Variant> &iter)->KERNEL_NS::LibString
+    //     {
+    //         return KERNEL_NS::LibString().AppendFormat("%s:%s", iter.first.ToString().c_str(), iter.second.ToString().c_str());
+    //     });
+    // }
 
     static ALWAYS_INLINE void DelStreamContainer(std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *> *d)
     {
@@ -587,19 +587,19 @@ CoTask<bool> MongoDbMgr::TryAcquireLock(KERNEL_NS::LibString lockTargetId, KERNE
         catch (const mongocxx::exception &e)
         {
             CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("TryAcquireLock mongodb mongocxx exception: %s, lockTargetId:%s lockId:%s, slice:%lld(ms):"
-                , e.what(), lockTargetId.c_str(), lockId.c_str()), slice.GetTotalMilliSeconds());
+                , e.what(), lockTargetId.c_str(), lockId.c_str(), slice.GetTotalMilliSeconds()));
             return res;
         }
         catch (const std::exception &e)
         {
             CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("TryAcquireLock mongodb std exception: %s, lockTargetId:%s lockId:%s, slice:%lld(ms):"
-                , e.what(), lockTargetId.c_str(), lockId.c_str()), slice.GetTotalMilliSeconds());
+                , e.what(), lockTargetId.c_str(), lockId.c_str(), slice.GetTotalMilliSeconds()));
             return res;
         }
         catch (...)
         {
             CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("TryAcquireLock mongodb unknown exception, lockTargetId:%s lockId:%s, slice:%lld(ms):"
-                , lockTargetId.c_str(), lockId.c_str()), slice.GetTotalMilliSeconds());
+                , lockTargetId.c_str(), lockId.c_str(), slice.GetTotalMilliSeconds()));
             
             return res;
         }
@@ -614,13 +614,13 @@ CoTask<bool> MongoDbMgr::TryAcquireLock(KERNEL_NS::LibString lockTargetId, KERNE
     if(!isSuc->IsSuccess)
     {
         CLOG_DEBUG_ARGS(KERNEL_NS::LibString().AppendFormat("TryAcquireLock mongodb fail, lockTargetId:%s lockId:%s, slice:%lld(ms):"
-            , lockTargetId.c_str(), lockId.c_str()), slice.GetTotalMilliSeconds());
+            , lockTargetId.c_str(), lockId.c_str(), slice.GetTotalMilliSeconds()));
         
         co_return false;
     }
 
     CLOG_DEBUG_ARGS(KERNEL_NS::LibString().AppendFormat("TryAcquireLock mongodb success, lockTargetId:%s lockId:%s, slice:%lld(ms):"
-    , lockTargetId.c_str(), lockId.c_str()), slice.GetTotalMilliSeconds());
+    , lockTargetId.c_str(), lockId.c_str(), slice.GetTotalMilliSeconds()));
     
     co_return true;
 }
@@ -3701,7 +3701,7 @@ bool MongoDbMgr::_TurnVariant(const bsoncxx::types::bson_value::view &bsonValue,
         }
         default:
         {
-            CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("_TurnVariant fail unknown type:%d, doc:", bsonValue.type()));
+            CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("_TurnVariant fail unknown type:%d, doc:", static_cast<Int32>(bsonValue.type())));
             return false;
         }
     }
