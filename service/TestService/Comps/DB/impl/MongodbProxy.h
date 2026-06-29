@@ -23,6 +23,15 @@
 // Date: 2026-06-24 22:06:31
 // Author: Eric Yonng
 // Description:
+// 存储
+// |--- A, 有B组件需要存储, 那么B作为字段BCompData整体存储，AUniqueId: A的唯一索引, _Id: Mongodb自动生成的唯一id
+//
+// doc:
+// {
+//     _Id:xxx,
+//     AUniqueId:xxx,
+//     BCompData:xxx,
+// }
 
 #pragma once
 

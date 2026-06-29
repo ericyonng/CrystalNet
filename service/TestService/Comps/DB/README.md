@@ -74,4 +74,22 @@
   * Global系统: 一条数据是被整体的ReplaceData， 必须要加锁, 或者必须要验证版本号，做到从获取数据到更新数据这段是原子的,使用行锁
 * 对于OnLoad, 
   * User: query指定的若干系统的数据(遍历User组件)，根据指定的模式来反序列化一个数据
-  * 
+
+# 存储结构
+
+* 存储json文档的深度，service系统下有存储需求的组件, 最多深度两层, 
+
+  * 即service的A组件需要存储， 那么A这一层作为collection，A的数据作为一个document存储, A底下若再有组件需要存储, 则作为document的一个字段存储
+
+  * ```
+    |--- A, 有B组件需要存储, 那么B作为字段BCompData整体存储，AUniqueId: A的唯一索引, _Id: Mongodb自动生成的唯一id
+    
+    doc:
+    {
+        _Id:xxx,
+        AUniqueId:xxx,
+        BCompData:xxx,
+    }
+    ```
+
+    

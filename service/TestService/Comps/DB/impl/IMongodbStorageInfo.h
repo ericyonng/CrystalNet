@@ -54,7 +54,8 @@ class IMongodbStorageInfo : public KERNEL_NS::CompObject
 public:
     IMongodbStorageInfo(UInt64 objTypeId);
     ~IMongodbStorageInfo() override;
-    
+   
+    /** 当系统作为表时需要填写索引, 必要的简单字段名存储类型，db名等 **/
     // db名 必须指定否则启动失败
     KERNEL_NS::LibString _dbName;
     // 系统名(表名)如果为空就使用所在宿主的类名
@@ -63,7 +64,9 @@ public:
     std::vector<std::pair<KERNEL_NS::LibString, Int32>> _uniqueIndexFields;
     // 系统含有多字段, 给每个字段做存储类型定义 必须指定 _fieldNameRefStorageType 和 _storageType之一
     std::map<KERNEL_NS::LibString, Int32> _fieldNameRefStorageType;
-    // 系统整体作为一个字段, 存储类型定义(子系统默认只作为母系统的一个字段整体存储)
+
+    /** 当系统只作为其他系统的一个字段, 只需要填写storrageType即可 **/
+    // 系统整体作为一个字段, 存储类型定义(子系统默认只作为母系统的一个字段整体存储) 当系统作为其他系统的组件时使用
     Int32 _storageType = 0;
 };
 
