@@ -127,7 +127,7 @@ public:
     virtual KERNEL_NS::CoTask<bool> ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> uniqueKv, std::map<KERNEL_NS::LibString, MongoSerializeInfo> *keyNameRefData) = 0;
     // 序列化发序列化:MongoDataSerialize, 序列化反序列化数据定义:MongoSerializeInfo keyNameRefData内部释放
     virtual KERNEL_NS::CoTask<bool> AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> uniqueKv,  std::map<KERNEL_NS::LibString, MongoSerializeInfo> *keyNameRefData) = 0;
-    // 序列化发序列化:MongoDataSerialize, 序列化反序列化数据定义:MongoSerializeInfo keyNameRefData 外部释放
+    // 序列化发序列化:MongoDataSerialize, 序列化反序列化数据定义:MongoSerializeInfo keyNameRefData 外部释放 若fieldNameRefVariant有指定字段名的, 只会查询数据的指定的几个字段,如果是空的, 则查完整数据
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, MongoSerializeInfo> *fieldNameRefData, bool ignoreOid = false) = 0;
 
 #endif

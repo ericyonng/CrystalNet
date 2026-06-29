@@ -37,6 +37,9 @@
 
 #include <Comps/DB/interface/IMongodbProxy.h>
 #include <OptionComp/storage/MongoDB/MongoDBComp.h>
+#include <unordered_set>
+#include <unordered_map>
+#include <map>
 
 SERVICE_BEGIN
 
@@ -82,6 +85,10 @@ public:
     virtual KERNEL_NS::CoTask<> Purge() override;
     // 等待logic落库完成
     virtual KERNEL_NS::CoTask<> Purge(const ILogicSys *logic) override;
+    
+    virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, const ILogicSys *logic, Int64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo> *fieldNameRefDataResult) override;
+    virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString keyName, Int64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo> *fieldNameRefDataResult) override;
+    virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString keyName, KERNEL_NS::LibString key, std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo> *fieldNameRefDataResult) override;
 
 protected:
     Int32 _OnGlobalSysInit() override;
@@ -113,6 +120,9 @@ protected:
 
     KERNEL_NS::CoTask<> _DorPurgeNumber(const ILogicSys *sys);
     KERNEL_NS::CoTask<> _DorPurgeString(const ILogicSys *sys);
+
+    bool _CheckLogic(const ILogicSys *logic, KERNEL_NS::LibString &err) const;
+    void _BuildSysFields(const ILogicSys *logic);
 private:
     // 关服时需要执行所有数据落地
     KERNEL_NS::ListenerStub _closeServiceStub;
@@ -122,6 +132,8 @@ private:
     std::map<const ILogicSys *, KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *> _logicRefStringDirtyHelper;
     // 脏表队列
     std::map<const ILogicSys *, bool> _dirtyLogicRefIsNumberKey;
+    // 需要持久化系统的组件信息 int32:storageType
+    std::unordered_map<const ILogicSys *, std::unordered_map<KERNEL_NS::LibString, Int32>> _sysRefFieldStorageType;
     
     // 定时purge数据
     KERNEL_NS::LibTimer *_purgeTimer;

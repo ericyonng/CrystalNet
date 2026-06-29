@@ -274,6 +274,122 @@ KERNEL_NS::CoTask<> MongodbProxy::Purge(const ILogicSys *logic)
     co_return;
 }
 
+KERNEL_NS::CoTask<bool> MongodbProxy::Query(KERNEL_NS::LibString dbName, const ILogicSys *logic, Int64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo> *fieldNameRefDataResult)
+{
+    if(UNLIKELY(!logic || !fieldNameRefDataResult))
+    {
+        CLOG_ERROR("query fail logic or fieldNameRefDataResult is null logic:%s, db:%s, key:%lld", logic ? logic->GetObjName().c_str() : "", dbName.c_str(), key);
+        co_return false;
+    }
+    
+    auto storageComp = logic->GetComp<SERVICE_NS::IMongodbStorageInfo>();
+    if(UNLIKELY(!storageComp))
+    {
+        CLOG_ERROR("query fail logic have no mongodb storage info comp logic:%s, db:%s, key:%lld", logic->GetObjName().c_str(), dbName.c_str(), key);
+        co_return false;
+    }
+
+    // 必须初始化的时候被建立过表信息
+    auto iter = _sysRefFieldStorageType.find(logic);
+    if(UNLIKELY(iter == _sysRefFieldStorageType.end() || iter->second.empty()))
+    {
+        CLOG_ERROR("query fail logic have no mongodb storage info comp logic:%s, db:%s, key:%lld", logic->GetObjName().c_str(), dbName.c_str(), key);
+        co_return false;
+    }
+    
+    auto mongodbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
+    std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
+    for(auto &field : storageComp->_uniqueIndexFields)
+    {
+        kv.emplace(field.first, KERNEL_NS::Variant(key));
+        break;
+    }
+
+    auto &rawFieldInfo = iter->second;
+    if(fieldNameRefDataResult->empty())
+    {
+        for(auto &iterFieldInfo : rawFieldInfo)
+        {
+            fieldNameRefDataResult->emplace(iterFieldInfo.first, KERNEL_NS::MongoSerializeInfo(iterFieldInfo.second, KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream()));
+        }
+    }
+
+    // 指定了字段, 则检查MongoSerializeInfo
+    else
+    {
+        for(auto iterFieldInfo = fieldNameRefDataResult->begin(); iterFieldInfo != fieldNameRefDataResult->end();)
+        {
+            // 不存在就移除, 并打印日志
+            auto iterRaw = rawFieldInfo.find(iterFieldInfo->first);
+            if(iterRaw == rawFieldInfo.end())
+            {
+                CLOG_WARN("logic have no field info:%s, logic:%s", iterFieldInfo->first.c_str(), logic->GetObjName().c_str());
+                iterFieldInfo = fieldNameRefDataResult->erase(iterFieldInfo);
+                continue;
+            }
+
+            auto &fieldInfo = iterFieldInfo->second;
+            if(UNLIKELY(!fieldInfo._stream))
+            {
+                fieldInfo._stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+            }
+            fieldInfo.DataType = iterRaw->second;
+            
+            ++iterFieldInfo;
+        }
+    }
+
+    const auto logicName = logic->GetObjName();
+    auto ret = co_await mongodbMgr->Query(dbName, storageComp->_collectionName, kv, fieldNameRefDataResult);
+    if(UNLIKELY(!ret))
+    {
+        CLOG_ERROR("query data fail db:%s, collection:%s, kv:%s", dbName.c_str(), logicName.c_str(), DictContainerToString(kv).c_str());
+    }
+
+    co_return ret;
+}
+
+KERNEL_NS::CoTask<bool> MongodbProxy::Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString keyName, Int64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo> *fieldNameRefDataResult)
+{
+     if(UNLIKELY(!fieldNameRefDataResult))
+    {
+        CLOG_ERROR("query fail logic or fieldNameRefDataResult is null collectionName:%s, db:%s, key:%lld", collectionName.c_str(), dbName.c_str(), key);
+        co_return false;
+    }
+    
+    auto mongodbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
+    std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
+    kv.emplace(keyName, KERNEL_NS::Variant(key));
+    auto ret = co_await mongodbMgr->Query(dbName, collectionName, kv, fieldNameRefDataResult);
+    if(UNLIKELY(!ret))
+    {
+        CLOG_ERROR("query data fail db:%s, collection:%s, kv:%s", dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str());
+    }
+
+    co_return ret;
+}
+
+KERNEL_NS::CoTask<bool> MongodbProxy::Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString keyName, KERNEL_NS::LibString key, std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo> *fieldNameRefDataResult)
+{
+    if(UNLIKELY(!fieldNameRefDataResult))
+    {
+        CLOG_ERROR("query fail logic or fieldNameRefDataResult is null collectionName:%s, db:%s, key:%lld", collectionName.c_str(), dbName.c_str(), key);
+        co_return false;
+    }
+    
+    auto mongodbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
+    std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
+    kv.emplace(keyName, KERNEL_NS::Variant(key));
+    auto ret = co_await mongodbMgr->Query(dbName, collectionName, kv, fieldNameRefDataResult);
+    if(UNLIKELY(!ret))
+    {
+        CLOG_ERROR("query data fail db:%s, collection:%s, kv:%s", dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str());
+    }
+
+    co_return ret;
+}
+
+
 Int32 MongodbProxy::_OnGlobalSysInit()
 {
     _closeServiceStub = _eventMgr->AddListener(EventEnums::QUIT_SERVICE_EVENT, this, &MongodbProxy::_CloseServiceEvent);
@@ -300,7 +416,7 @@ Int32 MongodbProxy::_OnGlobalSysCompsCreated()
     return Status::Success;
 }
 
-ALWAYS_INLINE static bool CheckValidStorage(KERNEL_NS::CompHostObject *turnHost, SERVICE_NS::IMongodbStorageInfo *storageComp, bool systemAsField, KERNEL_NS::LibString &errInfo)
+ALWAYS_INLINE static bool CheckValidStorage(const KERNEL_NS::CompHostObject *turnHost, const SERVICE_NS::IMongodbStorageInfo *storageComp, bool systemAsField, KERNEL_NS::LibString &errInfo)
 {
     // 检查storageComp合法性
 
@@ -354,39 +470,11 @@ Int32 MongodbProxy::_OnHostStart()
         if(UNLIKELY(!comp))
             continue;
 
-        if(!comp->IsKernelObjType(KERNEL_NS::KernelObjectType::HOST_COMP))
+        if(comp->GetType() != ServiceCompType::LOGIC_SYS)
             continue;
 
-        auto turnHost = comp->CastTo<KERNEL_NS::CompHostObject>();
-        auto storageComp = turnHost->GetComp<SERVICE_NS::IMongodbStorageInfo>();
-        if(!storageComp)
-            continue;
-
-        if (!CheckValidStorage(turnHost, storageComp, false, errInfo))
-            continue;
-
-        if(turnHost->GetType() != ServiceCompType::LOGIC_SYS)
-            continue;
-
-        // 如果是逻辑系统, 它的组件如果需要存储的需要验证下参数, 存储深度最多两个层级, 组件的子组件会作为其第一层存储的一个字段
-        auto turnLogic = turnHost->CastTo<SERVICE_NS::ILogicSys>();
-        auto &subComps = turnLogic->GetAllComps();
-        for (auto &subComp : subComps)
-        {
-            if(UNLIKELY(!subComp))
-                continue;
-
-            if(!subComp->IsKernelObjType(KERNEL_NS::KernelObjectType::HOST_COMP))
-                continue;
-
-            auto subTurnHost = subComp->CastTo<KERNEL_NS::CompHostObject>();
-            auto subStorageComp = subTurnHost->GetComp<SERVICE_NS::IMongodbStorageInfo>();
-            if(!subStorageComp)
-                continue;
-
-            if (!CheckValidStorage(turnHost, subStorageComp, true, errInfo))
-                continue;
-        }
+        auto turnLogic = comp->CastTo<SERVICE_NS::ILogicSys>();
+        _CheckLogic(turnLogic, errInfo);
     }
 
     if(!errInfo.empty())
@@ -400,19 +488,14 @@ Int32 MongodbProxy::_OnHostStart()
         if(UNLIKELY(!comp))
             continue;
 
-        if(!comp->IsKernelObjType(KERNEL_NS::KernelObjectType::HOST_COMP))
+        if(comp->GetType() != ServiceCompType::LOGIC_SYS)
             continue;
 
-        auto turnHost = comp->CastTo<KERNEL_NS::CompHostObject>();
-        auto storageComp = turnHost->GetComp<SERVICE_NS::IMongodbStorageInfo>();
+        auto turnLogic = comp->CastTo<SERVICE_NS::ILogicSys>();
+        auto storageComp = turnLogic->GetComp<SERVICE_NS::IMongodbStorageInfo>();
         if(!storageComp)
             continue;
 
-        // 是逻辑系统
-        if(turnHost->GetType() != ServiceCompType::LOGIC_SYS)
-            continue;
-
-        auto turnLogic = turnHost->CastTo<SERVICE_NS::ILogicSys>();
         RegisterDependence(turnLogic);
 
         // 索引信息(稳定排序)
@@ -437,7 +520,20 @@ Int32 MongodbProxy::_OnHostStart()
         // 没填写collection的用类名
         if(storageComp->_collectionName.empty())
             storageComp->_collectionName = turnLogic->GetObjName();
-        mongodbMgr->CreateIndex(storageComp->_dbName, storageComp->_collectionName, indexName, storageComp->_uniqueIndexFields, true);
+        if(!mongodbMgr->CreateIndex(storageComp->_dbName, storageComp->_collectionName, indexName, storageComp->_uniqueIndexFields, true))
+        {
+            errInfo.AppendFormat("CreateIndex fail db:%s, collection:%s indexName:%s logic:%s\n", storageComp->_dbName.c_str(), storageComp->_collectionName.c_str(), indexName.c_str(), turnLogic->GetObjName().c_str());
+            continue;
+        }
+
+        // 记录表信息
+        _BuildSysFields(turnLogic);
+    }
+
+    if(!errInfo.empty())
+    {
+        CLOG_ERROR("mongodb proxy start fail errInfo:\n%s", errInfo.c_str());
+        return Status::ConfigError;
     }
 
     MaskReady(true);
@@ -1075,6 +1171,81 @@ KERNEL_NS::CoTask<> MongodbProxy::_DorPurgeString(const ILogicSys *sys)
         }
     }
 }
+
+bool MongodbProxy::_CheckLogic(const ILogicSys *logic, KERNEL_NS::LibString &err) const
+{
+    auto storageComp = logic->GetComp<SERVICE_NS::IMongodbStorageInfo>();
+    if(!storageComp)
+    {
+        err.AppendFormat("logic have no storage info comp, logic:%s", logic->GetObjName().c_str());
+        return false;
+    }
+
+    if (!CheckValidStorage(logic, storageComp, false, err))
+    {
+        return false;
+    }
+
+    // 如果是逻辑系统, 它的组件如果需要存储的需要验证下参数, 存储深度最多两个层级, 组件的子组件会作为其第一层存储的一个字段
+    auto turnLogic = logic->CastTo<SERVICE_NS::ILogicSys>();
+    auto &subComps = turnLogic->GetAllComps();
+    for (auto &subComp : subComps)
+    {
+        if(UNLIKELY(!subComp))
+            continue;
+
+        if(!subComp->IsKernelObjType(KERNEL_NS::KernelObjectType::HOST_COMP))
+            continue;
+
+        auto subTurnHost = subComp->CastTo<KERNEL_NS::CompHostObject>();
+        auto subStorageComp = subTurnHost->GetComp<SERVICE_NS::IMongodbStorageInfo>();
+        if(!subStorageComp)
+            continue;
+
+        if (!CheckValidStorage(logic, subStorageComp, true, err))
+            continue;
+    }
+
+    return err.empty();
+}
+
+void MongodbProxy::_BuildSysFields(const ILogicSys *logic)
+{
+    auto storageComp = logic->GetComp<SERVICE_NS::IMongodbStorageInfo>();
+    if(UNLIKELY(!storageComp))
+    {
+        CLOG_WARN("_BuildSysFields fail logic:%s have no storage comp", logic->GetObjName().c_str());
+        return;
+    }
+    
+    auto iterFieldRefStorageType = _sysRefFieldStorageType.emplace(logic, std::unordered_map<KERNEL_NS::LibString, Int32>()).first;
+    auto &fieldRefStorageType = iterFieldRefStorageType->second;
+
+    // 唯一键
+    for(auto &iterField : storageComp->_fieldNameRefStorageType)
+    {
+        fieldRefStorageType.emplace(iterField.first, iterField.second);
+    }
+
+    auto &subComps = logic->GetAllComps();
+    for(auto &subComp : subComps)
+    {
+        if(UNLIKELY(!subComp))
+            continue;
+
+        if(!subComp->IsKernelObjType(KERNEL_NS::KernelObjectType::HOST_COMP))
+            continue;
+
+        auto subHost = subComp->CastTo<KERNEL_NS::CompHostObject>();
+        auto subStorageComp = subHost->GetComp<SERVICE_NS::IMongodbStorageInfo>();
+        if(!subStorageComp)
+            continue;
+
+        auto &subCompName = subComp->GetObjName();
+        fieldRefStorageType[subCompName] = subStorageComp->_storageType;
+    }
+}
+
 
 SERVICE_END
 

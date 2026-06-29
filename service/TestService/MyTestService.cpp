@@ -195,13 +195,16 @@ void MyTestService::_OnServiceRegisterComps()
 #ifdef CRYSTAL_STORAGE_ENABLE
     // 存储组件
     // RegisterComp<MysqlMgrFactory>();
+
+    // 存储
+    RegisterComp<MongodbProxyFactory>();
 #endif
 
     // 全球唯一id组件(需要有存储组件)
     // RegisterComp<GlobalUidMgrFactory>();
 
     // 跨时间组件(需要有GlobalUidMgr与存储组件)
-    // RegisterComp<PassTimeGlobalFactory>();
+    RegisterComp<PassTimeGlobalFactory>();
 
     // 测试组件
     // RegisterComp<MyServiceCompFactory>();
