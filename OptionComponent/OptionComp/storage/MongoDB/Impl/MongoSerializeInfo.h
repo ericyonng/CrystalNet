@@ -32,6 +32,9 @@
 
 #include <kernel/comp/memory/ObjPoolMacro.h>
 #include <OptionComp/storage/MongoDB/Impl/MongoSerializeInfoType.h>
+#include <kernel/comp/SmartPtr.h>
+#include <kernel/comp/Utils/ContainerUtil.h>
+#include <kernel/comp/LibStream.h>
 
 KERNEL_BEGIN
 
@@ -50,6 +53,26 @@ struct MongoSerializeInfo
     Int32 DataType = MongoSerializeInfoType::JSON;
 
     LibStream<_Build::TL> *_stream = NULL;
+};
+
+struct SmartMongoSerializeInfoWrapper
+{
+    SmartMongoSerializeInfoWrapper()
+        :Ptr(new std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo>())
+    {
+        Ptr.SetClosureDelegate([](void *p)
+        {
+            auto ptr = KERNEL_NS::KernelCastTo<std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo>>(p);
+            ContainerUtil::DelContainer(*ptr, [](const KERNEL_NS::MongoSerializeInfo &info)
+            {
+                KERNEL_NS::LibStreamTL::DeleteThreadLocal_LibStream(info._stream);
+            });
+            delete ptr;
+        });
+    }
+    ~SmartMongoSerializeInfoWrapper() = default;
+    
+    KERNEL_NS::SmartPtr<std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo>, KERNEL_NS::AutoDelMethods::CustomDelete> Ptr;
 };
 
 KERNEL_END

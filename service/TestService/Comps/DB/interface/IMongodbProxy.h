@@ -67,7 +67,7 @@ public:
     virtual KERNEL_NS::CoTask<> Purge(const ILogicSys *logic) = 0;
 
     // 查Logic数据 只需要外部传fieldNameRefData即可,用于接收结果, 内部不会释放, 外部自己手动释放结果
-    virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, const ILogicSys *logic, Int64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo> *fieldNameRefDataResult) = 0;
+    virtual KERNEL_NS::CoTask<bool> Query(const ILogicSys *logic, Int64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo> *fieldNameRefDataResult) = 0;
     // fieldNameRefDataResult:指定字段名, 则会查询指定字段名的数据, 不指定, 则查询全部数据
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString keyName, Int64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo> *fieldNameRefDataResult) = 0;
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString keyName, KERNEL_NS::LibString key, std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo> *fieldNameRefDataResult) = 0;

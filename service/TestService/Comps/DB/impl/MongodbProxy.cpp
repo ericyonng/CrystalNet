@@ -274,18 +274,18 @@ KERNEL_NS::CoTask<> MongodbProxy::Purge(const ILogicSys *logic)
     co_return;
 }
 
-KERNEL_NS::CoTask<bool> MongodbProxy::Query(KERNEL_NS::LibString dbName, const ILogicSys *logic, Int64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo> *fieldNameRefDataResult)
+KERNEL_NS::CoTask<bool> MongodbProxy::Query(const ILogicSys *logic, Int64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo> *fieldNameRefDataResult)
 {
     if(UNLIKELY(!logic || !fieldNameRefDataResult))
     {
-        CLOG_ERROR("query fail logic or fieldNameRefDataResult is null logic:%s, db:%s, key:%lld", logic ? logic->GetObjName().c_str() : "", dbName.c_str(), key);
+        CLOG_ERROR("query fail logic or fieldNameRefDataResult is null logic:%s, key:%lld", logic ? logic->GetObjName().c_str() : "", key);
         co_return false;
     }
     
     auto storageComp = logic->GetComp<SERVICE_NS::IMongodbStorageInfo>();
     if(UNLIKELY(!storageComp))
     {
-        CLOG_ERROR("query fail logic have no mongodb storage info comp logic:%s, db:%s, key:%lld", logic->GetObjName().c_str(), dbName.c_str(), key);
+        CLOG_ERROR("query fail logic have no mongodb storage info comp logic:%s, key:%lld", logic->GetObjName().c_str(), key);
         co_return false;
     }
 
@@ -293,7 +293,7 @@ KERNEL_NS::CoTask<bool> MongodbProxy::Query(KERNEL_NS::LibString dbName, const I
     auto iter = _sysRefFieldStorageType.find(logic);
     if(UNLIKELY(iter == _sysRefFieldStorageType.end() || iter->second.empty()))
     {
-        CLOG_ERROR("query fail logic have no mongodb storage info comp logic:%s, db:%s, key:%lld", logic->GetObjName().c_str(), dbName.c_str(), key);
+        CLOG_ERROR("query fail logic have no mongodb storage info comp logic:%s, db:%s key:%lld", logic->GetObjName().c_str(), storageComp->_dbName.c_str(), key);
         co_return false;
     }
     
@@ -340,6 +340,7 @@ KERNEL_NS::CoTask<bool> MongodbProxy::Query(KERNEL_NS::LibString dbName, const I
     }
 
     const auto logicName = logic->GetObjName();
+    const auto dbName = storageComp->_dbName;
     auto ret = co_await mongodbMgr->Query(dbName, storageComp->_collectionName, kv, fieldNameRefDataResult);
     if(UNLIKELY(!ret))
     {

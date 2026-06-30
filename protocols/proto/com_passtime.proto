@@ -3,6 +3,7 @@ option cc_enable_arenas = true;
 
 package CRYSTAL_NET.service;
 
+/// EnableStorage:true
 message PassTimeData 
 {
     // 上次跨天时间

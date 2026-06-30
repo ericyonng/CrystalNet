@@ -30,3 +30,4 @@
 #include <service/common/Configs/AddrConfig.h>
 #include <service/common/Configs/SysLogicOptions.h>
 #include <service/common/Configs/TcpListenInfo.h>
+#include <service/common/Configs/StorageOptions.h>

@@ -30,20 +30,25 @@
 #include <Comps/PassTime/impl/PassTimeGlobalMongoFactory.h>
 #include <kernel/comp/Utils/RttiUtil.h>
 #include <OptionComp/storage/MongoDB/Impl/MongoSerializeInfoType.h>
+#include <protocols/cplusplus/com_passtime.pb.h>
+#include <kernel/common/status.h>
+#include <Comps/PassTime/impl/PassTimeGlobal.h>
+
+#include "MyTestService.h"
+#include <service/common/Configs/Configs.h>
 
 SERVICE_BEGIN
-
-PassTimeGlobalMongo::PassTimeGlobalMongo()
+    PassTimeGlobalMongo::PassTimeGlobalMongo()
     :IMongodbStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<PassTimeGlobalMongo>())
 {
     _dbName = "TestSuit";
 
     // 唯一索引信息
-    _uniqueIndexFields.emplace_back("PassTimeId", MongodbIndexFieldValue::HASHED);
+    _uniqueIndexFields.emplace_back(KeyName, MongodbIndexFieldValue::HASHED);
 
     // 存储类型(json 文档对象)
-    _fieldNameRefStorageType["PassTimeId"] = KERNEL_NS::MongoSerializeInfoType::INT64;
-    _fieldNameRefStorageType["LastPassTime"] = KERNEL_NS::MongoSerializeInfoType::INT64;
+    _fieldNameRefStorageType[KeyName] = KERNEL_NS::MongoSerializeInfoType::INT64;
+    _fieldNameRefStorageType[ValueName] = KERNEL_NS::MongoSerializeInfoType::JSON;
 }
 
 PassTimeGlobalMongo::~PassTimeGlobalMongo()
@@ -55,5 +60,12 @@ void PassTimeGlobalMongo::Release()
 {
     PassTimeGlobalMongo::DeleteByAdapter_PassTimeGlobalMongo(PassTimeGlobalMongoFactory::_buildType.V, this);
 }
+
+Int32 PassTimeGlobalMongo::_OnInit()
+{
+    _dbName = GetOwner()->CastTo<PassTimeGlobal>()->GetService()->CastTo<MyTestService>()->GetStorageOption()->DbName;
+    return Status::Success;
+}
+
 
 SERVICE_END

@@ -98,6 +98,10 @@ public:
     template<typename ObjType>
     void SetMaskDirtyCallback(ObjType *objType, void (ObjType::*cb)(IOrmData *));
     template<typename LambdaType>
+    requires requires(LambdaType lambda, IOrmData *p)
+    {
+        lambda(p);
+    }
     void SetMaskDirtyCallback(LambdaType&& cb);
 
     // 类型转换
@@ -209,6 +213,10 @@ ALWAYS_INLINE void IOrmData::SetMaskDirtyCallback(ObjType *objType, void (ObjTyp
 }
 
 template<typename LambdaType>
+requires requires(LambdaType lambda, IOrmData *p)
+{
+    lambda(p);
+}
 ALWAYS_INLINE void IOrmData::SetMaskDirtyCallback(LambdaType&& cb)
 {
     auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, IOrmData *);

@@ -34,6 +34,11 @@
 #include <kernel/comp/LibTime.h>
 #include <kernel/comp/Timer/Timer.h>
 
+SERVICE_COMMON_BEGIN
+class PassTimeDataOrmData;
+
+SERVICE_COMMON_END
+
 SERVICE_BEGIN
 
 class PassTimeGlobal : public IPassTimeGlobal
@@ -49,7 +54,7 @@ public:
     Int32 OnLoaded(UInt64 key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) override;
     Int32 OnSave(UInt64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const override;
     
-    virtual void CheckPassTime() override;
+    virtual KERNEL_NS::CoTask<> CheckPassTime() override;
 
 private:
     void _OnZeroTimeOut(KERNEL_NS::LibTimer *t);
@@ -58,8 +63,8 @@ private:
     void _Clear();
 
 private:
-    UInt64 _key;
-    PassTimeData *_passTimeData;
+    const Int64 _key;
+    SERVICE_COMMON_NS::PassTimeDataOrmData *_passTimeData;
     KERNEL_NS::LibTimer *_timer;
 };
 

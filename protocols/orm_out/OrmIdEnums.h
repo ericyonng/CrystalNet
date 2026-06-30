@@ -56,7 +56,8 @@ public:
         BookVariantInfoOrmData = 14,
         SnapshotClientInfoOrmData = 15,
         SimpleInfoOrmData = 16,
-        MAX_ORM_ID = SimpleInfoOrmData,
+        PassTimeDataOrmData = 17,
+        MAX_ORM_ID = PassTimeDataOrmData,
     };
 };
 

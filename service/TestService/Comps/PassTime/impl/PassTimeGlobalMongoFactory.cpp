@@ -43,7 +43,6 @@ void PassTimeGlobalMongoFactory::Release()
     
 KERNEL_NS::CompObject *PassTimeGlobalMongoFactory::Create() const
 {
-    CREATE_MONGO_STORAGE_COMP(comp, PassTimeGlobalMongo);
-    return comp;
+    return PassTimeGlobalMongo::NewByAdapter_PassTimeGlobalMongo(_buildType.V);
 }
 SERVICE_END

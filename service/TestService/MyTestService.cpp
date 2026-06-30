@@ -40,6 +40,7 @@
 #include <service/TestService/MyTestService.h>
 #include <kernel/comp/LibStringYaml.h>
 #include <kernel/comp/SmartPtr.h>
+#include <service/common/Configs/StorageOptions.h>
 
 SERVICE_BEGIN
     // 配置项
@@ -51,6 +52,7 @@ MyTestService::MyTestService()
 ,_frameUpdateTimeMs(50)
 ,_eventMgr(NULL)
 ,_serviceConfig(KERNEL_NS::FileMonitor<ServiceConfig, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
+,_storageOptions(KERNEL_NS::FileMonitor<StorageOptions, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
 ,_defaultStack(NULL)
 ,_dbLoadedEventStub(INVALID_LISTENER_STUB)
 ,_dbLoaded(false)
@@ -96,6 +98,12 @@ KERNEL_NS::SmartPtr<ServiceConfig, KERNEL_NS::AutoDelMethods::Release> MyTestSer
 {
     return _serviceConfig->Current();
 }
+
+KERNEL_NS::SmartPtr<StorageOptions, KERNEL_NS::AutoDelMethods::Release> MyTestService::GetStorageOption() const
+{
+    return _storageOptions->Current();
+}
+
 
 UInt64 MyTestService::GetSessionAmount() const
 {
@@ -254,6 +262,12 @@ Int32 MyTestService::_OnServiceInit()
         if(!_serviceConfig->Init(GetApp()->GetSourceWrap(), serviceName))
         {
             CLOG_ERROR("init service config fail, service name:%s", serviceName.c_str());
+            return Status::ConfigError;
+        }
+
+        if (!_storageOptions->Init(GetApp()->GetSourceWrap(), KERNEL_NS::LibString().AppendFormat("%s.StorageOptions", serviceName.c_str())))
+        {
+            CLOG_ERROR("init storage option fail, service name:%s", serviceName.c_str());
             return Status::ConfigError;
         }
         
@@ -594,39 +608,38 @@ bool MyTestService::HasDbComps() const
 
 void MyTestService::_CheckStartup()
 {
-    // 等待SysLogicMgr完成
-    auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
-    timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t){
-        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
-    });
-    timer->SetTimeOutHandler([this](KERNEL_NS::LibTimer *t) mutable{
-
-        // 有db组件需要先加载完成数据, TODO:后续接入mongodb时应该替换掉
-        if(HasDbComps() && !_dbLoaded)
-            return;
-        
-        auto service = reinterpret_cast<IService *>(this);
-        auto sysLogicMgr = service->GetComp<ISysLogicMgr>();
-        if(!sysLogicMgr->IsAllTaskFinish())
+    KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<>
+    {
+        do
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("%s not finish task."), sysLogicMgr->GetObjName().c_str());
-            return;
+            co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
+            
+            auto service = reinterpret_cast<IService *>(this);
+            auto sysLogicMgr = service->GetComp<ISysLogicMgr>();
+            if(!sysLogicMgr->IsAllTaskFinish())
+            {
+                CLOG_WARN("%s not finish task.", sysLogicMgr->GetObjName().c_str());
+                continue;
+            }
+
+            // 先执行跨天
+            auto passTimeGlobal = service->GetComp<IPassTimeGlobal>();
+            if(passTimeGlobal)
+                co_await passTimeGlobal->CheckPassTime();
+
+            auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_WILL_STARTUP);
+            GetEventMgr()->FireEvent(ev);
+
+            ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_STARTUP);
+            GetEventMgr()->FireEvent(ev);
+
+            break;
         }
+        while (true);
 
-        // 先执行跨天
-        auto passTimeGlobal = service->GetComp<IPassTimeGlobal>();
-        if(passTimeGlobal)
-            passTimeGlobal->CheckPassTime();
-
-        auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_WILL_STARTUP);
-        GetEventMgr()->FireEvent(ev);
-
-        ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_STARTUP);
-        GetEventMgr()->FireEvent(ev);
-        
-        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+        CLOG_INFO("service start up, service:%s", ToString().c_str());
     });
-    timer->Schedule(1000);
+    
 }
 
 
@@ -648,6 +661,11 @@ void MyTestService::_Clear()
     {
         KERNEL_NS::FileMonitor<ServiceConfig, KERNEL_NS::YamlDeserializer>::Delete_FileMonitor(_serviceConfig);
         _serviceConfig = NULL;
+    }
+    if (_storageOptions)
+    {
+        KERNEL_NS::FileMonitor<StorageOptions, KERNEL_NS::YamlDeserializer>::Delete_FileMonitor(_storageOptions);
+        _storageOptions = NULL;
     }
 }
 

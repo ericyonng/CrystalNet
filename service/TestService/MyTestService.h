@@ -58,6 +58,7 @@ KERNEL_END
 SERVICE_BEGIN
 
 struct ServiceConfig;
+struct StorageOptions;
 
 class MyTestService : public SERVICE_COMMON_NS::IService
 {
@@ -90,6 +91,8 @@ public:
 
     // 获取配置
     KERNEL_NS::SmartPtr<ServiceConfig, KERNEL_NS::AutoDelMethods::Release> GetServiceConfig() const;
+
+    KERNEL_NS::SmartPtr<StorageOptions, KERNEL_NS::AutoDelMethods::Release> GetStorageOption() const;
 
     UInt64 GetSessionAmount() const override;
 
@@ -160,6 +163,7 @@ private:
 
     // 配置
     KERNEL_NS::FileMonitor<ServiceConfig, KERNEL_NS::YamlDeserializer> *_serviceConfig;
+    KERNEL_NS::FileMonitor<StorageOptions, KERNEL_NS::YamlDeserializer> *_storageOptions;
 
     std::unordered_map<Int32, KERNEL_NS::IProtocolStack *> _stackTypeRefProtocolStack;
     KERNEL_NS::IProtocolStack *_defaultStack;

@@ -30,6 +30,7 @@
 
 #include <ServiceCompHeader.h>
 #include <service/common/BaseComps/GlobalSys/GlobalSys.h>
+#include <kernel/comp/Coroutines/CoTask.h>
 
 SERVICE_BEGIN
 
@@ -41,7 +42,7 @@ public:
     IPassTimeGlobal(UInt64 objTypeId) : IGlobalSys(objTypeId) {}
     
     // 跨时间
-    virtual void CheckPassTime() = 0;
+    virtual KERNEL_NS::CoTask<> CheckPassTime() = 0;
 };
 
 SERVICE_END

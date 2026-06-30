@@ -1264,6 +1264,7 @@ export namespace crystal_net_service
 
 
     }
+    /// EnableStorage:true
     // com_passtime.proto
     export class PassTimeData {
         // 上次跨天时间
