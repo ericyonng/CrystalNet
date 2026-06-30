@@ -68,7 +68,7 @@ public:
 
     // 给表设置分片键(需要在WillStart之前设置)
     virtual bool SetShardKeyInfo(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const std::vector<ShardKeyInfo> &shardKeyInfos, bool isUnique = false) = 0;
-    // 设置索引(支持符合索引, 需要在WillStart之前设置) fields:字段名, 1:升序, -1降序,-2:hashed
+    // 设置索引(支持符合索引, 需要在WillStart之前设置) fields:字段名, 1:升序, -1降序,-2:hashed hashed不能做唯一索引否则会失败
     virtual bool CreateIndex(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const KERNEL_NS::LibString &indexName, const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &fields, bool unique = false) = 0;
 
     // 分布式锁(表级)

@@ -293,13 +293,14 @@ KERNEL_NS::CoTask<bool> MongodbProxy::Query(const ILogicSys *logic, Int64 key, s
     auto iter = _sysRefFieldStorageType.find(logic);
     if(UNLIKELY(iter == _sysRefFieldStorageType.end() || iter->second.empty()))
     {
-        CLOG_ERROR("query fail logic have no mongodb storage info comp logic:%s, db:%s key:%lld", logic->GetObjName().c_str(), storageComp->_dbName.c_str(), key);
+        CLOG_ERROR("query fail logic have no mongodb storage info comp logic:%s, db:%s key:%lld", logic->GetObjName().c_str(), storageComp->GetDbName().c_str(), key);
         co_return false;
     }
     
     auto mongodbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
     std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
-    for(auto &field : storageComp->_uniqueIndexFields)
+    auto &uniqueIndexFields = storageComp->GetUniqueIndexFields();
+    for(auto &field : uniqueIndexFields)
     {
         kv.emplace(field.first, KERNEL_NS::Variant(key));
         break;
@@ -339,12 +340,12 @@ KERNEL_NS::CoTask<bool> MongodbProxy::Query(const ILogicSys *logic, Int64 key, s
         }
     }
 
-    const auto logicName = logic->GetObjName();
-    const auto dbName = storageComp->_dbName;
-    auto ret = co_await mongodbMgr->Query(dbName, storageComp->_collectionName, kv, fieldNameRefDataResult);
+    const auto systemName = storageComp->GetSystemName();
+    const auto dbName = storageComp->GetDbName();
+    auto ret = co_await mongodbMgr->Query(dbName, storageComp->GetSystemName(), kv, fieldNameRefDataResult);
     if(UNLIKELY(!ret))
     {
-        CLOG_ERROR("query data fail db:%s, collection:%s, kv:%s", dbName.c_str(), logicName.c_str(), DictContainerToString(kv).c_str());
+        CLOG_DEBUG("query data fail db:%s, collection:%s, kv:%s", dbName.c_str(), systemName.c_str(), DictContainerToString(kv).c_str());
     }
 
     co_return ret;
@@ -421,36 +422,49 @@ ALWAYS_INLINE static bool CheckValidStorage(const KERNEL_NS::CompHostObject *tur
 {
     // 检查storageComp合法性
 
-    // if(storageComp->_collectionName.empty())
-    // {
-    //     storageComp->_collectionName = turnHost->GetObjName();
-    // }
+    // 必须检查项
+    bool ret = true;
+    if(storageComp->GetSystemName().empty())
+    {
+        errInfo.AppendFormat("logic :%s lack system name\n", turnHost->GetObjName().c_str());
+        ret = false;
+    }
 
     // 系统整体作为表的一个字段, 不用检查索引和_fieldNameRefStorageType, 以及dbName, 只需要检查_storageType
-    bool ret = true;
     if (!systemAsField)
     {
-        if(storageComp->_dbName.empty())
+        if(storageComp->GetDbName().empty())
         {
             errInfo.AppendFormat("logic :%s lack db name\n", turnHost->GetObjName().c_str());
             ret = false;
         }
         
-        if(storageComp->_uniqueIndexFields.empty())
+        if(storageComp->GetUniqueIndexFields().empty())
         {
             errInfo.AppendFormat("logic :%s lack unique index fields\n", turnHost->GetObjName().c_str());
             ret = false;
         }
 
-        if(storageComp->_fieldNameRefStorageType.empty() && storageComp->_storageType == 0)
+        auto &fieldNameRefStorageType = storageComp->GetFieldNameRefStorageType();
+        if(fieldNameRefStorageType.empty())
         {
             errInfo.AppendFormat("logic :%s lack _fieldNameRefStorageType and _storageType\n", turnHost->GetObjName().c_str());
             ret = false;
         }
+
+        for(auto &iter : storageComp->GetUniqueIndexFields())
+        {
+            auto iterField = fieldNameRefStorageType.find(iter.first);
+            if(iterField == fieldNameRefStorageType.end())
+            {
+                errInfo.AppendFormat("logic :%s lack _fieldNameRefStorageType lack unique field:%s\n", turnHost->GetObjName().c_str(), iter.first.c_str());
+                ret = false;
+            }
+        }
     }
     else
     {
-        if (storageComp->_storageType == KERNEL_NS::MongoSerializeInfoType::UNKNOWN)
+        if (storageComp->GetStorageType() == KERNEL_NS::MongoSerializeInfoType::UNKNOWN)
         {
             errInfo.AppendFormat("logic :%s lack sub comp:%s lack storage type, storageComp:%s\n", turnHost->GetObjName().c_str(), storageComp->GetOwner()->GetObjName().c_str(), storageComp->GetObjName().c_str());
             ret = false;
@@ -460,9 +474,8 @@ ALWAYS_INLINE static bool CheckValidStorage(const KERNEL_NS::CompHostObject *tur
     return ret;
 }
 
-Int32 MongodbProxy::_OnHostStart()
+Int32 MongodbProxy::_OnGlobalSysWillStart()
 {
-    auto mongodbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
     // 扫码所有的系统注册依赖
     auto &comps = GetService()->GetAllComps();
     KERNEL_NS::LibString errInfo;
@@ -483,7 +496,8 @@ Int32 MongodbProxy::_OnHostStart()
         CLOG_ERROR("check logics storage fail\n :%s", errInfo.c_str());
         return Status::ConfigError;
     }
-    
+
+    auto mongodbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
     for(auto comp : comps)
     {
         if(UNLIKELY(!comp))
@@ -501,7 +515,8 @@ Int32 MongodbProxy::_OnHostStart()
 
         // 索引信息(稳定排序)
         std::set<KERNEL_NS::LibString> fields;
-        for(auto &item : storageComp->_uniqueIndexFields)
+        auto &uniqueIndexFields = storageComp->GetUniqueIndexFields();
+        for(auto &item : uniqueIndexFields)
             fields.insert(item.first);
         
         KERNEL_NS::LibString indexName = "unique_index_";
@@ -511,19 +526,17 @@ Int32 MongodbProxy::_OnHostStart()
         {
             auto &&strip = item.strip();
             strip = strip.tolower();
-            ++idx;
             indexName.AppendFormat("%s", strip.c_str());
             if(idx != (count - 1))
             {
                 indexName.Append("_");
             }
+
+            ++idx;
         }
-        // 没填写collection的用类名
-        if(storageComp->_collectionName.empty())
-            storageComp->_collectionName = turnLogic->GetObjName();
-        if(!mongodbMgr->CreateIndex(storageComp->_dbName, storageComp->_collectionName, indexName, storageComp->_uniqueIndexFields, true))
+        if(!mongodbMgr->CreateIndex(storageComp->GetDbName(), storageComp->GetSystemName(), indexName, storageComp->GetUniqueIndexFields(), true))
         {
-            errInfo.AppendFormat("CreateIndex fail db:%s, collection:%s indexName:%s logic:%s\n", storageComp->_dbName.c_str(), storageComp->_collectionName.c_str(), indexName.c_str(), turnLogic->GetObjName().c_str());
+            errInfo.AppendFormat("CreateIndex fail db:%s, collection:%s indexName:%s logic:%s\n", storageComp->GetDbName().c_str(), storageComp->GetSystemName().c_str(), indexName.c_str(), turnLogic->GetObjName().c_str());
             continue;
         }
 
@@ -536,7 +549,12 @@ Int32 MongodbProxy::_OnHostStart()
         CLOG_ERROR("mongodb proxy start fail errInfo:\n%s", errInfo.c_str());
         return Status::ConfigError;
     }
+    
+    return Status::Success;
+}
 
+Int32 MongodbProxy::_OnHostStart()
+{
     MaskReady(true);
 
     return Status::Success;
@@ -555,10 +573,13 @@ void MongodbProxy::_CloseServiceEvent(KERNEL_NS::LibEvent *ev)
 
 void MongodbProxy::_OnPurgeTimer(KERNEL_NS::LibTimer *t)
 {
-    KERNEL_NS::RunRightNow([this]()->KERNEL_NS::CoTask<>
+    if(!_dirtyLogicRefIsNumberKey.empty())
     {
-        co_await Purge();
-    });
+        KERNEL_NS::RunRightNow([this]()->KERNEL_NS::CoTask<>
+        {
+            co_await Purge();
+        });
+    }
 
     // 时间变更了
     auto currentConfig = _options->Current();
@@ -716,7 +737,8 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberAddDirtyHandler(KERNEL_NS::LibDirtyHe
 
     auto storageCom = logic->GetComp<IMongodbStorageInfo>();
     std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
-    for(auto &iter : storageCom->_uniqueIndexFields)
+    auto &uniqueIndexFields = storageCom->GetUniqueIndexFields();
+    for(auto &iter : uniqueIndexFields)
     {
         kv.emplace(iter.first, KERNEL_NS::Variant(key));
         break;
@@ -742,36 +764,23 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberAddDirtyHandler(KERNEL_NS::LibDirtyHe
         auto &fieldValue = iter->second;
 
         Int32 storageType = KERNEL_NS::MongoSerializeInfoType::UNKNOWN;
-        auto iterFieldInfo = storageCom->_fieldNameRefStorageType.find(fieldName);
-        if(iterFieldInfo != storageCom->_fieldNameRefStorageType.end())
+        auto &fieldNameRefStorageType = storageCom->GetFieldNameRefStorageType();
+        auto iterFieldInfo = fieldNameRefStorageType.find(fieldName);
+        if(iterFieldInfo != fieldNameRefStorageType.end())
         {
             storageType = iterFieldInfo->second;
         }
 
-        // 没有定义该字段, 则从logic的组件找
+        // 没有定义该字段, 则从Proxy表信息找
         else
         {
-            // 默认认为是ObjName
-            auto comp = logic->GetCompByName(fieldName);
-            if(UNLIKELY(comp == NULL))
+            if(!_TryGetStorageType(logic, fieldName, storageType))
             {
-                errInfo.AppendFormat("logic unknown field, logic:%s, field name:%s when save data."
+                errInfo.AppendFormat("_TryGetStorageType fail, logic:%s, field name:%s when save data."
                     , logic->GetObjName().c_str(), fieldName.c_str());
                 ++iter;
                 continue;
             }
-
-            if(UNLIKELY(!comp->IsKernelObjType(KERNEL_NS::KernelObjectType::HOST_COMP)))
-            {
-                errInfo.AppendFormat("logic comp:%s is not host comp, logic:%s, field name:%s when save data."
-                , comp->GetObjName().c_str(), logic->GetObjName().c_str(), fieldName.c_str());
-                ++iter;
-                continue;
-            }
-
-            // 子系统默认只作为母系统的一个字段存储
-            auto subCompStorageComp = comp->CastTo<KERNEL_NS::CompHostObject>()->GetComp<SERVICE_NS::IMongodbStorageInfo>();
-            storageType = subCompStorageComp->_storageType;
         }
 
         if(UNLIKELY(storageType == KERNEL_NS::MongoSerializeInfoType::UNKNOWN))
@@ -793,7 +802,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberAddDirtyHandler(KERNEL_NS::LibDirtyHe
 
     auto popDb = dict.pop();
     const auto logicName = logic->GetObjName();
-    auto ret = co_await GetComp<KERNEL_NS::IMongoDbMgr>()->AddData(storageCom->_dbName, storageCom->_collectionName, kv, popDb);
+    auto ret = co_await GetComp<KERNEL_NS::IMongoDbMgr>()->AddData(storageCom->GetDbName(), storageCom->GetSystemName(), kv, popDb);
 
     if(UNLIKELY(!ret))
     {
@@ -830,7 +839,8 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberModifyDirtyHandler(KERNEL_NS::LibDirt
 
     auto storageCom = logic->GetComp<IMongodbStorageInfo>();
     std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
-    for(auto &iter : storageCom->_uniqueIndexFields)
+    auto &uniqueIndexFields = storageCom->GetUniqueIndexFields();
+    for(auto &iter : uniqueIndexFields)
     {
         kv.emplace(iter.first, KERNEL_NS::Variant(key));
         break;
@@ -856,36 +866,24 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberModifyDirtyHandler(KERNEL_NS::LibDirt
         auto &fieldValue = iter->second;
 
         Int32 storageType = KERNEL_NS::MongoSerializeInfoType::UNKNOWN;
-        auto iterFieldInfo = storageCom->_fieldNameRefStorageType.find(fieldName);
-        if(iterFieldInfo != storageCom->_fieldNameRefStorageType.end())
+        auto &fieldNameRefStorageType = storageCom->GetFieldNameRefStorageType();
+        auto iterFieldInfo = fieldNameRefStorageType.find(fieldName);
+        if(iterFieldInfo != fieldNameRefStorageType.end())
         {
             storageType = iterFieldInfo->second;
         }
 
-        // 没有定义该字段, 则从logic的组件找
+        // 没有定义该字段, 则从logic的组件找 TODO:在Proxy的表信息中找
         else
         {
-            // 默认认为是ObjName
-            auto comp = logic->GetCompByName(fieldName);
-            if(UNLIKELY(comp == NULL))
+            // Proxy表中找storageType
+            if(!_TryGetStorageType(logic, fieldName, storageType))
             {
-                errInfo.AppendFormat("logic unknown field, logic:%s, field name:%s when save data."
+                errInfo.AppendFormat("_TryGetStorageType fail, logic:%s, field name:%s when save data."
                     , logic->GetObjName().c_str(), fieldName.c_str());
                 ++iter;
                 continue;
             }
-
-            if(UNLIKELY(!comp->IsKernelObjType(KERNEL_NS::KernelObjectType::HOST_COMP)))
-            {
-                errInfo.AppendFormat("logic comp:%s is not host comp, logic:%s, field name:%s when save data."
-                , comp->GetObjName().c_str(), logic->GetObjName().c_str(), fieldName.c_str());
-                ++iter;
-                continue;
-            }
-
-            // 子系统默认只作为母系统的一个字段存储
-            auto subCompStorageComp = comp->CastTo<KERNEL_NS::CompHostObject>()->GetComp<SERVICE_NS::IMongodbStorageInfo>();
-            storageType = subCompStorageComp->_storageType;
         }
 
         if(UNLIKELY(storageType == KERNEL_NS::MongoSerializeInfoType::UNKNOWN))
@@ -907,7 +905,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberModifyDirtyHandler(KERNEL_NS::LibDirt
 
     auto popDb = dict.pop();
     const auto logicName = logic->GetObjName();
-    auto ret = co_await GetComp<KERNEL_NS::IMongoDbMgr>()->UpdateData(storageCom->_dbName, storageCom->_collectionName, kv, popDb, true);
+    auto ret = co_await GetComp<KERNEL_NS::IMongoDbMgr>()->UpdateData(storageCom->GetDbName(), storageCom->GetSystemName(), kv, popDb, true);
 
     if(UNLIKELY(!ret))
     {
@@ -928,7 +926,8 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberDeleteDirtyHandler(KERNEL_NS::LibDirt
 
     auto storageCom = logic->GetComp<IMongodbStorageInfo>();
     std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
-    for(auto &iter : storageCom->_uniqueIndexFields)
+    auto &uniqueIndexFields = storageCom->GetUniqueIndexFields();
+    for(auto &iter : uniqueIndexFields)
     {
         kv.emplace(iter.first, KERNEL_NS::Variant(key));
         break;
@@ -941,7 +940,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberDeleteDirtyHandler(KERNEL_NS::LibDirt
     }
 
     const auto logicName = logic->GetObjName();
-    auto ret = co_await GetComp<KERNEL_NS::IMongoDbMgr>()->DelData(storageCom->_dbName, storageCom->_collectionName, kv);
+    auto ret = co_await GetComp<KERNEL_NS::IMongoDbMgr>()->DelData(storageCom->GetDbName(), storageCom->GetSystemName(), kv);
 
     if(UNLIKELY(!ret))
     {
@@ -969,16 +968,26 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDir
         });
         CRYSTAL_DELETE_SAFE(p);
     });
-    auto err = logic->OnSave(key, *dbInfo.AsSelf());
+    auto storageCom = logic->GetComp<IMongodbStorageInfo>();
+    Int32 err = Status::Success;
+    if(storageCom->IsKvSystem())
+    {
+        // TODO:调用kv的OnSave接口  KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *
+        err = logic->OnSave(key, *dbInfo.AsSelf());
+    }
+    else
+    {
+        err = logic->OnSave(key, *dbInfo.AsSelf());
+    }
     if(err != Status::Success)
     {
         CLOG_ERROR("logic save db fail err:%d, logic:%s, key:%lld", err, logic->GetObjName().c_str(), key);
         co_return;
     }
 
-    auto storageCom = logic->GetComp<IMongodbStorageInfo>();
     std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
-    for(auto &iter : storageCom->_uniqueIndexFields)
+    auto &uniqueIndexFields = storageCom->GetUniqueIndexFields();
+    for(auto &iter : uniqueIndexFields)
     {
         kv.emplace(iter.first, KERNEL_NS::Variant(key));
         break;
@@ -1004,8 +1013,9 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDir
         auto &fieldValue = iter->second;
 
         Int32 storageType = KERNEL_NS::MongoSerializeInfoType::UNKNOWN;
-        auto iterFieldInfo = storageCom->_fieldNameRefStorageType.find(fieldName);
-        if(iterFieldInfo != storageCom->_fieldNameRefStorageType.end())
+        auto &fieldNameRefStorageType = storageCom->GetFieldNameRefStorageType();
+        auto iterFieldInfo = fieldNameRefStorageType.find(fieldName);
+        if(iterFieldInfo != fieldNameRefStorageType.end())
         {
             storageType = iterFieldInfo->second;
         }
@@ -1013,27 +1023,14 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDir
         // 没有定义该字段, 则从logic的组件找
         else
         {
-            // 默认认为是ObjName
-            auto comp = logic->GetCompByName(fieldName);
-            if(UNLIKELY(comp == NULL))
+            // Proxy表中找storageType
+            if(!_TryGetStorageType(logic, fieldName, storageType))
             {
-                errInfo.AppendFormat("logic unknown field, logic:%s, field name:%s when save data."
+                errInfo.AppendFormat("_TryGetStorageType fail, logic:%s, field name:%s when save data."
                     , logic->GetObjName().c_str(), fieldName.c_str());
                 ++iter;
                 continue;
             }
-
-            if(UNLIKELY(!comp->IsKernelObjType(KERNEL_NS::KernelObjectType::HOST_COMP)))
-            {
-                errInfo.AppendFormat("logic comp:%s is not host comp, logic:%s, field name:%s when save data."
-                , comp->GetObjName().c_str(), logic->GetObjName().c_str(), fieldName.c_str());
-                ++iter;
-                continue;
-            }
-
-            // 子系统默认只作为母系统的一个字段存储
-            auto subCompStorageComp = comp->CastTo<KERNEL_NS::CompHostObject>()->GetComp<SERVICE_NS::IMongodbStorageInfo>();
-            storageType = subCompStorageComp->_storageType;
         }
 
         if(UNLIKELY(storageType == KERNEL_NS::MongoSerializeInfoType::UNKNOWN))
@@ -1055,7 +1052,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDir
 
     auto popDb = dict.pop();
     const auto logicName = logic->GetObjName();
-    auto ret = co_await GetComp<KERNEL_NS::IMongoDbMgr>()->ReplaceData(storageCom->_dbName, storageCom->_collectionName, kv, popDb);
+    auto ret = co_await GetComp<KERNEL_NS::IMongoDbMgr>()->ReplaceData(storageCom->GetDbName(), storageCom->GetSystemName(), kv, popDb);
     if(UNLIKELY(!ret))
     {
         CLOG_ERROR("logic ReplaceData save data fail, logic:%s, kv:%s", logicName.c_str(), DictContainerToString(kv).c_str());
@@ -1178,7 +1175,6 @@ bool MongodbProxy::_CheckLogic(const ILogicSys *logic, KERNEL_NS::LibString &err
     auto storageComp = logic->GetComp<SERVICE_NS::IMongodbStorageInfo>();
     if(!storageComp)
     {
-        err.AppendFormat("logic have no storage info comp, logic:%s", logic->GetObjName().c_str());
         return false;
     }
 
@@ -1207,6 +1203,20 @@ bool MongodbProxy::_CheckLogic(const ILogicSys *logic, KERNEL_NS::LibString &err
             continue;
     }
 
+    // 表信息建立在storageComp中, 比如UserMgr, User是运行时动态创建的, 其子系统在启动的时候还没建立智能放在UserMgr的StorageComp作为组件存在
+    {
+        auto &storageSubComps = storageComp->GetAllComps();
+        for(auto subSubComp : storageSubComps)
+        {
+            // 是不是存储组件
+            if(subSubComp->GetInterfaceTypeId() != KERNEL_NS::RttiUtil::GetTypeId<SERVICE_NS::IMongodbStorageInfo>())
+                continue;
+
+            auto subSubStorageComp = subSubComp->CastTo<SERVICE_NS::IMongodbStorageInfo>();
+            CheckValidStorage(logic, subSubStorageComp, true, err);
+        }
+    }
+
     return err.empty();
 }
 
@@ -1222,8 +1232,8 @@ void MongodbProxy::_BuildSysFields(const ILogicSys *logic)
     auto iterFieldRefStorageType = _sysRefFieldStorageType.emplace(logic, std::unordered_map<KERNEL_NS::LibString, Int32>()).first;
     auto &fieldRefStorageType = iterFieldRefStorageType->second;
 
-    // 唯一键
-    for(auto &iterField : storageComp->_fieldNameRefStorageType)
+    auto &fieldNameRefStorageType = storageComp->GetFieldNameRefStorageType();
+    for(auto &iterField : fieldNameRefStorageType)
     {
         fieldRefStorageType.emplace(iterField.first, iterField.second);
     }
@@ -1242,10 +1252,39 @@ void MongodbProxy::_BuildSysFields(const ILogicSys *logic)
         if(!subStorageComp)
             continue;
 
-        auto &subCompName = subComp->GetObjName();
-        fieldRefStorageType[subCompName] = subStorageComp->_storageType;
+        fieldRefStorageType[subStorageComp->GetSystemName()] = subStorageComp->GetStorageType();
+    }
+
+    // 表信息建立在storageComp中, 比如UserMgr, User是运行时动态创建的, 其子系统在启动的时候还没建立智能放在UserMgr的StorageComp作为组件存在
+    {
+        auto &storageSubComps = storageComp->GetAllComps();
+        for(auto subSubComp : storageSubComps)
+        {
+            // 是不是存储组件
+            if(subSubComp->GetInterfaceTypeId() != KERNEL_NS::RttiUtil::GetTypeId<SERVICE_NS::IMongodbStorageInfo>())
+                continue;
+            
+            auto subSubStorageComp = subSubComp->CastTo<SERVICE_NS::IMongodbStorageInfo>();
+            fieldRefStorageType[subSubStorageComp->GetSystemName()] = subSubStorageComp->GetStorageType();
+        }
     }
 }
+
+bool MongodbProxy::_TryGetStorageType(const ILogicSys *logic, const KERNEL_NS::LibString &fieldName, Int32 &storageType) const
+{
+    auto iter = _sysRefFieldStorageType.find(logic);
+    if(iter == _sysRefFieldStorageType.end())
+        return false;
+
+    auto &fieldRefStorageType = iter->second;
+    auto iterField = fieldRefStorageType.find(fieldName);
+    if(iterField == fieldRefStorageType.end())
+        return false;
+
+    storageType = iterField->second;
+    return true;
+}
+
 
 
 SERVICE_END

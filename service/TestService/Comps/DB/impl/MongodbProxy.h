@@ -94,6 +94,7 @@ protected:
     Int32 _OnGlobalSysInit() override;
     Int32 _OnGlobalSysCompsCreated() override;
 
+    virtual Int32 _OnGlobalSysWillStart() override;
     Int32 _OnHostStart() override;
     void _OnGlobalSysClose() override;
 
@@ -123,6 +124,8 @@ protected:
 
     bool _CheckLogic(const ILogicSys *logic, KERNEL_NS::LibString &err) const;
     void _BuildSysFields(const ILogicSys *logic);
+
+    bool _TryGetStorageType(const ILogicSys *logic, const KERNEL_NS::LibString &fieldName, Int32 &storageType) const;
 private:
     // 关服时需要执行所有数据落地
     KERNEL_NS::ListenerStub _closeServiceStub;
@@ -132,7 +135,7 @@ private:
     std::map<const ILogicSys *, KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *> _logicRefStringDirtyHelper;
     // 脏表队列
     std::map<const ILogicSys *, bool> _dirtyLogicRefIsNumberKey;
-    // 需要持久化系统的组件信息 int32:storageType
+    // 需要持久化系统的组件信息 string:GetSimpleTypeName int32:storageType
     std::unordered_map<const ILogicSys *, std::unordered_map<KERNEL_NS::LibString, Int32>> _sysRefFieldStorageType;
     
     // 定时purge数据

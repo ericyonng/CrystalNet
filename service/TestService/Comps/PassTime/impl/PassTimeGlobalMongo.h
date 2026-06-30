@@ -39,7 +39,7 @@ public:
     ~PassTimeGlobalMongo() override;
 
     virtual void Release() override;
-    virtual Int32 _OnInit() override;
+    virtual Int32 _OnHostInit() override;
 
     /** 字段名 **/
     static constexpr const Byte8 *KeyName = "PassTimeId";

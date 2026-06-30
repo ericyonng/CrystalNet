@@ -299,6 +299,7 @@ ALWAYS_INLINE void LibDirtyHelper<KeyType, MaskValue>::Init(Int32 dirtyTypeAmoun
 {
     _dirtyTypeAmount = dirtyTypeAmount;
     _dirtyTypeRefHandler.resize(_dirtyTypeAmount);
+    _dirtyTypeRefCoHandler.resize(_dirtyTypeAmount);
 }
 
 template<typename KeyType, typename MaskValue>
@@ -320,6 +321,10 @@ ALWAYS_INLINE void LibDirtyHelper<KeyType, MaskValue>::Destroy()
         CRYSTAL_RELEASE_SAFE(delg);
     });
 
+    ContainerUtil::DelContainer(_dirtyTypeRefCoHandler, [](IDelegate<KERNEL_NS::CoTask<>, LibDirtyHelper<KeyType, MaskValue> *, KeyType &, Variant *> *delg)->void{
+        CRYSTAL_RELEASE_SAFE(delg);
+    });
+    
     if(!_delayOperations.empty())
     {
         ContainerUtil::DelContainer(_delayOperations, [](DirtyHelperDelayOp<KeyType, MaskValue> *delay)->void{

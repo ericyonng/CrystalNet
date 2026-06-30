@@ -38,17 +38,19 @@
 #include <service/common/Configs/Configs.h>
 
 SERVICE_BEGIN
-    PassTimeGlobalMongo::PassTimeGlobalMongo()
-    :IMongodbStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<PassTimeGlobalMongo>())
-{
-    _dbName = "TestSuit";
 
-    // 唯一索引信息
-    _uniqueIndexFields.emplace_back(KeyName, MongodbIndexFieldValue::HASHED);
+PassTimeGlobalMongo::PassTimeGlobalMongo()
+    :IMongodbStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<PassTimeGlobalMongo>(), KERNEL_NS::RttiUtil::GetByType<PassTimeGlobal>())
+{
+    // 唯一索引信息(hashed不能作为唯一索引)
+    _uniqueIndexFields.emplace_back(KeyName, MongodbIndexFieldValue::ASC);
 
     // 存储类型(json 文档对象)
     _fieldNameRefStorageType[KeyName] = KERNEL_NS::MongoSerializeInfoType::INT64;
     _fieldNameRefStorageType[ValueName] = KERNEL_NS::MongoSerializeInfoType::JSON;
+
+    // 设置kv系统
+    AsKvSystem();
 }
 
 PassTimeGlobalMongo::~PassTimeGlobalMongo()
@@ -61,7 +63,7 @@ void PassTimeGlobalMongo::Release()
     PassTimeGlobalMongo::DeleteByAdapter_PassTimeGlobalMongo(PassTimeGlobalMongoFactory::_buildType.V, this);
 }
 
-Int32 PassTimeGlobalMongo::_OnInit()
+Int32 PassTimeGlobalMongo::_OnHostInit()
 {
     _dbName = GetOwner()->CastTo<PassTimeGlobal>()->GetService()->CastTo<MyTestService>()->GetStorageOption()->DbName;
     return Status::Success;

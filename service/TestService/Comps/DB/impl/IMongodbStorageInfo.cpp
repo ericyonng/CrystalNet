@@ -29,8 +29,9 @@
 
 SERVICE_BEGIN
 
-IMongodbStorageInfo::IMongodbStorageInfo(UInt64 objTypeId)
-    :CompObject(objTypeId)
+IMongodbStorageInfo::IMongodbStorageInfo(UInt64 objTypeId, const KERNEL_NS::LibString &rttiObjName)
+    :CompHostObject(objTypeId)
+    ,_systemName(KERNEL_NS::StringUtil::RemoveNameSpace(rttiObjName))
 {
     // 设置接口id
     SetInterfaceTypeId(KERNEL_NS::RttiUtil::GetTypeId<IMongodbStorageInfo>());
@@ -40,5 +41,6 @@ IMongodbStorageInfo::~IMongodbStorageInfo()
 {
     
 }
+
 
 SERVICE_END

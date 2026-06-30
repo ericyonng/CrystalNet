@@ -35,3 +35,4 @@
 #include <service/TestService/Comps/DB/impl/MongodbProxyFactory.h>
 #include <service/TestService/Comps/DB/interface/IMongodbProxy.h>
 #include <service/TestService/Comps/DB/impl/IMongodbStorageInfo.h>
+#include <service/TestService/Comps/DB/impl/MongoStorageFlags.h>

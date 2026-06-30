@@ -46,27 +46,27 @@ void ILogicSys::MaskDirty()
 void ILogicSys::MaskNumberKeyAddDirty(UInt64 key)
 {
 #ifdef CRYSTAL_STORAGE_ENABLE
-    auto mysqlMgr = GetService()->GetComp<IMysqlMgr>();
-    if(mysqlMgr)
-        mysqlMgr->MaskLogicNumberKeyAddDirty(this, key);
+    auto mongodbMgr = GetService()->GetComp<IMongodbProxy>();
+    if(mongodbMgr)
+        mongodbMgr->MaskLogicNumberKeyAddDirty(this, key);
 #endif
 }
 
 void ILogicSys::MaskNumberKeyModifyDirty(UInt64 key)
 {
 #ifdef CRYSTAL_STORAGE_ENABLE
-    auto mysqlMgr = GetService()->GetComp<IMysqlMgr>();
-    if(mysqlMgr)
-        mysqlMgr->MaskLogicNumberKeyModifyDirty(this, key);
+    auto mongodbMgr = GetService()->GetComp<IMongodbProxy>();
+    if(mongodbMgr)
+        mongodbMgr->MaskLogicNumberKeyModifyDirty(this, key);
 #endif
 }
 
 void ILogicSys::MaskNumberKeyDeleteDirty(UInt64 key)
 {
 #ifdef CRYSTAL_STORAGE_ENABLE
-    auto mysqlMgr = GetService()->GetComp<IMysqlMgr>();
-    if(mysqlMgr)
-        mysqlMgr->MaskLogicNumberKeyDeleteDirty(this, key);
+    auto mongodbMgr = GetService()->GetComp<IMongodbProxy>();
+    if(mongodbMgr)
+        mongodbMgr->MaskLogicNumberKeyDeleteDirty(this, key);
 #endif
     
 }
@@ -74,27 +74,27 @@ void ILogicSys::MaskNumberKeyDeleteDirty(UInt64 key)
 void ILogicSys::MaskStringKeyAddDirty(const KERNEL_NS::LibString &key)
 {
 #ifdef CRYSTAL_STORAGE_ENABLE
-    auto mysqlMgr = GetService()->GetComp<IMysqlMgr>();
-    if(mysqlMgr)
-        mysqlMgr->MaskLogicStringKeyAddDirty(this, key);
+    auto mongodbMgr = GetService()->GetComp<IMongodbProxy>();
+    if(mongodbMgr)
+        mongodbMgr->MaskLogicStringKeyAddDirty(this, key);
 #endif
 }
 
 void ILogicSys::MaskStringKeyModifyDirty(const KERNEL_NS::LibString &key)
 {
 #ifdef CRYSTAL_STORAGE_ENABLE
-    auto mysqlMgr = GetService()->GetComp<IMysqlMgr>();
-    if(mysqlMgr)
-        mysqlMgr->MaskLogicStringKeyModifyDirty(this, key);
+    auto mongodbMgr = GetService()->GetComp<IMongodbProxy>();
+    if(mongodbMgr)
+        mongodbMgr->MaskLogicStringKeyModifyDirty(this, key);
 #endif
 }
 
 void ILogicSys::MaskStringKeyDeleteDirty(const KERNEL_NS::LibString &key)
 {
 #ifdef CRYSTAL_STORAGE_ENABLE
-    auto mysqlMgr = GetService()->GetComp<IMysqlMgr>();
-    if(mysqlMgr)
-        mysqlMgr->MaskLogicStringKeyDeleteDirty(this, key);
+    auto mongodbMgr = GetService()->GetComp<IMongodbProxy>();
+    if(mongodbMgr)
+        mongodbMgr->MaskLogicStringKeyDeleteDirty(this, key);
 #endif
 }
 
