@@ -157,7 +157,7 @@ bool MongoDataSerialize::Deserialize(const bsoncxx::types::bson_value::view &bso
             }
             auto &&docValue = bsonValue.get_document();
             auto &&jsonValue = bsoncxx::to_json(docValue);
-            data._stream->Write(jsonValue);
+            data._stream->Write(jsonValue.data(), static_cast<Int64>(jsonValue.size()));
             break;
         }
     case MongoSerializeInfoType::BINARY:

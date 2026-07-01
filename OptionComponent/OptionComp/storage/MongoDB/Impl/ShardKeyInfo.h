@@ -41,6 +41,7 @@ class ShardKeyType
 public:
     enum ENUMS
     {
+        // 哈希
         HASHED = 0,
         ASC,
         DESC,
@@ -49,8 +50,10 @@ public:
 
 struct ShardKeyInfo
 {
+    // 字段名
     KERNEL_NS::LibString KeyName;
 
+    // 排序方法
     ShardKeyType::ENUMS ValueType = ShardKeyType::ASC;
 
     KERNEL_NS::LibString ToString() const

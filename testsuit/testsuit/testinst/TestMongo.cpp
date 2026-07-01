@@ -863,9 +863,8 @@ private:
                             }
                         case KERNEL_NS::MongoSerializeInfoType::JSON:
                             {
-                                KERNEL_NS::LibString value;
-                                info._stream->Read(value);
-                                CLOG_INFO("key:%s, value:%s", key.c_str(), value.c_str());
+                                std::string_view value(info._stream->GetReadBegin(), static_cast<size_t>(info._stream->GetReadableSize()));
+                                CLOG_INFO("key:%s, value:%s", key.c_str(), value.data());
                                 break;
                             }
                         case KERNEL_NS::MongoSerializeInfoType::BINARY:

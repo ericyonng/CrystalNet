@@ -30,6 +30,7 @@
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/CompObject/CompObject.h>
 #include <Comps/DB/impl/MongoStorageFlags.h>
+#include <OptionComp/storage/MongoDB/Impl/ShardKeyInfo.h>
 
 SERVICE_BEGIN
 
@@ -80,6 +81,9 @@ public:
     const KERNEL_NS::LibString &GetKeyFieldName() const;
     const KERNEL_NS::LibString &GetValueFieldName() const;
 
+    // 分片键
+    const KERNEL_NS::ShardKeyInfoGroup &GetShardKeyInfoGroup() const;
+
 protected:
     /** 当系统作为表时需要填写索引, 必要的简单字段名存储类型，db名等 **/
     // db名 必须指定否则启动失败
@@ -101,6 +105,9 @@ protected:
     // kv系统时key, value 的字段名
     KERNEL_NS::LibString _keyFieldName;
     KERNEL_NS::LibString _valueFieldName;
+
+    // 设置分片键:基数大, 定向性好, 随机性好(避免热写)
+    KERNEL_NS::ShardKeyInfoGroup _shardKeyInfos;
 };
 
 
@@ -176,6 +183,12 @@ ALWAYS_INLINE const KERNEL_NS::LibString &IMongodbStorageInfo::GetValueFieldName
 {
     return _valueFieldName;
 }
+
+ALWAYS_INLINE const KERNEL_NS::ShardKeyInfoGroup &IMongodbStorageInfo::GetShardKeyInfoGroup() const
+{
+    return _shardKeyInfos;
+}
+
 
 // #undef CREATE_MONGO_STORAGE_COMP
 // // 创建mongodb存储信息组件

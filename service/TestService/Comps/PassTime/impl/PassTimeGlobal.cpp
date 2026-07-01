@@ -109,38 +109,31 @@ KERNEL_NS::CoTask<> PassTimeGlobal::CheckPassTime()
         auto mongodbProxy = GetService()->GetComp<SERVICE_NS::IMongodbProxy>();
         auto storageOption = GetService()->CastTo<SERVICE_NS::MyTestService>()->GetStorageOption();
 
-        KERNEL_NS::SmartMongoSerializeInfoWrapper serializeInfo;
-        auto ret = co_await mongodbProxy->Query(this, _key, serializeInfo.Ptr.AsSelf());
+        _passTimeData = SERVICE_COMMON_NS::PassTimeDataOrmData::NewThreadLocal_PassTimeDataOrmData();
+        _passTimeData->SetMaskDirtyCallback([this](SERVICE_COMMON_NS::IOrmData *)
+        {
+            MaskNumberKeyModifyDirty(_key);
+        });
+
+        KERNEL_NS::SmartMongoSerializeInfoWrapper wrapper;
+        auto ret = co_await mongodbProxy->Query(this, _key, wrapper.Ptr.AsSelf());
         if (!ret)
         {
             // 有可能第一次
             CLOG_WARN("Query pass time data fail key:%lld", _key);
-
-            _passTimeData = SERVICE_COMMON_NS::PassTimeDataOrmData::NewThreadLocal_PassTimeDataOrmData();
-            _passTimeData->SetMaskDirtyCallback([this](SERVICE_COMMON_NS::IOrmData *)
-            {
-                MaskNumberKeyModifyDirty(_key);
-            });
-            MaskNumberKeyAddDirty(_key);
             _passTimeData->set_lastpassdaytime(KERNEL_NS::LibTime::NowMilliTimestamp());
         }
         else
         {
-            auto iter = serializeInfo.Ptr->find(PassTimeGlobalMongo::ValueName);
-            if (iter == serializeInfo.Ptr->end())
+            auto iter = wrapper.Ptr->find(PassTimeGlobalMongo::ValueName);
+            if (iter == wrapper.Ptr->end())
             {
                 CLOG_ERROR("Query pass time data fail key:%lld", _key);
                 co_return;
             }
-            auto &info = iter->second;
 
-            _passTimeData = SERVICE_COMMON_NS::PassTimeDataOrmData::NewThreadLocal_PassTimeDataOrmData();
-            _passTimeData->SetMaskDirtyCallback([this](SERVICE_COMMON_NS::IOrmData *)
-            {
-                MaskNumberKeyModifyDirty(_key);
-            });
-            const auto len = info._stream->ReadUInt64();
-            if (!_passTimeData->FromJsonString(info._stream->GetReadBegin(),  static_cast<size_t>(len)))
+            auto &info = iter->second;
+            if (!_passTimeData->FromJsonString(info._stream->GetReadBegin(),  static_cast<size_t>(info._stream->GetReadableSize())))
             {
                 CLOG_ERROR("Query FromJsonString fail fail key:%lld", _key);
                 co_return;
@@ -212,7 +205,6 @@ void PassTimeGlobal::_DoCheckPassTime(const KERNEL_NS::LibTime &nowTime)
             comp->CastTo<ILogicSys>()->OnPassTimeEnd(nowTime);
 
         _passTimeData->set_lastpassdaytime(nowTime.GetMilliTimestamp());
-        MaskNumberKeyModifyDirty(_key);
 
         if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
             g_Log->Info(LOGFMT_OBJ_TAG("system pass day."));

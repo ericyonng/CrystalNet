@@ -72,6 +72,32 @@ public:
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString keyName, Int64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo> *fieldNameRefDataResult) = 0;
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString keyName, KERNEL_NS::LibString key, std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo> *fieldNameRefDataResult) = 0;
 
+
+    template<typename DataType, typename LambdaType>
+    requires requires(LambdaType lambda, KERNEL_NS::SmartMongoSerializeInfoWrapper wrapper, DataType *data)
+    {
+        {lambda(wrapper.Ptr.AsSelf(), data)} -> std::same_as<bool>;
+    }
+    KERNEL_NS::CoTask<bool> Query(const ILogicSys *logic, Int64 key, DataType *data, LambdaType &&parseData);
+
 };
+
+template<typename DataType, typename LambdaType>
+requires requires(LambdaType lambda, KERNEL_NS::SmartMongoSerializeInfoWrapper wrapper, DataType *data)
+{
+    {lambda(wrapper.Ptr.AsSelf(), data)} -> std::same_as<bool>;
+}
+ALWAYS_INLINE KERNEL_NS::CoTask<bool> IMongodbProxy::Query(const ILogicSys *logic, Int64 key, DataType *data, LambdaType &&parseData)
+{
+    KERNEL_NS::SmartMongoSerializeInfoWrapper wrapper;
+    auto ret = co_await Query(logic, key, wrapper.Ptr.AsSelf());
+    if(!ret)
+    {
+        co_return false;
+    }
+
+    co_return parseData(wrapper.Ptr.AsSelf(), data);
+}
+
 
 SERVICE_END

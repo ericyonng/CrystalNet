@@ -534,6 +534,17 @@ Int32 MongodbProxy::_OnGlobalSysWillStart()
 
             ++idx;
         }
+        // 分片键
+        auto &shardKeyInfo = storageComp->GetShardKeyInfoGroup();
+        if(!shardKeyInfo.ShardKeyInfos.empty())
+        {
+            if(!mongodbMgr->SetShardKeyInfo(storageComp->GetDbName(), storageComp->GetSystemName(), shardKeyInfo.ShardKeyInfos, shardKeyInfo.IsUnique))
+            {
+                errInfo.AppendFormat("SetShardKeyInfo fail db:%s, collection:%s shard key info:%s logic:%s\n"
+                    , storageComp->GetDbName().c_str(), storageComp->GetSystemName().c_str(), shardKeyInfo.ToString().c_str(), turnLogic->GetObjName().c_str());
+            }
+        }
+        // 索引
         if(!mongodbMgr->CreateIndex(storageComp->GetDbName(), storageComp->GetSystemName(), indexName, storageComp->GetUniqueIndexFields(), true))
         {
             errInfo.AppendFormat("CreateIndex fail db:%s, collection:%s indexName:%s logic:%s\n", storageComp->GetDbName().c_str(), storageComp->GetSystemName().c_str(), indexName.c_str(), turnLogic->GetObjName().c_str());
