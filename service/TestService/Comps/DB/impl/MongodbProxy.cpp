@@ -986,7 +986,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberDeleteDirtyHandler(KERNEL_NS::LibDirt
 
 KERNEL_NS::CoTask<> MongodbProxy::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<Int64, UInt64> *dirtyHelper, Int64 &key, KERNEL_NS::Variant *params)
 {
-    dirtyHelper->Clear(key, StorageMode::REPLACE_DATA);
+   dirtyHelper->Clear(key, StorageMode::REPLACE_DATA);
    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
     if(UNLIKELY(!logic))
     {
@@ -1047,12 +1047,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDir
         co_return;
     }
 
-    KERNEL_NS::SmartPtr<std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo>, KERNEL_NS::AutoDelMethods::CustomDelete> dict = new std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo>();
-    dict.SetClosureDelegate([](void *arg)
-    {
-        auto dict = KERNEL_NS::KernelCastTo<std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo>>(arg);
-        DelStreamContainer(dict);
-    });
+    KERNEL_NS::SmartMongoSerializeInfoWrapper dict;
 
     KERNEL_NS::LibString errInfo;
     for(auto iter = dbInfo->begin(); iter != dbInfo->end();)
@@ -1088,7 +1083,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDir
             continue;
         }
 
-        dict->emplace(fieldName, KERNEL_NS::MongoSerializeInfo(storageType, fieldValue));
+        dict.Ptr->emplace(fieldName, KERNEL_NS::MongoSerializeInfo(storageType, fieldValue));
         iter = dbInfo->erase(iter);
     }
 
@@ -1098,7 +1093,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDir
         co_return;
     }
 
-    auto popDb = dict.pop();
+    auto popDb = dict.Ptr.pop();
     const auto logicName = logic->GetObjName();
     auto ret = co_await GetComp<KERNEL_NS::IMongoDbMgr>()->ReplaceData(storageCom->GetDbName(), storageCom->GetSystemName(), kv, popDb);
     if(UNLIKELY(!ret))
@@ -1110,26 +1105,394 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDir
 
 KERNEL_NS::CoTask<> MongodbProxy::_OnStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params)
 {
-    // TODO:
-    co_return;
+    dirtyHelper->Clear(key, StorageMode::ADD_DATA);
+
+    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    if(UNLIKELY(!logic))
+    {
+        CLOG_ERROR("params is not logic sys please check, key:%s", key.c_str());
+        co_return;
+    }
+
+    KERNEL_NS::SmartPtr<std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *>, KERNEL_NS::AutoDelMethods::CustomDelete> dbInfo = new std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *>();
+    dbInfo.SetClosureDelegate([](void *ptr)
+    {
+        auto p = KERNEL_NS::KernelCastTo<std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *>>(ptr);
+        KERNEL_NS::ContainerUtil::DelContainer(*p, [](KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *ptr){
+            KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::DeleteThreadLocal_LibStream(ptr);
+        });
+        CRYSTAL_DELETE_SAFE(p);
+    });
+    
+    auto storageCom = logic->GetComp<IMongodbStorageInfo>();
+    Int32 err = Status::Success;
+    std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
+    if(storageCom->IsKvSystem())
+    {
+        // TODO:调用kv的OnSave接口  KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *
+        // key:
+        KERNEL_NS::SmartPtr<KERNEL_NS::LibStreamTL, KERNEL_NS::AutoDelMethods::Release> keyStream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+        keyStream->Write(key);
+        KERNEL_NS::SmartPtr<KERNEL_NS::LibStreamTL, KERNEL_NS::AutoDelMethods::Release> valueStream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+        err = logic->OnSave(key, *valueStream);
+        if (err != Status::Success)
+        {
+            CLOG_ERROR("logic save db fail err:%d, logic:%s, key:%lld", err, logic->GetObjName().c_str(), key);
+            co_return;
+        }
+
+        dbInfo->emplace(storageCom->GetKeyFieldName(), keyStream.pop());
+        dbInfo->emplace(storageCom->GetValueFieldName(), valueStream.pop());
+        kv.emplace(storageCom->GetKeyFieldName(), KERNEL_NS::Variant(key));
+    }
+    else
+    {
+        err = logic->OnSave(key, *dbInfo.AsSelf());
+        auto &uniqueIndexFields = storageCom->GetUniqueIndexFields();
+        for(auto &iter : uniqueIndexFields)
+        {
+            kv.emplace(iter.first, KERNEL_NS::Variant(key));
+            break;
+        }
+    }
+    if(err != Status::Success)
+    {
+        CLOG_ERROR("logic save db fail err:%d, logic:%s, key:%s", err, logic->GetObjName().c_str(), key.c_str());
+        co_return;
+    }
+
+    if(kv.empty())
+    {
+        CLOG_ERROR("logic save db fail lack unique index define, logic:%s, key:%s"
+            , logic->GetObjName().c_str(), key.c_str());
+        co_return;
+    }
+
+    KERNEL_NS::SmartMongoSerializeInfoWrapper dict;
+
+    KERNEL_NS::LibString errInfo;
+    for(auto iter = dbInfo->begin(); iter != dbInfo->end();)
+    {
+        auto &fieldName = iter->first;
+        auto &fieldValue = iter->second;
+
+        Int32 storageType = KERNEL_NS::MongoSerializeInfoType::UNKNOWN;
+        auto &fieldNameRefStorageType = storageCom->GetFieldNameRefStorageType();
+        auto iterFieldInfo = fieldNameRefStorageType.find(fieldName);
+        if(iterFieldInfo != fieldNameRefStorageType.end())
+        {
+            storageType = iterFieldInfo->second;
+        }
+
+        // 没有定义该字段, 则从Proxy表信息找
+        else
+        {
+            if(!_TryGetStorageType(logic, fieldName, storageType))
+            {
+                errInfo.AppendFormat("_TryGetStorageType fail, logic:%s, field name:%s when save data."
+                    , logic->GetObjName().c_str(), fieldName.c_str());
+                ++iter;
+                continue;
+            }
+        }
+
+        if(UNLIKELY(storageType == KERNEL_NS::MongoSerializeInfoType::UNKNOWN))
+        {
+            errInfo.AppendFormat("logic not define field storage type, logic:%s, field:%s when save data.", logic->GetObjName().c_str(), fieldName.c_str());
+            ++iter;
+            continue;
+        }
+
+        dict.Ptr->emplace(fieldName, KERNEL_NS::MongoSerializeInfo(storageType, fieldValue));
+        iter = dbInfo->erase(iter);
+    }
+
+    if(UNLIKELY(!errInfo.empty()))
+    {
+        CLOG_ERROR("logic save data error logic:%s errInfo:\n%s", logic->GetObjName().c_str(), errInfo.c_str());
+        co_return;
+    }
+
+    auto popDb = dict.Ptr.pop();
+    const auto logicName = logic->GetObjName();
+    auto ret = co_await GetComp<KERNEL_NS::IMongoDbMgr>()->AddData(storageCom->GetDbName(), storageCom->GetSystemName(), kv, popDb);
+
+    if(UNLIKELY(!ret))
+    {
+        CLOG_ERROR("logic AddData save data fail, logic:%s, kv:%s", logicName.c_str(), DictContainerToString(kv).c_str());
+    }
 }
 
 KERNEL_NS::CoTask<> MongodbProxy::_OnStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params)
 {
-    // TODO:
-    co_return;
+    dirtyHelper->Clear(key, StorageMode::UPDATE_DATA);
+
+    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    if(UNLIKELY(!logic))
+    {
+        CLOG_ERROR("params is not logic sys please check, key:%s", key.c_str());
+        co_return;
+    }
+
+    KERNEL_NS::SmartPtr<std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *>, KERNEL_NS::AutoDelMethods::CustomDelete> dbInfo = new std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *>();
+    dbInfo.SetClosureDelegate([](void *ptr)
+    {
+        auto p = KERNEL_NS::KernelCastTo<std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *>>(ptr);
+        KERNEL_NS::ContainerUtil::DelContainer(*p, [](KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *ptr){
+            KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::DeleteThreadLocal_LibStream(ptr);
+        });
+        CRYSTAL_DELETE_SAFE(p);
+    });
+    
+    auto storageCom = logic->GetComp<IMongodbStorageInfo>();
+    Int32 err = Status::Success;
+    std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
+    if(storageCom->IsKvSystem())
+    {
+        // TODO:调用kv的OnSave接口  KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *
+        // key:
+        KERNEL_NS::SmartPtr<KERNEL_NS::LibStreamTL, KERNEL_NS::AutoDelMethods::Release> keyStream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+        keyStream->Write(key);
+        KERNEL_NS::SmartPtr<KERNEL_NS::LibStreamTL, KERNEL_NS::AutoDelMethods::Release> valueStream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+        err = logic->OnSave(key, *valueStream);
+        if (err != Status::Success)
+        {
+            CLOG_ERROR("logic save db fail err:%d, logic:%s, key:%s", err, logic->GetObjName().c_str(), key.c_str());
+            co_return;
+        }
+
+        dbInfo->emplace(storageCom->GetKeyFieldName(), keyStream.pop());
+        dbInfo->emplace(storageCom->GetValueFieldName(), valueStream.pop());
+        kv.emplace(storageCom->GetKeyFieldName(), KERNEL_NS::Variant(key));
+    }
+    else
+    {
+        err = logic->OnSave(key, *dbInfo.AsSelf());
+        auto &uniqueIndexFields = storageCom->GetUniqueIndexFields();
+        for(auto &iter : uniqueIndexFields)
+        {
+            kv.emplace(iter.first, KERNEL_NS::Variant(key));
+            break;
+        }
+    }
+    if(err != Status::Success)
+    {
+        CLOG_ERROR("logic save db fail err:%d, logic:%s, key:%lld", err, logic->GetObjName().c_str(), key);
+        co_return;
+    }
+
+    if(kv.empty())
+    {
+        CLOG_ERROR("logic save db fail lack unique index define, logic:%s, key:%s"
+            , logic->GetObjName().c_str(), key.c_str());
+        co_return;
+    }
+
+    KERNEL_NS::SmartMongoSerializeInfoWrapper dict;
+    KERNEL_NS::LibString errInfo;
+    for(auto iter = dbInfo->begin(); iter != dbInfo->end();)
+    {
+        auto &fieldName = iter->first;
+        auto &fieldValue = iter->second;
+
+        Int32 storageType = KERNEL_NS::MongoSerializeInfoType::UNKNOWN;
+        auto &fieldNameRefStorageType = storageCom->GetFieldNameRefStorageType();
+        auto iterFieldInfo = fieldNameRefStorageType.find(fieldName);
+        if(iterFieldInfo != fieldNameRefStorageType.end())
+        {
+            storageType = iterFieldInfo->second;
+        }
+
+        // 没有定义该字段, 则从logic的组件找 TODO:在Proxy的表信息中找
+        else
+        {
+            // Proxy表中找storageType
+            if(!_TryGetStorageType(logic, fieldName, storageType))
+            {
+                errInfo.AppendFormat("_TryGetStorageType fail, logic:%s, field name:%s when save data."
+                    , logic->GetObjName().c_str(), fieldName.c_str());
+                ++iter;
+                continue;
+            }
+        }
+
+        if(UNLIKELY(storageType == KERNEL_NS::MongoSerializeInfoType::UNKNOWN))
+        {
+            errInfo.AppendFormat("logic not define field storage type, logic:%s, field:%s when save data.", logic->GetObjName().c_str(), fieldName.c_str());
+            ++iter;
+            continue;
+        }
+
+        dict.Ptr->emplace(fieldName, KERNEL_NS::MongoSerializeInfo(storageType, fieldValue));
+        iter = dbInfo->erase(iter);
+    }
+
+    if(UNLIKELY(!errInfo.empty()))
+    {
+        CLOG_ERROR("logic save data error logic:%s errInfo:\n%s", logic->GetObjName().c_str(), errInfo.c_str());
+        co_return;
+    }
+
+    auto popDb = dict.Ptr.pop();
+    const auto logicName = logic->GetObjName();
+    auto ret = co_await GetComp<KERNEL_NS::IMongoDbMgr>()->UpdateData(storageCom->GetDbName(), storageCom->GetSystemName(), kv, popDb, true);
+
+    if(UNLIKELY(!ret))
+    {
+        CLOG_ERROR("logic UpdateData save data fail, logic:%s, kv:%s", logicName.c_str(), DictContainerToString(kv).c_str());
+    }
 }
 
 KERNEL_NS::CoTask<> MongodbProxy::_OnStringDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params)
 {
-    // TODO:
-    co_return;
+    dirtyHelper->Clear(key, StorageMode::DEL_DATA);
+    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    if(UNLIKELY(!logic))
+    {
+        CLOG_ERROR("params is not logic sys please check, key:%s", key.c_str());
+        co_return;
+    }
+
+    auto storageCom = logic->GetComp<IMongodbStorageInfo>();
+    std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
+    auto &uniqueIndexFields = storageCom->GetUniqueIndexFields();
+    for(auto &iter : uniqueIndexFields)
+    {
+        kv.emplace(iter.first, KERNEL_NS::Variant(key));
+        break;
+    }
+    if(kv.empty())
+    {
+        CLOG_ERROR("logic save db fail lack unique index define, logic:%s, key:%s"
+            , logic->GetObjName().c_str(), key.c_str());
+        co_return;
+    }
+
+    const auto logicName = logic->GetObjName();
+    auto ret = co_await GetComp<KERNEL_NS::IMongoDbMgr>()->DelData(storageCom->GetDbName(), storageCom->GetSystemName(), kv);
+
+    if(UNLIKELY(!ret))
+    {
+        CLOG_ERROR("logic DelData save data fail, logic:%s, kv:%s", logicName.c_str(), DictContainerToString(kv).c_str());
+    }
 }
 
 KERNEL_NS::CoTask<> MongodbProxy::_OnStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params)
 {
-    // TODO:
-    co_return;
+    dirtyHelper->Clear(key, StorageMode::REPLACE_DATA);
+   auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    if(UNLIKELY(!logic))
+    {
+        CLOG_ERROR("params is not logic sys please check, key:%s", key.c_str());
+        co_return;
+    }
+
+    KERNEL_NS::SmartPtr<std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *>, KERNEL_NS::AutoDelMethods::CustomDelete> dbInfo = new std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *>();
+    dbInfo.SetClosureDelegate([](void *ptr)
+    {
+        auto p = KERNEL_NS::KernelCastTo<std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *>>(ptr);
+        KERNEL_NS::ContainerUtil::DelContainer(*p, [](KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *ptr){
+            KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::DeleteThreadLocal_LibStream(ptr);
+        });
+        CRYSTAL_DELETE_SAFE(p);
+    });
+    auto storageCom = logic->GetComp<IMongodbStorageInfo>();
+    Int32 err = Status::Success;
+    std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
+    if(storageCom->IsKvSystem())
+    {
+        // TODO:调用kv的OnSave接口  KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *
+        // key:
+        KERNEL_NS::SmartPtr<KERNEL_NS::LibStreamTL, KERNEL_NS::AutoDelMethods::Release> keyStream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+        keyStream->Write(key);
+        KERNEL_NS::SmartPtr<KERNEL_NS::LibStreamTL, KERNEL_NS::AutoDelMethods::Release> valueStream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+        err = logic->OnSave(key, *valueStream);
+        if (err != Status::Success)
+        {
+            CLOG_ERROR("logic save db fail err:%d, logic:%s, key:%lld", err, logic->GetObjName().c_str(), key);
+            co_return;
+        }
+
+        dbInfo->emplace(storageCom->GetKeyFieldName(), keyStream.pop());
+        dbInfo->emplace(storageCom->GetValueFieldName(), valueStream.pop());
+        kv.emplace(storageCom->GetKeyFieldName(), KERNEL_NS::Variant(key));
+    }
+    else
+    {
+        err = logic->OnSave(key, *dbInfo.AsSelf());
+        auto &uniqueIndexFields = storageCom->GetUniqueIndexFields();
+        for(auto &iter : uniqueIndexFields)
+        {
+            kv.emplace(iter.first, KERNEL_NS::Variant(key));
+            break;
+        }
+    }
+    if(err != Status::Success)
+    {
+        CLOG_ERROR("logic save db fail err:%d, logic:%s, key:%s", err, logic->GetObjName().c_str(), key.c_str());
+        co_return;
+    }
+
+    if(kv.empty())
+    {
+        CLOG_ERROR("logic save db fail lack unique index define, logic:%s, key:%s"
+            , logic->GetObjName().c_str(), key.c_str());
+        co_return;
+    }
+
+    KERNEL_NS::SmartMongoSerializeInfoWrapper dict;
+
+    KERNEL_NS::LibString errInfo;
+    for(auto iter = dbInfo->begin(); iter != dbInfo->end();)
+    {
+        auto &fieldName = iter->first;
+        auto &fieldValue = iter->second;
+
+        Int32 storageType = KERNEL_NS::MongoSerializeInfoType::UNKNOWN;
+        auto &fieldNameRefStorageType = storageCom->GetFieldNameRefStorageType();
+        auto iterFieldInfo = fieldNameRefStorageType.find(fieldName);
+        if(iterFieldInfo != fieldNameRefStorageType.end())
+        {
+            storageType = iterFieldInfo->second;
+        }
+
+        // 没有定义该字段, 则从logic的组件找
+        else
+        {
+            // Proxy表中找storageType
+            if(!_TryGetStorageType(logic, fieldName, storageType))
+            {
+                errInfo.AppendFormat("_TryGetStorageType fail, logic:%s, field name:%s when save data."
+                    , logic->GetObjName().c_str(), fieldName.c_str());
+                ++iter;
+                continue;
+            }
+        }
+
+        if(UNLIKELY(storageType == KERNEL_NS::MongoSerializeInfoType::UNKNOWN))
+        {
+            errInfo.AppendFormat("logic not define field storage type, logic:%s, field:%s when save data.", logic->GetObjName().c_str(), fieldName.c_str());
+            ++iter;
+            continue;
+        }
+
+        dict.Ptr->emplace(fieldName, KERNEL_NS::MongoSerializeInfo(storageType, fieldValue));
+        iter = dbInfo->erase(iter);
+    }
+
+    if(UNLIKELY(!errInfo.empty()))
+    {
+        CLOG_ERROR("logic save data error logic:%s errInfo:\n%s", logic->GetObjName().c_str(), errInfo.c_str());
+        co_return;
+    }
+
+    auto popDb = dict.Ptr.pop();
+    const auto logicName = logic->GetObjName();
+    auto ret = co_await GetComp<KERNEL_NS::IMongoDbMgr>()->ReplaceData(storageCom->GetDbName(), storageCom->GetSystemName(), kv, popDb);
+    if(UNLIKELY(!ret))
+    {
+        CLOG_ERROR("logic ReplaceData save data fail, logic:%s, kv:%s", logicName.c_str(), DictContainerToString(kv).c_str());
+    }
 }
 
 KERNEL_NS::CoTask<> MongodbProxy::_DorPurgeNumber(const ILogicSys *sys)
