@@ -65,7 +65,7 @@ public:
 
     UInt64 GetFlags() const;
 
-    void AsKvSystem();
+    void AsKvSystem(const KERNEL_NS::LibString &keyField, const KERNEL_NS::LibString &valueField);
     void AsMultiSystem();
     void AsFieldSystem();
 
@@ -75,6 +75,10 @@ public:
     bool IsMultiSystem() const;
     // 是否作为某个系统的一个字段
     bool IsFieldSystem() const;
+
+    // kv system
+    const KERNEL_NS::LibString &GetKeyFieldName() const;
+    const KERNEL_NS::LibString &GetValueFieldName() const;
 
 protected:
     /** 当系统作为表时需要填写索引, 必要的简单字段名存储类型，db名等 **/
@@ -93,6 +97,10 @@ protected:
 
     // MongoStorageFlags 设置特性
     UInt64 _flags;
+
+    // kv系统时key, value 的字段名
+    KERNEL_NS::LibString _keyFieldName;
+    KERNEL_NS::LibString _valueFieldName;
 };
 
 
@@ -127,9 +135,11 @@ ALWAYS_INLINE UInt64 IMongodbStorageInfo::GetFlags() const
     return _flags;
 }
 
-ALWAYS_INLINE void IMongodbStorageInfo::AsKvSystem()
+ALWAYS_INLINE void IMongodbStorageInfo::AsKvSystem(const KERNEL_NS::LibString &keyField, const KERNEL_NS::LibString &valueField)
 {
     _flags = MongoStorageFlags::AsKvSystem(_flags);
+    _keyFieldName = keyField;
+    _valueFieldName = valueField;
 }
 
 ALWAYS_INLINE void IMongodbStorageInfo::AsMultiSystem()
@@ -155,6 +165,16 @@ ALWAYS_INLINE bool IMongodbStorageInfo::IsMultiSystem() const
 ALWAYS_INLINE bool IMongodbStorageInfo::IsFieldSystem() const
 {
     return MongoStorageFlags::IsFieldSystem(_flags);
+}
+
+ALWAYS_INLINE const KERNEL_NS::LibString &IMongodbStorageInfo::GetKeyFieldName() const
+{
+    return _keyFieldName;    
+}
+
+ALWAYS_INLINE const KERNEL_NS::LibString &IMongodbStorageInfo::GetValueFieldName() const
+{
+    return _valueFieldName;
 }
 
 // #undef CREATE_MONGO_STORAGE_COMP

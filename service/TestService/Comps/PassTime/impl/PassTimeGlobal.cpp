@@ -139,7 +139,8 @@ KERNEL_NS::CoTask<> PassTimeGlobal::CheckPassTime()
             {
                 MaskNumberKeyModifyDirty(_key);
             });
-            if (!_passTimeData->FromJsonString(info._stream->GetReadBegin(),  static_cast<size_t>(info._stream->GetReadableSize())))
+            const auto len = info._stream->ReadUInt64();
+            if (!_passTimeData->FromJsonString(info._stream->GetReadBegin(),  static_cast<size_t>(len)))
             {
                 CLOG_ERROR("Query FromJsonString fail fail key:%lld", _key);
                 co_return;

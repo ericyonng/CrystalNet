@@ -51,6 +51,8 @@ public:
     LibStream();
     virtual ~LibStream();
 
+    void Release();
+
     // 拷贝无论之前是否attach都会创建一个新的缓存, 并把buffer数据拷贝过来
     LibStream(const LibStream<BuildType> &other);
     // 将控制权从other转移过来
@@ -297,9 +299,8 @@ ALWAYS_INLINE LibStream<BuildType>::LibStream()
 ,_readPos(0)
 ,_isAttach(false)
 ,_buff(NULL)
-,_pool(NULL)
+,_pool(KernelMemoryPoolAdapter<BuildType>())
 {
-
 }
 
 template<typename BuildType>
@@ -307,6 +308,13 @@ ALWAYS_INLINE LibStream<BuildType>::~LibStream()
 {
     Clear();
 }
+
+template<typename BuildType>
+ALWAYS_INLINE void LibStream<BuildType>::Release()
+{
+    LibStream<BuildType>::DeleteByAdapter_LibStream(BuildType::V, this);
+}
+
 
 template<typename BuildType>
 ALWAYS_INLINE LibStream<BuildType>::LibStream(const LibStream<BuildType> &other)

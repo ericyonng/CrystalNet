@@ -236,10 +236,8 @@ public:
                     co_await handler->Invoke(this, k, variantDict[i]);
                     ++handled;
                 }
-                else
-                {
-                    mask->ClearFlag(i);
-                }
+
+                mask->ClearFlag(i);
             }
 
             // 没有脏之后移除, 还有脏表示下次还需要继续

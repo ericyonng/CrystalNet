@@ -50,7 +50,7 @@ PassTimeGlobalMongo::PassTimeGlobalMongo()
     _fieldNameRefStorageType[ValueName] = KERNEL_NS::MongoSerializeInfoType::JSON;
 
     // 设置kv系统
-    AsKvSystem();
+    AsKvSystem(KeyName, ValueName);
 }
 
 PassTimeGlobalMongo::~PassTimeGlobalMongo()
