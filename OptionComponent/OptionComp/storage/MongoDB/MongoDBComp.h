@@ -32,6 +32,7 @@
 #pragma once
 
 #include <OptionComp/storage/MongoDB/Impl/MongoSerializeInfo.h>
+#include <OptionComp/storage/MongoDB/Impl/MongoIndexInfo.h>
 #include <OptionComp/storage/MongoDB/Interface/IMongoDbMgr.h>
 #include <OptionComp/storage/MongoDB/Impl/MongoDbMgrFactory.h>
 #include <OptionComp/storage/MongoDB/Impl/MongodbConfig.h>

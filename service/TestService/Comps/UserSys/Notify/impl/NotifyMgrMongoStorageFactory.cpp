@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,14 +21,30 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-09-16 20:55:00
+ * Date: 2026-07-03 12:38:36
  * Author: Eric Yonng
  * Description: 
 */
 
-#pragma once
+#include <pch.h>
+#include <Comps/UserSys/Notify/impl/NotifyMgrMongoStorage.h>
+#include <Comps/UserSys/Notify/impl/NotifyMgrMongoStorageFactory.h>
 
-#include <Comps/UserSys/Library/interface/ILibraryMgr.h>
-#include <Comps/UserSys/Library/impl/LibraryMgrFactory.h>
-#include <Comps/UserSys/Library/impl/LibraryMgrStorageFactory.h>
-#include <Comps/UserSys/Library/impl/LibraryMgrMongoStorageFactory.h>
+SERVICE_BEGIN
+
+KERNEL_NS::CompFactory *NotifyMgrMongoStorageFactory::FactoryCreate()
+{
+ return KERNEL_NS::ObjPoolWrap<NotifyMgrMongoStorageFactory>::NewByAdapter(_buildType.V);
+}
+
+void NotifyMgrMongoStorageFactory::Release()
+{
+ KERNEL_NS::ObjPoolWrap<NotifyMgrMongoStorageFactory>::DeleteByAdapter(_buildType.V, this);
+}
+    
+KERNEL_NS::CompObject *NotifyMgrMongoStorageFactory::Create() const
+{
+ return NotifyMgrMongoStorage::NewByAdapter_NotifyMgrMongoStorage(_buildType.V);
+}
+
+SERVICE_END

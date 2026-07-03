@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,14 +21,31 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-09-16 20:55:00
+ * Date: 2026-07-03 14:42:36
  * Author: Eric Yonng
  * Description: 
 */
 
-#pragma once
-
-#include <Comps/UserSys/Library/interface/ILibraryMgr.h>
-#include <Comps/UserSys/Library/impl/LibraryMgrFactory.h>
-#include <Comps/UserSys/Library/impl/LibraryMgrStorageFactory.h>
+#include <pch.h>
+#include <Comps/UserSys/Library/impl/LibraryMgrMongoStorage.h>
 #include <Comps/UserSys/Library/impl/LibraryMgrMongoStorageFactory.h>
+
+
+SERVICE_BEGIN
+
+KERNEL_NS::CompFactory *LibraryMgrMongoStorageFactory::FactoryCreate()
+{
+ return KERNEL_NS::ObjPoolWrap<LibraryMgrMongoStorageFactory>::NewByAdapter(_buildType.V);
+}
+
+void LibraryMgrMongoStorageFactory::Release()
+{
+ KERNEL_NS::ObjPoolWrap<LibraryMgrMongoStorageFactory>::DeleteByAdapter(_buildType.V, this);
+}
+    
+KERNEL_NS::CompObject *LibraryMgrMongoStorageFactory::Create() const
+{
+ return LibraryMgrMongoStorage::NewByAdapter_LibraryMgrMongoStorage(_buildType.V);
+}
+
+SERVICE_END

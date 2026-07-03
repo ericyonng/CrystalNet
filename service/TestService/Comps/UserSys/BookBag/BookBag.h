@@ -31,5 +31,6 @@
 #include <Comps/UserSys/BookBag/impl/BookBagMgrFactory.h>
 #include <Comps/UserSys/BookBag/interface/IBookBagMgr.h>
 #include <Comps/UserSys/BookBag/impl/BookBagMgrStorageFactory.h>
+#include <Comps/UserSys/BookBag/impl/BookBagMgrMongoStorageFactory.h>
 
 

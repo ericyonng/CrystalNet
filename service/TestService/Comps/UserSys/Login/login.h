@@ -31,3 +31,4 @@
 #include <Comps/UserSys/Login/interface/ILoginMgr.h>
 #include <Comps/UserSys/Login/impl/LoginMgrFactory.h>
 #include <Comps/UserSys/Login/impl/LoginMgrStorageFactory.h>
+#include <Comps/UserSys/Login/impl/LoginMgrMongoStorageFactory.h>

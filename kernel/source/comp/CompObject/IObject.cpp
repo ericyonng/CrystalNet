@@ -37,9 +37,10 @@
 #include <kernel/comp/Tls/TlsTypeSystem.h>
 #include <kernel/comp/Utils/TlsUtil.h>
 
-KERNEL_BEGIN
+#include "kernel/comp/Utils/StringUtil.h"
 
-IObject::IObject(UInt64 objTypeId)
+KERNEL_BEGIN
+    IObject::IObject(UInt64 objTypeId)
     :_id(IObject::NewId())
     ,_entityId(0)
     ,_objTypeId(objTypeId)
@@ -76,6 +77,7 @@ Int32 IObject::OnCreated()
         return Status::Success;
 
     _objName = RttiUtil::GetByObj(this);
+    _simpleObjName = StringUtil::RemoveNameSpace(_objName);
     if(UNLIKELY(g_Log && (GetType() == 0)))
     {
         CLOG_DEBUG("have no type this comp comp obj name:%s", GetObjName().c_str());

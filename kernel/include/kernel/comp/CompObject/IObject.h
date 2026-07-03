@@ -160,8 +160,11 @@ public:
     // 关注接口最大值
     Int32 GetMaxFocusEnd() const;
     void SetMaxFocusEnd(Int32 maxFocusEnd); // 取 maxFocusEnd 与 ObjFocusInterfaceFlag::END 最大值
-    
+
+    // 包含命名空间的完整类名
     const LibString &GetObjName() const;
+    // 去掉命名空间只剩类名
+    const LibString &GetSimpleObjName() const;
     bool IsReady() const;
     bool IsInited() const;
     bool IsStarted() const;
@@ -198,7 +201,10 @@ private:
 
     const UInt64 _id;
     UInt64 _entityId;
+    // 包含命名空间的完整类名
     LibString _objName;
+    // 去掉命名空间只整类名
+    LibString _simpleObjName;
     UInt64 _objTypeId;
     Int32 _type;
     Int32 _kernelObjType;
@@ -286,6 +292,11 @@ ALWAYS_INLINE void IObject::SetMaxFocusEnd(Int32 maxFocusEnd)
 ALWAYS_INLINE const LibString &IObject::GetObjName() const
 {
     return _objName;
+}
+
+ALWAYS_INLINE const LibString &IObject::GetSimpleObjName() const
+{
+    return _simpleObjName;
 }
 
 ALWAYS_INLINE bool IObject::IsReady() const

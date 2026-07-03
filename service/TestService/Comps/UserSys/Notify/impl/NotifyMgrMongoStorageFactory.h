@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,14 +21,30 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-09-16 20:55:00
+ * Date: 2026-07-03 12:38:36
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <Comps/UserSys/Library/interface/ILibraryMgr.h>
-#include <Comps/UserSys/Library/impl/LibraryMgrFactory.h>
-#include <Comps/UserSys/Library/impl/LibraryMgrStorageFactory.h>
-#include <Comps/UserSys/Library/impl/LibraryMgrMongoStorageFactory.h>
+
+#include <service/TestService/ServiceCompFactoryHeader.h>
+#include <kernel/comp/CompObject/CompFactory.h>
+
+SERVICE_BEGIN
+
+class NotifyMgrMongoStorageFactory : public KERNEL_NS::CompFactory
+{
+public:
+    static constexpr KERNEL_NS::_Build::TL _buildType{};
+
+    static KERNEL_NS::CompFactory *FactoryCreate();
+
+    virtual void Release() override;
+    
+public:
+    virtual KERNEL_NS::CompObject *Create() const override;
+};
+
+SERVICE_END

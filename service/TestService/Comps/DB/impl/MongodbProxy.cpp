@@ -550,6 +550,17 @@ Int32 MongodbProxy::_OnGlobalSysWillStart()
             errInfo.AppendFormat("CreateIndex fail db:%s, collection:%s indexName:%s logic:%s\n", storageComp->GetDbName().c_str(), storageComp->GetSystemName().c_str(), indexName.c_str(), turnLogic->GetObjName().c_str());
             continue;
         }
+        // 普通索引
+        auto &indexDict = storageComp->GetNormalIndexDict();
+        for (auto &iterDict : indexDict)
+        {
+            auto &dictIndexName = iterDict.first;
+            auto &indexInfo = iterDict.second;
+            if(!mongodbMgr->CreateIndex(storageComp->GetDbName(), storageComp->GetSystemName(), dictIndexName, indexInfo.Fields, indexInfo.Unique))
+            {
+                errInfo.AppendFormat("CreateIndex fail db:%s, collection:%s indexName:%s logic:%s\n", storageComp->GetDbName().c_str(), storageComp->GetSystemName().c_str(), dictIndexName.c_str(), turnLogic->GetObjName().c_str());
+            }
+        }
 
         // 记录表信息
         _BuildSysFields(turnLogic);

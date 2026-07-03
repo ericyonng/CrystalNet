@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -20,15 +20,28 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
- * 
- * Date: 2023-09-16 20:55:00
+ *
+ * Date: 2026-07-03 14:42:36
  * Author: Eric Yonng
  * Description: 
 */
-
 #pragma once
 
-#include <Comps/UserSys/Library/interface/ILibraryMgr.h>
-#include <Comps/UserSys/Library/impl/LibraryMgrFactory.h>
-#include <Comps/UserSys/Library/impl/LibraryMgrStorageFactory.h>
-#include <Comps/UserSys/Library/impl/LibraryMgrMongoStorageFactory.h>
+
+#include <Comps/DB/impl/IMongodbStorageInfo.h>
+
+SERVICE_BEGIN
+
+class LoginMgrMongoStorage : public IMongodbStorageInfo
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(IMongodbStorageInfo, LoginMgrMongoStorage);
+public:
+    LoginMgrMongoStorage();
+    ~LoginMgrMongoStorage() override;
+
+    virtual void Release() override;
+
+};
+
+
+SERVICE_END

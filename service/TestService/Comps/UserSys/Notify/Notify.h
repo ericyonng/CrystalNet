@@ -31,3 +31,4 @@
 #include <Comps/UserSys/Notify/impl/NotifyMgrStorageFactory.h>
 #include <Comps/UserSys/Notify/impl/NotifyMgrFactory.h>
 #include <Comps/UserSys/Notify/interface/INotifyMgr.h>
+#include <Comps/UserSys/Notify/impl/NotifyMgrMongoStorageFactory.h>

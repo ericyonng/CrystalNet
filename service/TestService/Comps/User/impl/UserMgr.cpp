@@ -44,6 +44,7 @@
 #include <Comps/User/impl/UserSessionMgr.h>
 #include <Comps/User/impl/UserSessionMgrFactory.h>
 #include <Comps/NickName/nickname.h>
+#include <Comps/User/impl/UserMgrMongoStorageFactory.h>
 
 #include "MyTestService.h"
 
@@ -68,7 +69,10 @@ void UserMgr::Release()
 
 void UserMgr::OnRegisterComps()
 {
-    RegisterComp<UserMgrStorageFactory>();
+    // 使用mongodb存储
+    RegisterComp<UserMgrMongoStorageFactory>();
+    
+    // RegisterComp<UserMgrStorageFactory>();
 
     // 会话管理
     RegisterComp<UserSessionMgrFactory>();
@@ -1025,6 +1029,19 @@ void UserMgr::OnPassTimeEnd(const KERNEL_NS::LibTime &nowTime)
     for(auto iter : _userIdRefUser)
         iter.second->OnPassTimeEnd(nowTime);
 }
+
+KERNEL_NS::CoTask<IUser *> UserMgr::CreateUser(const KERNEL_NS::LibString accountName)
+{
+    // TODO:
+    // 不能有奇奇怪怪的名字 TODO:后续可以加入敏感词检查
+
+    // 校验参数
+    // 加锁 ---
+    // 建号, 登录
+    // 解锁----
+    co_return NULL;
+}
+
 
 Int32 UserMgr::_OnGlobalSysInit()
 {

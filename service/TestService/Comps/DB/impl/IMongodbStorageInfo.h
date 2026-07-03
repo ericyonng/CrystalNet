@@ -31,6 +31,7 @@
 #include <kernel/comp/CompObject/CompObject.h>
 #include <Comps/DB/impl/MongoStorageFlags.h>
 #include <OptionComp/storage/MongoDB/Impl/ShardKeyInfo.h>
+#include <OptionComp/storage/MongoDB/Impl/MongoIndexInfo.h>
 
 SERVICE_BEGIN
 
@@ -60,15 +61,20 @@ public:
 
     const KERNEL_NS::LibString &GetDbName() const;
     const KERNEL_NS::LibString &GetSystemName() const;
+    // 指定常用的唯一索引
     const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &GetUniqueIndexFields() const;
+    // 索引
+    const std::map<KERNEL_NS::LibString, KERNEL_NS::MongoIndexInfo> &GetNormalIndexDict() const;
     const std::map<KERNEL_NS::LibString, Int32> &GetFieldNameRefStorageType() const;
+    // MongoSerializeInfoType
     Int32 GetStorageType() const;
 
     UInt64 GetFlags() const;
 
     void AsKvSystem(const KERNEL_NS::LibString &keyField, const KERNEL_NS::LibString &valueField);
     void AsMultiSystem();
-    void AsFieldSystem();
+    // MongoSerializeInfoType
+    void AsFieldSystem(Int32 storageType);
 
     // 是否kv系统
     bool IsKvSystem() const;
@@ -92,10 +98,12 @@ protected:
     const KERNEL_NS::LibString _systemName;
     // 索引信息:key,Int32:1:升序, -1降序,-2:hashed MongodbIndexFieldValue 必须指定否则启动失败 唯一索引
     std::vector<std::pair<KERNEL_NS::LibString, Int32>> _uniqueIndexFields;
-    // 系统含有多字段, 给每个字段做存储类型定义 必须指定 _fieldNameRefStorageType 和 _storageType之一
+    // 普通索引
+    std::map<KERNEL_NS::LibString, KERNEL_NS::MongoIndexInfo> _indexNameRefInfo;
+    // 系统含有多字段, 给每个字段做存储类型定义 必须指定 _fieldNameRefStorageType 和 _storageType之一 MongoSerializeInfoType
     std::map<KERNEL_NS::LibString, Int32> _fieldNameRefStorageType;
 
-    /** 当系统只作为其他系统的一个字段, 只需要填写storrageType即可 **/
+    /** 当系统只作为其他系统的一个字段, 只需要填写storrageType即可 MongoSerializeInfoType **/
     // 系统整体作为一个字段, 存储类型定义(子系统默认只作为母系统的一个字段整体存储) 当系统作为其他系统的组件时使用
     Int32 _storageType = 0;
 
@@ -126,6 +134,12 @@ ALWAYS_INLINE const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &IMongod
     return _uniqueIndexFields;
 }
 
+ALWAYS_INLINE const std::map<KERNEL_NS::LibString, KERNEL_NS::MongoIndexInfo> &IMongodbStorageInfo::GetNormalIndexDict() const
+{
+    return _indexNameRefInfo;
+}
+
+
 ALWAYS_INLINE const std::map<KERNEL_NS::LibString, Int32> &IMongodbStorageInfo::GetFieldNameRefStorageType() const
 {
     return _fieldNameRefStorageType;
@@ -154,9 +168,10 @@ ALWAYS_INLINE void IMongodbStorageInfo::AsMultiSystem()
     _flags = MongoStorageFlags::AsMultiSystem(_flags);
 }
 
-ALWAYS_INLINE void IMongodbStorageInfo::AsFieldSystem()
+ALWAYS_INLINE void IMongodbStorageInfo::AsFieldSystem(Int32 storageType)
 {
     _flags = MongoStorageFlags::AsFieldSystem(_flags);
+    _storageType = storageType;
 }
 
 

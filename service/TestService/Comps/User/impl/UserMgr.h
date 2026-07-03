@@ -121,6 +121,8 @@ public:
 
     const KERNEL_NS::FileMonitor<UserOptions, KERNEL_NS::YamlDeserializer> * GetOptions() const;
 
+    KERNEL_NS::CoTask<IUser *> CreateUser(const KERNEL_NS::LibString accountName);
+
 private:
     virtual Int32 _OnGlobalSysInit() override;
     virtual Int32 _OnGlobalSysCompsCreated() override;
