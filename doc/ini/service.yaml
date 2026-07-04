@@ -214,12 +214,12 @@ MysqlCommonOptions:
   
 MongoTestSuit:
   # 分片集群填写分片集群的域名
-  SrvHostName: rscluster.ericyonng.com
+  SrvHostName: xxx.xxx.com
   Account: eric
   # 使用明文, 不用使用url编码, 拼接的时候会自动url编码
-  Pwd: pK38U~mTk^3
+  Pwd: 123456
   # 如果指定了复制集则mongodb驱动会直连复制集,分片集群不需要填写
-  ReplicaSetName: testsuit_rs
+  ReplicaSetName: rs0
   # 定时清脏落地时间间隔
   PurgeInterval: 00:00:03
 
