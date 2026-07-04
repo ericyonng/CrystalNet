@@ -146,6 +146,8 @@
 
 - 引入hash算法, 在HashUtil, 提供高性能，低冲突的HashUtil::Hash64(...), (测试13GB+ /s 的吞吐量)
 
+- 支持**MongodbProxy**代理, 屏蔽Mongodb操作复杂度, 配合本系统提供的Orm能力，支持自动标脏持久化, 见:[MongodbOptionComponent](https://github.com/ericyonng/CrystalNet/tree/main/OptionComponent/OptionComp/storage/MongoDB)
+
   
   
   

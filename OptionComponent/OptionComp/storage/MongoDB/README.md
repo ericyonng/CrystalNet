@@ -92,6 +92,8 @@ mongodb组件默认使用srv模式
   * 每个系统需要持久化, 需要添加KERNEL_NS::IMongodbStorageInfo 组件, 以便被MongodbProxy自动发现(MongodbProxy注册在于持该系统平级的Service系统内)
   * MongodbProxy发现后会检查索引, dbName, 表名等必要的参数检查, 并建立表信息
   * 标脏后, mongodbProxy会定时的Purge落地脏数据
+  * 提供的持久化落地格式:
+    * ![持久化落地数据格式](https://raw.githubusercontent.com/ericyonng/CrystalNet/main/resource/img/mongodbproxy_13.png)
 
 * 使用举例:
 
