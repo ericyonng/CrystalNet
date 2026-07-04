@@ -101,14 +101,14 @@ mongodb组件默认使用srv模式
     2. 添加PassTimeGlobalMongo类
     3. 注册到PassTimeGlobal作为组件
   * **添加 PassTimeGlobalMongoFactory 工厂类**
-    * ![image-20260705005325695](..\..\..\..\resource\img\mongodbproxy_1.png)
-    * ![image-20260705005617743](..\..\..\..\resource\img\mongodbproxy_2.png)
+    * ![PassTimeGlobal存储组件工厂](https://raw.githubusercontent.com/ericyonng/CrystalNet/main/resource/img/mongodbproxy_1.png)
+    * ![PassTimeGlobal存储组件工厂](https://raw.githubusercontent.com/ericyonng/CrystalNet/main/resource/img/mongodbproxy_2.png)
 
   * **添加PassTimeGlobalMongo类**
-    * ![image-20260705005710945](..\..\..\..\resource\img\mongodbproxy_3.png)
-    * ![image-20260705005849833](..\..\..\..\resource\img\mongodbproxy_4.png)
+    * ![PassTimeGlobal存储组件](https://raw.githubusercontent.com/ericyonng/CrystalNet/main/resource/img/mongodbproxy_3.png)
+    * ![PassTimeGlobal存储组件](https://raw.githubusercontent.com/ericyonng/CrystalNet/main/resource/img/mongodbproxy_4.png)
   * **注册到PassTimeGlobal作为组件**
-    * ![image-20260705010123861](..\..\..\..\resource\img\mongodbproxy_5.png)
+    * ![PassTimeGlobal存储组件](https://raw.githubusercontent.com/ericyonng/CrystalNet/main/resource/img/mongodbproxy_5.png)
 
   
 
@@ -120,16 +120,16 @@ mongodb组件默认使用srv模式
     4. User 各子系统, 添加各自的xxxMongoStorage, 然后添加到UserSysInc.h, 它会自动注册到 UserMgrMongoStorage 作为 UserMgrMongoStorage 的组件，以便在系统启动的时候进行合法性检查
     5. 持久化的时候通过UserMgr::OnSave 取到User对象, 调用User::OnSave , User系统持久化会写入必要的几个字段, 然后扫描 标脏的系统, 并调用 UserMgrMongoStorage对应子系统的OnSave接口, 进行子系统的持久化
   * **UserMgrMongoStorageFactory工厂**
-    * ![image-20260705010836073](..\..\..\..\resource\img\mongodbproxy_6.png)
+    * ![User系统持久化](https://raw.githubusercontent.com/ericyonng/CrystalNet/main/resource/img/mongodbproxy_6.png)
   * **UserMgrMongoStorage 类**
-    * ![image-20260705011011260](..\..\..\..\resource\img\mongodbproxy_7.png)
-    * ![image-20260705011253189](..\..\..\..\resource\img\mongodbproxy_8.png)
-    * ![image-20260705011457008](..\..\..\..\resource\img\mongodbproxy_9.png)
+    * ![User系统持久化](https://raw.githubusercontent.com/ericyonng/CrystalNet/main/resource/img/mongodbproxy_7.png)
+    * ![User系统持久化](https://raw.githubusercontent.com/ericyonng/CrystalNet/main/resource/img/mongodbproxy_8.png)
+    * ![User子系统规整注册位置](https://raw.githubusercontent.com/ericyonng/CrystalNet/main/resource/img/mongodbproxy_9.png)
   * **User子系统持久化 BookBagMgr 系统, BookBagMgrMongoStorage**
-    * ![image-20260705011655642](..\..\..\..\resource\img\mongodbproxy_10.png)
-    * ![image-20260705011850693](..\..\..\..\resource\img\mongodbproxy_11.png)
+    * ![BookBagMgr持久化](https://raw.githubusercontent.com/ericyonng/CrystalNet/main/resource/img/mongodbproxy_10.png)
+    * ![BookBagMgr系统持久化](https://raw.githubusercontent.com/ericyonng/CrystalNet/main/resource/img/mongodbproxy_11.png)
   * **User::OnSave:**
-    * ![image-20260705012341072](..\..\..\..\resource\img\mongodbproxy_12.png)
+    * ![User持久化](https://raw.githubusercontent.com/ericyonng/CrystalNet/main/resource/img/mongodbproxy_12.png)
 
   
 
