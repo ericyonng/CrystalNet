@@ -51,4 +51,11 @@ void LoginMgrMongoStorage::Release()
  LoginMgrMongoStorage::DeleteByAdapter_LoginMgrMongoStorage(LoginMgrMongoStorageFactory::_buildType.V, this);
 }
 
+Int32 LoginMgrMongoStorage::_OnHostInit()
+{
+    // 设置持久化回调
+    SetOnSaveCb<LoginMgr>(&LoginMgr::OnSave);
+    return Status::Success;
+}
+
 SERVICE_END

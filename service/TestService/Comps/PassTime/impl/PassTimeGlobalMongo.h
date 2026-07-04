@@ -27,13 +27,15 @@
 
 #pragma once
 
-#include <Comps/DB/impl/IMongodbStorageInfo.h>
+#include <OptionComp/storage/MongoDB/Impl/IMongodbStorageInfo.h>
+#include <service/common/macro.h>
 
 SERVICE_BEGIN
 
-class PassTimeGlobalMongo : public IMongodbStorageInfo
+class PassTimeGlobalMongo : public KERNEL_NS::IMongodbStorageInfo
 {
     POOL_CREATE_OBJ_DEFAULT_P1(IMongodbStorageInfo, PassTimeGlobalMongo);
+    
 public:
     PassTimeGlobalMongo();
     ~PassTimeGlobalMongo() override;

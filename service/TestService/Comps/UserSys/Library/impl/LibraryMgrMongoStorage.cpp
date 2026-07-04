@@ -51,4 +51,11 @@ void LibraryMgrMongoStorage::Release()
  LibraryMgrMongoStorage::DeleteByAdapter_LibraryMgrMongoStorage(LibraryMgrMongoStorageFactory::_buildType.V, this);
 }
 
+Int32 LibraryMgrMongoStorage::_OnHostInit()
+{
+    // 设置持久化回调
+    SetOnSaveCb<LibraryMgr>(&LibraryMgr::OnSave);
+    return Status::Success;
+}
+
 SERVICE_END

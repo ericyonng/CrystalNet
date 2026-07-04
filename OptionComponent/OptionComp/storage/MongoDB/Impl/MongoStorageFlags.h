@@ -24,12 +24,15 @@
 // Author: Eric Yonng
 // Description:
 
+#ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGO_STORAGE_FLAGS_H__
+#define __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGO_STORAGE_FLAGS_H__
 
 #pragma once
 
-#include <service/common/macro.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
 
-SERVICE_BEGIN
+KERNEL_BEGIN
 
 class MongoStorageFlags
 {
@@ -96,4 +99,6 @@ ALWAYS_INLINE UInt64 MongoStorageFlags::AsFieldSystem(UInt64 flags)
 }
 
 
-SERVICE_END
+KERNEL_END
+
+#endif

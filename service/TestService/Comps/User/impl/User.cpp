@@ -38,6 +38,7 @@
 #include <Comps/DB/db.h>
 #include <protocols/protocols.h>
 #include <Comps/config/config.h>
+#include <Comps/User/impl/UserMgrMongoStorage.h>
 
 SERVICE_BEGIN
 
@@ -353,151 +354,100 @@ Int32 User::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS:
     return Status::Success;
 }
 
-Int32 User::OnSave(UInt64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const
+Int32 User::OnSave(Int64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const
 {
     // 基本信息全部持久化
-    auto descriptor = UserBaseInfo::descriptor();
     {
-        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
-        data->Init(sizeof(UInt64));
-        data->WriteUInt64(_userBaseInfo->userid());
+        auto descriptor = UserBaseInfo::descriptor();
+        {
+            auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+            data->Init(sizeof(UInt64));
+            data->WriteUInt64(_userBaseInfo->userid());
 
-        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kUserIdFieldNumber)->name();
-        fieldRefdb.insert(std::make_pair(fieldName, data));
-    }
-    {
-        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
-        data->Init(static_cast<Int64>(_userBaseInfo->accountname().size()));
-        data->Write(_userBaseInfo->accountname().data(), static_cast<Int64>(_userBaseInfo->accountname().size()));
+            const auto &fieldName = UserMgrMongoStorage::GetKeyName();
+            fieldRefdb.insert(std::make_pair(fieldName, data));
+        }
+        {
+            auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+            data->Init(static_cast<Int64>(_userBaseInfo->accountname().size()));
+            data->Write(_userBaseInfo->accountname().data(), static_cast<Int64>(_userBaseInfo->accountname().size()));
 
-        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kAccountNameFieldNumber)->name();
-        fieldRefdb.insert(std::make_pair(fieldName, data));
-    }
-    {
-        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
-        data->Init(static_cast<Int64>(_userBaseInfo->name().size()));
-        data->Write(_userBaseInfo->name().data(), static_cast<Int64>(_userBaseInfo->name().size()));
+            const auto &fieldName = UserMgrMongoStorage::GetAccountName();
+            fieldRefdb.insert(std::make_pair(fieldName, data));
+        }
+        {
+            auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+            const auto &nickname = KERNEL_NS::UrlCoder::Decode(_userBaseInfo->nickname());
+            data->Init(static_cast<Int64>(nickname.size()));
+            data->Write(nickname.data(), static_cast<Int64>(nickname.size()));
 
-        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kNameFieldNumber)->name();
-        fieldRefdb.insert(std::make_pair(fieldName, data));
-    }
-    {
-        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
-        const auto &nickname = KERNEL_NS::UrlCoder::Decode(_userBaseInfo->nickname());
-        data->Init(static_cast<Int64>(nickname.size()));
-        data->Write(nickname.data(), static_cast<Int64>(nickname.size()));
+            const auto &fieldName = UserMgrMongoStorage::GetNickNameName();
+            fieldRefdb.insert(std::make_pair(fieldName, data));
+        }
+        {
+            auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+            data->Init(static_cast<Int64>(sizeof(UInt64)));
+            data->WriteUInt64(_userBaseInfo->lastlogintime());
 
-        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kNicknameFieldNumber)->name();
-        fieldRefdb.insert(std::make_pair(fieldName, data));
-    }
-    {
-        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
-        data->Init(static_cast<Int64>(_userBaseInfo->pwd().size()));
-        data->Write(_userBaseInfo->pwd().data(), static_cast<Int64>(_userBaseInfo->pwd().size()));
+            const auto &fieldName = UserMgrMongoStorage::GetLastLoginTimeName();
+            fieldRefdb.insert(std::make_pair(fieldName, data));
+        }
+        {
+            auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+            data->Init(static_cast<Int64>(_userBaseInfo->lastloginip().size()));
+            data->Write(_userBaseInfo->lastloginip().data(), static_cast<Int64>(_userBaseInfo->lastloginip().size()));
 
-        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kPwdFieldNumber)->name();
-        fieldRefdb.insert(std::make_pair(fieldName, data));
-    }
-    {
-        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
-        data->Init(static_cast<Int64>(sizeof(UInt64)));
-        data->WriteUInt64(_userBaseInfo->bindphone());
+            const auto &fieldName = UserMgrMongoStorage::GetLastLoginIpName();
+            fieldRefdb.insert(std::make_pair(fieldName, data));
+        }
+        {
+            auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+            data->Init(static_cast<Int64>(_userBaseInfo->createip().size()));
+            data->Write(_userBaseInfo->createip().data(), static_cast<Int64>(_userBaseInfo->createip().size()));
 
-        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kBindPhoneFieldNumber)->name();
-        fieldRefdb.insert(std::make_pair(fieldName, data));
-    }
-    {
-        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
-        data->Init(static_cast<Int64>(sizeof(UInt64)));
-        data->WriteUInt64(_userBaseInfo->lastlogintime());
+            const auto &fieldName = UserMgrMongoStorage::GetCreateIpName();
+            fieldRefdb.insert(std::make_pair(fieldName, data));
+        }
+        {
+            auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+            data->Init(static_cast<Int64>(sizeof(UInt64)));
+            data->WriteUInt64(_userBaseInfo->createtime());
 
-        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kLastLoginTimeFieldNumber)->name();
-        fieldRefdb.insert(std::make_pair(fieldName, data));
-    }
-    {
-        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
-        data->Init(static_cast<Int64>(_userBaseInfo->lastloginip().size()));
-        data->Write(_userBaseInfo->lastloginip().data(), static_cast<Int64>(_userBaseInfo->lastloginip().size()));
+            const auto &fieldName = UserMgrMongoStorage::GetCreateTimeName();
+            fieldRefdb.insert(std::make_pair(fieldName, data));
+        }
+        {
+            auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+            data->Init(static_cast<Int64>(sizeof(Int64)));
+            data->WriteInt64(_userBaseInfo->lastpassdaytime());
 
-        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kLastLoginIpFieldNumber)->name();
-        fieldRefdb.insert(std::make_pair(fieldName, data));
-    }
-    {
-        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
-        data->Init(static_cast<Int64>(_userBaseInfo->lastloginphoneimei().size()));
-        data->Write(_userBaseInfo->lastloginphoneimei().data(), static_cast<Int64>(_userBaseInfo->lastloginphoneimei().size()));
-
-        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kLastLoginPhoneImeiFieldNumber)->name();
-        fieldRefdb.insert(std::make_pair(fieldName, data));
-    }
-    {
-        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
-        data->Init(static_cast<Int64>(_userBaseInfo->createip().size()));
-        data->Write(_userBaseInfo->createip().data(), static_cast<Int64>(_userBaseInfo->createip().size()));
-
-        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kCreateIpFieldNumber)->name();
-        fieldRefdb.insert(std::make_pair(fieldName, data));
-    }
-    {
-        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
-        data->Init(static_cast<Int64>(sizeof(UInt64)));
-        data->WriteUInt64(_userBaseInfo->createtime());
-
-        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kCreateTimeFieldNumber)->name();
-        fieldRefdb.insert(std::make_pair(fieldName, data));
-    }
-    {
-        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
-        data->Init(static_cast<Int64>(_userBaseInfo->createphoneimei().size()));
-        data->Write(_userBaseInfo->createphoneimei().data(), static_cast<Int64>(_userBaseInfo->createphoneimei().size()));
-
-        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kCreatePhoneImeiFieldNumber)->name();
-        fieldRefdb.insert(std::make_pair(fieldName, data));
-    }
-    {
-        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
-        data->Init(static_cast<Int64>(_userBaseInfo->bindmailaddr().size()));
-        data->Write(_userBaseInfo->bindmailaddr().data(), static_cast<Int64>(_userBaseInfo->bindmailaddr().size()));
-
-        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kBindMailAddrFieldNumber)->name();
-        fieldRefdb.insert(std::make_pair(fieldName, data));
+            const auto &fieldName = UserMgrMongoStorage::GetLastPassDayTimeName();
+            fieldRefdb.insert(std::make_pair(fieldName, data));
+        }
     }
 
-    {
-        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
-        data->Init(static_cast<Int64>(_userBaseInfo->pwdsalt().size()));
-        data->Write(_userBaseInfo->pwdsalt().data(), static_cast<Int64>(_userBaseInfo->pwdsalt().size()));
-
-        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kPwdSaltFieldNumber)->name();
-        fieldRefdb.insert(std::make_pair(fieldName, data));
-    }
-    {
-        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
-        data->Init(static_cast<Int64>(sizeof(Int64)));
-        data->WriteInt64(_userBaseInfo->lastpassdaytime());
-
-        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kLastPassDayTimeFieldNumber)->name();
-        fieldRefdb.insert(std::make_pair(fieldName, data));
-    }
-
+    // 当前标脏的子系统持久化
     for(auto iter = _dirtySys.begin(); iter != _dirtySys.end();)
     {
         auto logic = *iter;
         auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+
+        // 通过logic 获取到 IMongodbStorageInfo
         auto storageInfo = _GetStorageInfoBy(logic);
-        data->Init(static_cast<Int64>(storageInfo->GetCapacitySize()));
-        auto err = logic->OnSave(*data);
+
+        // 调用 IMongodbStorageInfo::OnSave => 会调用到 logic 自己的 OnSave
+        auto err = storageInfo->OnSave(logic, *data);
         if(err != Status::Success)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("logic on save fail err:%d logic:%s, field name:%s")
-                    , err, logic->GetObjName().c_str(), storageInfo->GetFieldName().c_str());
+                    , err, logic->GetObjName().c_str(), storageInfo->GetSystemName().c_str());
 
             KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::DeleteThreadLocal_LibStream(data);
             return err;
         }
 
-        fieldRefdb.insert(std::make_pair(storageInfo->GetFieldName(), data));
-
+        // 设置到最终字典中带出去
+        fieldRefdb.insert(std::make_pair(storageInfo->GetSystemName(), data));
         iter = _dirtySys.erase(iter);
     }
 
@@ -1077,23 +1027,21 @@ Int32 User::_OnSysInit()
 Int32 User::_OnSysCompsCreated()
 {
     // user需要存储的子系统
-    auto &allSubStorages = _userMgr->GetStorageInfo()->GetSubStorageInfos();
+    auto &allSubStorages = _userMgr->GetComp<KERNEL_NS::IMongodbStorageInfo>()->GetCompsByTypeId<KERNEL_NS::IMongodbStorageInfo>();
     for(auto subStorageInfo : allSubStorages)
     {
-        if(!subStorageInfo->IsSystemDataStorage())
-            continue;
-
-        auto comp = GetCompByName(subStorageInfo->GetSystemName());
+        auto turnStorageComp = subStorageInfo->CastTo<KERNEL_NS::IMongodbStorageInfo>();
+        auto comp = GetCompByName(turnStorageComp->GetSystemName());
         if(UNLIKELY(!comp))
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("user sys have storage info but have no user sys obj please check system name:%s"), subStorageInfo->GetSystemName().c_str());
+            CLOG_WARN("user sys have storage info but have no user sys obj please check system name:%s", turnStorageComp->GetSystemName().c_str());
             continue;
         }
 
         auto userSys = comp->CastTo<IUserSys>();
         _needStorageSys.push_back(userSys);
-        _fieldNameRefUserSys.insert(std::make_pair(subStorageInfo->GetFieldName(), userSys));
-        _userSysRefStorageInfo.insert(std::make_pair(userSys, subStorageInfo));
+        _fieldNameRefUserSys.insert(std::make_pair(turnStorageComp->GetSystemName(), userSys));
+        _userSysRefStorageInfo.insert(std::make_pair(userSys, turnStorageComp));
     }
 
     return Status::Success;

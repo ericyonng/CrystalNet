@@ -36,6 +36,10 @@
 #include <unordered_map>
 #include <vector>
 
+KERNEL_BEGIN
+class IMongodbStorageInfo;
+KERNEL_END
+
 SERVICE_BEGIN
 
 class IUserMgr;
@@ -55,7 +59,7 @@ public:
    virtual void OnRegisterComps() override;
 
    virtual Int32 OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) override;
-   virtual Int32 OnSave(UInt64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const override;
+   virtual Int32 OnSave(Int64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const override;
 
     virtual IUserMgr *GetUserMgr() override;
     virtual const IUserMgr *GetUserMgr() const override;
@@ -152,8 +156,8 @@ private:
 
     IUserSys *_GetSysBy(const KERNEL_NS::LibString &fieldName);
     const IUserSys *_GetSysBy(const KERNEL_NS::LibString &fieldName) const;
-    IStorageInfo *_GetStorageInfoBy(const IUserSys *userSys);
-    const IStorageInfo *_GetStorageInfoBy(const IUserSys *userSys) const;
+    KERNEL_NS::IMongodbStorageInfo *_GetStorageInfoBy(const IUserSys *userSys);
+    const KERNEL_NS::IMongodbStorageInfo *_GetStorageInfoBy(const IUserSys *userSys) const;
 
     void _Clear();
 
@@ -170,7 +174,7 @@ private:
     /* 需要存储相关userSys */
     std::vector<IUserSys *> _needStorageSys;
     std::unordered_map<KERNEL_NS::LibString, IUserSys *> _fieldNameRefUserSys;
-    std::unordered_map<const IUserSys *, IStorageInfo *> _userSysRefStorageInfo;
+    std::unordered_map<const IUserSys *, KERNEL_NS::IMongodbStorageInfo *> _userSysRefStorageInfo;
     mutable std::set<IUserSys *> _dirtySys;
 
     // 用户基本信息
@@ -196,13 +200,13 @@ ALWAYS_INLINE const IUserSys *User::_GetSysBy(const KERNEL_NS::LibString &fieldN
     return iter == _fieldNameRefUserSys.end() ? NULL : iter->second;
 }
 
-ALWAYS_INLINE IStorageInfo *User::_GetStorageInfoBy(const IUserSys *userSys)
+ALWAYS_INLINE KERNEL_NS::IMongodbStorageInfo *User::_GetStorageInfoBy(const IUserSys *userSys)
 {
     auto iter = _userSysRefStorageInfo.find(userSys);
     return iter == _userSysRefStorageInfo.end() ? NULL : iter->second;
 }
 
-ALWAYS_INLINE const IStorageInfo *User::_GetStorageInfoBy(const IUserSys *userSys) const
+ALWAYS_INLINE const KERNEL_NS::IMongodbStorageInfo *User::_GetStorageInfoBy(const IUserSys *userSys) const
 {
     auto iter = _userSysRefStorageInfo.find(userSys);
     return iter == _userSysRefStorageInfo.end() ? NULL : iter->second;

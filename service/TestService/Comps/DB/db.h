@@ -31,8 +31,3 @@
 #include <service/TestService/Comps/DB/impl/MysqlDefs.h>
 #include <service/TestService/Comps/DB/interface/IMysqlMgr.h>
 #include <service/TestService/Comps/DB/impl/MysqlMgrFactory.h>
-
-#include <service/TestService/Comps/DB/impl/MongodbProxyFactory.h>
-#include <service/TestService/Comps/DB/interface/IMongodbProxy.h>
-#include <service/TestService/Comps/DB/impl/IMongodbStorageInfo.h>
-#include <service/TestService/Comps/DB/impl/MongoStorageFlags.h>

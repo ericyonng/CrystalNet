@@ -51,4 +51,11 @@ void BookBagMgrMongoStorage::Release()
  BookBagMgrMongoStorage::DeleteByAdapter_BookBagMgrMongoStorage(BookBagMgrMongoStorageFactory::_buildType.V, this);
 }
 
+Int32 BookBagMgrMongoStorage::_OnHostInit()
+{
+    // 设置持久化回调
+    SetOnSaveCb<BookBagMgr>(&BookBagMgr::OnSave);
+    return Status::Success;
+}
+
 SERVICE_END

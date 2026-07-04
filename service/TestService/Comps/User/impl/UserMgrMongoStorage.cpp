@@ -36,27 +36,32 @@
 #include "OptionComp/storage/MongoDB/Impl/MongoSerializeInfoType.h"
 #include <Comps/UserSys/UserSys.h>
 
-SERVICE_BEGIN
+#include "UserMgrMongoStorageFactory.h"
+#include <protocols/cplusplus/com_user.pb.h>
 
-UserMgrMongoStorage::UserMgrMongoStorage()
+SERVICE_BEGIN
+    UserMgrMongoStorage::UserMgrMongoStorage()
  :IMongodbStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<UserMgrMongoStorage>(), KERNEL_NS::RttiUtil::GetByType<User>())
 {
-  // 唯一索引信息(hashed不能作为唯一索引)
-  _uniqueIndexFields.emplace_back(KeyName, MongodbIndexFieldValue::ASC);
+    // 唯一索引信息(hashed不能作为唯一索引)
+    _uniqueIndexFields.emplace_back(GetKeyName(), KERNEL_NS::MongodbIndexFieldValue::ASC);
 
-  // 必要的字段存储(json 文档对象)
-  _fieldNameRefStorageType[KeyName] = KERNEL_NS::MongoSerializeInfoType::INT64;
-  _fieldNameRefStorageType[SexName] = KERNEL_NS::MongoSerializeInfoType::INT64;
-    _fieldNameRefStorageType[LevelName] = KERNEL_NS::MongoSerializeInfoType::INT64;
-    _fieldNameRefStorageType[NickNameName] = KERNEL_NS::MongoSerializeInfoType::STRING;
-    _fieldNameRefStorageType[AccountNameName] = KERNEL_NS::MongoSerializeInfoType::STRING;
+    // 必要的字段存储(json 文档对象)
+    _fieldNameRefStorageType[GetKeyName()] = KERNEL_NS::MongoSerializeInfoType::INT64;
+    _fieldNameRefStorageType[GetAccountName()] = KERNEL_NS::MongoSerializeInfoType::STRING;
+    _fieldNameRefStorageType[GetNickNameName()] = KERNEL_NS::MongoSerializeInfoType::STRING;
+    _fieldNameRefStorageType[GetLastLoginTimeName()] = KERNEL_NS::MongoSerializeInfoType::INT64;
+    _fieldNameRefStorageType[GetLastLoginIpName()] = KERNEL_NS::MongoSerializeInfoType::STRING;
+    _fieldNameRefStorageType[GetCreateIpName()] = KERNEL_NS::MongoSerializeInfoType::STRING;
+    _fieldNameRefStorageType[GetCreateTimeName()] = KERNEL_NS::MongoSerializeInfoType::INT64;
+    _fieldNameRefStorageType[GetLastPassDayTimeName()] = KERNEL_NS::MongoSerializeInfoType::INT64;
 
     // 创建索引
     auto &indexInfo = _indexNameRefInfo.emplace("account_name_index", KERNEL_NS::MongoIndexInfo()).first->second;
-    indexInfo.Fields.emplace_back(AccountNameName, MongodbIndexFieldValue::ASC);
+    indexInfo.Fields.emplace_back(GetAccountName(), KERNEL_NS::MongodbIndexFieldValue::ASC);
     indexInfo.Unique = true;    // account 保持唯一
 
-  AsMultiSystem();
+    AsMultiSystem();
 }
 
 UserMgrMongoStorage::~UserMgrMongoStorage()
@@ -66,13 +71,14 @@ UserMgrMongoStorage::~UserMgrMongoStorage()
 
 void UserMgrMongoStorage::Release()
 {
- 
+    UserMgrMongoStorage::DeleteByAdapter_UserMgrMongoStorage(UserMgrMongoStorageFactory::_buildType.V, this);
 }
 
 Int32 UserMgrMongoStorage::_OnHostInit()
 {
-  _dbName = GetOwner()->CastTo<UserMgr>()->GetService()->CastTo<MyTestService>()->GetStorageOption()->DbName;
-  return Status::Success;
+    _dbName = GetOwner()->CastTo<UserMgr>()->GetService()->CastTo<MyTestService>()->GetStorageOption()->DbName;
+    SetOnSaveCb<UserMgr>(&UserMgr::OnSave);
+    return Status::Success;
 }
 
 void UserMgrMongoStorage::OnRegisterComps()
@@ -81,5 +87,45 @@ void UserMgrMongoStorage::OnRegisterComps()
     #include <Comps/UserSys/UserStorageInc.h>
 }
 
+KERNEL_NS::LibString UserMgrMongoStorage::GetKeyName()
+{
+    return UserBaseInfo::descriptor()->FindFieldByNumber(UserBaseInfo::kUserIdFieldNumber)->name();
+}
+
+KERNEL_NS::LibString UserMgrMongoStorage::GetAccountName()
+{
+    return UserBaseInfo::descriptor()->FindFieldByNumber(UserBaseInfo::kAccountNameFieldNumber)->name();
+}
+
+
+KERNEL_NS::LibString UserMgrMongoStorage::GetNickNameName()
+{
+    return UserBaseInfo::descriptor()->FindFieldByNumber(UserBaseInfo::kNicknameFieldNumber)->name();
+}
+
+KERNEL_NS::LibString UserMgrMongoStorage::GetLastLoginTimeName()
+{
+    return UserBaseInfo::descriptor()->FindFieldByNumber(UserBaseInfo::kLastLoginTimeFieldNumber)->name();
+}
+
+KERNEL_NS::LibString UserMgrMongoStorage::GetLastLoginIpName()
+{
+    return UserBaseInfo::descriptor()->FindFieldByNumber(UserBaseInfo::kLastLoginIpFieldNumber)->name();
+}
+
+KERNEL_NS::LibString UserMgrMongoStorage::GetCreateIpName()
+{
+    return UserBaseInfo::descriptor()->FindFieldByNumber(UserBaseInfo::kCreateIpFieldNumber)->name();
+}
+
+KERNEL_NS::LibString UserMgrMongoStorage::GetCreateTimeName()
+{
+    return UserBaseInfo::descriptor()->FindFieldByNumber(UserBaseInfo::kCreateTimeFieldNumber)->name();
+}
+
+KERNEL_NS::LibString UserMgrMongoStorage::GetLastPassDayTimeName()
+{
+    return UserBaseInfo::descriptor()->FindFieldByNumber(UserBaseInfo::kLastPassDayTimeFieldNumber)->name();
+}
 
 SERVICE_END

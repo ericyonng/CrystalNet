@@ -51,7 +51,7 @@ public:
     void OnRegisterComps() override;
 
     Int32 OnLoaded(UInt64 key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) override;
-    Int32 OnSave(UInt64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const override;
+    Int32 OnSave(UInt64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const;
     
     const LibraryInfo *GetLibraryInfo(UInt64 libraryId) const override;
     LibraryInfo *GetLibraryInfo(UInt64 libraryId);

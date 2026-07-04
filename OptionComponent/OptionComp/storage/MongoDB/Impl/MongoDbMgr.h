@@ -43,6 +43,7 @@
 
 KERNEL_BEGIN
 
+// 无状态, 支持多线程, 建议每个进程一个, 多线程共享一个db mgr
 class MongoDbMgr : public IMongoDbMgr
 {
     POOL_CREATE_OBJ_DEFAULT_P1(IMongoDbMgr, MongoDbMgr);
@@ -53,8 +54,6 @@ public:
 
     // 释放
     virtual void Release() override;
-    // 需要手动设置ready
-    virtual void DefaultMaskReady(bool isReady) override {}
     virtual void OnRegisterComps() override;
 
     void SetUri(const KERNEL_NS::LibString &uri) override;
@@ -70,11 +69,12 @@ public:
     // 设置配置来源
     virtual void SetConfigSource(const KERNEL_NS::SourceWrap &source) override;
     virtual void SetConfigKeyName(const KERNEL_NS::LibString &keyName) override;
-
+    virtual const KERNEL_NS::SourceWrap &GetConfigSource() const override;
+    virtual const KERNEL_NS::LibString &GetConfigSourceKeyName() const override;
+    
     // 给表设置分片键
     virtual bool SetShardKeyInfo(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const std::vector<ShardKeyInfo> &shardKeyInfos, bool isUnique = false) override;
     virtual bool CreateIndex(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const KERNEL_NS::LibString &indexName, const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &fields, bool unique = false) override;
-    virtual bool FocusDb(const KERNEL_NS::LibString &dbName) override;
 
     #ifdef CRYSTAL_NET_CPP20
     // 尝试获取分布式锁 (使用 findOneAndUpdate + upsert 原子操作)
@@ -113,16 +113,6 @@ public:
     virtual Int64 GetPendingRequestCount() const override;
     virtual const KERNEL_NS::FileMonitor<MongodbConfig, KERNEL_NS::YamlDeserializer> *GetConfig() const override;
 
-    void DbReady(bool isReady);
-    void SetDbFailErr(Int32 err);
-
-    // 模块依赖注册与反注册, 避免依赖还没结束就销毁mongodb
-    virtual void RegisterDependence(const CompObject *module) override;
-    virtual void UnRegisterDependence(const CompObject *module) override;
-    virtual bool HasDependence() const override;
-    virtual KERNEL_NS::LibString DependenceInfo() const override;
-    virtual const std::set<const CompObject *> &GetDependenceComps() const override;
-
 protected:
     virtual Int32 _OnHostInit() override;
     virtual Int32 _OnCompsCreated() override;
@@ -142,53 +132,52 @@ protected:
     // k_decimal128:转string（定点数）
     bool _TurnVariant(const bsoncxx::types::bson_value::view &bsonValue, KERNEL_NS::Variant &var);
 
-    template<typename LambdaType>
-    bool _CheckHasUniqueKey(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, LambdaType &&checkHasField) const
-    {
-        auto iterDb = _dbRefCollectionRefMongoIndexInfos.find(dbName);
-        if(iterDb == _dbRefCollectionRefMongoIndexInfos.end())
-            return false;
+    // template<typename LambdaType>
+    // bool _CheckHasUniqueKey(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, LambdaType &&checkHasField) const
+    // {
+    //     auto iterDb = _dbRefCollectionRefMongoIndexInfos.find(dbName);
+    //     if(iterDb == _dbRefCollectionRefMongoIndexInfos.end())
+    //         return false;
+    //
+    //     auto &collectionRefIndexInfos = iterDb->second;
+    //     auto iterCollection = collectionRefIndexInfos.find(collectionName);
+    //     if(iterCollection == collectionRefIndexInfos.end())
+    //         return false;
+    //
+    //     auto &indexNameRefIndexInfo = iterCollection->second;
+    //     for(auto iterIndex : indexNameRefIndexInfo)
+    //     {
+    //         auto &indexInfo = iterIndex.second;
+    //         if(indexInfo.Fields.empty())
+    //             continue;
+    //                 
+    //         if(!indexInfo.Unique)
+    //             continue;
+    //
+    //         Int32 hasKeyCount = 0;
+    //         for(auto &field : indexInfo.Fields)
+    //         {
+    //             // 没有字段就跳出
+    //             if(!checkHasField(indexInfo.IndexName, field.first))
+    //             {
+    //                 break;
+    //             }
+    //
+    //             ++hasKeyCount;
+    //         }
+    //
+    //         // 有没有唯一索引的所有key
+    //         if(hasKeyCount == static_cast<Int32>(indexInfo.Fields.size()))
+    //         {
+    //             return true;
+    //         }
+    //     }
+    //
+    //     return false;
+    // }
 
-        auto &collectionRefIndexInfos = iterDb->second;
-        auto iterCollection = collectionRefIndexInfos.find(collectionName);
-        if(iterCollection == collectionRefIndexInfos.end())
-            return false;
+    // void _DoAddIndex(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const KERNEL_NS::LibString &indexName, const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &fields, bool unique = false);
 
-        auto &indexNameRefIndexInfo = iterCollection->second;
-        for(auto iterIndex : indexNameRefIndexInfo)
-        {
-            auto &indexInfo = iterIndex.second;
-            if(indexInfo.Fields.empty())
-                continue;
-                    
-            if(!indexInfo.Unique)
-                continue;
-
-            Int32 hasKeyCount = 0;
-            for(auto &field : indexInfo.Fields)
-            {
-                // 没有字段就跳出
-                if(!checkHasField(indexInfo.IndexName, field.first))
-                {
-                    break;
-                }
-
-                ++hasKeyCount;
-            }
-
-            // 有没有唯一索引的所有key
-            if(hasKeyCount == static_cast<Int32>(indexInfo.Fields.size()))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    void _DoAddIndex(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const KERNEL_NS::LibString &indexName, const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &fields, bool unique = false);
-
-    friend class MongodbThreadStartup;
     // 连接mongo
     KERNEL_NS::LibString _uri;
 
@@ -201,35 +190,21 @@ protected:
     KERNEL_NS::LibString _replicaSetName;
     
     // db => 表 => 分片键
-    std::unordered_map<KERNEL_NS::LibString, std::unordered_map<KERNEL_NS::LibString, ShardKeyInfoGroup>> _dbRefcollectionRefShardKeyInfos;
-    // db => 表 => 索引信息(indexname => 索引信息)
-    std::unordered_map<KERNEL_NS::LibString, std::unordered_map<KERNEL_NS::LibString, std::unordered_map<KERNEL_NS::LibString, MongoIndexInfo>>> _dbRefCollectionRefMongoIndexInfos;
-    // 不可添加分片键, 索引信息
-    std::atomic_bool _cantAddSchemaInfo;
-    SpinLock _schemaLock;
-    // 是否关注的数据库(不是关注的数据库不会提供服务)
-    std::unordered_set<KERNEL_NS::LibString> _focusDbs;
+    // std::unordered_map<KERNEL_NS::LibString, std::unordered_map<KERNEL_NS::LibString, ShardKeyInfoGroup>> _dbRefcollectionRefShardKeyInfos;
+    // // db => 表 => 索引信息(indexname => 索引信息)
+    // std::unordered_map<KERNEL_NS::LibString, std::unordered_map<KERNEL_NS::LibString, std::unordered_map<KERNEL_NS::LibString, MongoIndexInfo>>> _dbRefCollectionRefMongoIndexInfos;
 
     // 初始化mongodb
     static mongocxx::instance _instance;
     mongocxx::pool *_connectionPool;
 
-    // dbready
-    std::atomic_bool _isDbReady;
-    std::atomic<Int32> _dbFailErrCode;
-
-    // mongodb是不是started
-    std::atomic_bool _willStarted;
-
-    // 配置来源
+    // 配置来源(通过配置来连接mongodb)
     KERNEL_NS::SourceWrap _sourceWrap;
     KERNEL_NS::LibString _mongoConfigKeyName;
     KERNEL_NS::FileMonitor<MongodbConfig, KERNEL_NS::YamlDeserializer> *_configMonitor;
 
     std::atomic_bool _isEnable;
     std::atomic<Int64> _pendingRequests;
-
-    std::set<const CompObject *> _dependencies;
 };
 
 KERNEL_END

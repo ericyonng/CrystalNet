@@ -26,11 +26,11 @@
 
 
 #include <pch.h>
-#include <Comps/DB/impl/MongodbProxyFactory.h>
-#include <Comps/DB/impl/MongodbProxy.h>
+#include <OptionComp/storage/MongoDB/Impl/MongodbProxyFactory.h>
+#include <OptionComp/storage/MongoDB/Impl/MongodbProxy.h>
 
 
-SERVICE_BEGIN
+KERNEL_BEGIN
 
 KERNEL_NS::CompFactory *MongodbProxyFactory::FactoryCreate()
 {
@@ -48,4 +48,4 @@ KERNEL_NS::CompObject *MongodbProxyFactory::Create() const
     return comp;
 }
 
-SERVICE_END
+KERNEL_END

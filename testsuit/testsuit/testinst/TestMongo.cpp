@@ -605,16 +605,16 @@ private:
         mongoDbMgr->SetConfigSource({progPath, NULL});
         mongoDbMgr->SetConfigKeyName("MongoTestSuit");
 
-        mongoDbMgr->FocusDb("testsuit1");
-        mongoDbMgr->FocusDb("testsuit2");
-        mongoDbMgr->FocusDb("testsuit3");
-        mongoDbMgr->FocusDb("testsuit4");
-        mongoDbMgr->FocusDb("testsuit5");
-        mongoDbMgr->FocusDb("testsuit6");
-        mongoDbMgr->FocusDb("testsuit7");
-        mongoDbMgr->FocusDb("testsuit8");
-        mongoDbMgr->FocusDb("testsuit9");
-        mongoDbMgr->FocusDb("testsuit10");
+        // mongoDbMgr->FocusDb("testsuit1");
+        // mongoDbMgr->FocusDb("testsuit2");
+        // mongoDbMgr->FocusDb("testsuit3");
+        // mongoDbMgr->FocusDb("testsuit4");
+        // mongoDbMgr->FocusDb("testsuit5");
+        // mongoDbMgr->FocusDb("testsuit6");
+        // mongoDbMgr->FocusDb("testsuit7");
+        // mongoDbMgr->FocusDb("testsuit8");
+        // mongoDbMgr->FocusDb("testsuit9");
+        // mongoDbMgr->FocusDb("testsuit10");
 
         // std::vector<KERNEL_NS::ShardKeyInfo> shardKeys;
         // KERNEL_NS::ShardKeyInfo info;

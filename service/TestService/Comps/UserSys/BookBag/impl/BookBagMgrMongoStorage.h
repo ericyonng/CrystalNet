@@ -28,11 +28,12 @@
 #pragma once
 
 
-#include <Comps/DB/impl/IMongodbStorageInfo.h>
+#include <service/common/macro.h>
+#include <OptionComp/storage/MongoDB/Impl/IMongodbStorageInfo.h>
 
 SERVICE_BEGIN
 
-class BookBagMgrMongoStorage : public IMongodbStorageInfo
+class BookBagMgrMongoStorage : public KERNEL_NS::IMongodbStorageInfo
 {
     POOL_CREATE_OBJ_DEFAULT_P1(IMongodbStorageInfo, BookBagMgrMongoStorage);
 public:
@@ -41,6 +42,7 @@ public:
 
     virtual void Release() override;
 
+    virtual Int32 _OnHostInit() override;
 };
 
 

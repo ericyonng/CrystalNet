@@ -34,6 +34,7 @@
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/Log/log.h>
 #include <kernel/comp/Lock/Impl/SpinLock.h>
+#include <kernel/comp/Utils/StringUtil.h>
 
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
     // linux下类型识别接口相关
@@ -202,12 +203,7 @@ LibString RttiUtil::GetSimpleTypeName(LibString &&fullName)
 
 LibString RttiUtil::GetSimpleTypeName(const LibString &fullName)
 {
-    auto iter = fullName.GetRaw().rfind("::");
-    if (iter != std::string::npos)
-    {
-        return fullName.GetRaw().substr(iter + 2);
-    }
-    return  fullName;
+    return StringUtil::RemoveNameSpace(fullName);
 }
 
 

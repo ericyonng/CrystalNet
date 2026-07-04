@@ -34,6 +34,9 @@
 #include <pch.h>
 #include <testsuit/testinst/TestService.h>
 
+#include "OptionComp/storage/MongoDB/Impl/MongoDbMgrFactory.h"
+#include "OptionComp/storage/MongoDB/Interface/IMongoDbMgr.h"
+
 #ifdef ENABLE_TEST_SERVICE
  #include <service/TestService/service.h>
 #include <OptionComp/Command/Command.h>
@@ -55,6 +58,11 @@ public:
 
     void OnRegisterComps() override
     {
+        // 先注册数据库, 让数据库先初始化好
+#if CRYSTAL_STORAGE_ENABLE
+        RegisterComp<KERNEL_NS::MongoDbMgrFactory>();
+#endif
+        
         SERVICE_COMMON_NS::Application::OnRegisterComps();
 
         // 注册热更监控, 插件集使用Command监控, HotfixMonitor正式下线
@@ -87,6 +95,12 @@ public:
             SinalFinish(Status::Success);
         });
 
+        // 设置mongodb配置
+#if CRYSTAL_STORAGE_ENABLE
+        auto mongodbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
+        mongodbMgr->SetConfigSource(*GetSourceWrap());
+        mongodbMgr->SetConfigKeyName("MongoTestSuit");
+#endif
         return Status::Success;
     }
     

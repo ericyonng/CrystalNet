@@ -206,6 +206,11 @@ public:
     std::vector<CompObject *> &GetCompsByTypeId(UInt64 typeId);
     const std::vector<CompObject *> &GetCompsByTypeId(UInt64 typeId) const;
 
+    template<typename ObjType>
+    std::vector<CompObject *> &GetCompsByTypeId();
+    template<typename ObjType>
+    const std::vector<CompObject *> &GetCompsByTypeId() const;
+
     CompObject *GetCompByName(const LibString &objName);
     const CompObject *GetCompByName(const LibString &objName) const;
     std::vector<CompObject *> &GetCompsByName(const LibString &objName);
@@ -423,6 +428,19 @@ ALWAYS_INLINE const std::vector<CompObject *> &CompHostObject::GetCompsByTypeId(
 {
     auto iter = _compTypeIdRefComps.find(typeId);
     return iter == _compTypeIdRefComps.end() ? CompHostObject::_emptyComps : iter->second;
+}
+
+template<typename ObjType>
+ALWAYS_INLINE std::vector<CompObject *> &CompHostObject::GetCompsByTypeId()
+{
+    auto typeId = RttiUtil::GetTypeId<ObjType>();
+    return GetCompsByTypeId(typeId);
+}
+template<typename ObjType>
+ALWAYS_INLINE const std::vector<CompObject *> &CompHostObject::GetCompsByTypeId() const
+{
+    auto typeId = RttiUtil::GetTypeId<ObjType>();
+    return GetCompsByTypeId(typeId);
 }
 
 ALWAYS_INLINE CompObject *CompHostObject::GetCompByName(const LibString &objName)

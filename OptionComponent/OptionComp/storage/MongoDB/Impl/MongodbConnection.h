@@ -58,10 +58,10 @@ public:
     // filter: {_id, $or: [{owner}, {expireAt: $exists:false}, {expireAt: $lt:now}]}
     // owner匹配→续期; 过期→抢占; 不存在→upsert创建; 别人持有且未过期→E11000获取失败
     // lockName:锁目标, ownerId:锁持有者标识
-    KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> TryAcquireLock(const KERNEL_NS::LibString &lockName, const KERNEL_NS::LibString &ownerId, const KERNEL_NS::TimeSlice &lockSlice = KERNEL_NS::TimeSlice::FromSeconds(30));
+    KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> TryAcquireLock(const KERNEL_NS::LibString &lockName, const KERNEL_NS::LibString &ownerId, const KERNEL_NS::TimeSlice &lockSlice = KERNEL_NS::TimeSlice::FromSeconds(30)) noexcept;
     
     // 释放分布式锁
-    void ReleaseLock(KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> &lock);
+    void ReleaseLock(KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> &lock) noexcept;
 
     // 设置分片键
     KERNEL_NS::CoTask<bool> ShardCollection(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collName, ShardKeyInfoGroup shardKeyGroup, Int32 numChunks = 1024);

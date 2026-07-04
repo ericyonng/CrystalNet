@@ -61,7 +61,7 @@ public:
     virtual void OnStartup() override;
 
    virtual Int32 OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) override;
-   virtual Int32 OnSave(UInt64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const override;
+   virtual Int32 OnSave(Int64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const;
 
     virtual IUser *GetUser(UInt64 userId) override;
     virtual const IUser *GetUser(UInt64 userId) const override;

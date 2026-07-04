@@ -41,6 +41,10 @@
 #include <kernel/comp/LibStringYaml.h>
 #include <kernel/comp/SmartPtr.h>
 #include <service/common/Configs/StorageOptions.h>
+#include <OptionComp/storage/MongoDB/MongoDBComp.h>
+
+#include "OptionComp/storage/MongoDB/Impl/MongodbProxyFactory.h"
+#include "OptionComp/storage/MongoDB/Interface/IMongodbProxy.h"
 
 SERVICE_BEGIN
     // 配置项
@@ -189,6 +193,11 @@ void MyTestService::_OnServiceClear()
 
 void MyTestService::_OnServiceRegisterComps()
 {
+#ifdef CRYSTAL_STORAGE_ENABLE
+    // mongodb
+    RegisterComp<KERNEL_NS::MongodbProxyFactory>();
+#endif
+    
     // 事件转发器 从Service 转发到其他事件管理器
     RegisterComp<EventRelayGlobalFactory>();
     // 配置表
@@ -203,9 +212,6 @@ void MyTestService::_OnServiceRegisterComps()
 #ifdef CRYSTAL_STORAGE_ENABLE
     // 存储组件
     // RegisterComp<MysqlMgrFactory>();
-
-    // 存储
-    RegisterComp<MongodbProxyFactory>();
 #endif
 
     // 全球唯一id组件(需要有存储组件)
@@ -312,6 +318,29 @@ Int32 MyTestService::_OnServicePriorityLevelCompsCreated()
 
 Int32 MyTestService::_OnServiceCompsCreated()
 {
+    // db设置
+#if CRYSTAL_STORAGE_ENABLE
+    auto mongoProxy = GetComp<KERNEL_NS::IMongodbProxy>();
+    // mongodb管理
+    mongoProxy->SetMongodbMgr(GetApp()->GetComp<KERNEL_NS::IMongoDbMgr>());
+    // 检查模块是否退出
+    mongoProxy->SetCheckDependenceQuit([this](const KERNEL_NS::CompHostObject *host)->bool
+    {
+        return IsServiceModuleQuit(host);
+    });
+    // 设置Proxy退出
+    mongoProxy->SetMongoProxyMaskQuit([this](const KERNEL_NS::CompHostObject *host)->void
+    {
+        MaskServiceModuleQuitFlag(host);
+    });
+    // 设置关注，退出的时候需要等待Proxy退出
+    mongoProxy->SetRegisterFocus([this](const KERNEL_NS::CompHostObject *host) ->void
+    {
+        this->RegisterFocusServiceModule(host);
+    });
+    
+#endif
+    
     _timerMgr = _poller->GetTimerMgr();
     _updateTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
     _updateTimer->SetTimeOutHandler(this, &MyTestService::_OnFrameTimer);

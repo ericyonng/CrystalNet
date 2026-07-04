@@ -24,14 +24,21 @@
 // Author: Eric Yonng
 // Description:
 #include <pch.h>
-#include <Comps/DB/impl/IMongodbStorageInfo.h>
+#include <OptionComp/storage/MongoDB/Impl/IMongodbStorageInfo.h>
 #include <kernel/comp/Utils/RttiUtil.h>
 
-SERVICE_BEGIN
+KERNEL_BEGIN
 
 IMongodbStorageInfo::IMongodbStorageInfo(UInt64 objTypeId, const KERNEL_NS::LibString &rttiObjName)
     :CompHostObject(objTypeId)
     ,_systemName(KERNEL_NS::StringUtil::RemoveNameSpace(rttiObjName))
+    ,_storageType(0)
+    ,_flags(0)
+    ,_numberSaveCb(NULL)
+    ,_numberSteamSaveCb(NULL)
+    ,_stringSaveCb(NULL)
+    ,_stringSteamSaveCb(NULL)
+    ,_asFieldSystemSaveCb(NULL)
 {
     // 设置接口id
     SetInterfaceTypeId(KERNEL_NS::RttiUtil::GetTypeId<IMongodbStorageInfo>());
@@ -39,8 +46,23 @@ IMongodbStorageInfo::IMongodbStorageInfo(UInt64 objTypeId, const KERNEL_NS::LibS
 
 IMongodbStorageInfo::~IMongodbStorageInfo()
 {
-    
+    CRYSTAL_RELEASE_SAFE(_numberSaveCb);
+    CRYSTAL_RELEASE_SAFE(_numberSteamSaveCb);
+    CRYSTAL_RELEASE_SAFE(_stringSaveCb);
+    CRYSTAL_RELEASE_SAFE(_stringSteamSaveCb);
+    CRYSTAL_RELEASE_SAFE(_asFieldSystemSaveCb);
 }
 
+Int32 IMongodbStorageInfo::_OnHostStart()
+{
+    // 作为其他系统的字段, 由其他系统的OnSave中去持久化
+    if((!_numberSaveCb) && (!_stringSaveCb) && (!_numberSteamSaveCb) && (!_stringSteamSaveCb) && (!_asFieldSystemSaveCb))
+    {
+        CLOG_ERROR("storage have no onsave callback please check : %s", GetObjName().c_str());
+        return Status::Failed;
+    }
+    
+    return Status::Success;
+}
 
-SERVICE_END
+KERNEL_END

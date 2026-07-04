@@ -28,18 +28,21 @@
 #pragma once
 
 
-#include <Comps/DB/impl/IMongodbStorageInfo.h>
+#include <OptionComp/storage/MongoDB/Impl/IMongodbStorageInfo.h>
+#include <service/common/macro.h>
 
 SERVICE_BEGIN
 
-class NotifyMgrMongoStorage : public IMongodbStorageInfo
+class NotifyMgrMongoStorage : public KERNEL_NS::IMongodbStorageInfo
 {
  POOL_CREATE_OBJ_DEFAULT_P1(IMongodbStorageInfo, NotifyMgrMongoStorage);
+    
 public:
- NotifyMgrMongoStorage();
- ~NotifyMgrMongoStorage() override;
+     NotifyMgrMongoStorage();
+     ~NotifyMgrMongoStorage() override;
 
- virtual void Release() override;
+    virtual void Release() override;
+    Int32 _OnHostInit() override;
 
 };
 

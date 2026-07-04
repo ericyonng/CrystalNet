@@ -243,6 +243,8 @@ public:
     virtual void BindPhone(UInt64 phoneNumber) = 0;
 
     virtual bool HasBindPhone() const = 0;
+
+    virtual Int32 OnSave(Int64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const = 0;
 };
 
 ALWAYS_INLINE KERNEL_NS::ListenerStub IUser::AddListener(int id,

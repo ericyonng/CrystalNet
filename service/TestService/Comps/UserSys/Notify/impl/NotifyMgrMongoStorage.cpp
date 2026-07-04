@@ -50,4 +50,10 @@ void NotifyMgrMongoStorage::Release()
     NotifyMgrMongoStorage::DeleteByAdapter_NotifyMgrMongoStorage(NotifyMgrMongoStorageFactory::_buildType.V, this);
 }
 
+Int32 NotifyMgrMongoStorage::_OnHostInit()
+{
+    // 设置持久化回调
+    SetOnSaveCb<NotifyMgr>(&NotifyMgr::OnSave);
+    return Status::Success;
+}
 SERVICE_END

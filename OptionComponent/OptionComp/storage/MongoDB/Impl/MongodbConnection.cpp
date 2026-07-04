@@ -62,7 +62,8 @@ KERNEL_NS::CoTask<bool> MongodbConnection::EnableDatabaseSharding(KERNEL_NS::Lib
     // 生成唯一锁 ID (使用 UUID)
     auto &&lockOwner = KERNEL_NS::GuidUtil::GenStr();
     KERNEL_NS::LibString &&lockName = "db_sharding_" + dbName;
-    
+
+    KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> lock;
     try
     {
         // 最多尝试获取锁3次
@@ -76,7 +77,7 @@ KERNEL_NS::CoTask<bool> MongodbConnection::EnableDatabaseSharding(KERNEL_NS::Lib
             }
             
             // 尝试获取分布式锁
-            auto lock = TryAcquireLock(lockName, lockOwner);
+            lock = TryAcquireLock(lockName, lockOwner);
             if (!lock->Acquired)
             {
                 // 等待锁释放后再次检查状态
@@ -125,23 +126,25 @@ KERNEL_NS::CoTask<bool> MongodbConnection::EnableDatabaseSharding(KERNEL_NS::Lib
     catch (const mongocxx::exception &e)
     {
         CLOG_ERROR("EnableDatabaseSharding failed:%s, dbName:%s", e.what(), dbName.c_str());
-        co_return false;
     }
     catch (const std::exception &e)
     {
         CLOG_ERROR("EnableDatabaseSharding std exception failed:%s, dbName:%s", e.what(), dbName.c_str());
-        co_return false;
     }
     catch (...)
     {
         CLOG_ERROR("EnableDatabaseSharding unkown dbName:%s", dbName.c_str());
-        co_return false;
+    }
+
+    if(lock)
+    {
+        ReleaseLock(lock);
     }
 
     co_return false;
 }
 
-KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> MongodbConnection::TryAcquireLock(const KERNEL_NS::LibString &lockName, const KERNEL_NS::LibString &ownerId, const KERNEL_NS::TimeSlice &lockSlice)
+KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> MongodbConnection::TryAcquireLock(const KERNEL_NS::LibString &lockName, const KERNEL_NS::LibString &ownerId, const KERNEL_NS::TimeSlice &lockSlice) noexcept
 {
     KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> lock = ShardingLock::NewThreadLocal_ShardingLock();
     lock->LockId = ownerId;
@@ -214,7 +217,7 @@ KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> Mongo
     return lock;
 }
 
-void MongodbConnection::ReleaseLock(KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> &lock)
+void MongodbConnection::ReleaseLock(KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> &lock) noexcept
 {
     if (!lock->Acquired)
         return;
@@ -250,7 +253,8 @@ KERNEL_NS::CoTask<bool> MongodbConnection::ShardCollection(KERNEL_NS::LibString 
     auto &&lockOwner = KERNEL_NS::GuidUtil::GenStr();
     KERNEL_NS::LibString &&fullNs = dbName + "." + collName;
     KERNEL_NS::LibString &&lockName = "coll_sharding_" + fullNs;
-    
+
+    KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> lock;
     try
     {
         // 先检查是否已设置分片键
@@ -270,7 +274,7 @@ KERNEL_NS::CoTask<bool> MongodbConnection::ShardCollection(KERNEL_NS::LibString 
         for (Int32 idx = 0; idx < 3; ++idx)
         {
             // 尝试获取分布式锁
-            auto lock = TryAcquireLock(lockName, lockOwner);
+            lock = TryAcquireLock(lockName, lockOwner);
             if (!lock->Acquired)
             {
                 // 等待锁释放后再次检查状态
@@ -397,12 +401,15 @@ KERNEL_NS::CoTask<bool> MongodbConnection::ShardCollection(KERNEL_NS::LibString 
         CLOG_ERROR("ShardCollection unknown failed, dbName:%s, collName:%s, shardKeys:%s", dbName.c_str(), collName.c_str(), shardKeyGroup.ToString().c_str());
     }
 
+    if(lock)
+        ReleaseLock(lock);
     co_return false;
 }
 
 KERNEL_NS::CoTask<bool> MongodbConnection::CreateIndex(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collName, const KERNEL_NS::LibString &indexName, 
                        const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &fields, bool unique)
 {
+    KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> lock;
     try
     {
         auto collection = (*_entry)[dbName.GetRaw()][collName.GetRaw()];
@@ -411,36 +418,66 @@ KERNEL_NS::CoTask<bool> MongodbConnection::CreateIndex(const KERNEL_NS::LibStrin
             CLOG_DEBUG("index already exists %s, db:%s, collection:%s", indexName.c_str(), dbName.c_str(), collName.c_str());
             co_return true;
         }
-
-        // 构建索引键文档
-        bsoncxx::builder::basic::document keyDoc;
-        for (const auto &field : fields)
-        {
-            // -2是哈希
-            if(field.second == -2)
-            {
-                keyDoc.append(bsoncxx::builder::basic::kvp(field.first.GetRaw(), "hashed"));
-            }
-            else
-            {
-                keyDoc.append(bsoncxx::builder::basic::kvp(field.first.GetRaw(), field.second));
-            }
-        }
-            
-        // 使用 mongocxx::options::index_options 构建索引选项
-        mongocxx::options::index options;
-        options.unique(unique);
-        options.name(indexName.GetRaw());
-
-        CLOG_INFO("CreateIndex db:%s, collection:%s, creating index %s on fields:%s, unique:%d..."
-            , dbName.c_str(), collName.c_str(), indexName.c_str(), bsoncxx::to_json(keyDoc.view()).c_str(), unique);
         
-        collection.create_index(keyDoc.view(), options);
+        // 生成唯一锁 ID (使用 UUID)
+        auto &&lockOwner = KERNEL_NS::GuidUtil::GenStr();
+        KERNEL_NS::LibString &&fullNs = dbName + "." + collName;
+        KERNEL_NS::LibString &&lockName = "coll_sharding_" + fullNs;
+        
+        for (Int32 idx = 0; idx < 3; ++idx)
+        {
+            // 尝试获取分布式锁
+            lock = TryAcquireLock(lockName, lockOwner);
+            if (!lock->Acquired)
+            {
+                // 等待锁释放后再次检查状态
+                CLOG_INFO("waiting for lock %s, will check sharding status after timeout", lockName.c_str());
+                co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(MONGODB_LOCK_EXPIRE_SECONDS + 1));
 
-        CLOG_INFO("CreateIndex db:%s, collection:%s, index %s created successfully."
-            , dbName.c_str(), collName.c_str(), indexName.c_str());
+                if (_CheckIndexExists(collection, indexName))
+                    co_return true;
 
-        co_return true;
+                continue;
+            }
+        
+            if(_CheckIndexExists(collection, indexName))
+            {
+                CLOG_DEBUG("index already exists %s, db:%s, collection:%s", indexName.c_str(), dbName.c_str(), collName.c_str());
+                ReleaseLock(lock);
+                co_return true;
+            }
+
+            // 构建索引键文档
+            bsoncxx::builder::basic::document keyDoc;
+            for (const auto &field : fields)
+            {
+                // -2是哈希
+                if(field.second == -2)
+                {
+                    keyDoc.append(bsoncxx::builder::basic::kvp(field.first.GetRaw(), "hashed"));
+                }
+                else
+                {
+                    keyDoc.append(bsoncxx::builder::basic::kvp(field.first.GetRaw(), field.second));
+                }
+            }
+                
+            // 使用 mongocxx::options::index_options 构建索引选项
+            mongocxx::options::index options;
+            options.unique(unique);
+            options.name(indexName.GetRaw());
+
+            CLOG_INFO("CreateIndex db:%s, collection:%s, creating index %s on fields:%s, unique:%d..."
+                , dbName.c_str(), collName.c_str(), indexName.c_str(), bsoncxx::to_json(keyDoc.view()).c_str(), unique);
+            
+            collection.create_index(keyDoc.view(), options);
+
+            CLOG_INFO("CreateIndex db:%s, collection:%s, index %s created successfully."
+                , dbName.c_str(), collName.c_str(), indexName.c_str());
+
+            ReleaseLock(lock);
+            co_return true;
+        }
     }
     catch (const mongocxx::exception &e)
     {
@@ -473,6 +510,10 @@ KERNEL_NS::CoTask<bool> MongodbConnection::CreateIndex(const KERNEL_NS::LibStrin
             , dbName.c_str(), collName.c_str(), indexName.c_str(), fieldStr.c_str(), unique);
     }
 
+    if(lock)
+    {
+        ReleaseLock(lock);
+    }
     co_return false;
 }
 

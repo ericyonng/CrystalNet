@@ -65,6 +65,8 @@ public:
     // 设置配置来源
     virtual void SetConfigSource(const KERNEL_NS::SourceWrap &source) = 0;
     virtual void SetConfigKeyName(const KERNEL_NS::LibString &keyName) = 0;
+    virtual const KERNEL_NS::SourceWrap &GetConfigSource() const = 0;
+    virtual const KERNEL_NS::LibString &GetConfigSourceKeyName() const = 0;
 
     // 给表设置分片键(需要在WillStart之前设置)
     virtual bool SetShardKeyInfo(const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const std::vector<ShardKeyInfo> &shardKeyInfos, bool isUnique = false) = 0;
@@ -140,22 +142,12 @@ public:
     //
     // 增, 删, 改, 查
     // find_one_and... 系列函数用于原子操作场景(比如比对版本号是否一致, 一致才能更新, 后续有需要的再迭代)
-
-    // 被关注的db, 如果不在关注列表, 不提供服务, 在willStart之前需要关注数据库
-    virtual bool FocusDb(const KERNEL_NS::LibString &dbName) = 0;
-
+    
     // 多少个请求未完成
     virtual Int64 GetPendingRequestCount() const = 0;
 
     // 获取配置
     virtual const KERNEL_NS::FileMonitor<MongodbConfig, KERNEL_NS::YamlDeserializer> *GetConfig() const = 0;
-
-    // 模块依赖注册与反注册, 避免依赖还没结束就销毁mongodb
-    virtual void RegisterDependence(const CompObject *module) = 0;
-    virtual void UnRegisterDependence(const CompObject *module) = 0;
-    virtual bool HasDependence() const = 0;
-    virtual KERNEL_NS::LibString DependenceInfo() const = 0;
-    virtual const std::set<const CompObject *> &GetDependenceComps() const = 0;
 };
 
 KERNEL_END

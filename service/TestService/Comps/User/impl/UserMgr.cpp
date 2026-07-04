@@ -47,6 +47,8 @@
 #include <Comps/User/impl/UserMgrMongoStorageFactory.h>
 
 #include "MyTestService.h"
+#include <OptionComp/storage/MongoDB/Interface/IMongodbProxy.h>
+#include <Comps/User/impl/UserMgrMongoStorage.h>
 
 SERVICE_BEGIN
     UserMgr::UserMgr()
@@ -208,7 +210,7 @@ Int32 UserMgr::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_
     return Status::Success;
 }
 
-Int32 UserMgr::OnSave(UInt64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const
+Int32 UserMgr::OnSave(Int64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const
 {
     auto user = GetUser(key);
     if(UNLIKELY(!user))
@@ -1034,6 +1036,34 @@ KERNEL_NS::CoTask<IUser *> UserMgr::CreateUser(const KERNEL_NS::LibString accoun
 {
     // TODO:
     // 不能有奇奇怪怪的名字 TODO:后续可以加入敏感词检查
+    // 校验是否已经
+    auto mongoProxy = GetService()->GetComp<KERNEL_NS::IMongodbProxy>();
+    auto dbName = GetService()->CastTo<MyTestService>()->GetStorageOption()->DbName;
+
+    auto &&curTime = KERNEL_NS::LibTime::Now();
+    auto &&collection = KERNEL_NS::StringUtil::RemoveNameSpace(KERNEL_NS::RttiUtil::GetByType<User>());
+    KERNEL_NS::SmartMongoSerializeInfoWrapper wrapper;
+    auto ret = co_await mongoProxy->Query(dbName, collection, UserMgrMongoStorage::GetAccountName(), accountName,  wrapper.Ptr.AsSelf());
+    if(!ret)
+    {
+        // 需要创建
+        KERNEL_NS::SmartPtr<User, KERNEL_NS::AutoDelMethods::CustomDelete> user = User::NewThreadLocal_User(this);
+        user.SetClosureDelegate([](void *user)
+        {
+            auto ptr = KERNEL_NS::KernelCastTo<User>(user);
+            ptr->WillClose();
+            ptr->Close();
+            User::DeleteThreadLocal_User(ptr);
+        });
+
+        auto baseInfo = user->GetUserBaseInfo();
+        baseInfo->set_accountname(accountName);
+        baseInfo->set_nickname(accountName);
+        baseInfo->set_createtime(curTime.GetMilliTimestamp());
+        // TODO:
+        // baseInfo->set_userid()
+        
+    }
 
     // 校验参数
     // 加锁 ---

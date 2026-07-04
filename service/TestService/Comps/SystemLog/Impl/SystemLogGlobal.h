@@ -51,7 +51,7 @@ public:
 
     virtual Int32 _OnGlobalSysInit() override;
 
-    virtual Int32 OnSave(UInt64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const override;
+    virtual Int32 OnSave(UInt64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const;
     
     virtual void AddLog(UInt64 libraryId, const KERNEL_NS::LibString &titleWordId, const std::vector<VariantParam> &titleParams, const KERNEL_NS::LibString &contentWordId, const std::vector<VariantParam> &contentParams) override;
 

@@ -40,10 +40,10 @@
 SERVICE_BEGIN
 
 PassTimeGlobalMongo::PassTimeGlobalMongo()
-    :IMongodbStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<PassTimeGlobalMongo>(), KERNEL_NS::RttiUtil::GetByType<PassTimeGlobal>())
+    :KERNEL_NS::IMongodbStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<PassTimeGlobalMongo>(), KERNEL_NS::RttiUtil::GetByType<PassTimeGlobal>())
 {
     // 唯一索引信息(hashed不能作为唯一索引)
-    _uniqueIndexFields.emplace_back(KeyName, MongodbIndexFieldValue::ASC);
+    _uniqueIndexFields.emplace_back(KeyName, KERNEL_NS::MongodbIndexFieldValue::ASC);
 
     // 存储类型(json 文档对象)
     _fieldNameRefStorageType[KeyName] = KERNEL_NS::MongoSerializeInfoType::INT64;
@@ -66,6 +66,9 @@ void PassTimeGlobalMongo::Release()
 Int32 PassTimeGlobalMongo::_OnHostInit()
 {
     _dbName = GetOwner()->CastTo<PassTimeGlobal>()->GetService()->CastTo<MyTestService>()->GetStorageOption()->DbName;
+
+    // 设置持久化回调
+    SetOnSaveCb<PassTimeGlobal>(&PassTimeGlobal::OnSave);
     return Status::Success;
 }
 

@@ -27,28 +27,41 @@
 */
 #pragma once
 
-#include <Comps/DB/impl/IMongodbStorageInfo.h>
+#include <OptionComp/storage/MongoDB/Impl/IMongodbStorageInfo.h>
+#include <service/common/macro.h>
+#include <kernel/comp/LibString.h>
 
 SERVICE_BEGIN
 
-class UserMgrMongoStorage : public IMongodbStorageInfo
+class UserMgrMongoStorage : public KERNEL_NS::IMongodbStorageInfo
 {
     POOL_CREATE_OBJ_DEFAULT_P1(IMongodbStorageInfo, UserMgrMongoStorage);
+    
 public:
       UserMgrMongoStorage();
       ~UserMgrMongoStorage() override;
 
-      virtual void Release() override;
-      virtual Int32 _OnHostInit() override;
-        virtual void OnRegisterComps() override;  
+    virtual void Release() override;
+    virtual Int32 _OnHostInit() override;
+    virtual void OnRegisterComps() override;  
 
-      /** 字段名 **/
-      static constexpr const Byte8 *KeyName = "UserId";
-      static constexpr const Byte8 *SexName = "Sex";
-      static constexpr const Byte8 *LevelName = "Level";
-      static constexpr const Byte8 *NickNameName = "NickName";
-      static constexpr const Byte8 *AccountNameName = "AccountName";
-
+    /** 字段名 **/
+    // 存储时唯一索引名(user_id)
+    static KERNEL_NS::LibString GetKeyName();
+    // 账号名(唯一索引)
+    static KERNEL_NS::LibString GetAccountName();
+    // 昵称名
+    static KERNEL_NS::LibString GetNickNameName();
+    // 最后登录时间
+    static KERNEL_NS::LibString GetLastLoginTimeName();
+    // 最后登录ip
+    static KERNEL_NS::LibString GetLastLoginIpName();
+    // 建号ip
+    static KERNEL_NS::LibString GetCreateIpName();
+    // 建号时间
+    static KERNEL_NS::LibString GetCreateTimeName();
+    // 最后跨天时间
+    static KERNEL_NS::LibString GetLastPassDayTimeName();
 };
 
 

@@ -163,10 +163,10 @@ public:
    virtual Int32 OnLoaded(const KERNEL_NS::LibString &key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db);
    virtual Int32 OnLoaded(const KERNEL_NS::LibString &key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb);
 
-   /*
-   * 数据持久化
-   * TODO: 需要FocusMethod ON_STORAGE_SUPPORT 才生效
-   */
+   // /*
+   // * 数据持久化
+   // * TODO: 需要FocusMethod ON_STORAGE_SUPPORT 才生效
+   // */
    virtual Int32 OnSave(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const;
    virtual Int32 OnSave(UInt64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const;
    virtual Int32 OnSave(UInt64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const;

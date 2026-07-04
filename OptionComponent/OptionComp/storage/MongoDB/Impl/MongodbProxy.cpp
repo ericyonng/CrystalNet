@@ -26,13 +26,13 @@
 
 #include <pch.h>
 
-#include <Comps/DB/impl/MongodbProxy.h>
-#include <Comps/DB/impl/MongodbProxyFactory.h>
+#include <OptionComp/storage/MongoDB/Impl/MongodbProxy.h>
+#include <OptionComp/storage/MongoDB/Impl/MongodbProxyFactory.h>
 #include <kernel/comp/Utils/RttiUtil.h>
-#include <OptionComp/storage/MongoDB/MongoDBComp.h>
-#include <service/common/BaseComps/Event/Event.h>
-#include <service/common/Params.h>
-#include <service/common/BaseComps/ServiceCompType.h>
+#include <OptionComp/storage/MongoDB/Impl/MongoDbMgrFactory.h>
+#include <OptionComp/storage/MongoDB/Interface/IMongoDbMgr.h>
+#include <kernel/comp/Timer/LibTimer.h>
+#include <kernel/comp/Event/EventManager.h>
 
 namespace 
 {
@@ -53,14 +53,20 @@ namespace
         });
     }
 }
-SERVICE_BEGIN
+
+
+KERNEL_BEGIN
 
 MongodbProxy::MongodbProxy()
     :IMongodbProxy(KERNEL_NS::RttiUtil::GetTypeId<MongodbProxy>())
-    ,_closeServiceStub(INVALID_LISTENER_STUB)
     ,_purgeTimer(KERNEL_NS::LibTimer::NewThreadLocal_LibTimer())
     ,_options(new KERNEL_NS::FileMonitor<KERNEL_NS::MongodbConfig, KERNEL_NS::YamlDeserializer>())
     ,_checkQuit(false)
+    ,_mongodbMgr(NULL)
+    ,_checkDependenceQuit(NULL)
+    ,_maskSelfQuit(NULL)
+    ,_registerFocus(NULL)
+    ,_closeEventStub(INVALID_LISTENER_STUB)
 {
     
 }
@@ -75,23 +81,8 @@ void MongodbProxy::Release()
     MongodbProxy::DeleteByAdapter_MongodbProxy(MongodbProxyFactory::_buildType.V, this);
 }
 
-void MongodbProxy::OnRegisterComps()
-{
-    RegisterComp<KERNEL_NS::MongoDbMgrFactory>();
-}
-
-void MongodbProxy::RegisterDependence(ILogicSys *obj)
-{
-    GetComp<KERNEL_NS::IMongoDbMgr>()->RegisterDependence(obj);
-}
-
-void MongodbProxy::UnRegisterDependence(const ILogicSys *obj)
-{
-    GetComp<KERNEL_NS::IMongoDbMgr>()->UnRegisterDependence(obj);
-}
-
 // 标脏
-void MongodbProxy::MaskLogicNumberKeyAddDirty(const ILogicSys *logic, Int64 key)
+void MongodbProxy::MaskLogicNumberKeyAddDirty(const CompHostObject *logic, Int64 key)
 {
     if(_dirtyLogicRefIsNumberKey.find(logic) == _dirtyLogicRefIsNumberKey.end())
         _dirtyLogicRefIsNumberKey.insert(std::make_pair(logic, true));
@@ -110,9 +101,9 @@ void MongodbProxy::MaskLogicNumberKeyAddDirty(const ILogicSys *logic, Int64 key)
         dirtyHelper->Clear(key);
 
     auto var = dirtyHelper->MaskDirty(key, StorageMode::REPLACE_DATA, true);
-    var->BecomePtr()[Params::VAR_LOGIC] = logic;
+    var->BecomePtr() = logic;
 }
-void MongodbProxy::MaskLogicNumberKeyModifyDirty(const ILogicSys *logic, Int64 key)
+void MongodbProxy::MaskLogicNumberKeyModifyDirty(const CompHostObject *logic, Int64 key)
 {
     auto iter = _logicRefNumberDirtyHelper.find(logic);
     if(iter == _logicRefNumberDirtyHelper.end())
@@ -136,13 +127,13 @@ void MongodbProxy::MaskLogicNumberKeyModifyDirty(const ILogicSys *logic, Int64 k
         return;
 
     auto var = dirtyHelper->MaskDirty(key, StorageMode::UPDATE_DATA, true);
-    var->BecomePtr()[Params::VAR_LOGIC] = logic;
+    var->BecomePtr() = logic;
 
     if(_dirtyLogicRefIsNumberKey.find(logic) == _dirtyLogicRefIsNumberKey.end())
         _dirtyLogicRefIsNumberKey.insert(std::make_pair(logic, true));
 }
 
-void MongodbProxy::MaskLogicNumberKeyDeleteDirty(const ILogicSys *logic, Int64 key)
+void MongodbProxy::MaskLogicNumberKeyDeleteDirty(const CompHostObject *logic, Int64 key)
 {
     auto iter = _logicRefNumberDirtyHelper.find(logic);
     if(iter == _logicRefNumberDirtyHelper.end())
@@ -156,13 +147,13 @@ void MongodbProxy::MaskLogicNumberKeyDeleteDirty(const ILogicSys *logic, Int64 k
     // 标脏
     dirtyHelper->Clear(key);
     auto var = dirtyHelper->MaskDirty(key, StorageMode::DEL_DATA, true);
-    var->BecomePtr()[Params::VAR_LOGIC] = logic;
+    var->BecomePtr() = logic;
 
     if(_dirtyLogicRefIsNumberKey.find(logic) == _dirtyLogicRefIsNumberKey.end())
         _dirtyLogicRefIsNumberKey.insert(std::make_pair(logic, true));
 }
     
-void MongodbProxy::MaskLogicStringKeyAddDirty(const ILogicSys *logic, const KERNEL_NS::LibString &key)
+void MongodbProxy::MaskLogicStringKeyAddDirty(const CompHostObject *logic, const KERNEL_NS::LibString &key)
 {
     auto iter = _logicRefStringDirtyHelper.find(logic);
     if(iter == _logicRefStringDirtyHelper.end())
@@ -176,13 +167,13 @@ void MongodbProxy::MaskLogicStringKeyAddDirty(const ILogicSys *logic, const KERN
         dirtyHelper->Clear(key);
 
     auto var = dirtyHelper->MaskDirty(key, StorageMode::REPLACE_DATA, true);
-    var->BecomePtr()[Params::VAR_LOGIC] = logic;
+    var->BecomePtr() = logic;
 
     if(_dirtyLogicRefIsNumberKey.find(logic) == _dirtyLogicRefIsNumberKey.end())
         _dirtyLogicRefIsNumberKey.insert(std::make_pair(logic, false));
 }
 
-void MongodbProxy::MaskLogicStringKeyModifyDirty(const ILogicSys *logic, const KERNEL_NS::LibString &key)
+void MongodbProxy::MaskLogicStringKeyModifyDirty(const CompHostObject *logic, const KERNEL_NS::LibString &key)
 {
     auto iter = _logicRefStringDirtyHelper.find(logic);
     if(iter == _logicRefStringDirtyHelper.end())
@@ -205,13 +196,13 @@ void MongodbProxy::MaskLogicStringKeyModifyDirty(const ILogicSys *logic, const K
         return;
 
     auto var = dirtyHelper->MaskDirty(key, StorageMode::UPDATE_DATA, true);
-    var->BecomePtr()[Params::VAR_LOGIC] = logic;
+    var->BecomePtr() = logic;
     
     if(_dirtyLogicRefIsNumberKey.find(logic) == _dirtyLogicRefIsNumberKey.end())
         _dirtyLogicRefIsNumberKey.insert(std::make_pair(logic, false));
 }
 
-void MongodbProxy::MaskLogicStringKeyDeleteDirty(const ILogicSys *logic, const KERNEL_NS::LibString &key)
+void MongodbProxy::MaskLogicStringKeyDeleteDirty(const CompHostObject *logic, const KERNEL_NS::LibString &key)
 {
     auto iter = _logicRefStringDirtyHelper.find(logic);
     if(iter == _logicRefStringDirtyHelper.end())
@@ -224,7 +215,7 @@ void MongodbProxy::MaskLogicStringKeyDeleteDirty(const ILogicSys *logic, const K
     // 标脏
     dirtyHelper->Clear(key);
     auto var = dirtyHelper->MaskDirty(key, StorageMode::DEL_DATA, true);
-    var->BecomePtr()[Params::VAR_LOGIC] = logic;
+    var->BecomePtr() = logic;
 
     if(_dirtyLogicRefIsNumberKey.find(logic) == _dirtyLogicRefIsNumberKey.end())
         _dirtyLogicRefIsNumberKey.insert(std::make_pair(logic, false));
@@ -258,7 +249,7 @@ KERNEL_NS::CoTask<> MongodbProxy::Purge()
 }
 
 // 等待logic落库完成
-KERNEL_NS::CoTask<> MongodbProxy::Purge(const ILogicSys *logic)
+KERNEL_NS::CoTask<> MongodbProxy::Purge(const CompHostObject *logic)
 {
     auto iter = _dirtyLogicRefIsNumberKey.find(logic);
     if(iter == _dirtyLogicRefIsNumberKey.end())
@@ -274,7 +265,7 @@ KERNEL_NS::CoTask<> MongodbProxy::Purge(const ILogicSys *logic)
     co_return;
 }
 
-KERNEL_NS::CoTask<bool> MongodbProxy::Query(const ILogicSys *logic, Int64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo> *fieldNameRefDataResult)
+KERNEL_NS::CoTask<bool> MongodbProxy::Query(const CompHostObject *logic, Int64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo> *fieldNameRefDataResult)
 {
     if(UNLIKELY(!logic || !fieldNameRefDataResult))
     {
@@ -282,7 +273,7 @@ KERNEL_NS::CoTask<bool> MongodbProxy::Query(const ILogicSys *logic, Int64 key, s
         co_return false;
     }
     
-    auto storageComp = logic->GetComp<SERVICE_NS::IMongodbStorageInfo>();
+    auto storageComp = logic->GetComp<IMongodbStorageInfo>();
     if(UNLIKELY(!storageComp))
     {
         CLOG_ERROR("query fail logic have no mongodb storage info comp logic:%s, key:%lld", logic->GetObjName().c_str(), key);
@@ -297,7 +288,6 @@ KERNEL_NS::CoTask<bool> MongodbProxy::Query(const ILogicSys *logic, Int64 key, s
         co_return false;
     }
     
-    auto mongodbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
     std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
     auto &uniqueIndexFields = storageComp->GetUniqueIndexFields();
     for(auto &field : uniqueIndexFields)
@@ -342,7 +332,7 @@ KERNEL_NS::CoTask<bool> MongodbProxy::Query(const ILogicSys *logic, Int64 key, s
 
     const auto systemName = storageComp->GetSystemName();
     const auto dbName = storageComp->GetDbName();
-    auto ret = co_await mongodbMgr->Query(dbName, storageComp->GetSystemName(), kv, fieldNameRefDataResult);
+    auto ret = co_await _mongodbMgr->Query(dbName, storageComp->GetSystemName(), kv, fieldNameRefDataResult);
     if(UNLIKELY(!ret))
     {
         CLOG_DEBUG("query data fail db:%s, collection:%s, kv:%s", dbName.c_str(), systemName.c_str(), DictContainerToString(kv).c_str());
@@ -359,10 +349,9 @@ KERNEL_NS::CoTask<bool> MongodbProxy::Query(KERNEL_NS::LibString dbName, KERNEL_
         co_return false;
     }
     
-    auto mongodbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
     std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
     kv.emplace(keyName, KERNEL_NS::Variant(key));
-    auto ret = co_await mongodbMgr->Query(dbName, collectionName, kv, fieldNameRefDataResult);
+    auto ret = co_await _mongodbMgr->Query(dbName, collectionName, kv, fieldNameRefDataResult);
     if(UNLIKELY(!ret))
     {
         CLOG_ERROR("query data fail db:%s, collection:%s, kv:%s", dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str());
@@ -379,10 +368,9 @@ KERNEL_NS::CoTask<bool> MongodbProxy::Query(KERNEL_NS::LibString dbName, KERNEL_
         co_return false;
     }
     
-    auto mongodbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
     std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
     kv.emplace(keyName, KERNEL_NS::Variant(key));
-    auto ret = co_await mongodbMgr->Query(dbName, collectionName, kv, fieldNameRefDataResult);
+    auto ret = co_await _mongodbMgr->Query(dbName, collectionName, kv, fieldNameRefDataResult);
     if(UNLIKELY(!ret))
     {
         CLOG_ERROR("query data fail db:%s, collection:%s, kv:%s", dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str());
@@ -391,34 +379,100 @@ KERNEL_NS::CoTask<bool> MongodbProxy::Query(KERNEL_NS::LibString dbName, KERNEL_
     co_return ret;
 }
 
-
-Int32 MongodbProxy::_OnGlobalSysInit()
+void MongodbProxy::SetMongodbMgr(KERNEL_NS::IMongoDbMgr *mongodbMgr)
 {
-    _closeServiceStub = _eventMgr->AddListener(EventEnums::QUIT_SERVICE_EVENT, this, &MongodbProxy::_CloseServiceEvent);
+    _mongodbMgr = mongodbMgr;
+}
 
-    if(!_options->Init(GetApp()->GetSourceWrap(), "MongoTestSuit"))
+void MongodbProxy::ListenClose(KERNEL_NS::EventManager *eventMgr, Int32 eventType)
+{
+    _closeEventStub = eventMgr->AddListener(eventType, this, &MongodbProxy::_OnCloseEvent);
+}
+
+void MongodbProxy::SetCheckDependenceQuit(KERNEL_NS::IDelegate<bool, const KERNEL_NS::CompHostObject *> *cb)
+{
+    CRYSTAL_RELEASE_SAFE(_checkDependenceQuit);
+    _checkDependenceQuit = cb;
+}
+
+void MongodbProxy::SetMongoProxyMaskQuit(KERNEL_NS::IDelegate<void, const KERNEL_NS::CompHostObject *> *cb)
+{
+    CRYSTAL_RELEASE_SAFE(_maskSelfQuit);
+    _maskSelfQuit = cb;
+}
+
+void MongodbProxy::SetRegisterFocus(KERNEL_NS::IDelegate<void, const KERNEL_NS::CompHostObject *> *cb)
+{
+    CRYSTAL_RELEASE_SAFE(_registerFocus);
+    _registerFocus = cb;
+}
+
+
+Int32 MongodbProxy::_OnHostInit()
+{
+    if(!_mongodbMgr)
     {
-        CLOG_ERROR("mongodb options init fail");
+        CLOG_ERROR("mongodb mgr is null.");
+        return Status::ConfigError;
+    }
+
+    if(!_checkDependenceQuit)
+    {
+        CLOG_ERROR("_checkDependenceQuit is null.");
+
+        return Status::ConfigError;
+    }
+
+    if(!_maskSelfQuit)
+    {
+        CLOG_ERROR("_maskSelfQuit is null.");
+        return Status::ConfigError;
+    }
+
+    if(!_registerFocus)
+    {
+        CLOG_ERROR("_registerFocus is null.");
+
+        return Status::ConfigError;
+    }
+
+    if(_closeEventStub == INVALID_LISTENER_STUB)
+    {
+        CLOG_ERROR("_closeEventStub is invalid, please let proxy listen close.");
+        return Status::ConfigError;
+    }
+
+    _configSource = _mongodbMgr->GetConfigSource();
+    _keyName = _mongodbMgr->GetConfigSourceKeyName();
+    
+    if(_keyName.empty())
+    {
+        CLOG_ERROR("mongodb options key name empty fail");
+
+        return Status::ConfigError;
+    }
+
+    if(!_options->Init(&_configSource, _keyName))
+    {
+        CLOG_ERROR("mongodb options init fail keyName:%s", _keyName.c_str());
         return Status::ConfigError;
     }
 
     _purgeTimer->SetTimeOutHandler(this, &MongodbProxy::_OnPurgeTimer);
     const auto interval = _options->Current()->PurgeInterval;
     _purgeTimer->Schedule(interval);
+
+    // 让Host关注自己
+    _maskSelfQuit->Invoke(this);
     
     return Status::Success;
 }
-Int32 MongodbProxy::_OnGlobalSysCompsCreated()
+Int32 MongodbProxy::_OnCompsCreated()
 {
-    // 设置配置
-    auto mongodbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
-    mongodbMgr->SetConfigSource(*GetApp()->GetSourceWrap());
-    mongodbMgr->SetConfigKeyName("MongoTestSuit");
-    
     return Status::Success;
 }
 
-ALWAYS_INLINE static bool CheckValidStorage(const KERNEL_NS::CompHostObject *turnHost, const SERVICE_NS::IMongodbStorageInfo *storageComp, bool systemAsField, KERNEL_NS::LibString &errInfo)
+ALWAYS_INLINE static bool CheckValidStorage(const KERNEL_NS::CompHostObject *turnHost, const IMongodbStorageInfo *storageComp, bool systemAsField, KERNEL_NS::LibString &errInfo)
 {
     // 检查storageComp合法性
 
@@ -474,21 +528,21 @@ ALWAYS_INLINE static bool CheckValidStorage(const KERNEL_NS::CompHostObject *tur
     return ret;
 }
 
-Int32 MongodbProxy::_OnGlobalSysWillStart()
+Int32 MongodbProxy::_OnHostWillStart()
 {
     // 扫码所有的系统注册依赖
-    auto &comps = GetService()->GetAllComps();
+    auto &comps = GetOwner()->CastTo<KERNEL_NS::CompHostObject>()->GetAllComps();
     KERNEL_NS::LibString errInfo;
     for(auto comp : comps)
     {
         if(UNLIKELY(!comp))
             continue;
 
-        if(comp->GetType() != ServiceCompType::LOGIC_SYS)
+        if(!comp->IsKernelObjType(KernelObjectType::HOST_COMP))
             continue;
 
-        auto turnLogic = comp->CastTo<SERVICE_NS::ILogicSys>();
-        _CheckLogic(turnLogic, errInfo);
+        auto turnHost = comp->CastTo<KERNEL_NS::CompHostObject>();
+        _CheckLogic(turnHost, errInfo);
     }
 
     if(!errInfo.empty())
@@ -496,22 +550,19 @@ Int32 MongodbProxy::_OnGlobalSysWillStart()
         CLOG_ERROR("check logics storage fail\n :%s", errInfo.c_str());
         return Status::ConfigError;
     }
-
-    auto mongodbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
+    
     for(auto comp : comps)
     {
         if(UNLIKELY(!comp))
             continue;
 
-        if(comp->GetType() != ServiceCompType::LOGIC_SYS)
+        if(!comp->IsKernelObjType(KernelObjectType::HOST_COMP))
             continue;
 
-        auto turnLogic = comp->CastTo<SERVICE_NS::ILogicSys>();
-        auto storageComp = turnLogic->GetComp<SERVICE_NS::IMongodbStorageInfo>();
+        auto turnHost = comp->CastTo<CompHostObject>();
+        auto storageComp = turnHost->GetComp<IMongodbStorageInfo>();
         if(!storageComp)
             continue;
-
-        RegisterDependence(turnLogic);
 
         // 索引信息(稳定排序)
         std::set<KERNEL_NS::LibString> fields;
@@ -534,36 +585,44 @@ Int32 MongodbProxy::_OnGlobalSysWillStart()
 
             ++idx;
         }
-        // 分片键
-        auto &shardKeyInfo = storageComp->GetShardKeyInfoGroup();
-        if(!shardKeyInfo.ShardKeyInfos.empty())
+        // 如果是复制集模式, 则不设置分片键
+        if(_options->Current()->ReplicaSetName.empty())
         {
-            if(!mongodbMgr->SetShardKeyInfo(storageComp->GetDbName(), storageComp->GetSystemName(), shardKeyInfo.ShardKeyInfos, shardKeyInfo.IsUnique))
+            auto &shardKeyInfo = storageComp->GetShardKeyInfoGroup();
+            if(!shardKeyInfo.ShardKeyInfos.empty())
             {
-                errInfo.AppendFormat("SetShardKeyInfo fail db:%s, collection:%s shard key info:%s logic:%s\n"
-                    , storageComp->GetDbName().c_str(), storageComp->GetSystemName().c_str(), shardKeyInfo.ToString().c_str(), turnLogic->GetObjName().c_str());
+                if(!_mongodbMgr->SetShardKeyInfo(storageComp->GetDbName(), storageComp->GetSystemName(), shardKeyInfo.ShardKeyInfos, shardKeyInfo.IsUnique))
+                {
+                    errInfo.AppendFormat("SetShardKeyInfo fail db:%s, collection:%s shard key info:%s logic:%s\n"
+                        , storageComp->GetDbName().c_str(), storageComp->GetSystemName().c_str(), shardKeyInfo.ToString().c_str(), turnHost->GetObjName().c_str());
+                }
             }
         }
+
         // 索引
-        if(!mongodbMgr->CreateIndex(storageComp->GetDbName(), storageComp->GetSystemName(), indexName, storageComp->GetUniqueIndexFields(), true))
+        if(!_mongodbMgr->CreateIndex(storageComp->GetDbName(), storageComp->GetSystemName(), indexName, storageComp->GetUniqueIndexFields(), true))
         {
-            errInfo.AppendFormat("CreateIndex fail db:%s, collection:%s indexName:%s logic:%s\n", storageComp->GetDbName().c_str(), storageComp->GetSystemName().c_str(), indexName.c_str(), turnLogic->GetObjName().c_str());
+            errInfo.AppendFormat("CreateIndex fail db:%s, collection:%s indexName:%s logic:%s\n", storageComp->GetDbName().c_str(), storageComp->GetSystemName().c_str(), indexName.c_str(), turnHost->GetObjName().c_str());
             continue;
         }
+        
         // 普通索引
         auto &indexDict = storageComp->GetNormalIndexDict();
         for (auto &iterDict : indexDict)
         {
             auto &dictIndexName = iterDict.first;
             auto &indexInfo = iterDict.second;
-            if(!mongodbMgr->CreateIndex(storageComp->GetDbName(), storageComp->GetSystemName(), dictIndexName, indexInfo.Fields, indexInfo.Unique))
+            if(!_mongodbMgr->CreateIndex(storageComp->GetDbName(), storageComp->GetSystemName(), dictIndexName, indexInfo.Fields, indexInfo.Unique))
             {
-                errInfo.AppendFormat("CreateIndex fail db:%s, collection:%s indexName:%s logic:%s\n", storageComp->GetDbName().c_str(), storageComp->GetSystemName().c_str(), dictIndexName.c_str(), turnLogic->GetObjName().c_str());
+                errInfo.AppendFormat("CreateIndex fail db:%s, collection:%s indexName:%s logic:%s\n", storageComp->GetDbName().c_str(), storageComp->GetSystemName().c_str(), dictIndexName.c_str(), turnHost->GetObjName().c_str());
             }
         }
-
+        
         // 记录表信息
-        _BuildSysFields(turnLogic);
+        _BuildSysFields(turnHost);
+
+        // 注册依赖
+        _dependence.insert(turnHost);
     }
 
     if(!errInfo.empty())
@@ -571,24 +630,28 @@ Int32 MongodbProxy::_OnGlobalSysWillStart()
         CLOG_ERROR("mongodb proxy start fail errInfo:\n%s", errInfo.c_str());
         return Status::ConfigError;
     }
+
+    const auto &dependenceInfo = KERNEL_NS::StringUtil::ToStringBy(_dependence, ',', [](KERNEL_NS::CompHostObject *p)->KERNEL_NS::LibString
+    {
+        return p->GetObjName();
+    });
+
+    CLOG_INFO("mongodb proxy dependence:%s", dependenceInfo.c_str());
     
     return Status::Success;
 }
 
 Int32 MongodbProxy::_OnHostStart()
 {
-    MaskReady(true);
-
     return Status::Success;
 }
 
-void MongodbProxy::_OnGlobalSysClose()
+void MongodbProxy::_OnHostClose()
 {
-    MaskReady(false);
     _Clear();
 }
 
-void MongodbProxy::_CloseServiceEvent(KERNEL_NS::LibEvent *ev)
+void MongodbProxy::_OnCloseEvent(KERNEL_NS::LibEvent *ev)
 {
     _CheckQuit();
 }
@@ -616,6 +679,7 @@ void MongodbProxy::_CheckQuit()
     if(_checkQuit)
         return;
 
+    CLOG_INFO("mongo proxy will check quit...");
     _checkQuit = true;
     
     KERNEL_NS::RunRightNow([this]()->KERNEL_NS::CoTask<>
@@ -623,64 +687,33 @@ void MongodbProxy::_CheckQuit()
         // 先执行全部脏持久化
         co_await Purge();
 
-        auto mongodbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
-
-        // 检查依赖是否退出service
-        auto service = GetService();
-        if(mongodbMgr->HasDependence())
+        do
         {
-            do
+            // 检查依赖是否退出
+            for(auto iter = _dependence.begin(); iter != _dependence.end(); )
             {
-                auto dependencies = mongodbMgr->GetDependenceComps();
-                for(auto iter = dependencies.begin(); iter != dependencies.end();)
+                auto dependence = *iter;
+                if(!_checkDependenceQuit->Invoke(dependence))
                 {
-                    if(!service->IsServiceModuleQuit(*iter))
-                    {
-                        ++iter;
-                        continue;
-                    }
-
-                    UnRegisterDependence((*iter)->CastTo<ILogicSys>());
-                    iter = dependencies.erase(iter);
-                }
-
-                // 依赖清空
-                if(!dependencies.empty())
-                {
-                    const auto &str = KERNEL_NS::StringUtil::ToString(dependencies, ',');
-                    CLOG_INFO("waiting mongodb dependencies quit service... :%s", str.c_str());
-                    co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
+                    CLOG_INFO("wait mongodb dependence:%s quit...", dependence->GetObjName().c_str());
+                    ++iter;
                     continue;
                 }
-
-                CLOG_INFO("all mongodb dependencies quit service.");
-                break;
+                iter = _dependence.erase(iter);
             }
-            while (true);
-        }
 
-        // 等待请求全部完成
-        while(mongodbMgr->GetPendingRequestCount() != 0)
-        {
-            CLOG_INFO("waiting mongodb mgr pending request(%lld) complete...", mongodbMgr->GetPendingRequestCount());
             co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
         }
+        while (!_dependence.empty());
 
-        // 避免遗漏再Purge一次
+        CLOG_INFO("all dependence quit completed will purge again...");
         if(!_dirtyLogicRefIsNumberKey.empty())
             co_await Purge();
+        
+        CLOG_INFO("all dependence quit completed purge completed, mongodb proxy do quit work completed.");
+        _maskSelfQuit->Invoke(this);
 
-        // 等待请求全部完成
-        while(mongodbMgr->GetPendingRequestCount() != 0)
-        {
-            CLOG_INFO("waiting mongodb mgr pending request(%lld) complete...", mongodbMgr->GetPendingRequestCount());
-            co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
-        }
-        
-        CLOG_INFO("mongodb mgr quit completed.");
-        
         _Clear();
-        GetService()->MaskServiceModuleQuitFlag(this);
     });
 }
 
@@ -693,6 +726,9 @@ void MongodbProxy::_Clear()
     }
     
     CRYSTAL_DELETE_SAFE(_options);
+    CRYSTAL_RELEASE_SAFE(_checkDependenceQuit);
+    CRYSTAL_RELEASE_SAFE(_maskSelfQuit);
+    CRYSTAL_RELEASE_SAFE(_registerFocus);
 }
 
 void MongodbProxy::_InitDirtyHelper(KERNEL_NS::LibDirtyHelper<Int64, UInt64> *dirtyHelper)
@@ -734,7 +770,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberAddDirtyHandler(KERNEL_NS::LibDirtyHe
 {
     dirtyHelper->Clear(key, StorageMode::ADD_DATA);
 
-    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    auto logic = params->AsPtr<KERNEL_NS::CompHostObject>();
     if(UNLIKELY(!logic))
     {
         CLOG_ERROR("params is not logic sys please check, key:%lld", key);
@@ -756,25 +792,24 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberAddDirtyHandler(KERNEL_NS::LibDirtyHe
     std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
     if(storageCom->IsKvSystem())
     {
-        // TODO:调用kv的OnSave接口  KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *
-        // key:
+        // key
         KERNEL_NS::SmartPtr<KERNEL_NS::LibStreamTL, KERNEL_NS::AutoDelMethods::Release> keyStream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
         keyStream->WriteInt64(key);
+        // value
         KERNEL_NS::SmartPtr<KERNEL_NS::LibStreamTL, KERNEL_NS::AutoDelMethods::Release> valueStream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
-        err = logic->OnSave(key, *valueStream);
+        err = storageCom->OnSave(logic, key, *valueStream);
         if (err != Status::Success)
         {
             CLOG_ERROR("logic save db fail err:%d, logic:%s, key:%lld", err, logic->GetObjName().c_str(), key);
             co_return;
         }
-
         dbInfo->emplace(storageCom->GetKeyFieldName(), keyStream.pop());
         dbInfo->emplace(storageCom->GetValueFieldName(), valueStream.pop());
         kv.emplace(storageCom->GetKeyFieldName(), KERNEL_NS::Variant(key));
     }
     else
     {
-        err = logic->OnSave(key, *dbInfo.AsSelf());
+        err = storageCom->OnSave(logic, key, *dbInfo.AsSelf());
         auto &uniqueIndexFields = storageCom->GetUniqueIndexFields();
         for(auto &iter : uniqueIndexFields)
         {
@@ -796,7 +831,6 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberAddDirtyHandler(KERNEL_NS::LibDirtyHe
     }
 
     KERNEL_NS::SmartMongoSerializeInfoWrapper dict;
-
     KERNEL_NS::LibString errInfo;
     for(auto iter = dbInfo->begin(); iter != dbInfo->end();)
     {
@@ -854,7 +888,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberModifyDirtyHandler(KERNEL_NS::LibDirt
 {
     dirtyHelper->Clear(key, StorageMode::UPDATE_DATA);
 
-    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    auto logic = params->AsPtr<CompHostObject>();
     if(UNLIKELY(!logic))
     {
         CLOG_ERROR("params is not logic sys please check, key:%lld", key);
@@ -881,7 +915,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberModifyDirtyHandler(KERNEL_NS::LibDirt
         KERNEL_NS::SmartPtr<KERNEL_NS::LibStreamTL, KERNEL_NS::AutoDelMethods::Release> keyStream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
         keyStream->WriteInt64(key);
         KERNEL_NS::SmartPtr<KERNEL_NS::LibStreamTL, KERNEL_NS::AutoDelMethods::Release> valueStream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
-        err = logic->OnSave(key, *valueStream);
+        err = storageCom->OnSave(logic, key, *valueStream);
         if (err != Status::Success)
         {
             CLOG_ERROR("logic save db fail err:%d, logic:%s, key:%lld", err, logic->GetObjName().c_str(), key);
@@ -894,7 +928,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberModifyDirtyHandler(KERNEL_NS::LibDirt
     }
     else
     {
-        err = logic->OnSave(key, *dbInfo.AsSelf());
+        err = storageCom->OnSave(logic, key, *dbInfo.AsSelf());
         auto &uniqueIndexFields = storageCom->GetUniqueIndexFields();
         for(auto &iter : uniqueIndexFields)
         {
@@ -974,7 +1008,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberModifyDirtyHandler(KERNEL_NS::LibDirt
 KERNEL_NS::CoTask<> MongodbProxy::_OnNumberDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<Int64, UInt64> *dirtyHelper, Int64 &key, KERNEL_NS::Variant *params)
 {
     dirtyHelper->Clear(key, StorageMode::DEL_DATA);
-    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    auto logic = params->AsPtr<CompHostObject>();
     if(UNLIKELY(!logic))
     {
         CLOG_ERROR("params is not logic sys please check, key:%lld", key);
@@ -1009,7 +1043,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberDeleteDirtyHandler(KERNEL_NS::LibDirt
 KERNEL_NS::CoTask<> MongodbProxy::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<Int64, UInt64> *dirtyHelper, Int64 &key, KERNEL_NS::Variant *params)
 {
    dirtyHelper->Clear(key, StorageMode::REPLACE_DATA);
-   auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+   auto logic = params->AsPtr<CompHostObject>();
     if(UNLIKELY(!logic))
     {
         CLOG_ERROR("params is not logic sys please check, key:%lld", key);
@@ -1035,7 +1069,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDir
         KERNEL_NS::SmartPtr<KERNEL_NS::LibStreamTL, KERNEL_NS::AutoDelMethods::Release> keyStream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
         keyStream->WriteInt64(key);
         KERNEL_NS::SmartPtr<KERNEL_NS::LibStreamTL, KERNEL_NS::AutoDelMethods::Release> valueStream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
-        err = logic->OnSave(key, *valueStream);
+        err = storageCom->OnSave(logic, key, *valueStream);
         if (err != Status::Success)
         {
             CLOG_ERROR("logic save db fail err:%d, logic:%s, key:%lld", err, logic->GetObjName().c_str(), key);
@@ -1048,7 +1082,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDir
     }
     else
     {
-        err = logic->OnSave(key, *dbInfo.AsSelf());
+        err = storageCom->OnSave(logic, key, *dbInfo.AsSelf());
         auto &uniqueIndexFields = storageCom->GetUniqueIndexFields();
         for(auto &iter : uniqueIndexFields)
         {
@@ -1128,8 +1162,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDir
 KERNEL_NS::CoTask<> MongodbProxy::_OnStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params)
 {
     dirtyHelper->Clear(key, StorageMode::ADD_DATA);
-
-    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    auto logic = params->AsPtr<CompHostObject>();
     if(UNLIKELY(!logic))
     {
         CLOG_ERROR("params is not logic sys please check, key:%s", key.c_str());
@@ -1156,7 +1189,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringAddDirtyHandler(KERNEL_NS::LibDirtyHe
         KERNEL_NS::SmartPtr<KERNEL_NS::LibStreamTL, KERNEL_NS::AutoDelMethods::Release> keyStream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
         keyStream->Write(key);
         KERNEL_NS::SmartPtr<KERNEL_NS::LibStreamTL, KERNEL_NS::AutoDelMethods::Release> valueStream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
-        err = logic->OnSave(key, *valueStream);
+        err = storageCom->OnSave(logic, key, *valueStream);
         if (err != Status::Success)
         {
             CLOG_ERROR("logic save db fail err:%d, logic:%s, key:%lld", err, logic->GetObjName().c_str(), key);
@@ -1169,7 +1202,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringAddDirtyHandler(KERNEL_NS::LibDirtyHe
     }
     else
     {
-        err = logic->OnSave(key, *dbInfo.AsSelf());
+        err = storageCom->OnSave(logic, key, *dbInfo.AsSelf());
         auto &uniqueIndexFields = storageCom->GetUniqueIndexFields();
         for(auto &iter : uniqueIndexFields)
         {
@@ -1248,8 +1281,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringAddDirtyHandler(KERNEL_NS::LibDirtyHe
 KERNEL_NS::CoTask<> MongodbProxy::_OnStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params)
 {
     dirtyHelper->Clear(key, StorageMode::UPDATE_DATA);
-
-    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    auto logic = params->AsPtr<CompHostObject>();
     if(UNLIKELY(!logic))
     {
         CLOG_ERROR("params is not logic sys please check, key:%s", key.c_str());
@@ -1276,7 +1308,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringModifyDirtyHandler(KERNEL_NS::LibDirt
         KERNEL_NS::SmartPtr<KERNEL_NS::LibStreamTL, KERNEL_NS::AutoDelMethods::Release> keyStream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
         keyStream->Write(key);
         KERNEL_NS::SmartPtr<KERNEL_NS::LibStreamTL, KERNEL_NS::AutoDelMethods::Release> valueStream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
-        err = logic->OnSave(key, *valueStream);
+        err = storageCom->OnSave(logic, key, *valueStream);
         if (err != Status::Success)
         {
             CLOG_ERROR("logic save db fail err:%d, logic:%s, key:%s", err, logic->GetObjName().c_str(), key.c_str());
@@ -1289,7 +1321,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringModifyDirtyHandler(KERNEL_NS::LibDirt
     }
     else
     {
-        err = logic->OnSave(key, *dbInfo.AsSelf());
+        err = storageCom->OnSave(logic, key, *dbInfo.AsSelf());
         auto &uniqueIndexFields = storageCom->GetUniqueIndexFields();
         for(auto &iter : uniqueIndexFields)
         {
@@ -1368,7 +1400,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringModifyDirtyHandler(KERNEL_NS::LibDirt
 KERNEL_NS::CoTask<> MongodbProxy::_OnStringDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params)
 {
     dirtyHelper->Clear(key, StorageMode::DEL_DATA);
-    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    auto logic = params->AsPtr<CompHostObject>();
     if(UNLIKELY(!logic))
     {
         CLOG_ERROR("params is not logic sys please check, key:%s", key.c_str());
@@ -1402,7 +1434,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringDeleteDirtyHandler(KERNEL_NS::LibDirt
 KERNEL_NS::CoTask<> MongodbProxy::_OnStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params)
 {
     dirtyHelper->Clear(key, StorageMode::REPLACE_DATA);
-   auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+   auto logic = params->AsPtr<CompHostObject>();
     if(UNLIKELY(!logic))
     {
         CLOG_ERROR("params is not logic sys please check, key:%s", key.c_str());
@@ -1428,7 +1460,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringReplaceDirtyHandler(KERNEL_NS::LibDir
         KERNEL_NS::SmartPtr<KERNEL_NS::LibStreamTL, KERNEL_NS::AutoDelMethods::Release> keyStream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
         keyStream->Write(key);
         KERNEL_NS::SmartPtr<KERNEL_NS::LibStreamTL, KERNEL_NS::AutoDelMethods::Release> valueStream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
-        err = logic->OnSave(key, *valueStream);
+        err = storageCom->OnSave(logic, key, *valueStream);
         if (err != Status::Success)
         {
             CLOG_ERROR("logic save db fail err:%d, logic:%s, key:%lld", err, logic->GetObjName().c_str(), key);
@@ -1441,7 +1473,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringReplaceDirtyHandler(KERNEL_NS::LibDir
     }
     else
     {
-        err = logic->OnSave(key, *dbInfo.AsSelf());
+        err = storageCom->OnSave(logic, key, *dbInfo.AsSelf());
         auto &uniqueIndexFields = storageCom->GetUniqueIndexFields();
         for(auto &iter : uniqueIndexFields)
         {
@@ -1517,7 +1549,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringReplaceDirtyHandler(KERNEL_NS::LibDir
     }
 }
 
-KERNEL_NS::CoTask<> MongodbProxy::_DorPurgeNumber(const ILogicSys *sys)
+KERNEL_NS::CoTask<> MongodbProxy::_DorPurgeNumber(const CompHostObject *sys)
 {
     auto iterHelper = _logicRefNumberDirtyHelper.find(sys);
     if(iterHelper == _logicRefNumberDirtyHelper.end())
@@ -1544,8 +1576,8 @@ KERNEL_NS::CoTask<> MongodbProxy::_DorPurgeNumber(const ILogicSys *sys)
     auto handled = co_await dirtyHelper->PurgeCo(&err);
     if(!err.empty())
     {
-        CLOG_ERROR("purge abnormal handled:%lld, err:%s, logic:%s, service:%s"
-            , handled, err.c_str(), sys->GetObjName().c_str(), GetService()->ToString().c_str());
+        CLOG_ERROR("purge abnormal handled:%lld, err:%s, logic:%s, owner:%s"
+            , handled, err.c_str(), sys->GetObjName().c_str(), GetOwner()->ToString().c_str());
     }
 
     CLOG_DEBUG("purge logic:%s completed handled:%lld", sys->GetObjName().c_str(), handled);
@@ -1560,7 +1592,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_DorPurgeNumber(const ILogicSys *sys)
     }
 }
 
-KERNEL_NS::CoTask<> MongodbProxy::_DorPurgeString(const ILogicSys *sys)
+KERNEL_NS::CoTask<> MongodbProxy::_DorPurgeString(const CompHostObject *sys)
 {
     auto iterHelper = _logicRefStringDirtyHelper.find(sys);
     if(iterHelper == _logicRefStringDirtyHelper.end())
@@ -1587,8 +1619,8 @@ KERNEL_NS::CoTask<> MongodbProxy::_DorPurgeString(const ILogicSys *sys)
     auto handled = co_await dirtyHelper->PurgeCo(&err);
     if(!err.empty())
     {
-        CLOG_ERROR("purge abnormal handled:%lld, err:%s, logic:%s, service:%s"
-            , handled, err.c_str(), sys->GetObjName().c_str(), GetService()->ToString().c_str());
+        CLOG_ERROR("purge abnormal handled:%lld, err:%s, logic:%s, owner:%s"
+            , handled, err.c_str(), sys->GetObjName().c_str(), GetOwner()->ToString().c_str());
     }
 
     CLOG_DEBUG("purge logic:%s completed handled:%lld", sys->GetObjName().c_str(), handled);
@@ -1603,22 +1635,21 @@ KERNEL_NS::CoTask<> MongodbProxy::_DorPurgeString(const ILogicSys *sys)
     }
 }
 
-bool MongodbProxy::_CheckLogic(const ILogicSys *logic, KERNEL_NS::LibString &err) const
+bool MongodbProxy::_CheckLogic(const CompHostObject *hostObj, KERNEL_NS::LibString &err) const
 {
-    auto storageComp = logic->GetComp<SERVICE_NS::IMongodbStorageInfo>();
+    auto storageComp = hostObj->GetComp<IMongodbStorageInfo>();
     if(!storageComp)
     {
         return false;
     }
 
-    if (!CheckValidStorage(logic, storageComp, false, err))
+    if (!CheckValidStorage(hostObj, storageComp, false, err))
     {
         return false;
     }
 
     // 如果是逻辑系统, 它的组件如果需要存储的需要验证下参数, 存储深度最多两个层级, 组件的子组件会作为其第一层存储的一个字段
-    auto turnLogic = logic->CastTo<SERVICE_NS::ILogicSys>();
-    auto &subComps = turnLogic->GetAllComps();
+    auto &subComps = hostObj->GetAllComps();
     for (auto &subComp : subComps)
     {
         if(UNLIKELY(!subComp))
@@ -1627,12 +1658,16 @@ bool MongodbProxy::_CheckLogic(const ILogicSys *logic, KERNEL_NS::LibString &err
         if(!subComp->IsKernelObjType(KERNEL_NS::KernelObjectType::HOST_COMP))
             continue;
 
+        // 过滤掉存储组件
+        if(subComp == storageComp)
+            continue;
+
         auto subTurnHost = subComp->CastTo<KERNEL_NS::CompHostObject>();
-        auto subStorageComp = subTurnHost->GetComp<SERVICE_NS::IMongodbStorageInfo>();
+        auto subStorageComp = subTurnHost->GetComp<IMongodbStorageInfo>();
         if(!subStorageComp)
             continue;
 
-        if (!CheckValidStorage(logic, subStorageComp, true, err))
+        if (!CheckValidStorage(hostObj, subStorageComp, true, err))
             continue;
     }
 
@@ -1642,20 +1677,20 @@ bool MongodbProxy::_CheckLogic(const ILogicSys *logic, KERNEL_NS::LibString &err
         for(auto subSubComp : storageSubComps)
         {
             // 是不是存储组件
-            if(subSubComp->GetInterfaceTypeId() != KERNEL_NS::RttiUtil::GetTypeId<SERVICE_NS::IMongodbStorageInfo>())
+            if(subSubComp->GetInterfaceTypeId() != KERNEL_NS::RttiUtil::GetTypeId<IMongodbStorageInfo>())
                 continue;
 
-            auto subSubStorageComp = subSubComp->CastTo<SERVICE_NS::IMongodbStorageInfo>();
-            CheckValidStorage(logic, subSubStorageComp, true, err);
+            auto subSubStorageComp = subSubComp->CastTo<IMongodbStorageInfo>();
+            CheckValidStorage(hostObj, subSubStorageComp, true, err);
         }
     }
 
     return err.empty();
 }
 
-void MongodbProxy::_BuildSysFields(const ILogicSys *logic)
+void MongodbProxy::_BuildSysFields(const CompHostObject *logic)
 {
-    auto storageComp = logic->GetComp<SERVICE_NS::IMongodbStorageInfo>();
+    auto storageComp = logic->GetComp<IMongodbStorageInfo>();
     if(UNLIKELY(!storageComp))
     {
         CLOG_WARN("_BuildSysFields fail logic:%s have no storage comp", logic->GetObjName().c_str());
@@ -1680,8 +1715,11 @@ void MongodbProxy::_BuildSysFields(const ILogicSys *logic)
         if(!subComp->IsKernelObjType(KERNEL_NS::KernelObjectType::HOST_COMP))
             continue;
 
+        if(subComp == storageComp)
+            continue;
+
         auto subHost = subComp->CastTo<KERNEL_NS::CompHostObject>();
-        auto subStorageComp = subHost->GetComp<SERVICE_NS::IMongodbStorageInfo>();
+        auto subStorageComp = subHost->GetComp<IMongodbStorageInfo>();
         if(!subStorageComp)
             continue;
 
@@ -1694,16 +1732,16 @@ void MongodbProxy::_BuildSysFields(const ILogicSys *logic)
         for(auto subSubComp : storageSubComps)
         {
             // 是不是存储组件
-            if(subSubComp->GetInterfaceTypeId() != KERNEL_NS::RttiUtil::GetTypeId<SERVICE_NS::IMongodbStorageInfo>())
+            if(subSubComp->GetInterfaceTypeId() != KERNEL_NS::RttiUtil::GetTypeId<IMongodbStorageInfo>())
                 continue;
             
-            auto subSubStorageComp = subSubComp->CastTo<SERVICE_NS::IMongodbStorageInfo>();
+            auto subSubStorageComp = subSubComp->CastTo<IMongodbStorageInfo>();
             fieldRefStorageType[subSubStorageComp->GetSystemName()] = subSubStorageComp->GetStorageType();
         }
     }
 }
 
-bool MongodbProxy::_TryGetStorageType(const ILogicSys *logic, const KERNEL_NS::LibString &fieldName, Int32 &storageType) const
+bool MongodbProxy::_TryGetStorageType(const CompHostObject *logic, const KERNEL_NS::LibString &fieldName, Int32 &storageType) const
 {
     auto iter = _sysRefFieldStorageType.find(logic);
     if(iter == _sysRefFieldStorageType.end())
@@ -1718,7 +1756,5 @@ bool MongodbProxy::_TryGetStorageType(const ILogicSys *logic, const KERNEL_NS::L
     return true;
 }
 
-
-
-SERVICE_END
+KERNEL_END
 

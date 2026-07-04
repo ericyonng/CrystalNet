@@ -24,14 +24,15 @@
 // Author: Eric Yonng
 // Description:
 
+#ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGODB_PROXY_FACTORY_H__
+#define __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGODB_PROXY_FACTORY_H__
 
 #pragma once
 
 
-#include <service/common/macro.h>
 #include <kernel/comp/CompObject/CompFactory.h>
 
-SERVICE_BEGIN
+KERNEL_BEGIN
 
 class MongodbProxyFactory : public KERNEL_NS::CompFactory
 {
@@ -46,4 +47,6 @@ public:
     virtual KERNEL_NS::CompObject *Create() const override;
 };
 
-SERVICE_END
+KERNEL_END
+
+#endif

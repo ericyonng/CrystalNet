@@ -46,7 +46,7 @@ public:
     void OnRegisterComps() override;
 
     Int32 OnLoaded(UInt64 key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) override;
-    Int32 OnSave(UInt64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const override;
+    Int32 OnSave(UInt64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const;
     
     // 检查昵称
     virtual bool CheckNickname(const KERNEL_NS::LibString &nickname) const override;

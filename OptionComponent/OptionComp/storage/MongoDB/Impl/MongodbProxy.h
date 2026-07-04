@@ -33,15 +33,21 @@
 //     BCompData:xxx,
 // }
 
+#ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGODB_PROXY_H__
+#define __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGODB_PROXY_H__
+
 #pragma once
 
-#include <Comps/DB/interface/IMongodbProxy.h>
-#include <OptionComp/storage/MongoDB/MongoDBComp.h>
-#include <unordered_set>
+#include <OptionComp/storage/MongoDB/Interface/IMongodbProxy.h>
+#include <OptionComp/storage/MongoDB/Impl/MongodbConfig.h>
 #include <unordered_map>
 #include <map>
+#include <kernel/comp/FileMonitor/FileMonitor.h>
+#include <kernel/comp/LibDirtyHelper.h>
 
-SERVICE_BEGIN
+KERNEL_BEGIN
+
+class LibTimer;
 
 class StorageMode
 {
@@ -57,6 +63,7 @@ public:
     };
 };
 
+// 有状态每个线程一个Proxy,会检查Owner层级所有有 IMongodbStorageInfo 组件的组件
 class MongodbProxy : public IMongodbProxy
 {
     POOL_CREATE_OBJ_DEFAULT_P1(IMongodbProxy, MongodbProxy);
@@ -66,39 +73,43 @@ public:
     virtual ~MongodbProxy() override;
     
     void Release() override;
-    virtual void OnRegisterComps() override;
-    virtual void DefaultMaskReady(bool isReady) override {}
-
-    // 添加依赖
-    virtual void RegisterDependence(ILogicSys *obj) override;
-    virtual void UnRegisterDependence(const ILogicSys *obj) override;
 
     // 标脏
-    virtual void MaskLogicNumberKeyAddDirty(const ILogicSys *logic, Int64 key) override;
-    virtual void MaskLogicNumberKeyModifyDirty(const ILogicSys *logic, Int64 key) override;
-    virtual void MaskLogicNumberKeyDeleteDirty(const ILogicSys *logic, Int64 key) override;
-    virtual void MaskLogicStringKeyAddDirty(const ILogicSys *logic, const KERNEL_NS::LibString &key) override;
-    virtual void MaskLogicStringKeyModifyDirty(const ILogicSys *logic, const KERNEL_NS::LibString &key) override;
-    virtual void MaskLogicStringKeyDeleteDirty(const ILogicSys *logic, const KERNEL_NS::LibString &key) override;
+    virtual void MaskLogicNumberKeyAddDirty(const CompHostObject *logic, Int64 key) override;
+    virtual void MaskLogicNumberKeyModifyDirty(const CompHostObject *logic, Int64 key) override;
+    virtual void MaskLogicNumberKeyDeleteDirty(const CompHostObject *logic, Int64 key) override;
+    virtual void MaskLogicStringKeyAddDirty(const CompHostObject *logic, const KERNEL_NS::LibString &key) override;
+    virtual void MaskLogicStringKeyModifyDirty(const CompHostObject *logic, const KERNEL_NS::LibString &key) override;
+    virtual void MaskLogicStringKeyDeleteDirty(const CompHostObject *logic, const KERNEL_NS::LibString &key) override;
 
     // 等待落库完成
     virtual KERNEL_NS::CoTask<> Purge() override;
     // 等待logic落库完成
-    virtual KERNEL_NS::CoTask<> Purge(const ILogicSys *logic) override;
+    virtual KERNEL_NS::CoTask<> Purge(const CompHostObject *logic) override;
     
-    virtual KERNEL_NS::CoTask<bool> Query(const ILogicSys *logic, Int64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo> *fieldNameRefDataResult) override;
+    virtual KERNEL_NS::CoTask<bool> Query(const CompHostObject *logic, Int64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo> *fieldNameRefDataResult) override;
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString keyName, Int64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo> *fieldNameRefDataResult) override;
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString keyName, KERNEL_NS::LibString key, std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo> *fieldNameRefDataResult) override;
 
+    virtual void SetMongodbMgr(KERNEL_NS::IMongoDbMgr *mongodbMgr) override;
+    // 设置检查依赖是否退出
+    virtual void SetCheckDependenceQuit(KERNEL_NS::IDelegate<bool, const KERNEL_NS::CompHostObject *> *cb) override;
+    // 设置自己完成回调(告知自己完成了, 可以退出,因为proxy要等待所有依赖都退出后才可退出)
+    virtual void SetMongoProxyMaskQuit(KERNEL_NS::IDelegate<void, const KERNEL_NS::CompHostObject *> *cb) override;
+    // 设置关注的组件回调, 以便Host在退出的时候检查是否Proxy要退出, 只有等待Proxy也退出, Host才可以退出, 避免数据没完全落地Host就退出了
+    virtual void SetRegisterFocus(KERNEL_NS::IDelegate<void, const KERNEL_NS::CompHostObject *> *cb) override;
+    // 监听关闭
+    virtual void ListenClose(KERNEL_NS::EventManager *eventMgr, Int32 eventType) override;
+
 protected:
-    Int32 _OnGlobalSysInit() override;
-    Int32 _OnGlobalSysCompsCreated() override;
+    Int32 _OnHostInit() override;
+    Int32 _OnCompsCreated() override;
 
-    virtual Int32 _OnGlobalSysWillStart() override;
+    virtual Int32 _OnHostWillStart() override;
     Int32 _OnHostStart() override;
-    void _OnGlobalSysClose() override;
-
-    void _CloseServiceEvent(KERNEL_NS::LibEvent *ev);
+    void _OnHostClose() override;
+    
+    void _OnCloseEvent(KERNEL_NS::LibEvent *ev);
     void _OnPurgeTimer(KERNEL_NS::LibTimer *t);
 
     void _CheckQuit();
@@ -119,30 +130,50 @@ protected:
     KERNEL_NS::CoTask<> _OnStringDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params);
     KERNEL_NS::CoTask<> _OnStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params);
 
-    KERNEL_NS::CoTask<> _DorPurgeNumber(const ILogicSys *sys);
-    KERNEL_NS::CoTask<> _DorPurgeString(const ILogicSys *sys);
+    KERNEL_NS::CoTask<> _DorPurgeNumber(const CompHostObject *sys);
+    KERNEL_NS::CoTask<> _DorPurgeString(const CompHostObject *sys);
 
-    bool _CheckLogic(const ILogicSys *logic, KERNEL_NS::LibString &err) const;
-    void _BuildSysFields(const ILogicSys *logic);
+    bool _CheckLogic(const CompHostObject *logic, KERNEL_NS::LibString &err) const;
+    void _BuildSysFields(const CompHostObject *logic);
 
-    bool _TryGetStorageType(const ILogicSys *logic, const KERNEL_NS::LibString &fieldName, Int32 &storageType) const;
+    bool _TryGetStorageType(const CompHostObject *logic, const KERNEL_NS::LibString &fieldName, Int32 &storageType) const;
 private:
-    // 关服时需要执行所有数据落地
-    KERNEL_NS::ListenerStub _closeServiceStub;
 
     // 所有表建立的标脏回调, 系统退出时移除
-    std::map<const ILogicSys *, KERNEL_NS::LibDirtyHelper<Int64, UInt64> *> _logicRefNumberDirtyHelper;
-    std::map<const ILogicSys *, KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *> _logicRefStringDirtyHelper;
+    std::map<const CompHostObject *, KERNEL_NS::LibDirtyHelper<Int64, UInt64> *> _logicRefNumberDirtyHelper;
+    std::map<const CompHostObject *, KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *> _logicRefStringDirtyHelper;
     // 脏表队列
-    std::map<const ILogicSys *, bool> _dirtyLogicRefIsNumberKey;
+    std::map<const CompHostObject *, bool> _dirtyLogicRefIsNumberKey;
     // 需要持久化系统的组件信息 string:GetSimpleTypeName int32:storageType
-    std::unordered_map<const ILogicSys *, std::unordered_map<KERNEL_NS::LibString, Int32>> _sysRefFieldStorageType;
+    std::unordered_map<const CompHostObject *, std::unordered_map<KERNEL_NS::LibString, Int32>> _sysRefFieldStorageType;
     
     // 定时purge数据
     KERNEL_NS::LibTimer *_purgeTimer;
     KERNEL_NS::FileMonitor<KERNEL_NS::MongodbConfig, KERNEL_NS::YamlDeserializer> *_options;
     // 是否正在检查退出
     bool _checkQuit;
+
+    // 依赖mongodbMgr
+    KERNEL_NS::IMongoDbMgr *_mongodbMgr;
+    // mongodb配置
+    SourceWrap _configSource;
+    LibString _keyName;
+
+    // 检查Host注册的mongodb依赖组件是否退出, 都退出, 那么Proxy就可以退出
+    KERNEL_NS::IDelegate<bool, const KERNEL_NS::CompHostObject *> * _checkDependenceQuit;
+    // 告知Host Proxy已经完成落地可以退出
+    KERNEL_NS::IDelegate<void, const KERNEL_NS::CompHostObject *> * _maskSelfQuit;
+    // 向Host注册关注,让Host等待Proxy所有数据落地完成后才能退出
+    KERNEL_NS::IDelegate<void, const KERNEL_NS::CompHostObject *> * _registerFocus;
+
+    // 监听退出, 准备退出的数据落地
+    KERNEL_NS::ListenerStub _closeEventStub;
+
+    // 依赖mongodb的组件
+    std::set<KERNEL_NS::CompHostObject *> _dependence;
 };
 
-SERVICE_END
+KERNEL_END
+
+#endif
+

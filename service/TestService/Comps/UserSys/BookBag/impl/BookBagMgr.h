@@ -51,7 +51,7 @@ public:
     void Release() override;
 
    virtual Int32 OnLoaded(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) override;
-   virtual Int32 OnSave(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const override;
+   virtual Int32 OnSave(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const;
 
     virtual void OnLogin() override;
     virtual void OnLoginFinish() override;

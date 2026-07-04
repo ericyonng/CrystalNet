@@ -29,10 +29,12 @@
 #include <pch.h>
 #include <service/common/BaseComps/LogicSys/LogicSys.h>
 
+
 // 存储
 #ifdef CRYSTAL_STORAGE_ENABLE
 
 #include <service/TestService/Comps/DB/db.h>
+#include "OptionComp/storage/MongoDB/Interface/IMongodbProxy.h"
 
 #endif
 
@@ -46,7 +48,7 @@ void ILogicSys::MaskDirty()
 void ILogicSys::MaskNumberKeyAddDirty(UInt64 key)
 {
 #ifdef CRYSTAL_STORAGE_ENABLE
-    auto mongodbMgr = GetService()->GetComp<IMongodbProxy>();
+    auto mongodbMgr = GetService()->GetComp<KERNEL_NS::IMongodbProxy>();
     if(mongodbMgr)
         mongodbMgr->MaskLogicNumberKeyAddDirty(this, key);
 #endif
@@ -55,7 +57,7 @@ void ILogicSys::MaskNumberKeyAddDirty(UInt64 key)
 void ILogicSys::MaskNumberKeyModifyDirty(UInt64 key)
 {
 #ifdef CRYSTAL_STORAGE_ENABLE
-    auto mongodbMgr = GetService()->GetComp<IMongodbProxy>();
+    auto mongodbMgr = GetService()->GetComp<KERNEL_NS::IMongodbProxy>();
     if(mongodbMgr)
         mongodbMgr->MaskLogicNumberKeyModifyDirty(this, key);
 #endif
@@ -64,7 +66,7 @@ void ILogicSys::MaskNumberKeyModifyDirty(UInt64 key)
 void ILogicSys::MaskNumberKeyDeleteDirty(UInt64 key)
 {
 #ifdef CRYSTAL_STORAGE_ENABLE
-    auto mongodbMgr = GetService()->GetComp<IMongodbProxy>();
+    auto mongodbMgr = GetService()->GetComp<KERNEL_NS::IMongodbProxy>();
     if(mongodbMgr)
         mongodbMgr->MaskLogicNumberKeyDeleteDirty(this, key);
 #endif
@@ -74,7 +76,7 @@ void ILogicSys::MaskNumberKeyDeleteDirty(UInt64 key)
 void ILogicSys::MaskStringKeyAddDirty(const KERNEL_NS::LibString &key)
 {
 #ifdef CRYSTAL_STORAGE_ENABLE
-    auto mongodbMgr = GetService()->GetComp<IMongodbProxy>();
+    auto mongodbMgr = GetService()->GetComp<KERNEL_NS::IMongodbProxy>();
     if(mongodbMgr)
         mongodbMgr->MaskLogicStringKeyAddDirty(this, key);
 #endif
@@ -83,7 +85,7 @@ void ILogicSys::MaskStringKeyAddDirty(const KERNEL_NS::LibString &key)
 void ILogicSys::MaskStringKeyModifyDirty(const KERNEL_NS::LibString &key)
 {
 #ifdef CRYSTAL_STORAGE_ENABLE
-    auto mongodbMgr = GetService()->GetComp<IMongodbProxy>();
+    auto mongodbMgr = GetService()->GetComp<KERNEL_NS::IMongodbProxy>();
     if(mongodbMgr)
         mongodbMgr->MaskLogicStringKeyModifyDirty(this, key);
 #endif
@@ -92,7 +94,7 @@ void ILogicSys::MaskStringKeyModifyDirty(const KERNEL_NS::LibString &key)
 void ILogicSys::MaskStringKeyDeleteDirty(const KERNEL_NS::LibString &key)
 {
 #ifdef CRYSTAL_STORAGE_ENABLE
-    auto mongodbMgr = GetService()->GetComp<IMongodbProxy>();
+    auto mongodbMgr = GetService()->GetComp<KERNEL_NS::IMongodbProxy>();
     if(mongodbMgr)
         mongodbMgr->MaskLogicStringKeyDeleteDirty(this, key);
 #endif

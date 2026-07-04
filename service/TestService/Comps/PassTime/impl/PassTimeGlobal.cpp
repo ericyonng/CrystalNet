@@ -41,7 +41,7 @@
 #include <Comps/PassTime/impl/PassTimeGlobalMongo.h>
 
 #include "MyTestService.h"
-#include "Comps/DB/interface/IMongodbProxy.h"
+#include <OptionComp/storage/MongoDB/Interface/IMongodbProxy.h>
 #include <protocols/orm_out/PassTimeDataOrmData.h>
 
 SERVICE_BEGIN
@@ -82,7 +82,7 @@ Int32 PassTimeGlobal::OnLoaded(UInt64 key, const KERNEL_NS::LibStream<KERNEL_NS:
     return Status::Success;
 }
 
-Int32 PassTimeGlobal::OnSave(UInt64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const
+Int32 PassTimeGlobal::OnSave(Int64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const
 {
     if(_key != key)
     {
@@ -106,7 +106,7 @@ KERNEL_NS::CoTask<> PassTimeGlobal::CheckPassTime()
     // 判断有没数据
     if (!_passTimeData)
     {
-        auto mongodbProxy = GetService()->GetComp<SERVICE_NS::IMongodbProxy>();
+        auto mongodbProxy = GetService()->GetComp<KERNEL_NS::IMongodbProxy>();
         auto storageOption = GetService()->CastTo<SERVICE_NS::MyTestService>()->GetStorageOption();
 
         _passTimeData = SERVICE_COMMON_NS::PassTimeDataOrmData::NewThreadLocal_PassTimeDataOrmData();

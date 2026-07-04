@@ -43,7 +43,7 @@ public:
     void OnRegisterComps() override;
 
     Int32 OnLoaded(UInt64 key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) override;
-    Int32 OnSave(UInt64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const override;
+    Int32 OnSave(UInt64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const;
 
     // 邀请码是否使用过
     virtual bool IsUsed(const KERNEL_NS::LibString &inviteCode) const override;
