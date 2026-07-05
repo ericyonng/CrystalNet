@@ -3,6 +3,7 @@ option cc_enable_arenas = true;
 
 package CRYSTAL_NET.service;
 
+/// EnableStorage:true
 message UserLoginInfo
 {
     // 生成的token = sha1(imei + ip + userid + key)

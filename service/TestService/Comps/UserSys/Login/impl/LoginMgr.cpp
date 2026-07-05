@@ -35,14 +35,12 @@
 #include <Comps/UserSys/Login/impl/LoginMgrFactory.h>
 #include <Comps/config/config.h>
 #include <protocols/protocols.h>
+#include <kernel/comp/Timer/LibTimer.h>
 
 SERVICE_BEGIN
-
-
-
-LoginMgr::LoginMgr()
+    LoginMgr::LoginMgr()
 :ILoginMgr(KERNEL_NS::RttiUtil::GetTypeId<LoginMgr>())
-,_loginInfo(CRYSTAL_NEW(UserLoginInfo))
+,_loginInfo(SERVICE_COMMON_NS::UserLoginInfoOrmData::NewThreadLocal_UserLoginInfoOrmData())
 ,_updateKey(NULL)
 {
 
@@ -211,7 +209,7 @@ Int32 LoginMgr::CheckLogin(const PendingUser *pendingUser) const
 
 const UserLoginInfo *LoginMgr::GetLoginInfo() const
 {
-    return _loginInfo;
+    return _loginInfo->GetPbRawData();
 }
 
 void LoginMgr::OnRegisterComps()
@@ -286,7 +284,7 @@ void LoginMgr::_Update(bool isNty)
 
     const auto &temp = KERNEL_NS::LibDigest::MakeSha256(token);
     const auto &finalToken = KERNEL_NS::LibBase64::Encode(temp);
-    _loginInfo->set_token(finalToken.GetRaw());
+    _loginInfo->set_token(finalToken);
 
     // 事件
     auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::LOGIN_TOKEN_CHANGED);

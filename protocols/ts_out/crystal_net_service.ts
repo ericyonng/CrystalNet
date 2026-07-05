@@ -1818,6 +1818,7 @@ export namespace crystal_net_service
 
 
     }
+    /// EnableStorage:true
     // com_login.proto
     export class UserLoginInfo {
         // 生成的token = sha1(imei + ip + userid + key)

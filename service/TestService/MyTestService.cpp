@@ -227,7 +227,7 @@ void MyTestService::_OnServiceRegisterComps()
     RegisterComp<TestMgrFactory>();
 
     // 用户系统
-    // RegisterComp<UserMgrFactory>();
+    RegisterComp<UserMgrFactory>();
 
     // 昵称系统
     // RegisterComp<NicknameGlobalFactory>();
@@ -338,6 +338,8 @@ Int32 MyTestService::_OnServiceCompsCreated()
     {
         this->RegisterFocusServiceModule(host);
     });
+    // 监听关闭事件
+    mongoProxy->ListenClose(GetEventMgr(), EventEnums::QUIT_SERVICE_EVENT);
     
 #endif
     

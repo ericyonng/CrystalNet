@@ -57,7 +57,8 @@ public:
         SnapshotClientInfoOrmData = 15,
         SimpleInfoOrmData = 16,
         PassTimeDataOrmData = 17,
-        MAX_ORM_ID = PassTimeDataOrmData,
+        UserLoginInfoOrmData = 18,
+        MAX_ORM_ID = UserLoginInfoOrmData,
     };
 };
 

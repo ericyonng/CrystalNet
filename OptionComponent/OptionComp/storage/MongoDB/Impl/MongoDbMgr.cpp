@@ -498,7 +498,7 @@ bool MongoDbMgr::SetShardKeyInfo(const KERNEL_NS::LibString &dbName, const KERNE
         });
     });
 
-    while (!isFinished.load(std::memory_order_acquire))
+    while (isFinished.load(std::memory_order_acquire) > 1)
     {
         CLOG_INFO("wait SetShardKeyInfo done...");
         KERNEL_NS::SystemUtil::ThreadSleep(500);
@@ -559,7 +559,7 @@ bool MongoDbMgr::CreateIndex(const KERNEL_NS::LibString &dbName, const KERNEL_NS
         });
     });
 
-    while (!isFinished.load(std::memory_order_acquire))
+    while (isFinished.load(std::memory_order_acquire) > 1)
     {
         CLOG_INFO("wait CreateIndex done...");
         KERNEL_NS::SystemUtil::ThreadSleep(500);

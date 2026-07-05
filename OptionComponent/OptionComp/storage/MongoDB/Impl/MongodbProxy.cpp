@@ -463,7 +463,7 @@ Int32 MongodbProxy::_OnHostInit()
     _purgeTimer->Schedule(interval);
 
     // 让Host关注自己
-    _maskSelfQuit->Invoke(this);
+    _registerFocus->Invoke(this);
     
     return Status::Success;
 }
@@ -876,7 +876,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberAddDirtyHandler(KERNEL_NS::LibDirtyHe
 
     auto popDb = dict.Ptr.pop();
     const auto logicName = logic->GetObjName();
-    auto ret = co_await GetComp<KERNEL_NS::IMongoDbMgr>()->AddData(storageCom->GetDbName(), storageCom->GetSystemName(), kv, popDb);
+    auto ret = co_await _mongodbMgr->AddData(storageCom->GetDbName(), storageCom->GetSystemName(), kv, popDb);
 
     if(UNLIKELY(!ret))
     {
@@ -996,7 +996,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberModifyDirtyHandler(KERNEL_NS::LibDirt
 
     auto popDb = dict.Ptr.pop();
     const auto logicName = logic->GetObjName();
-    auto ret = co_await GetComp<KERNEL_NS::IMongoDbMgr>()->UpdateData(storageCom->GetDbName(), storageCom->GetSystemName(), kv, popDb, true);
+    auto ret = co_await _mongodbMgr->UpdateData(storageCom->GetDbName(), storageCom->GetSystemName(), kv, popDb, true);
 
     if(UNLIKELY(!ret))
     {
@@ -1031,7 +1031,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberDeleteDirtyHandler(KERNEL_NS::LibDirt
     }
 
     const auto logicName = logic->GetObjName();
-    auto ret = co_await GetComp<KERNEL_NS::IMongoDbMgr>()->DelData(storageCom->GetDbName(), storageCom->GetSystemName(), kv);
+    auto ret = co_await _mongodbMgr->DelData(storageCom->GetDbName(), storageCom->GetSystemName(), kv);
 
     if(UNLIKELY(!ret))
     {
@@ -1151,7 +1151,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDir
 
     auto popDb = dict.Ptr.pop();
     const auto logicName = logic->GetObjName();
-    auto ret = co_await GetComp<KERNEL_NS::IMongoDbMgr>()->ReplaceData(storageCom->GetDbName(), storageCom->GetSystemName(), kv, popDb);
+    auto ret = co_await _mongodbMgr->ReplaceData(storageCom->GetDbName(), storageCom->GetSystemName(), kv, popDb);
     if(UNLIKELY(!ret))
     {
         CLOG_ERROR("logic ReplaceData save data fail, logic:%s, kv:%s", logicName.c_str(), DictContainerToString(kv).c_str());
@@ -1270,7 +1270,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringAddDirtyHandler(KERNEL_NS::LibDirtyHe
 
     auto popDb = dict.Ptr.pop();
     const auto logicName = logic->GetObjName();
-    auto ret = co_await GetComp<KERNEL_NS::IMongoDbMgr>()->AddData(storageCom->GetDbName(), storageCom->GetSystemName(), kv, popDb);
+    auto ret = co_await _mongodbMgr->AddData(storageCom->GetDbName(), storageCom->GetSystemName(), kv, popDb);
 
     if(UNLIKELY(!ret))
     {
@@ -1389,7 +1389,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringModifyDirtyHandler(KERNEL_NS::LibDirt
 
     auto popDb = dict.Ptr.pop();
     const auto logicName = logic->GetObjName();
-    auto ret = co_await GetComp<KERNEL_NS::IMongoDbMgr>()->UpdateData(storageCom->GetDbName(), storageCom->GetSystemName(), kv, popDb, true);
+    auto ret = co_await _mongodbMgr->UpdateData(storageCom->GetDbName(), storageCom->GetSystemName(), kv, popDb, true);
 
     if(UNLIKELY(!ret))
     {
@@ -1423,7 +1423,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringDeleteDirtyHandler(KERNEL_NS::LibDirt
     }
 
     const auto logicName = logic->GetObjName();
-    auto ret = co_await GetComp<KERNEL_NS::IMongoDbMgr>()->DelData(storageCom->GetDbName(), storageCom->GetSystemName(), kv);
+    auto ret = co_await _mongodbMgr->DelData(storageCom->GetDbName(), storageCom->GetSystemName(), kv);
 
     if(UNLIKELY(!ret))
     {
@@ -1542,7 +1542,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringReplaceDirtyHandler(KERNEL_NS::LibDir
 
     auto popDb = dict.Ptr.pop();
     const auto logicName = logic->GetObjName();
-    auto ret = co_await GetComp<KERNEL_NS::IMongoDbMgr>()->ReplaceData(storageCom->GetDbName(), storageCom->GetSystemName(), kv, popDb);
+    auto ret = co_await _mongodbMgr->ReplaceData(storageCom->GetDbName(), storageCom->GetSystemName(), kv, popDb);
     if(UNLIKELY(!ret))
     {
         CLOG_ERROR("logic ReplaceData save data fail, logic:%s, kv:%s", logicName.c_str(), DictContainerToString(kv).c_str());

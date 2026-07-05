@@ -29,8 +29,17 @@
 #pragma once
 
 #include <Comps/UserSys/Login/interface/ILoginMgr.h>
-#include <protocols/protocols.h>
-#include <kernel/kernel.h>
+
+SERVICE_COMMON_BEGIN
+class UserLoginInfoOrmData;
+
+SERVICE_COMMON_END
+
+KERNEL_BEGIN
+
+class LibTimer;
+
+KERNEL_END
 
 SERVICE_BEGIN
 
@@ -69,7 +78,7 @@ protected:
     void _SendInfo();
 
 
-    UserLoginInfo *_loginInfo;
+    SERVICE_COMMON_NS::UserLoginInfoOrmData *_loginInfo;
     KERNEL_NS::LibTimer *_updateKey;
 };
 

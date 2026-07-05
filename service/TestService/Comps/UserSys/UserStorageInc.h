@@ -28,10 +28,10 @@
 */
 
 // NotifyMgr存储
-RegisterComp<NotifyMgrMongoStorageFactory>();
+// RegisterComp<NotifyMgrMongoStorageFactory>();
 // 登录
 RegisterComp<LoginMgrMongoStorageFactory>();
 // 图书馆
-RegisterComp<LibraryMgrMongoStorageFactory>();
+// RegisterComp<LibraryMgrMongoStorageFactory>();
 // 书袋
-RegisterComp<BookBagMgrMongoStorageFactory>();
+// RegisterComp<BookBagMgrMongoStorageFactory>();

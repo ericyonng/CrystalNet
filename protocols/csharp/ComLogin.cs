@@ -39,6 +39,9 @@ using ProtoPackage.Attributes;
 
   }
   #region Messages
+  /// <summary>
+  //// EnableStorage:true
+  /// </summary>
   public sealed partial class UserLoginInfo : pb::IMessage<UserLoginInfo>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage

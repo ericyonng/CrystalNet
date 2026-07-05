@@ -42,3 +42,4 @@ _ormIdRefOrmFactory.insert(std::make_pair(14, BookVariantInfoOrmDataFactory::New
 _ormIdRefOrmFactory.insert(std::make_pair(15, SnapshotClientInfoOrmDataFactory::NewThreadLocal_SnapshotClientInfoOrmDataFactory()));
 _ormIdRefOrmFactory.insert(std::make_pair(16, SimpleInfoOrmDataFactory::NewThreadLocal_SimpleInfoOrmDataFactory()));
 _ormIdRefOrmFactory.insert(std::make_pair(17, PassTimeDataOrmDataFactory::NewThreadLocal_PassTimeDataOrmDataFactory()));
+_ormIdRefOrmFactory.insert(std::make_pair(18, UserLoginInfoOrmDataFactory::NewThreadLocal_UserLoginInfoOrmDataFactory()));
