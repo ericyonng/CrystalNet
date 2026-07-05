@@ -36,7 +36,8 @@
 SERVICE_BEGIN
 
 LoginMgrMongoStorage::LoginMgrMongoStorage()
- :IMongodbStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<LoginMgrMongoStorage>(), KERNEL_NS::RttiUtil::GetByType<LoginMgr>())
+ :IMongodbStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<LoginMgrMongoStorage>()
+     , KERNEL_NS::RttiUtil::GetByType<LoginMgr>(), KERNEL_NS::RttiUtil::GetTypeId<LoginMgr>())
 {
  AsFieldSystem(KERNEL_NS::MongoSerializeInfoType::JSON);
 }

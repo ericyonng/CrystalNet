@@ -40,7 +40,9 @@
 SERVICE_BEGIN
 
 PassTimeGlobalMongo::PassTimeGlobalMongo()
-    :KERNEL_NS::IMongodbStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<PassTimeGlobalMongo>(), KERNEL_NS::RttiUtil::GetByType<PassTimeGlobal>())
+    :KERNEL_NS::IMongodbStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<PassTimeGlobalMongo>()
+        , KERNEL_NS::RttiUtil::GetByType<PassTimeGlobal>()
+        , KERNEL_NS::RttiUtil::GetTypeId<PassTimeGlobal>())
 {
     // 唯一索引信息(hashed不能作为唯一索引)
     _uniqueIndexFields.emplace_back(KeyName, KERNEL_NS::MongodbIndexFieldValue::ASC);

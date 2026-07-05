@@ -29,9 +29,10 @@
 
 KERNEL_BEGIN
 
-IMongodbStorageInfo::IMongodbStorageInfo(UInt64 objTypeId, const KERNEL_NS::LibString &rttiObjName)
+IMongodbStorageInfo::IMongodbStorageInfo(UInt64 objTypeId, const KERNEL_NS::LibString &rttiObjName, const UInt64 systemTypeId)
     :CompHostObject(objTypeId)
     ,_systemName(KERNEL_NS::StringUtil::RemoveNameSpace(rttiObjName))
+    ,_systemTypeId(systemTypeId)
     ,_storageType(0)
     ,_flags(0)
     ,_numberSaveCb(NULL)

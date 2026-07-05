@@ -60,8 +60,7 @@ bool MongoDataSerialize::AppendSerialize(bsoncxx::builder::basic::document& doc,
         }
     case MongoSerializeInfoType::STRING:
         {
-            const UInt64 len = data._stream->ReadUInt64();
-            std::string_view str(data._stream->GetReadBegin(), static_cast<size_t>(len));
+            std::string_view str(data._stream->GetReadBegin(), static_cast<size_t>(data._stream->GetReadableSize()));
             doc.append(bsoncxx::builder::basic::kvp(keyName.GetRaw(), str));
             break;
         }
@@ -80,6 +79,13 @@ bool MongoDataSerialize::AppendSerialize(bsoncxx::builder::basic::document& doc,
             binData.bytes = (uint8_t *) data._stream->GetReadBegin();
             doc.append(bsoncxx::builder::basic::kvp(keyName.GetRaw(), binData));
             break;    
+        }
+        // 空数据不append
+    case MongoSerializeInfoType::NULL_DATA:
+        {
+            auto nullData = bsoncxx::types::b_null();
+            doc.append(bsoncxx::builder::basic::kvp(keyName.GetRaw(), nullData));
+            break;
         }
     default:
         {
@@ -139,12 +145,12 @@ bool MongoDataSerialize::Deserialize(const bsoncxx::types::bson_value::view &bso
             if(bsonValue.type() == bsoncxx::v_noabi::type::k_oid)
             {
                 auto &&stringValue = bsonValue.get_oid().value.to_string();
-                data._stream->Write(stringValue);
+                data._stream->Write(stringValue.data(), static_cast<Int64>(stringValue.size()));
             }
             else
             {
                 auto &&stringValue = bsonValue.get_string();
-                data._stream->Write(stringValue.value);
+                data._stream->Write(stringValue.value.data(), static_cast<Int64>(stringValue.value.size()));
             }
             break;
         }
@@ -171,6 +177,11 @@ bool MongoDataSerialize::Deserialize(const bsoncxx::types::bson_value::view &bso
             data._stream->Write(binaryData.bytes, static_cast<Int64>(binaryData.size));
             break;
         }
+    case MongoSerializeInfoType::NULL_DATA:
+        {
+            CLOG_DEBUG_GLOBAL(MongoDataSerialize, "null data MongoSerializeInfoType:%d", data.DataType);
+            break;
+        }
     default:
         {
             CLOG_ERROR_GLOBAL(MongoDataSerialize, "unsurpport MongoSerializeInfoType:%d", data.DataType);
@@ -192,6 +203,7 @@ Int32 MongoDataSerialize::GetSuitableSerializeType(const bsoncxx::v_noabi::type 
         case bsoncxx::v_noabi::type::k_oid: return MongoSerializeInfoType::STRING;
         case bsoncxx::v_noabi::type::k_document: return MongoSerializeInfoType::JSON;
         case bsoncxx::v_noabi::type::k_binary: return MongoSerializeInfoType::BINARY;
+        case bsoncxx::v_noabi::type::k_null: return MongoSerializeInfoType::NULL_DATA;
         default:
             break;
     }

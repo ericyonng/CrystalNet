@@ -36,7 +36,8 @@
 SERVICE_BEGIN
 
 LibraryMgrMongoStorage::LibraryMgrMongoStorage()
- :IMongodbStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<LibraryMgrMongoStorage>(), KERNEL_NS::RttiUtil::GetByType<LibraryMgr>())
+ :IMongodbStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<LibraryMgrMongoStorage>()
+     , KERNEL_NS::RttiUtil::GetByType<LibraryMgr>(), KERNEL_NS::RttiUtil::GetTypeId<LibraryMgr>())
 {
  AsFieldSystem(KERNEL_NS::MongoSerializeInfoType::JSON);
 }

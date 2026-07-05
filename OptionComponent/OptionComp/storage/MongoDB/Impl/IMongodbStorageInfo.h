@@ -57,12 +57,13 @@ class IMongodbStorageInfo : public KERNEL_NS::CompHostObject
     POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, IMongodbStorageInfo);
 
 public:
-    // fieldName: 需要使用RttiUtil获取系统的objName, 内部自动移除命名空间
-    IMongodbStorageInfo(UInt64 objTypeId, const KERNEL_NS::LibString &rttiObjName);
+    // fieldName: 需要使用RttiUtil获取系统的objName, 内部自动移除命名空间 systemTypeId:rttiObjName对应的TypeId
+    IMongodbStorageInfo(UInt64 objTypeId, const KERNEL_NS::LibString &rttiObjName, const UInt64 systemTypeId);
     ~IMongodbStorageInfo() override;
 
     const KERNEL_NS::LibString &GetDbName() const;
     const KERNEL_NS::LibString &GetSystemName() const;
+    UInt64 GetSystemTypeId() const;
     // 指定常用的唯一索引
     const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &GetUniqueIndexFields() const;
     // 索引
@@ -172,6 +173,7 @@ protected:
     KERNEL_NS::LibString _dbName;
     // 系统名(表名)如果为空就使用所在宿主的类名, 如果系统作为字段, 那么collectionName是字段名
     const KERNEL_NS::LibString _systemName;
+    const UInt64  _systemTypeId;
     // 索引信息:key,Int32:1:升序, -1降序,-2:hashed MongodbIndexFieldValue 必须指定否则启动失败 唯一索引
     std::vector<std::pair<KERNEL_NS::LibString, Int32>> _uniqueIndexFields;
     // 普通索引
@@ -214,6 +216,11 @@ ALWAYS_INLINE const KERNEL_NS::LibString &IMongodbStorageInfo::GetDbName() const
 ALWAYS_INLINE const KERNEL_NS::LibString &IMongodbStorageInfo::GetSystemName() const
 {
     return _systemName;
+}
+
+ALWAYS_INLINE UInt64 IMongodbStorageInfo::GetSystemTypeId() const
+{
+    return _systemTypeId;
 }
 
 ALWAYS_INLINE const std::vector<std::pair<KERNEL_NS::LibString, Int32>> &IMongodbStorageInfo::GetUniqueIndexFields() const

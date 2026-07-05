@@ -549,7 +549,7 @@ bool MongoDbMgr::CreateIndex(const KERNEL_NS::LibString &dbName, const KERNEL_NS
                 co_return;
             }
 
-            CLOG_ERROR_GLOBAL(MongoDbMgr, "mongodb CreateIndex success dbName:%s, collection:%s, index name:%s, fields:%s, unique:%d"
+            CLOG_INFO_GLOBAL(MongoDbMgr, "mongodb CreateIndex success dbName:%s, collection:%s, index name:%s, fields:%s, unique:%d"
             , dbName.c_str(), collectionName.c_str(), indexName.c_str(), KERNEL_NS::StringUtil::ToStringBy(fields, ',', [](const std::pair<KERNEL_NS::LibString, Int32> &item) ->KERNEL_NS::LibString
             {
                 return KERNEL_NS::LibString().AppendFormat("%s:%d", item.first.c_str(), item.second);
@@ -3070,6 +3070,12 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::Query(KERNEL_NS::LibString dbName, KERNEL_NS
                     {
                         // 不存在默认是二进制
                         auto dataType = MongoDataSerialize::GetSuitableSerializeType(iter.type());
+                        // 数据为空, 则不创建数据
+                        if(dataType == MongoSerializeInfoType::NULL_DATA)
+                        {
+                            continue;
+                        }
+                            
                         if(dataType == MongoSerializeInfoType::UNKNOWN)
                         {
                             CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("query data one key:%s, unknown data type, dbName:%s, collectionName:%s, kv:%s data:",

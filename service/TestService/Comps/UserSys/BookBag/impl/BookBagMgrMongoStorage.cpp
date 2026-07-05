@@ -36,7 +36,9 @@
 SERVICE_BEGIN
 
 BookBagMgrMongoStorage::BookBagMgrMongoStorage()
- :IMongodbStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<BookBagMgrMongoStorage>(), KERNEL_NS::RttiUtil::GetByType<BookBagMgr>())
+ :IMongodbStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<BookBagMgrMongoStorage>()
+     , KERNEL_NS::RttiUtil::GetByType<BookBagMgr>()
+     , KERNEL_NS::RttiUtil::GetTypeId<BookBagMgr>())
 {
   AsFieldSystem(KERNEL_NS::MongoSerializeInfoType::JSON);
 }

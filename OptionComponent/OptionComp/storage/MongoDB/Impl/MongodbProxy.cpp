@@ -373,7 +373,7 @@ KERNEL_NS::CoTask<bool> MongodbProxy::Query(KERNEL_NS::LibString dbName, KERNEL_
     auto ret = co_await _mongodbMgr->Query(dbName, collectionName, kv, fieldNameRefDataResult);
     if(UNLIKELY(!ret))
     {
-        CLOG_ERROR("query data fail db:%s, collection:%s, kv:%s", dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str());
+        CLOG_DEBUG("query data fail db:%s, collection:%s, kv:%s", dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str());
     }
 
     co_return ret;

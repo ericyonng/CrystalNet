@@ -685,7 +685,9 @@ private:
                     kd->emplace("Coe", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::DOUBLE, stream});
 
                     stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
-                    stream->Write(KERNEL_NS::LibString("zhang san"));
+
+                    auto str = KERNEL_NS::LibString("zhang san") ;
+                    stream->Write(str.data(), static_cast<Int64>(str.length()));
                     kd->emplace("name", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::STRING, stream});
                     
                     nlohmann::json doc;
@@ -729,7 +731,8 @@ private:
                     kd->emplace("Coe", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::DOUBLE, stream});
 
                     stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
-                    stream->Write(KERNEL_NS::LibString("li si"));
+                    auto str = KERNEL_NS::LibString("li si");
+                    stream->Write(str.data(), static_cast<Int64>(str.length()));
                     kd->emplace("name", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::STRING, stream});
                     
                     nlohmann::json doc;
@@ -775,7 +778,8 @@ private:
                     kd->emplace("Coe", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::DOUBLE, stream});
 
                     stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
-                    stream->Write(KERNEL_NS::LibString("li bai"));
+                    auto str = KERNEL_NS::LibString("li bai");
+                    stream->Write(str.data(), static_cast<Int64>(str.length()));
                     kd->emplace("name", KERNEL_NS::MongoSerializeInfo{KERNEL_NS::MongoSerializeInfoType::STRING, stream});
                     
                     nlohmann::json doc;
@@ -856,8 +860,7 @@ private:
                             }
                         case KERNEL_NS::MongoSerializeInfoType::STRING:
                             {
-                                KERNEL_NS::LibString value;
-                                info._stream->Read(value);
+                                KERNEL_NS::LibString value(info._stream->GetReadBegin(), static_cast<size_t>(info._stream->GetReadableSize()));
                                 CLOG_INFO("key:%s, value:%s", key.c_str(), value.c_str());
                                 break;
                             }

@@ -46,6 +46,7 @@ public:
         STRING,
         JSON,
         BINARY,
+        NULL_DATA,
     };
 };
 

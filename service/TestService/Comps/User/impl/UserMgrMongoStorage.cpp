@@ -41,7 +41,8 @@
 
 SERVICE_BEGIN
     UserMgrMongoStorage::UserMgrMongoStorage()
- :IMongodbStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<UserMgrMongoStorage>(), KERNEL_NS::RttiUtil::GetByType<User>())
+ :IMongodbStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<UserMgrMongoStorage>()
+     , KERNEL_NS::RttiUtil::GetByType<User>(), KERNEL_NS::RttiUtil::GetTypeId<UserMgr>())
 {
     // 唯一索引信息(hashed不能作为唯一索引)
     _uniqueIndexFields.emplace_back(GetKeyName(), KERNEL_NS::MongodbIndexFieldValue::ASC);

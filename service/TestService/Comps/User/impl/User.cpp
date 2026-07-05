@@ -129,194 +129,161 @@ Int32 User::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS:
     {
         const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kNameFieldNumber)->name();
         auto iter = fieldRefdb.find(fieldName);
-        if(iter == fieldRefdb.end())
+        if(iter != fieldRefdb.end())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("name field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
-            return Status::NotFound;
+            auto data = iter->second;
+            if(data->GetReadableSize())
+                _userBaseInfo->set_name(std::string(data->GetReadBegin(), data->GetReadableSize()));
         }
-
-        auto data = iter->second;
-        if(data->GetReadableSize())
-           _userBaseInfo->set_name(std::string(data->GetReadBegin(), data->GetReadableSize()));
     }
 
     {
         const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kNicknameFieldNumber)->name();
         auto iter = fieldRefdb.find(fieldName);
-        if(iter == fieldRefdb.end())
+        if(iter != fieldRefdb.end())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("nickname field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
-            return Status::NotFound;
-        }
-
-        auto data = iter->second;
-        if(data->GetReadableSize())
-        {
-            _userBaseInfo->set_nickname(data->GetReadBegin(), static_cast<size_t>(data->GetReadableSize()));
-            _userBaseInfo->set_nickname(KERNEL_NS::UrlCoder::Encode(_userBaseInfo->nickname()).GetRaw());
+            auto data = iter->second;
+            if(data->GetReadableSize())
+            {
+                _userBaseInfo->set_nickname(data->GetReadBegin(), static_cast<size_t>(data->GetReadableSize()));
+                _userBaseInfo->set_nickname(KERNEL_NS::UrlCoder::Encode(_userBaseInfo->nickname()).GetRaw());
+            }
         }
     }
 
     {
         const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kPwdFieldNumber)->name();
         auto iter = fieldRefdb.find(fieldName);
-        if(iter == fieldRefdb.end())
+        if(iter != fieldRefdb.end())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("pwd field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
-            return Status::NotFound;
+            auto data = iter->second;
+            if(data->GetReadableSize())
+                _userBaseInfo->set_pwd(std::string(data->GetReadBegin(), data->GetReadableSize()));
         }
-
-        auto data = iter->second;
-        if(data->GetReadableSize())
-            _userBaseInfo->set_pwd(std::string(data->GetReadBegin(), data->GetReadableSize()));
     }
 
     {
         const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kBindPhoneFieldNumber)->name();
         auto iter = fieldRefdb.find(fieldName);
-        if(iter == fieldRefdb.end())
+        if(iter != fieldRefdb.end())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("bindphone field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
-            return Status::NotFound;
+            auto data = iter->second;
+            UInt64 value = 0;
+            if(data->GetReadableSize())
+                data->Read(&value, data->GetReadableSize());
+            _userBaseInfo->set_bindphone(value);
         }
 
-        auto data = iter->second;
-        UInt64 value = 0;
-        if(data->GetReadableSize())
-            data->Read(&value, data->GetReadableSize());
-        _userBaseInfo->set_bindphone(value);
     }
 
     {
         const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kLastLoginTimeFieldNumber)->name();
         auto iter = fieldRefdb.find(fieldName);
-        if(iter == fieldRefdb.end())
+        if(iter != fieldRefdb.end())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("last login time field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
-            return Status::NotFound;
+            auto data = iter->second;
+            UInt64 value = 0;
+            if(data->GetReadableSize())
+                data->Read(&value, data->GetReadableSize());
+            _userBaseInfo->set_lastlogintime(value);
         }
 
-        auto data = iter->second;
-        UInt64 value = 0;
-        if(data->GetReadableSize())
-            data->Read(&value, data->GetReadableSize());
-        _userBaseInfo->set_lastlogintime(value);
     }
 
     {
         const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kLastLoginIpFieldNumber)->name();
         auto iter = fieldRefdb.find(fieldName);
-        if(iter == fieldRefdb.end())
+        if(iter != fieldRefdb.end())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("last login ip field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
-            return Status::NotFound;
+            auto data = iter->second;
+            if(data->GetReadableSize())
+                _userBaseInfo->set_lastloginip(std::string(data->GetReadBegin(), data->GetReadableSize())); 
         }
 
-        auto data = iter->second;
-        if(data->GetReadableSize())
-            _userBaseInfo->set_lastloginip(std::string(data->GetReadBegin(), data->GetReadableSize()));
     }
 
     {
         const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kLastLoginPhoneImeiFieldNumber)->name();
         auto iter = fieldRefdb.find(fieldName);
-        if(iter == fieldRefdb.end())
+        if(iter != fieldRefdb.end())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("last login phone imei field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
-            return Status::NotFound;
+            auto data = iter->second;
+            if(data->GetReadableSize())
+                _userBaseInfo->set_lastloginphoneimei(std::string(data->GetReadBegin(), data->GetReadableSize())); 
         }
 
-        auto data = iter->second;
-        if(data->GetReadableSize())
-            _userBaseInfo->set_lastloginphoneimei(std::string(data->GetReadBegin(), data->GetReadableSize()));
     }
 
     {
         const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kCreateIpFieldNumber)->name();
         auto iter = fieldRefdb.find(fieldName);
-        if(iter == fieldRefdb.end())
+        if(iter != fieldRefdb.end())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("create ip field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
-            return Status::NotFound;
+            auto data = iter->second;
+            if(data->GetReadableSize())
+                _userBaseInfo->set_createip(std::string(data->GetReadBegin(), data->GetReadableSize()));
         }
-
-        auto data = iter->second;
-        if(data->GetReadableSize())
-            _userBaseInfo->set_createip(std::string(data->GetReadBegin(), data->GetReadableSize()));
     }
 
     {
         const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kCreateTimeFieldNumber)->name();
         auto iter = fieldRefdb.find(fieldName);
-        if(iter == fieldRefdb.end())
+        if(iter != fieldRefdb.end())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("create time field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
-            return Status::NotFound;
+            auto data = iter->second;
+            UInt64 value = 0;
+            if(data->GetReadableSize())
+                data->Read(&value, data->GetReadableSize());
+            _userBaseInfo->set_createtime(value);
         }
 
-        auto data = iter->second;
-        UInt64 value = 0;
-        if(data->GetReadableSize())
-            data->Read(&value, data->GetReadableSize());
-        _userBaseInfo->set_createtime(value);
     }
 
     {
         const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kCreatePhoneImeiFieldNumber)->name();
         auto iter = fieldRefdb.find(fieldName);
-        if(iter == fieldRefdb.end())
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("create phone imei field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
-            return Status::NotFound;
-        }
 
-        auto data = iter->second;
-        if(data->GetReadableSize())
-            _userBaseInfo->set_createphoneimei(std::string(data->GetReadBegin(), data->GetReadableSize()));
+        if(iter != fieldRefdb.end())
+        {
+            auto data = iter->second;
+            if(data->GetReadableSize())
+                _userBaseInfo->set_createphoneimei(std::string(data->GetReadBegin(), data->GetReadableSize()));
+        }
     }
 
     {
         const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kBindMailAddrFieldNumber)->name();
         auto iter = fieldRefdb.find(fieldName);
-        if(iter == fieldRefdb.end())
+        if(iter != fieldRefdb.end())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("bind mail addr field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
-            return Status::NotFound;
+            auto data = iter->second;
+            if(data->GetReadableSize())
+                _userBaseInfo->set_bindmailaddr(std::string(data->GetReadBegin(), data->GetReadableSize()));
         }
-
-        auto data = iter->second;
-        if(data->GetReadableSize())
-            _userBaseInfo->set_bindmailaddr(std::string(data->GetReadBegin(), data->GetReadableSize()));
     }
 
    {
         const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kPwdSaltFieldNumber)->name();
         auto iter = fieldRefdb.find(fieldName);
-        if(iter == fieldRefdb.end())
+        if(iter != fieldRefdb.end())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("pwd salt field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
-            return Status::NotFound;
+            auto data = iter->second;
+            if(data->GetReadableSize())
+                _userBaseInfo->set_pwdsalt(std::string(data->GetReadBegin(), data->GetReadableSize()));
         }
-
-        auto data = iter->second;
-        if(data->GetReadableSize())
-            _userBaseInfo->set_pwdsalt(std::string(data->GetReadBegin(), data->GetReadableSize()));
     }
 
    {
         const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kLastPassDayTimeFieldNumber)->name();
         auto iter = fieldRefdb.find(fieldName);
-        if(iter == fieldRefdb.end())
+        if(iter != fieldRefdb.end())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("last pass day time not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
-            return Status::NotFound;
+            auto data = iter->second;
+            Int64 value = 0;
+            if(data->GetReadableSize())
+                data->Read(&value, data->GetReadableSize());
+            _userBaseInfo->set_lastpassdaytime(value);
         }
-
-        auto data = iter->second;
-        Int64 value = 0;
-        if(data->GetReadableSize())
-            data->Read(&value, data->GetReadableSize());
-        _userBaseInfo->set_lastpassdaytime(value);
     }
 
     for(auto iter : _fieldNameRefUserSys)
@@ -326,8 +293,8 @@ Int32 User::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS:
         auto iterData = fieldRefdb.find(fieldName);
         if(iterData == fieldRefdb.end())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("user sys have no data key:%llu field name:%s, system name:%s"), key, fieldName.c_str(), userSys->GetObjName().c_str());
-            return Status::NotFound;
+            CLOG_DEBUG("user sys have no data key:%llu field name:%s, system name:%s", key, fieldName.c_str(), userSys->GetObjName().c_str());
+            continue;
         }
 
         auto data = iterData->second;
@@ -1031,7 +998,7 @@ Int32 User::_OnSysCompsCreated()
     for(auto subStorageInfo : allSubStorages)
     {
         auto turnStorageComp = subStorageInfo->CastTo<KERNEL_NS::IMongodbStorageInfo>();
-        auto comp = GetCompByName(turnStorageComp->GetSystemName());
+        auto comp = GetCompByTypeId(turnStorageComp->GetSystemTypeId());
         if(UNLIKELY(!comp))
         {
             CLOG_WARN("user sys have storage info but have no user sys obj please check system name:%s", turnStorageComp->GetSystemName().c_str());

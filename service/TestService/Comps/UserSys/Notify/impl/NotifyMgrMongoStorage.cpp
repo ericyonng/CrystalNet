@@ -35,7 +35,8 @@
 SERVICE_BEGIN
 
 NotifyMgrMongoStorage::NotifyMgrMongoStorage()
- :IMongodbStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<NotifyMgrMongoStorage>(), KERNEL_NS::RttiUtil::GetByType<NotifyMgr>())
+ :IMongodbStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<NotifyMgrMongoStorage>()
+     , KERNEL_NS::RttiUtil::GetByType<NotifyMgr>(), KERNEL_NS::RttiUtil::GetTypeId<NotifyMgr>())
 {
   AsFieldSystem(KERNEL_NS::MongoSerializeInfoType::JSON);
 }

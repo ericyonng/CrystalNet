@@ -161,6 +161,15 @@ void UserMgr::OnStartup()
     // {
     //     g_Log->Warn(LOGFMT_OBJ_TAG("login fail err:%d, user acount name:%s"), err, loginInfo->accountname().c_str());
     // }
+
+    KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<>
+    {
+        
+       auto user = co_await CreateUser("HellloWorld");
+
+        CLOG_INFO("create user success user id:%lld, accountName:%s"
+            , user->GetUserId(), user->GetUserBaseInfo()->accountname().c_str());
+    });
 }
 
 Int32 UserMgr::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb)
@@ -1044,6 +1053,8 @@ KERNEL_NS::CoTask<IUser *> UserMgr::CreateUser(const KERNEL_NS::LibString accoun
     auto &&collection = KERNEL_NS::StringUtil::RemoveNameSpace(KERNEL_NS::RttiUtil::GetByType<User>());
     KERNEL_NS::SmartMongoSerializeInfoWrapper wrapper;
     auto ret = co_await mongoProxy->Query(dbName, collection, UserMgrMongoStorage::GetAccountName(), accountName,  wrapper.Ptr.AsSelf());
+
+    IUser *finalUser = NULL;
     if(!ret)
     {
         // 需要创建
@@ -1060,16 +1071,108 @@ KERNEL_NS::CoTask<IUser *> UserMgr::CreateUser(const KERNEL_NS::LibString accoun
         baseInfo->set_accountname(accountName);
         baseInfo->set_nickname(accountName);
         baseInfo->set_createtime(curTime.GetMilliTimestamp());
-        // TODO:
-        // baseInfo->set_userid()
+
+        auto &random = KERNEL_NS::LibRandom<Int64>::GetInstance<1LL, 99999999LL>();
+        baseInfo->set_userid(random.Gen(1, 99999999));
         
+        user->SetUserStatus(UserStatus::USER_INITING);
+        auto err = user->Init();
+        if(err != Status::Success)
+        {
+            co_return NULL;
+        }
+        user->SetUserStatus(UserStatus::USER_INITED);
+
+        user->SetUserStatus(UserStatus::USER_STARTING);
+        err = user->Start();
+        if(err != Status::Success)
+        {
+            co_return NULL;
+        }
+        user->SetUserStatus(UserStatus::USER_STARTED);
+
+        _AddUser(user.AsSelf());
+        MaskNumberKeyAddDirty(user->GetUserId());
+        user->SetUserStatus(UserStatus::USER_ONLOADING);
+
+        finalUser = user.pop();
+    }
+    else
+    {
+        auto iterKey = wrapper.Ptr->find(UserMgrMongoStorage::GetKeyName());
+        if(iterKey == wrapper.Ptr->end())
+            co_return NULL;
+
+        auto &keyInfo = iterKey->second;
+        const auto userId = keyInfo._stream->ReadInt64();
+        std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> turnDict;
+        for(auto &iter : *wrapper.Ptr)
+            turnDict.emplace(iter.first, iter.second._stream);
+
+        // 需要创建
+        KERNEL_NS::SmartPtr<User, KERNEL_NS::AutoDelMethods::CustomDelete> user = User::NewThreadLocal_User(this);
+        user.SetClosureDelegate([](void *user)
+        {
+            auto ptr = KERNEL_NS::KernelCastTo<User>(user);
+            ptr->WillClose();
+            ptr->Close();
+            User::DeleteThreadLocal_User(ptr);
+        });
+
+
+        user->SetUserStatus(UserStatus::USER_INITING);
+        auto err = user->Init();
+        if(err != Status::Success)
+        {
+            co_return NULL;
+        }
+        user->SetUserStatus(UserStatus::USER_INITED);
+
+        user->SetUserStatus(UserStatus::USER_STARTING);
+        err = user->Start();
+        if(err != Status::Success)
+        {
+            co_return NULL;
+        }
+        user->SetUserStatus(UserStatus::USER_STARTED);
+
+        user->SetUserStatus(UserStatus::USER_ONLOADING);
+        err =  user->OnLoaded(userId, turnDict);
+        if(err != Status::Success)
+        {
+            co_return NULL;
+        }
+        user->SetUserStatus(UserStatus::USER_ONLOADED);
+
+        _AddUser(user.AsSelf());
+        finalUser = user.pop();
     }
 
+    if(!finalUser)
+    {
+        co_return NULL;
+    }
+
+    auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::USER_OBJ_CREATED);
+    ev->SetParam(Params::USER_OBJ, finalUser);
+    GetEventMgr()->FireEvent(ev);
+        
+    _RemoveFromLru(finalUser);
+    finalUser->UpdateLrtTime();
+    _AddToLru(finalUser);
+
+    finalUser->MaskDirty();
+
+    _LruPopUser();
+
+    finalUser->OnLogin();
+    finalUser->OnLoginFinish();
+    
     // 校验参数
     // 加锁 ---
     // 建号, 登录
     // 解锁----
-    co_return NULL;
+    co_return finalUser;
 }
 
 
