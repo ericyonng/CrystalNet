@@ -729,6 +729,9 @@ void MongodbProxy::_Clear()
     CRYSTAL_RELEASE_SAFE(_checkDependenceQuit);
     CRYSTAL_RELEASE_SAFE(_maskSelfQuit);
     CRYSTAL_RELEASE_SAFE(_registerFocus);
+
+    KERNEL_NS::ContainerUtil::DelContainer2(_logicRefNumberDirtyHelper);
+    KERNEL_NS::ContainerUtil::DelContainer2(_logicRefStringDirtyHelper);
 }
 
 void MongodbProxy::_InitDirtyHelper(KERNEL_NS::LibDirtyHelper<Int64, UInt64> *dirtyHelper)

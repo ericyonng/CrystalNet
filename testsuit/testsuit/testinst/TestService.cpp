@@ -35,6 +35,7 @@
 #include <testsuit/testinst/TestService.h>
 
 #include "OptionComp/storage/MongoDB/Impl/MongoDbMgrFactory.h"
+#include "OptionComp/storage/MongoDB/Impl/MongodbProxyFactory.h"
 #include "OptionComp/storage/MongoDB/Interface/IMongoDbMgr.h"
 
 #ifdef ENABLE_TEST_SERVICE
@@ -61,6 +62,9 @@ public:
         // 先注册数据库, 让数据库先初始化好
 #if CRYSTAL_STORAGE_ENABLE
         RegisterComp<KERNEL_NS::MongoDbMgrFactory>();
+
+        // 需要mongodb代理
+        RegisterComp<KERNEL_NS::MongodbProxyFactory>();
 #endif
         
         SERVICE_COMMON_NS::Application::OnRegisterComps();

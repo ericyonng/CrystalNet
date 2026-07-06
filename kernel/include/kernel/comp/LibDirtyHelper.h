@@ -182,6 +182,7 @@ public:
 
     void Init(Int32 dirtyTypeAmount);
     void Destroy();
+    void Release();
     void SetHandler(Int32 dirtyType, IDelegate<void, LibDirtyHelper<KeyType, MaskValue> *, KeyType &, Variant *> *handler);
     void SetHandler(Int32 dirtyType, const IDelegate<void, LibDirtyHelper<KeyType, MaskValue> *, KeyType &, Variant *> *handler);
 
@@ -334,6 +335,13 @@ ALWAYS_INLINE void LibDirtyHelper<KeyType, MaskValue>::Destroy()
     }
     _delayOpDict.clear();
 }
+
+template<typename KeyType, typename MaskValue>
+ALWAYS_INLINE void LibDirtyHelper<KeyType, MaskValue>::Release()
+{
+    LibDirtyHelper<KeyType, MaskValue>::DeleteThreadLocal_LibDirtyHelper(this);
+}
+
 
 template<typename KeyType, typename MaskValue>
 ALWAYS_INLINE void LibDirtyHelper<KeyType, MaskValue>::SetHandler(Int32 dirtyType, IDelegate<void, LibDirtyHelper<KeyType, MaskValue> *, KeyType &, Variant *> *handler)
