@@ -40,6 +40,7 @@ IMongodbStorageInfo::IMongodbStorageInfo(UInt64 objTypeId, const KERNEL_NS::LibS
     ,_stringSaveCb(NULL)
     ,_stringSteamSaveCb(NULL)
     ,_asFieldSystemSaveCb(NULL)
+    ,_noSaveCb(false)
 {
     // 设置接口id
     SetInterfaceTypeId(KERNEL_NS::RttiUtil::GetTypeId<IMongodbStorageInfo>());
@@ -57,10 +58,13 @@ IMongodbStorageInfo::~IMongodbStorageInfo()
 Int32 IMongodbStorageInfo::_OnHostStart()
 {
     // 作为其他系统的字段, 由其他系统的OnSave中去持久化
-    if((!_numberSaveCb) && (!_stringSaveCb) && (!_numberSteamSaveCb) && (!_stringSteamSaveCb) && (!_asFieldSystemSaveCb))
+    if(!_noSaveCb)
     {
-        CLOG_ERROR("storage have no onsave callback please check : %s", GetObjName().c_str());
-        return Status::Failed;
+        if((!_numberSaveCb) && (!_stringSaveCb) && (!_numberSteamSaveCb) && (!_stringSteamSaveCb) && (!_asFieldSystemSaveCb))
+        {
+            CLOG_ERROR("storage have no onsave callback please check : %s", GetObjName().c_str());
+            return Status::Failed;
+        }
     }
     
     return Status::Success;

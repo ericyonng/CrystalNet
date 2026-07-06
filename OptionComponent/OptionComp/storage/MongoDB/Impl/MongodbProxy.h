@@ -92,6 +92,9 @@ public:
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, KERNEL_NS::LibString keyName, KERNEL_NS::LibString key, std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo> *fieldNameRefDataResult) override;
 
     virtual void SetMongodbMgr(KERNEL_NS::IMongoDbMgr *mongodbMgr) override;
+    virtual KERNEL_NS::IMongoDbMgr *GetMongodbMgr() override;
+    virtual const KERNEL_NS::IMongoDbMgr *GetMongodbMgr() const override;
+    
     // 设置检查依赖是否退出
     virtual void SetCheckDependenceQuit(KERNEL_NS::IDelegate<bool, const KERNEL_NS::CompHostObject *> *cb) override;
     // 设置自己完成回调(告知自己完成了, 可以退出,因为proxy要等待所有依赖都退出后才可退出)

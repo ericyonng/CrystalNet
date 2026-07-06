@@ -167,6 +167,7 @@ public:
     Int32 OnSave(const KERNEL_NS::CompHostObject *host, const KERNEL_NS::LibString &key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &data) const;
     Int32 OnSave(const KERNEL_NS::CompHostObject *host, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &data) const;
 
+    bool IsNeedSave() const;
 protected:
     /** 当系统作为表时需要填写索引, 必要的简单字段名存储类型，db名等 **/
     // db名 必须指定否则启动失败
@@ -205,6 +206,8 @@ protected:
 
     // 作为其他存储系统的字段持久化回调
     KERNEL_NS::IDelegate<Int32, const KERNEL_NS::CompHostObject *, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &> *_asFieldSystemSaveCb;
+
+    bool _noSaveCb;
 };
 
 
@@ -323,6 +326,12 @@ ALWAYS_INLINE Int32 IMongodbStorageInfo::OnSave(const KERNEL_NS::CompHostObject 
 {
     return _asFieldSystemSaveCb->Invoke(host, data);
 }
+
+ALWAYS_INLINE bool IMongodbStorageInfo::IsNeedSave() const
+{
+    return !_noSaveCb;
+}
+
 
 KERNEL_END
 

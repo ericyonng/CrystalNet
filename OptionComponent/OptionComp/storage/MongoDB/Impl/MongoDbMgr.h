@@ -106,6 +106,7 @@ public:
     virtual KERNEL_NS::CoTask<bool> ReplaceData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> uniqueKv, std::map<KERNEL_NS::LibString, MongoSerializeInfo> *keyNameRefData) override;
     virtual KERNEL_NS::CoTask<bool> AddData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> uniqueKv,  std::map<KERNEL_NS::LibString, MongoSerializeInfo> *keyNameRefData) override;
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, MongoSerializeInfo> *fieldNameRefData, bool ignoreOid = false) override;
+    virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, MPMCQueue<std::map<KERNEL_NS::LibString, MongoSerializeInfo> *, 1024> *dataQueue, QueryRoundContinue roundContinueInfo = {}, Int32 batchSize = 512, bool ignoreOid = false) override;
 
 
     #endif

@@ -782,6 +782,13 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::Query(KERNEL_NS::LibString dbName, KERNEL_NS
             auto client = _connectionPool->acquire();
             auto db = client[dbName];
             auto collection = db[collectionName];
+
+            // 优先从节点读
+            mongocxx::options::find option;
+            mongocxx::read_preference rp;
+            rp.mode(mongocxx::read_preference::read_mode::k_secondary_preferred);
+            collection.read_preference(rp);
+            
             // 设置majority, 常用的隔离级别,相当于读已提交级别(rc级别) 解决事务的隔离性问题
             mongocxx::read_concern rc;
             rc.acknowledge_level(mongocxx::read_concern::level::k_majority);
@@ -796,7 +803,6 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::Query(KERNEL_NS::LibString dbName, KERNEL_NS
                 return res;
             }
             
-            mongocxx::options::find option;
             bsoncxx::builder::basic::document projectionDoc;
             bool hasProjection = false;
             if(!fieldNameRefVariant->empty())
@@ -3017,6 +3023,10 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::Query(KERNEL_NS::LibString dbName, KERNEL_NS
             auto client = _connectionPool->acquire();
             auto db = client[dbName];
             auto collection = db[collectionName];
+            mongocxx::read_preference rp;
+            rp.mode(mongocxx::read_preference::read_mode::k_secondary_preferred);
+            collection.read_preference(rp);
+            
             // 设置majority, 常用的隔离级别,相当于读已提交级别(rc级别) 解决事务的隔离性问题
             mongocxx::read_concern rc;
             rc.acknowledge_level(mongocxx::read_concern::level::k_majority);
@@ -3137,6 +3147,219 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::Query(KERNEL_NS::LibString dbName, KERNEL_NS
     CLOG_DEBUG("query data success, db:%s, collection:%s, kv:%s", dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str());
     co_return true;
 }
+
+template<typename DocType, typename KvType>
+ALWAYS_INLINE static bool PaseQueryDoc(DocType &doc, SmartMongoSerializeInfoWrapper &wrapper, const KERNEL_NS::LibString &dbName, const KERNEL_NS::LibString &collectionName, const KvType &kv)
+{
+    bool hasData = false;
+   for(auto iter : doc)
+   {
+       auto key = KERNEL_NS::LibString(iter.key().data());
+       auto v = iter.get_value();
+
+       auto fieldNameRefData = wrapper.Ptr.AsSelf();
+       auto iterData = fieldNameRefData->find(key);
+       if(iterData == fieldNameRefData->end())
+       {
+           // 不存在默认是二进制
+           auto dataType = MongoDataSerialize::GetSuitableSerializeType(iter.type());
+           // 数据为空, 则不创建数据
+           if(dataType == MongoSerializeInfoType::NULL_DATA)
+           {
+               continue;
+           }
+                
+           if(dataType == MongoSerializeInfoType::UNKNOWN)
+           {
+               CLOG_ERROR_GLOBAL(MongoDbMgr, "query data one key:%s, unknown data type, dbName:%s, collectionName:%s, kv:%s data:%s",
+                   key.c_str(), dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str(), KERNEL_NS::LibString(bsoncxx::to_json(doc)).c_str());
+
+               return false;
+           }
+           iterData = fieldNameRefData->emplace(key, MongoSerializeInfo(dataType, LibStreamTL::NewThreadLocal_LibStream())).first;
+       }
+       auto &deserializeData = iterData->second;
+        
+       if(!MongoDataSerialize::Deserialize(v, deserializeData))
+       {
+           CLOG_ERROR_GLOBAL(MongoDbMgr, "query data one key:%s, data Deserialize fail, dbName:%s, collectionName:%s, kv:%s data:%s",
+                   key.c_str(), dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str(), KERNEL_NS::LibString(bsoncxx::to_json(doc)).c_str());
+
+           return false;
+       }
+
+       hasData = true;
+   }
+
+    return hasData;
+}
+
+KERNEL_NS::CoTask<bool> MongoDbMgr::Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, MPMCQueue<std::map<KERNEL_NS::LibString, MongoSerializeInfo> *, 1024> *dataQueue, QueryRoundContinue roundContinueInfo, Int32 batchSize, bool ignoreOid)
+{
+    if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
+    {
+        CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, kv:%s, fieldNameRefData:"
+            , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(kv, ',').c_str()));
+        co_return false;
+    }
+    
+    ObjLife<std::atomic<Int64>> lifeCtl(_pendingRequests);
+
+    if(UNLIKELY(!dataQueue))
+    {
+        CLOG_ERROR("query data dataQueue is null when query, db:%s, collection:%s, kv:%s", dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str());
+        co_return false;
+    }
+
+    // 计算kvhash
+    auto hashValue = CalculateHash(kv);
+    Int64 handledCount = 0;
+    KERNEL_NS::SmartPtr<KERNEL_NS::CoLocker, KERNEL_NS::AutoDelMethods::Release> lck = KERNEL_NS::CoLocker::NewThreadLocal_CoLocker();
+    auto isSuc = co_await g_EventLoopEasyTaskThreadPool->SendAsync<MongoAsyncRes>([this, ignoreOid, dbName, collectionName, kv, dataQueue, batchSize, &handledCount, roundContinueInfo, waitBack = lck.AsSelf()]()->MongoAsyncRes
+    {
+        MongoAsyncRes res;
+        KERNEL_NS::RunRightNow([this, ignoreOid, dbName, collectionName, kv, dataQueue, batchSize, &handledCount, roundContinueInfo, waitBack]()->KERNEL_NS::CoTask<>
+        {
+            try
+            {
+                auto client = _connectionPool->acquire();
+                auto db = client[dbName];
+                auto collection = db[collectionName];
+                // 优先从节点读
+                mongocxx::read_preference rp;
+                rp.mode(mongocxx::read_preference::read_mode::k_secondary_preferred);
+                collection.read_preference(rp);
+                
+                // 设置majority, 常用的隔离级别,相当于读已提交级别(rc级别) 解决事务的隔离性问题
+                mongocxx::read_concern rc;
+                rc.acknowledge_level(mongocxx::read_concern::level::k_majority);
+                collection.read_concern(rc);
+                        
+                bsoncxx::builder::basic::document fullKv;
+                if(!_TurnDoc(kv, fullKv))
+                {
+                    CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("query data build full kv fail, query data into collection, kv:%s dbName:%s, collectionName:%s"
+                        ,  DictContainerToString(kv).c_str(), dbName.c_str(), collectionName.c_str()));
+
+                    co_return;
+                }
+                
+                mongocxx::options::find option;
+                bsoncxx::builder::basic::document projectionDoc;
+                bool hasProjection = false;
+                if(ignoreOid)
+                {
+                    projectionDoc.append(bsoncxx::builder::basic::kvp("_id", 0));
+                    hasProjection = true;
+                }
+                if(hasProjection)
+                    option.projection(projectionDoc.view());
+
+                option.batch_size(batchSize);
+                option.no_cursor_timeout(true);
+                
+                // 查全部
+                if(kv.empty())
+                {
+                    auto cursor = collection.find({}, option);
+                    for(auto &doc : cursor)
+                    {
+                        ++handledCount;
+                        if(roundContinueInfo._curTotal)
+                            roundContinueInfo._curTotal->fetch_add(1, std::memory_order_release);
+                        
+                        if(roundContinueInfo._roundWaiter)
+                        {
+                            if(handledCount % roundContinueInfo._pauseCount == 0)
+                            {
+                                // 暂停, 等待被唤醒继续
+                                co_await roundContinueInfo._roundWaiter->Wait();
+
+                                if(!roundContinueInfo._isContinue->exchange(false, std::memory_order_acq_rel))
+                                {
+                                    break;
+                                }
+                            }
+                        }
+
+                        SmartMongoSerializeInfoWrapper wrapper;
+                        if(PaseQueryDoc(doc, wrapper, dbName, collectionName, kv))
+                        {
+                            dataQueue->Emplace(wrapper.Ptr.pop());
+                        }
+                    }
+                }
+                else
+                {
+                    auto cursor = collection.find(fullKv.view(), option);
+                    for(auto &doc : cursor)
+                    {
+                        ++handledCount;
+                        if(roundContinueInfo._curTotal)
+                            roundContinueInfo._curTotal->fetch_add(1, std::memory_order_release);
+                        
+                        if(roundContinueInfo._roundWaiter)
+                        {
+                            if(handledCount % roundContinueInfo._pauseCount == 0)
+                            {
+                                // 暂停, 等待被唤醒继续
+                                co_await roundContinueInfo._roundWaiter->Wait();
+
+                                if(!roundContinueInfo._isContinue->load(std::memory_order_acquire))
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        SmartMongoSerializeInfoWrapper wrapper;
+                        if(PaseQueryDoc(doc, wrapper, dbName, collectionName, kv))
+                        {
+                            dataQueue->Emplace(wrapper.Ptr.pop());
+                        }
+                    }
+                }
+                
+                CLOG_DEBUG("query data success, dbName:%s, collectionName:%s, kv:%s data handledCount:%lld",
+                    dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str(), handledCount);
+            }
+            catch (const mongocxx::exception &e)
+            {
+                CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("query data mongodb mongocxx exception: %s, dbName:%s collectionName:%s, kv:"
+                    , e.what(), dbName.c_str(), collectionName.c_str()), DictContainerToString(kv));
+            }
+            catch (const std::exception &e)
+            {
+                CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("query data mongodb std exception: %s, dbName:%s collectionName:%s, kv:"
+                    , e.what(), dbName.c_str(), collectionName.c_str()),  DictContainerToString(kv));
+            }
+            catch (...)
+            {
+                CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("query data mongodb unknown exception: dbName:%s collectionName:%s, kv:"
+                    , dbName.c_str(), collectionName.c_str()), DictContainerToString(kv));
+            }
+
+            // 完成
+            if(roundContinueInfo._isCompleted)
+            {
+                roundContinueInfo._isCompleted->store(true, std::memory_order_release);
+            }
+            
+            waitBack->Broadcast();
+        });
+
+        return res;
+    }, [hashValue](std::vector<KERNEL_NS::LibEventLoopThread *> &threads)->KERNEL_NS::Poller *
+    {
+        return threads[hashValue % threads.size()]->GetPollerNoAsync();
+    });
+
+    co_await lck->Wait();
+
+    CLOG_DEBUG("query data success, db:%s, collection:%s, kv:%s, handledCount:%lld", dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str(), handledCount);
+    co_return true;
+}
+
 
 #endif
 

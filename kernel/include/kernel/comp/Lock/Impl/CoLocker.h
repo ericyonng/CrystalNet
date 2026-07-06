@@ -37,6 +37,7 @@
 #include <kernel/comp/Lock/Impl/SpinLock.h>
 #include <unordered_map>
 #include <vector>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 
 KERNEL_BEGIN
 
@@ -76,10 +77,14 @@ struct KERNEL_EXPORT CoLockerInfo
 // 退出必须先调用Quit, 并等待所有waiter退出, 避免未定义异常
 class KERNEL_EXPORT CoLocker
 {
+    POOL_CREATE_OBJ_DEFAULT(CoLocker);
+    
 public:
     // 最多waiter限制
     CoLocker(Int32 waiterLimit = 16);
     ~CoLocker();
+
+    void Release();
     
     ALWAYS_INLINE void Lock(){}
     ALWAYS_INLINE void Unlock() {}
@@ -119,6 +124,12 @@ private:
     Poller *_ownerPoller;
     SpinLock _lock;
 };
+
+ALWAYS_INLINE void CoLocker::Release()
+{
+    CoLocker::DeleteThreadLocal_CoLocker(this);
+}
+
 
 ALWAYS_INLINE bool CoLocker::HasWaiter() const
 {

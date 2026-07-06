@@ -206,6 +206,11 @@ public:
   MPMCQueue(const MPMCQueue &) = delete;
   MPMCQueue &operator=(const MPMCQueue &) = delete;
 
+  void Release()
+  {
+      MPMCQueue<Elem, CapacitySize>::DeleteThreadLocal_MPMCQueue(this);
+  }
+
   // 会忙等待, 如果竞争比较激烈, 原理是通过递增_turn来保证线程安全, 如果_turn不满足条件则会忙等待, 直到满足条件
   template <typename... Args>
   void Emplace(Args &&...args) noexcept;

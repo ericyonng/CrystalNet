@@ -38,11 +38,23 @@
 #include <OptionComp/storage/MongoDB/Impl/MongoSerializeInfo.h>
 #include <OptionComp/storage/MongoDB/Impl/MongodbConfig.h>
 #include <kernel/comp/FileMonitor/FileMonitor.h>
+#include <kernel/comp/ConcurrentPriorityQueue/MPMCQueue.h>
 
 
 KERNEL_BEGIN
 
 struct SourceWrap;
+
+struct QueryRoundContinue
+{
+    KERNEL_NS::CoLocker *_roundWaiter = NULL;
+    std::atomic_bool *_isContinue = NULL;
+    std::atomic_bool *_isCompleted = NULL;
+    // 100条后暂停等待
+    Int32 _pauseCount = 100;
+    // 当前查询总条数
+    std::atomic<Int64> *_curTotal = NULL;
+};
 
 class IMongoDbMgr : public CompHostObject
 {
@@ -132,6 +144,9 @@ public:
     // 序列化发序列化:MongoDataSerialize, 序列化反序列化数据定义:MongoSerializeInfo keyNameRefData 外部释放 若fieldNameRefVariant有指定字段名的, 只会查询数据的指定的几个字段,如果是空的, 则查完整数据
     virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, MongoSerializeInfo> *fieldNameRefData, bool ignoreOid = false) = 0;
 
+    // roundWaiter: 查询一轮游标后等待请求者下一步是否继续
+    virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, MPMCQueue<std::map<KERNEL_NS::LibString, MongoSerializeInfo> *, 1024> *dataQueue, QueryRoundContinue roundContinueInfo = {}, Int32 batchSize = 512, bool ignoreOid = false) = 0;
+
 #endif
 
     // // jsonstring:要改的kv系列
@@ -149,6 +164,7 @@ public:
     // 获取配置
     virtual const KERNEL_NS::FileMonitor<MongodbConfig, KERNEL_NS::YamlDeserializer> *GetConfig() const = 0;
 };
+
 
 KERNEL_END
 

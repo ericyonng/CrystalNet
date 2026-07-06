@@ -55,6 +55,8 @@ public:
     IMongodbProxy(UInt64 objTypeId) : CompHostObject(objTypeId){}
 
     virtual void SetMongodbMgr(KERNEL_NS::IMongoDbMgr *mongodbMgr) = 0;
+    virtual KERNEL_NS::IMongoDbMgr *GetMongodbMgr() = 0;
+    virtual const KERNEL_NS::IMongoDbMgr *GetMongodbMgr() const = 0;
     
     // 设置检查依赖是否退出
     template<typename LambadaType>

@@ -111,6 +111,16 @@ Int32 CompHostObject::_OnInit()
         return ret;
     }
 
+    ret = _OnAfterCompsInit();
+    if(ret != Status::Success)
+    {
+        if (g_Log)
+        {
+            CLOG_ERROR("after init comps fail ret:%d", ret);
+        }
+        return ret;
+    }
+    
     if(g_Log)
     {
         CLOG_DEBUG("_OnInit CompHostObject %s suc", GetObjName().c_str());

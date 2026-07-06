@@ -384,6 +384,16 @@ void MongodbProxy::SetMongodbMgr(KERNEL_NS::IMongoDbMgr *mongodbMgr)
     _mongodbMgr = mongodbMgr;
 }
 
+KERNEL_NS::IMongoDbMgr *MongodbProxy::GetMongodbMgr()
+{
+    return _mongodbMgr;
+}
+
+const KERNEL_NS::IMongoDbMgr *MongodbProxy::GetMongodbMgr() const
+{
+    return _mongodbMgr;
+}
+
 void MongodbProxy::ListenClose(KERNEL_NS::EventManager *eventMgr, Int32 eventType)
 {
     _closeEventStub = eventMgr->AddListener(eventType, this, &MongodbProxy::_OnCloseEvent);
@@ -416,31 +426,31 @@ Int32 MongodbProxy::_OnHostInit()
         return Status::ConfigError;
     }
 
-    if(!_checkDependenceQuit)
-    {
-        CLOG_ERROR("_checkDependenceQuit is null.");
-
-        return Status::ConfigError;
-    }
-
-    if(!_maskSelfQuit)
-    {
-        CLOG_ERROR("_maskSelfQuit is null.");
-        return Status::ConfigError;
-    }
-
-    if(!_registerFocus)
-    {
-        CLOG_ERROR("_registerFocus is null.");
-
-        return Status::ConfigError;
-    }
-
-    if(_closeEventStub == INVALID_LISTENER_STUB)
-    {
-        CLOG_ERROR("_closeEventStub is invalid, please let proxy listen close.");
-        return Status::ConfigError;
-    }
+    // if(!_checkDependenceQuit)
+    // {
+    //     CLOG_ERROR("_checkDependenceQuit is null.");
+    //
+    //     return Status::ConfigError;
+    // }
+    //
+    // if(!_maskSelfQuit)
+    // {
+    //     CLOG_ERROR("_maskSelfQuit is null.");
+    //     return Status::ConfigError;
+    // }
+    //
+    // if(!_registerFocus)
+    // {
+    //     CLOG_ERROR("_registerFocus is null.");
+    //
+    //     return Status::ConfigError;
+    // }
+    //
+    // if(_closeEventStub == INVALID_LISTENER_STUB)
+    // {
+    //     CLOG_ERROR("_closeEventStub is invalid, please let proxy listen close.");
+    //     return Status::ConfigError;
+    // }
 
     _configSource = _mongodbMgr->GetConfigSource();
     _keyName = _mongodbMgr->GetConfigSourceKeyName();
@@ -463,10 +473,12 @@ Int32 MongodbProxy::_OnHostInit()
     _purgeTimer->Schedule(interval);
 
     // 让Host关注自己
-    _registerFocus->Invoke(this);
+    if(_registerFocus)
+        _registerFocus->Invoke(this);
     
     return Status::Success;
 }
+
 Int32 MongodbProxy::_OnCompsCreated()
 {
     return Status::Success;
@@ -648,7 +660,7 @@ Int32 MongodbProxy::_OnHostStart()
 
 void MongodbProxy::_OnHostClose()
 {
-    _Clear();
+    _CheckQuit();
 }
 
 void MongodbProxy::_OnCloseEvent(KERNEL_NS::LibEvent *ev)
@@ -681,40 +693,50 @@ void MongodbProxy::_CheckQuit()
 
     CLOG_INFO("mongo proxy will check quit...");
     _checkQuit = true;
-    
+
     KERNEL_NS::RunRightNow([this]()->KERNEL_NS::CoTask<>
     {
         // 先执行全部脏持久化
         co_await Purge();
 
-        do
+        // 检查依赖退出
+        if(_checkDependenceQuit)
         {
-            // 检查依赖是否退出
-            for(auto iter = _dependence.begin(); iter != _dependence.end(); )
+            do
             {
-                auto dependence = *iter;
-                if(!_checkDependenceQuit->Invoke(dependence))
+                // 检查依赖是否退出
+                for(auto iter = _dependence.begin(); iter != _dependence.end(); )
                 {
-                    CLOG_INFO("wait mongodb dependence:%s quit...", dependence->GetObjName().c_str());
-                    ++iter;
-                    continue;
+                    auto dependence = *iter;
+                    if(!_checkDependenceQuit->Invoke(dependence))
+                    {
+                        CLOG_INFO("wait mongodb dependence:%s quit...", dependence->GetObjName().c_str());
+                        ++iter;
+                        continue;
+                    }
+                    iter = _dependence.erase(iter);
                 }
-                iter = _dependence.erase(iter);
+
+                co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
             }
-
-            co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
+            while (!_dependence.empty());
         }
-        while (!_dependence.empty());
 
+        // 再次清脏
         CLOG_INFO("all dependence quit completed will purge again...");
         if(!_dirtyLogicRefIsNumberKey.empty())
             co_await Purge();
         
         CLOG_INFO("all dependence quit completed purge completed, mongodb proxy do quit work completed.");
-        _maskSelfQuit->Invoke(this);
 
+        // 标记自己退出
+        if(_maskSelfQuit)
+            _maskSelfQuit->Invoke(this);
+
+        // 移除数据
         _Clear();
     });
+    
 }
 
 void MongodbProxy::_Clear()
@@ -780,6 +802,13 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberAddDirtyHandler(KERNEL_NS::LibDirtyHe
         co_return;
     }
 
+    auto storageCom = logic->GetComp<IMongodbStorageInfo>();
+    if(UNLIKELY(!storageCom->IsNeedSave()))
+    {
+        CLOG_DEBUG("logic:%s dont need save data cb key:%lld", logic->GetObjName().c_str(), key);
+        co_return;
+    }
+
     KERNEL_NS::SmartPtr<std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *>, KERNEL_NS::AutoDelMethods::CustomDelete> dbInfo = new std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *>();
     dbInfo.SetClosureDelegate([](void *ptr)
     {
@@ -790,7 +819,6 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberAddDirtyHandler(KERNEL_NS::LibDirtyHe
         CRYSTAL_DELETE_SAFE(p);
     });
     
-    auto storageCom = logic->GetComp<IMongodbStorageInfo>();
     Int32 err = Status::Success;
     std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
     if(storageCom->IsKvSystem())
@@ -898,6 +926,13 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberModifyDirtyHandler(KERNEL_NS::LibDirt
         co_return;
     }
 
+    auto storageCom = logic->GetComp<IMongodbStorageInfo>();
+    if(UNLIKELY(!storageCom->IsNeedSave()))
+    {
+        CLOG_DEBUG("logic:%s dont need save data cb key:%lld", logic->GetObjName().c_str(),key);
+        co_return;
+    }
+    
     KERNEL_NS::SmartPtr<std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *>, KERNEL_NS::AutoDelMethods::CustomDelete> dbInfo = new std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *>();
     dbInfo.SetClosureDelegate([](void *ptr)
     {
@@ -908,7 +943,6 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberModifyDirtyHandler(KERNEL_NS::LibDirt
         CRYSTAL_DELETE_SAFE(p);
     });
     
-    auto storageCom = logic->GetComp<IMongodbStorageInfo>();
     Int32 err = Status::Success;
     std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
     if(storageCom->IsKvSystem())
@@ -1019,6 +1053,12 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberDeleteDirtyHandler(KERNEL_NS::LibDirt
     }
 
     auto storageCom = logic->GetComp<IMongodbStorageInfo>();
+    if(UNLIKELY(!storageCom->IsNeedSave()))
+    {
+        CLOG_DEBUG("logic:%s dont need save data cb key:%lld", logic->GetObjName().c_str(), key);
+        co_return;
+    }
+    
     std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
     auto &uniqueIndexFields = storageCom->GetUniqueIndexFields();
     for(auto &iter : uniqueIndexFields)
@@ -1053,6 +1093,13 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDir
         co_return;
     }
 
+    auto storageCom = logic->GetComp<IMongodbStorageInfo>();
+    if(UNLIKELY(!storageCom->IsNeedSave()))
+    {
+        CLOG_DEBUG("logic:%s dont need save data cb key:%lld", logic->GetObjName().c_str(), key);
+        co_return;
+    }
+    
     KERNEL_NS::SmartPtr<std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *>, KERNEL_NS::AutoDelMethods::CustomDelete> dbInfo = new std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *>();
     dbInfo.SetClosureDelegate([](void *ptr)
     {
@@ -1062,7 +1109,6 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDir
         });
         CRYSTAL_DELETE_SAFE(p);
     });
-    auto storageCom = logic->GetComp<IMongodbStorageInfo>();
     Int32 err = Status::Success;
     std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
     if(storageCom->IsKvSystem())
@@ -1172,6 +1218,13 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringAddDirtyHandler(KERNEL_NS::LibDirtyHe
         co_return;
     }
 
+    auto storageCom = logic->GetComp<IMongodbStorageInfo>();
+    if(UNLIKELY(!storageCom->IsNeedSave()))
+    {
+        CLOG_DEBUG("logic:%s dont need save data cb key:%s", logic->GetObjName().c_str(), key.c_str());
+        co_return;
+    }
+
     KERNEL_NS::SmartPtr<std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *>, KERNEL_NS::AutoDelMethods::CustomDelete> dbInfo = new std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *>();
     dbInfo.SetClosureDelegate([](void *ptr)
     {
@@ -1182,7 +1235,6 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringAddDirtyHandler(KERNEL_NS::LibDirtyHe
         CRYSTAL_DELETE_SAFE(p);
     });
     
-    auto storageCom = logic->GetComp<IMongodbStorageInfo>();
     Int32 err = Status::Success;
     std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
     if(storageCom->IsKvSystem())
@@ -1291,6 +1343,13 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringModifyDirtyHandler(KERNEL_NS::LibDirt
         co_return;
     }
 
+    auto storageCom = logic->GetComp<IMongodbStorageInfo>();
+    if(UNLIKELY(!storageCom->IsNeedSave()))
+    {
+        CLOG_DEBUG("logic:%s dont need save data cb key:%s", logic->GetObjName().c_str(), key.c_str());
+        co_return;
+    }
+    
     KERNEL_NS::SmartPtr<std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *>, KERNEL_NS::AutoDelMethods::CustomDelete> dbInfo = new std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *>();
     dbInfo.SetClosureDelegate([](void *ptr)
     {
@@ -1300,8 +1359,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringModifyDirtyHandler(KERNEL_NS::LibDirt
         });
         CRYSTAL_DELETE_SAFE(p);
     });
-    
-    auto storageCom = logic->GetComp<IMongodbStorageInfo>();
+
     Int32 err = Status::Success;
     std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
     if(storageCom->IsKvSystem())
@@ -1411,6 +1469,12 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringDeleteDirtyHandler(KERNEL_NS::LibDirt
     }
 
     auto storageCom = logic->GetComp<IMongodbStorageInfo>();
+    if(UNLIKELY(!storageCom->IsNeedSave()))
+    {
+        CLOG_DEBUG("logic:%s dont need save data cb key:%s", logic->GetObjName().c_str(), key.c_str());
+        co_return;
+    }
+    
     std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
     auto &uniqueIndexFields = storageCom->GetUniqueIndexFields();
     for(auto &iter : uniqueIndexFields)
@@ -1444,6 +1508,13 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringReplaceDirtyHandler(KERNEL_NS::LibDir
         co_return;
     }
 
+    auto storageCom = logic->GetComp<IMongodbStorageInfo>();
+    if(UNLIKELY(!storageCom->IsNeedSave()))
+    {
+        CLOG_DEBUG("logic:%s dont need save data cb key:%s", logic->GetObjName().c_str(), key.c_str());
+        co_return;
+    }
+
     KERNEL_NS::SmartPtr<std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *>, KERNEL_NS::AutoDelMethods::CustomDelete> dbInfo = new std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *>();
     dbInfo.SetClosureDelegate([](void *ptr)
     {
@@ -1453,7 +1524,6 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringReplaceDirtyHandler(KERNEL_NS::LibDir
         });
         CRYSTAL_DELETE_SAFE(p);
     });
-    auto storageCom = logic->GetComp<IMongodbStorageInfo>();
     Int32 err = Status::Success;
     std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
     if(storageCom->IsKvSystem())

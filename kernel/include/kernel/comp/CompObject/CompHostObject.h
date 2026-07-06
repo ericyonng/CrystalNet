@@ -74,6 +74,8 @@ protected:
     virtual Int32 _OnHostCreated();
     // 在组件初始化前 必须重写
     virtual Int32 _OnHostInit() { return Status::Success; };
+    // 组件初始化完成后
+    virtual Int32 _OnAfterCompsInit() { return Status::Success; };
     // 带优先级的组件创建完成
     virtual Int32 _OnPriorityLevelCompsCreated();
     // 所有组件创建完成

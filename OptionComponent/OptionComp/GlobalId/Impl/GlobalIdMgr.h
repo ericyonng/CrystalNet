@@ -51,16 +51,20 @@ public:
 
     virtual Int64 NewId() override;
 
-    virtual void SetMongodbMgr(IMongoDbMgr *mongodbMgr) override;
+    virtual void SetMongoProxy(IMongodbProxy *mongoProxy) override;
 
 private:
-    Int32 _OnHostInit() override;
+    Int32 _OnAfterCompsInit() override;
     Int32 _OnHostWillStart() override;
     void _OnHostClose() override;
 
+    // 1. 注册机器id
+    // 2. 定时同步时间部分
+    // 3. 维持心跳续期
+
 private:
     std::atomic<Int64> _lastId;
-    IMongoDbMgr* _mongodbMgr;
+    IMongodbProxy* _mongoProxy;
 };
 
 KERNEL_END
