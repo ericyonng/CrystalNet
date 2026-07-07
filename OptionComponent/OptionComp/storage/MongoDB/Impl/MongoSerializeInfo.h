@@ -70,6 +70,20 @@ struct SmartMongoSerializeInfoWrapper
             delete ptr;
         });
     }
+
+    SmartMongoSerializeInfoWrapper(std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo> *dict)
+    :Ptr(dict)
+    {
+        Ptr.SetClosureDelegate([](void *p)
+        {
+            auto ptr = KERNEL_NS::KernelCastTo<std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo>>(p);
+            ContainerUtil::DelContainer(*ptr, [](const KERNEL_NS::MongoSerializeInfo &info)
+            {
+                KERNEL_NS::LibStreamTL::DeleteThreadLocal_LibStream(info._stream);
+            });
+            delete ptr;
+        });
+    }
     ~SmartMongoSerializeInfoWrapper() = default;
     
     KERNEL_NS::SmartPtr<std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo>, KERNEL_NS::AutoDelMethods::CustomDelete> Ptr;

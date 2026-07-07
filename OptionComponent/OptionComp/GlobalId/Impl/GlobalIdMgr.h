@@ -34,11 +34,11 @@
 #include <OptionComponent/OptionComp/GlobalId/Interface/IGlobalIdMgr.h>
 #include <atomic>
 
+#include "OptionComp/storage/MongoDB/Impl/MongoSerializeInfo.h"
+
 
 KERNEL_BEGIN
-
-
-class GlobalIdMgr : public IGlobalIdMgr
+    class GlobalIdMgr : public IGlobalIdMgr
 {
     POOL_CREATE_OBJ_DEFAULT_P1(IGlobalIdMgr, GlobalIdMgr);
 public:
@@ -62,9 +62,27 @@ private:
     // 2. 定时同步时间部分
     // 3. 维持心跳续期
 
+    void RegisterMachine();
+
+    Int64 TryOccupiedMachine(std::map<KERNEL_NS::LibString, MongoSerializeInfo> *dict, const LibTime &nowByBase);
+
 private:
     std::atomic<Int64> _lastId;
     IMongodbProxy* _mongoProxy;
+
+    // owner
+    const KERNEL_NS::LibString _ownerId;
+    // 心跳
+    KERNEL_NS::LibTime _heartbeatTime;
+
+    // 过期时间
+    KERNEL_NS::TimeSlice _invalidTime;
+
+    // 基准时间 2026.01.01 00:00:00
+    const KERNEL_NS::LibTime _baseTime;
+
+    // lockPre
+    const KERNEL_NS::LibString _lockPrefix;
 };
 
 KERNEL_END

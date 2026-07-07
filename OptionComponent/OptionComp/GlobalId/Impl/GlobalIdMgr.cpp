@@ -37,10 +37,14 @@
 #include "OptionComp/storage/MongoDB/Interface/IMongodbProxy.h"
 
 KERNEL_BEGIN
-    GlobalIdMgr::GlobalIdMgr()
+
+GlobalIdMgr::GlobalIdMgr()
  :IGlobalIdMgr(KERNEL_NS::RttiUtil::GetTypeId<GlobalIdMgr>())
 ,_lastId{0}
 ,_mongoProxy(NULL)
+,_ownerId(KERNEL_NS::GuidUtil::GenStr())
+,_baseTime(LibTime::FromTimeMoment(2026, 1, 1, 0, 0, 0))
+,_lockPrefix(KERNEL_NS::LibString(GlobalIdMgrMongo::DbName) + "_" + "GlobalIdMgr")
 {
  
 }
@@ -79,7 +83,29 @@ Int32 GlobalIdMgr::_OnAfterCompsInit()
         return Status::Failed;
     }
 
+    RegisterMachine();
+    
+
+    return Status::Success;
+}
+
+Int32 GlobalIdMgr::_OnHostWillStart()
+{
+    return Status::Success;
+}
+
+void GlobalIdMgr::_OnHostClose()
+{
+    
+}
+
+void GlobalIdMgr::RegisterMachine()
+{
     auto storageInfo = GetComp<KERNEL_NS::IMongodbStorageInfo>();
+
+    // TODO:加锁
+    // _mongoProxy->GetMongodbMgr()->TryAcquireLock()
+    
     
     // 注册机器id
     KERNEL_NS::SmartPtr<MPMCQueue<std::map<KERNEL_NS::LibString, MongoSerializeInfo> *, 1024>, KERNEL_NS::AutoDelMethods::Release> queue = MPMCQueue<std::map<KERNEL_NS::LibString, MongoSerializeInfo> *, 1024>::NewThreadLocal_MPMCQueue();
@@ -109,14 +135,23 @@ Int32 GlobalIdMgr::_OnAfterCompsInit()
     });
 
     // 边查询边处理
+    const auto &nowTime = LibTime::Now();
+    const auto &nowTimeByBase = KERNEL_NS::LibTime::FromMilliSeconds((nowTime - _baseTime).GetTotalMilliSeconds());
+    Int64 machineId = 0;
     while ((lifeCount.load(std::memory_order_acquire) > 1) &&
         (!isCompleted.load(std::memory_order_acquire)))
     {
         std::map<KERNEL_NS::LibString, MongoSerializeInfo> *dict = NULL;
         queue->TryPop(dict);
+        SmartMongoSerializeInfoWrapper wrapper(dict);
         if(dict)
         {
-            // TODO:
+            machineId = TryOccupiedMachine(dict, nowTimeByBase);
+            if (machineId)
+            {
+                break;
+            }
+            
         }
 
         if(queue->Empty())
@@ -130,20 +165,79 @@ Int32 GlobalIdMgr::_OnAfterCompsInit()
 
     isContinue.store(false, std::memory_order_release);
     lck->Broadcast();
+    
+    if (machineId == 0)
+    {
+        
+    }
+    else
+    {
+        
+    }
 
     // TODO:需要销毁消息队列元素
-
-    return Status::Success;
 }
 
-Int32 GlobalIdMgr::_OnHostWillStart()
+Int64 GlobalIdMgr::TryOccupiedMachine(std::map<KERNEL_NS::LibString, MongoSerializeInfo> *dict, const LibTime &nowByBase)
 {
-    return Status::Success;
+    // TODO:
+    auto iter = dict->find(GlobalIdMgrMongo::KeyName);
+    Int64 machineId = 0;
+    if (iter != dict->end())
+    {
+        auto v = iter->second._stream;
+        if (v)
+        {
+            machineId = v->ReadInt64();
+        }
+    }
+    if (UNLIKELY(machineId == 0))
+    {
+        CLOG_WARN("TryOccupiedMachine fail machine is zero");
+        return 0;
+    }
+
+    iter = dict->find(GlobalIdMgrMongo::TimePartName);
+    Int64 timePartId = 0;
+    if (iter != dict->end())
+    {
+        auto v = iter->second._stream;
+        if (v)
+        {
+            timePartId = v->ReadInt64();
+        }
+    }
+
+    iter = dict->find(GlobalIdMgrMongo::HeartbeatTimeName);
+    KERNEL_NS::LibTime heartbeatTime;
+    if (iter != dict->end())
+    {
+        auto v = iter->second._stream;
+        if (v)
+        {
+            heartbeatTime = KERNEL_NS::LibTime::FromMilliSeconds(v->ReadInt64());
+        }
+    }
+
+    iter = dict->find(GlobalIdMgrMongo::CurOwnerName);
+    KERNEL_NS::LibString curOwnerName;
+    if (iter != dict->end())
+    {
+        auto v = iter->second._stream;
+        if (v)
+        {
+            curOwnerName.AppendData(v->GetReadBegin(), v->GetReadableSize());
+        }
+    }
+
+    // 过期了可以占用
+    if (!heartbeatTime || (heartbeatTime + _invalidTime) < nowByBase)
+    {
+        // TODO:
+        // _mongoProxy->GetMongodbMgr()->TryAcquireLock()
+        return machineId;
+    }
 }
 
-void GlobalIdMgr::_OnHostClose()
-{
-    
-}
 
 KERNEL_END

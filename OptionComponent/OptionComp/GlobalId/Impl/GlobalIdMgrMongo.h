@@ -53,6 +53,8 @@ public:
     static constexpr const Byte8 *HeartbeatTimeName = "HeartbeatTime";
     // 当前owner
     static constexpr const Byte8 *CurOwnerName = "CurOwner";
+
+    static constexpr const Byte8 *DbName = "GlobalIdDb";
 };
 
 KERNEL_END

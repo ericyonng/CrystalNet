@@ -53,7 +53,9 @@ GlobalIdMgrMongo::GlobalIdMgrMongo()
     // 不需要Save接口
     _noSaveCb = true;
 
-    _dbName = "GlobalIdDb";
+    _dbName = GlobalIdMgrMongo::DbName;
+
+    
 }
 
 GlobalIdMgrMongo::~GlobalIdMgrMongo()
