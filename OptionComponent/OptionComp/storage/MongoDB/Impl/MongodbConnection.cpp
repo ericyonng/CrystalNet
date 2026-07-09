@@ -34,6 +34,7 @@
 #include <bsoncxx/json.hpp>
 #include <bsoncxx/builder/stream/document.hpp>
 
+#include "MongoHelper.h"
 #include "testsuit/testinst/TestMongo.h"
 
 
@@ -183,6 +184,8 @@ KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> Mongo
         updateDoc.append(bsoncxx::builder::basic::kvp("expireAt", static_cast<std::int64_t>(expireTime.GetMilliTimestamp())));
         
         mongocxx::options::find_one_and_update options;
+        auto &&wc = MongoHelper::MakeMongoMajorityWriteConcern<mongocxx::write_concern>();
+        options.write_concern(wc);
         options.upsert(true);
         options.return_document(mongocxx::options::return_document::k_after);
         
@@ -229,8 +232,12 @@ void MongodbConnection::ReleaseLock(KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS:
             bsoncxx::builder::basic::kvp("_id", lock->LockCollection.GetRaw()),
             bsoncxx::builder::basic::kvp("owner", lock->LockId)  // 只删除自己拥有的锁
         );
-            
-        locksDb.delete_one(filter.view());
+
+        auto wc = MongoHelper::MakeMongoMajorityWriteConcern<mongocxx::write_concern>();
+        mongocxx::options::delete_options delOption;
+        delOption.write_concern(wc);
+        
+        locksDb.delete_one(filter.view(), delOption);
         CLOG_DEBUG("lock %s released, lockId:%s", lock->LockCollection.c_str(), lock->LockId.c_str());
     }
     catch (const mongocxx::exception &e)
@@ -413,6 +420,8 @@ KERNEL_NS::CoTask<bool> MongodbConnection::CreateIndex(const KERNEL_NS::LibStrin
     try
     {
         auto collection = (*_entry)[dbName.GetRaw()][collName.GetRaw()];
+        MongoHelper::MakeRCReadOption<mongocxx::read_preference, mongocxx::read_concern>(collection);
+        
         if(_CheckIndexExists(collection, indexName))
         {
             CLOG_DEBUG("index already exists %s, db:%s, collection:%s", indexName.c_str(), dbName.c_str(), collName.c_str());
@@ -469,7 +478,7 @@ KERNEL_NS::CoTask<bool> MongodbConnection::CreateIndex(const KERNEL_NS::LibStrin
 
             CLOG_INFO("CreateIndex db:%s, collection:%s, creating index %s on fields:%s, unique:%d..."
                 , dbName.c_str(), collName.c_str(), indexName.c_str(), bsoncxx::to_json(keyDoc.view()).c_str(), unique);
-            
+
             collection.create_index(keyDoc.view(), options);
 
             CLOG_INFO("CreateIndex db:%s, collection:%s, index %s created successfully."
@@ -568,6 +577,7 @@ bool MongodbConnection::_CheckDatabaseSharded(const KERNEL_NS::LibString &dbName
             bsoncxx::builder::basic::kvp("_id", dbName)
         );
 
+        MongoHelper::MakeRCReadOption<mongocxx::read_preference, mongocxx::read_concern>(collections);
         auto result = collections.find_one(filter.view());
         if (!result)
         {
@@ -619,6 +629,8 @@ bool MongodbConnection::_CheckCollectionSharded(const KERNEL_NS::LibString &dbNa
         auto filter = bsoncxx::builder::basic::make_document(
             bsoncxx::builder::basic::kvp("_id", fullNs.GetRaw())
         );
+
+        MongoHelper::MakeRCReadOption<mongocxx::read_preference, mongocxx::read_concern>(collections);
         
         auto result = collections.find_one(filter.view());
         if (!result)

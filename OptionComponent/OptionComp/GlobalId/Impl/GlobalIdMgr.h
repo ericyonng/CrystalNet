@@ -38,10 +38,20 @@
 
 
 KERNEL_BEGIN
-    class GlobalIdMgr : public IGlobalIdMgr
+
+class GlobalIdMgr : public IGlobalIdMgr
 {
     POOL_CREATE_OBJ_DEFAULT_P1(IGlobalIdMgr, GlobalIdMgr);
 public:
+    // 时间位宽
+    static constexpr Int32 TIME_PART_WIDTH = 31;
+    // 机器id位宽 14BIT
+    static constexpr Int32 MACHINE_ID_WIDTH = 14;
+    // 序号位宽
+    static constexpr Int32 SEQ_WIDTH = 18;
+    // 最大机器id
+    static constexpr Int64 MAX_MACHINE_ID = (1LL << MACHINE_ID_WIDTH) - 1;
+    
     GlobalIdMgr();
     ~GlobalIdMgr() override;
 
@@ -62,9 +72,9 @@ private:
     // 2. 定时同步时间部分
     // 3. 维持心跳续期
 
-    void RegisterMachine();
+    KERNEL_NS::CoTask<> RegisterMachine();
 
-    Int64 TryOccupiedMachine(std::map<KERNEL_NS::LibString, MongoSerializeInfo> *dict, const LibTime &nowByBase);
+    CoTask<Int64> TryOccupiedMachine(std::map<KERNEL_NS::LibString, MongoSerializeInfo> *dict, const LibTime &nowByBase);
 
 private:
     std::atomic<Int64> _lastId;
@@ -83,6 +93,8 @@ private:
 
     // lockPre
     const KERNEL_NS::LibString _lockPrefix;
+
+    // 
 };
 
 KERNEL_END

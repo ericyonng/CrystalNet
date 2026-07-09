@@ -34,6 +34,7 @@
 #include <OptionComp/GlobalId/Impl/GlobalIdMgrMongoFactory.h>
 #include <OptionComp/GlobalId/Impl/GlobalIdMgrMongo.h>
 
+#include "bsoncxx/builder/basic/document.hpp"
 #include "OptionComp/storage/MongoDB/Interface/IMongodbProxy.h"
 
 KERNEL_BEGIN
@@ -83,8 +84,23 @@ Int32 GlobalIdMgr::_OnAfterCompsInit()
         return Status::Failed;
     }
 
-    RegisterMachine();
+    std::atomic<Int32> lifeCount{0};
+    KERNEL_NS::ObjLife<std::atomic<Int32>> isFinished(lifeCount);
     
+    g_EventLoopEasyTaskThreadPool->Send([this, isFinished]()
+    {
+        KERNEL_NS::RunRightNow([this, isFinished]()->KERNEL_NS::CoTask<>
+        {
+            co_await RegisterMachine();
+        });
+    });
+
+    // 等待注册完成
+    while (lifeCount.load(std::memory_order_acquire) > 1)
+    {
+        KERNEL_NS::SystemUtil::ThreadSleep(1000);
+        CLOG_INFO("waiting register machine ...");
+    }
 
     return Status::Success;
 }
@@ -99,14 +115,10 @@ void GlobalIdMgr::_OnHostClose()
     
 }
 
-void GlobalIdMgr::RegisterMachine()
+KERNEL_NS::CoTask<> GlobalIdMgr::RegisterMachine()
 {
     auto storageInfo = GetComp<KERNEL_NS::IMongodbStorageInfo>();
 
-    // TODO:加锁
-    // _mongoProxy->GetMongodbMgr()->TryAcquireLock()
-    
-    
     // 注册机器id
     KERNEL_NS::SmartPtr<MPMCQueue<std::map<KERNEL_NS::LibString, MongoSerializeInfo> *, 1024>, KERNEL_NS::AutoDelMethods::Release> queue = MPMCQueue<std::map<KERNEL_NS::LibString, MongoSerializeInfo> *, 1024>::NewThreadLocal_MPMCQueue();
 
@@ -135,9 +147,7 @@ void GlobalIdMgr::RegisterMachine()
     });
 
     // 边查询边处理
-    const auto &nowTime = LibTime::Now();
-    const auto &nowTimeByBase = KERNEL_NS::LibTime::FromMilliSeconds((nowTime - _baseTime).GetTotalMilliSeconds());
-    Int64 machineId = 0;
+    std::set<Int64> machineIds;
     while ((lifeCount.load(std::memory_order_acquire) > 1) &&
         (!isCompleted.load(std::memory_order_acquire)))
     {
@@ -146,12 +156,15 @@ void GlobalIdMgr::RegisterMachine()
         SmartMongoSerializeInfoWrapper wrapper(dict);
         if(dict)
         {
-            machineId = TryOccupiedMachine(dict, nowTimeByBase);
-            if (machineId)
+            auto iter = dict->find(GlobalIdMgrMongo::KeyName);
+            if (iter != dict->end())
             {
-                break;
+                if (iter->second._stream)
+                {
+                    auto machineId = iter->second._stream->ReadInt64();
+                    machineIds.insert(machineId);
+                }
             }
-            
         }
 
         if(queue->Empty())
@@ -165,10 +178,31 @@ void GlobalIdMgr::RegisterMachine()
 
     isContinue.store(false, std::memory_order_release);
     lck->Broadcast();
-    
-    if (machineId == 0)
+
+    // 遍历
+    Int64 finalMachineId = 0;
+    Int64 curMaxMachineId = 0;
+    if(machineIds.empty())
     {
-        
+        for(Int64 idx = 1; idx <= MAX_MACHINE_ID; ++idx)
+        {
+            const auto &nowTime = LibTime::Now();
+            const auto &nowTimeByBase = KERNEL_NS::LibTime::FromMilliSeconds((nowTime - _baseTime).GetTotalMilliSeconds());
+            
+            auto updateFields = new std::map<KERNEL_NS::LibString, KERNEL_NS::Variant>();
+            updateFields->emplace(GlobalIdMgrMongo::KeyName, idx);
+            updateFields->emplace(GlobalIdMgrMongo::TimePartName, nowTimeByBase.GetMilliTimestamp());
+            updateFields->emplace(GlobalIdMgrMongo::HeartbeatTimeName, nowTimeByBase.GetMilliTimestamp());
+            updateFields->emplace(GlobalIdMgrMongo::CurOwnerName, _ownerId);
+            
+            bsoncxx::builder::basic::document filterDoc;
+            filterDoc.append(bsoncxx::builder::basic::kvp(GlobalIdMgrMongo::KeyName, static_cast<std::int64_t>(idx)));
+
+            auto ret = co_await _mongoProxy->GetMongodbMgr()->UpdateDataIf(storageInfo->GetDbName(), storageInfo->GetSystemName(), updateFields, &filterDoc, true);
+            
+        }
+
+        co_return;
     }
     else
     {
@@ -178,7 +212,7 @@ void GlobalIdMgr::RegisterMachine()
     // TODO:需要销毁消息队列元素
 }
 
-Int64 GlobalIdMgr::TryOccupiedMachine(std::map<KERNEL_NS::LibString, MongoSerializeInfo> *dict, const LibTime &nowByBase)
+CoTask<Int64> GlobalIdMgr::TryOccupiedMachine(std::map<KERNEL_NS::LibString, MongoSerializeInfo> *dict, const LibTime &nowByBase)
 {
     // TODO:
     auto iter = dict->find(GlobalIdMgrMongo::KeyName);
@@ -194,8 +228,16 @@ Int64 GlobalIdMgr::TryOccupiedMachine(std::map<KERNEL_NS::LibString, MongoSerial
     if (UNLIKELY(machineId == 0))
     {
         CLOG_WARN("TryOccupiedMachine fail machine is zero");
-        return 0;
+        co_return 0;
     }
+
+    auto storageInfo = GetComp<KERNEL_NS::IMongodbStorageInfo>();
+
+    auto updateFields = new std::map<KERNEL_NS::LibString, KERNEL_NS::Variant>();
+
+    // 
+    bsoncxx::builder::basic::document filterDoc;
+    auto ret = co_await _mongoProxy->GetMongodbMgr()->UpdateDataIf(storageInfo->GetDbName(), storageInfo->GetSystemName(), updateFields, )
 
     iter = dict->find(GlobalIdMgrMongo::TimePartName);
     Int64 timePartId = 0;

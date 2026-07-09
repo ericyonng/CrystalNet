@@ -37,6 +37,7 @@
 #include "OptionComp/storage/MongoDB/Impl/ShardingLock.h"
 #include "OptionComp/storage/MongoDB/Impl/MongoDataSerialize.h"
 #include <kernel/comp/ObjLife.h>
+#include <OptionComp/storage/MongoDB/Impl/MongoHelper.h>
 
 
 namespace 
@@ -116,6 +117,12 @@ namespace
         }
         return hashValue;
     }
+
+    static ALWAYS_INLINE size_t CalculateHash(const KERNEL_NS::LibString &content)
+    {
+        return  (content.empty()) ? KERNEL_NS::HashUtil::Hash64(NULL, 0) : KERNEL_NS::HashUtil::Hash64(content.data(), content.size());
+    }
+
 
     static ALWAYS_INLINE bool CalculateHash(const std::vector<KERNEL_NS::LibString> &keyNames, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *replaceFields, size_t &hashValue)
     {
@@ -376,16 +383,6 @@ mongocxx::instance MongoDbMgr::_instance;
 //         });
 //     }
 // };
-
-static ALWAYS_INLINE mongocxx::write_concern _MakeMongoMajorityWriteConcern()
-{
-    mongocxx::write_concern concern;
-    // 大多数节点成功后成功
-    concern.acknowledge_level(mongocxx::write_concern::level::k_majority);
-    // 写操作落盘后成功
-    concern.journal(true);
-    return concern;
-}
 
 MongoDbMgr::MongoDbMgr()
  :IMongoDbMgr(KERNEL_NS::RttiUtil::GetTypeId<MongoDbMgr>())
@@ -785,14 +782,8 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::Query(KERNEL_NS::LibString dbName, KERNEL_NS
 
             // 优先从节点读
             mongocxx::options::find option;
-            mongocxx::read_preference rp;
-            rp.mode(mongocxx::read_preference::read_mode::k_secondary_preferred);
-            collection.read_preference(rp);
-            
-            // 设置majority, 常用的隔离级别,相当于读已提交级别(rc级别) 解决事务的隔离性问题
-            mongocxx::read_concern rc;
-            rc.acknowledge_level(mongocxx::read_concern::level::k_majority);
-            collection.read_concern(rc);
+            // rc读
+            MongoHelper::MakeRCReadOption<mongocxx::read_preference, mongocxx::read_concern>(collection);
                     
             bsoncxx::builder::basic::document fullKv;
             if(!_TurnDoc(kv, fullKv))
@@ -899,6 +890,8 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
     {
         CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s"
             , dbName.c_str(), collectionName.c_str()), jsonString? *jsonString : KERNEL_NS::LibString() );
+
+        CRYSTAL_RELEASE_SAFE(jsonString);
         co_return false;
     }
     
@@ -924,8 +917,9 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
             auto collection = db[collectionName];
                     
             // 设置表的大多数写成功, 且journal写完成功才算成功
-            auto &&concern = _MakeMongoMajorityWriteConcern();
-            collection.write_concern(concern);
+            auto &&concern = MongoHelper::MakeMongoMajorityWriteConcern<mongocxx::write_concern>();
+            mongocxx::options::insert insertOption;
+            insertOption.write_concern(concern);
 
             auto &&bsonDoc = bsoncxx::from_json(*jsonStringPtr);
 
@@ -942,7 +936,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
             //     return res;
             // }
             
-            auto ret = collection.insert_one(bsonDoc.view());
+            auto ret = collection.insert_one(bsonDoc.view(), insertOption);
             if(!ret)
             {
                 CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("Failed to insert data into collection, dbName:%s, collectionName:%s, jsonStringPtr:", dbName.c_str(), collectionName.c_str()
@@ -998,6 +992,10 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
     {
         CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, kv:%s, binaryKeyNameRefData:", dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',').c_str())
             , binaryKeyNameRefData ? DictContainerToString(binaryKeyNameRefData) : KERNEL_NS::LibString() );
+
+        if(binaryKeyNameRefData)
+            DelStreamContainer(binaryKeyNameRefData);
+
         co_return false;
     }
     
@@ -1029,8 +1027,9 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
             auto collection = db[collectionName];
                     
             // 设置表的大多数写成功, 且journal写完成功才算成功
-            auto &&concern = _MakeMongoMajorityWriteConcern();
-            collection.write_concern(concern);
+            auto &&concern = MongoHelper::MakeMongoMajorityWriteConcern<mongocxx::write_concern>();
+            mongocxx::options::insert insertOption;
+            insertOption.write_concern(concern);
 
             // 唯一键检查
              // if(!_CheckHasUniqueKey(dbName, collectionName, [&uniqueKv](const KERNEL_NS::LibString &idxName, const KERNEL_NS::LibString &field) -> bool
@@ -1069,7 +1068,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
             }
 
             // extract让数据脱离构建器, 建议使用, 而不是使用view(),view是借用指针, 序列化的时候会拷走数据, 此处为了少一些拷贝用view()
-            auto ret = collection.insert_one(fullDoc.view());
+            auto ret = collection.insert_one(fullDoc.view(), insertOption);
             if(!ret)
             {
                 auto &&kvStr = KERNEL_NS::StringUtil::ToString(uniqueKv, ',');
@@ -1132,6 +1131,9 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
     {
         CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, kv:%s, keyRefVariant:", dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',').c_str())
             , keyRefVariant ? DictContainerToString(*keyRefVariant) : KERNEL_NS::LibString() );
+
+        if(keyRefVariant)
+            DelVarDict(keyRefVariant);
         co_return false;
     }
     
@@ -1163,8 +1165,9 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
             auto collection = db[collectionName];
                     
             // 设置表的大多数写成功, 且journal写完成功才算成功
-            auto &&concern = _MakeMongoMajorityWriteConcern();
-            collection.write_concern(concern);
+            auto &&concern = MongoHelper::MakeMongoMajorityWriteConcern<mongocxx::write_concern>();
+            mongocxx::options::insert insertOptions;
+            insertOptions.write_concern(concern);
 
             // 唯一键检查
              // if(!_CheckHasUniqueKey(dbName, collectionName, [&uniqueKv](const KERNEL_NS::LibString &idxName, const KERNEL_NS::LibString &field) -> bool
@@ -1200,7 +1203,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
             }
 
             // extract让数据脱离构建器, 建议使用, 而不是使用view(),view是借用指针, 序列化的时候会拷走数据, 此处为了少一些拷贝用view()
-            auto ret = collection.insert_one(fullDoc.view());
+            auto ret = collection.insert_one(fullDoc.view(), insertOptions);
             if(!ret)
             {
                 auto &&kvStr = KERNEL_NS::StringUtil::ToString(uniqueKv, ',');
@@ -1280,9 +1283,6 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::DelData(KERNEL_NS::LibString dbName, KERNEL_
             auto collection = db[collectionName];
                                 
             // 设置表的大多数写成功, 且journal写完成功才算成功
-            auto &&concern = _MakeMongoMajorityWriteConcern();
-            collection.write_concern(concern);
-            
             bsoncxx::builder::basic::document fullKv;
             if (!_TurnDoc(uniqueKv, fullKv))
             {
@@ -1291,8 +1291,12 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::DelData(KERNEL_NS::LibString dbName, KERNEL_
                 
                 return res;
             }
+
+            auto wc = MongoHelper::MakeMongoMajorityWriteConcern<mongocxx::write_concern>();
+            mongocxx::options::delete_options delOption;
+            delOption.write_concern(wc);
             
-            auto result = collection.delete_one(fullKv.view());
+            auto result = collection.delete_one(fullKv.view(), delOption);
             Int32 deletedCount = 0;
             if(result)
             {
@@ -1346,6 +1350,8 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KER
     {
         CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, jsonString:"
             , dbName.c_str(), collectionName.c_str()), jsonString ? *jsonString : KERNEL_NS::LibString());
+
+        CRYSTAL_RELEASE_SAFE(jsonString);
         co_return false;
     }
     
@@ -1413,10 +1419,6 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KER
              //     return res;
              // }
             
-            // 设置表的大多数写成功, 且journal写完成功才算成功
-            auto &&concern = _MakeMongoMajorityWriteConcern();
-            collection.write_concern(concern);
-            
             bsoncxx::builder::basic::document fullKv;
             for (auto &k : keyNames)
             {
@@ -1435,6 +1437,8 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KER
 
             // 找不到则创建
             mongocxx::options::replace opts{};
+            auto &&concern = MongoHelper::MakeMongoMajorityWriteConcern<mongocxx::write_concern>();
+            opts.write_concern(concern);
             opts.upsert(true);  // 无匹配时插入新文档
             auto result = collection.replace_one(fullKv.view(), bsonDoc.view(), opts);
             bool isSuccess = false;
@@ -1518,6 +1522,8 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KER
     {
         CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, keyNames:%s, replaceFields:"
             , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(keyNames, ',').c_str()), replaceFields ? DictContainerToString(*replaceFields) : KERNEL_NS::LibString());
+
+        CRYSTAL_DELETE_SAFE(replaceFields);
         co_return false;
     }
     
@@ -1604,10 +1610,6 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KER
             //      return res;
             //  }
             
-            // 设置表的大多数写成功, 且journal写完成功才算成功
-            auto &&concern = _MakeMongoMajorityWriteConcern();
-            collection.write_concern(concern);
-            
             bsoncxx::builder::basic::document fullKv;
             for (auto &k : keyNames)
             {
@@ -1626,6 +1628,8 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KER
 
             // 找不到则创建
             mongocxx::options::replace opts{};
+            auto &&concern = MongoHelper::MakeMongoMajorityWriteConcern<mongocxx::write_concern>();
+            opts.write_concern(concern);
             opts.upsert(true);  // 无匹配时插入新文档
             auto result = collection.replace_one(fullKv.view(), bsonDoc.view(), opts);
             bool isSuccess = false;
@@ -1714,6 +1718,10 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KER
     {
         CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, uniqueKv:%s, replaceFields:"
             , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',').c_str()), binaryKeyNameRefData ? DictContainerToString(binaryKeyNameRefData) : KERNEL_NS::LibString());
+
+        if(binaryKeyNameRefData)
+            DelStreamContainer(binaryKeyNameRefData);
+        
         co_return false;
     }
     
@@ -1742,9 +1750,6 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KER
             auto db = client[dbName];
             auto collection = db[collectionName];
                     
-            // 设置表的大多数写成功, 且journal写完成功才算成功
-            auto &&concern = _MakeMongoMajorityWriteConcern();
-            collection.write_concern(concern);
             //
             // // 唯一键检查
             //  if(!_CheckHasUniqueKey(dbName, collectionName, [&uniqueKv](const KERNEL_NS::LibString &idxName, const KERNEL_NS::LibString &field) -> bool
@@ -1836,6 +1841,9 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KER
 
             // 找不到则创建
             mongocxx::options::replace opts{};
+            auto &&concern = MongoHelper::MakeMongoMajorityWriteConcern<mongocxx::write_concern>();
+            opts.write_concern(concern);
+
             opts.upsert(true);  // 无匹配时插入新文档
             auto result = collection.replace_one(kvDoc.view(), fullDoc.view(), opts);
             bool isSuccess = false;
@@ -1925,6 +1933,8 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
     {
         CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, kv:%s, jsonFields:"
             , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(kv, ',').c_str()), jsonFields ? *jsonFields : KERNEL_NS::LibString());
+
+        CRYSTAL_RELEASE_SAFE(jsonFields);
         co_return false;
     }
     
@@ -1971,10 +1981,6 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
             
             auto &&bsonDoc = bsoncxx::from_json(*jsonStringPtr);
             
-            // 设置表的大多数写成功, 且journal写完成功才算成功
-            auto &&concern = _MakeMongoMajorityWriteConcern();
-            collection.write_concern(concern);
-            
             bsoncxx::builder::basic::document fullKv;
             if(!_TurnDoc(kv, fullKv))
             {
@@ -1988,6 +1994,9 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
             mongocxx::options::update opts{};
             if(createIfNotExists)
                 opts.upsert(true);
+
+            auto &&concern = MongoHelper::MakeMongoMajorityWriteConcern<mongocxx::write_concern>();
+            opts.write_concern(concern);
 
             auto result = collection.update_one(fullKv.view(), bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("$set", bsonDoc.view())), opts);
             if (!result)
@@ -2069,6 +2078,9 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
     {
         CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, kv:%s, updateFields:"
             , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(kv, ',').c_str()), updateFields ? DictContainerToString(*updateFields) : KERNEL_NS::LibString());
+
+        CRYSTAL_DELETE_SAFE(updateFields);
+        
         co_return false;
     }
     
@@ -2123,10 +2135,6 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
                 return res;
             }
             
-            // 设置表的大多数写成功, 且journal写完成功才算成功
-            auto &&concern = _MakeMongoMajorityWriteConcern();
-            collection.write_concern(concern);
-            
             // 构建 $set: { ... } 操作符文档
             bsoncxx::builder::basic::document setDoc;
             setDoc.append(bsoncxx::builder::basic::kvp("$set", updateFieldsDoc.view()));
@@ -2145,7 +2153,9 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
             mongocxx::options::update opts{};
             if(createIfNotExists)
                 opts.upsert(true);  // 无匹配时插入新文档
-            
+
+            auto &&concern = MongoHelper::MakeMongoMajorityWriteConcern<mongocxx::write_concern>();
+            opts.write_concern(concern);
             auto result = collection.update_one(fullKv.view(), setDoc.view(), opts);
             if (!result)
             {
@@ -2223,12 +2233,130 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
     co_return true;
 }
 
+KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIf(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *updateFields, void *condition, bool createIfNotExists)
+{
+    if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
+    {
+        CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf mongodb will close db:%s, collection:%s, updateFields:"
+            , dbName.c_str(), collectionName.c_str()), updateFields ? DictContainerToString(*updateFields) : KERNEL_NS::LibString());
+
+        CRYSTAL_DELETE_SAFE(updateFields);
+        
+        co_return false;
+    }
+    
+    ObjLife<std::atomic<Int64>> lifeCtl(_pendingRequests);
+
+    if (UNLIKELY(!updateFields))
+    {
+        CLOG_ERROR("UpdateDataIf fail updateFields is null, db:%s, not focus before will started, collection:%s"
+            , dbName.c_str(), collectionName.c_str());
+        co_return false;
+    }
+
+    // 条件
+    bsoncxx::builder::basic::document filterDoc = std::move(*KERNEL_NS::KernelCastTo<bsoncxx::builder::basic::document>(condition));
+    
+    const auto hashValue = CalculateHash(dbName + collectionName);
+    auto isSuc = co_await g_EventLoopEasyTaskThreadPool->SendAsync<MongoAsyncRes>([this, createIfNotExists, dbName, collectionName, updateFields, filterDoc]()->MongoAsyncRes
+    {
+        MongoAsyncRes res;
+        SmartPtr<std::map<KERNEL_NS::LibString, KERNEL_NS::Variant>> updateFieldsPtr(updateFields);
+
+        try
+        {
+            auto client = _connectionPool->acquire();
+            auto db = client[dbName];
+            auto collection = db[collectionName];
+            
+            bsoncxx::builder::basic::document updateFieldsDoc;
+            if(!_TurnDoc(*updateFields, updateFieldsDoc))
+            {
+                CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf _TurnDoc updateFieldsPtr fail to update data into collection, filterDoc:%s dbName:%s, collectionName:%s,  updateFields:"
+                , bsoncxx::to_json(filterDoc).c_str(), dbName.c_str(), collectionName.c_str())
+                , KERNEL_NS::StringUtil::ToString(*updateFields, ','));
+                
+                return res;
+            }
+            
+            // 构建 $set: { ... } 操作符文档
+            bsoncxx::builder::basic::document setDoc;
+            setDoc.append(bsoncxx::builder::basic::kvp("$set", updateFieldsDoc.view()));
+
+            mongocxx::options::find_one_and_update options;
+            auto &&wc = MongoHelper::MakeMongoMajorityWriteConcern<mongocxx::write_concern>();
+            options.write_concern(wc);
+            if(createIfNotExists)
+                options.upsert(true);
+            options.return_document(mongocxx::options::return_document::k_after);
+                    
+            auto result = collection.find_one_and_update(filterDoc.view(), setDoc.view(), options);
+            if(!result)
+            {
+                CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf op fail, db:%s, collection:%s unique filterDoc:%s",dbName.c_str(), collectionName.c_str()
+                    , bsoncxx::to_json(filterDoc).c_str()), KERNEL_NS::StringUtil::ToString(*updateFields, ','));
+
+                return res;
+            }
+            
+            // modified_count为0表示前后无变化, > 0 表示前后有变化, 变化的数量
+            CLOG_DEBUG("UpdateDataIf find_one_and_update success  db:%s, collection:%s filterDoc:%s, setDoc:%s", dbName.c_str(), collectionName.c_str()
+                    , bsoncxx::to_json(filterDoc).c_str(), bsoncxx::to_json(setDoc).c_str());
+
+            res.IsSuccess = true;
+
+            return res;
+        }
+        catch (const mongocxx::exception &e)
+        {
+            CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf fail exception:%s, db:%s, collection:%s, filter:%s updateFields:"
+            ,e.what(), dbName.c_str(), collectionName.c_str(), bsoncxx::to_json(filterDoc).c_str())
+            , KERNEL_NS::StringUtil::ToString(*updateFields, ','));
+        }
+        catch (const std::exception &e)
+        {
+            CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf fail std exception:%s, db:%s, collection:%s, filter:%s, updateFields:"
+            ,e.what(), dbName.c_str(), collectionName.c_str(), bsoncxx::to_json(filterDoc).c_str())
+            , KERNEL_NS::StringUtil::ToString(*updateFields, ','));
+        }
+        catch (...)
+        {
+            CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf fail unknown exception, db:%s, collection:%s, filter:%s, updateFields:"
+            , dbName.c_str(), collectionName.c_str(), bsoncxx::to_json(filterDoc).c_str())
+            , KERNEL_NS::StringUtil::ToString(*updateFields, ','));
+        }
+
+        return res;
+    }, [hashValue](std::vector<KERNEL_NS::LibEventLoopThread *> &threads)->KERNEL_NS::Poller *
+    {
+        return threads[hashValue % threads.size()]->GetPollerNoAsync();
+    });
+
+    // 此时jsonStringPtr已经释放
+    if(!isSuc->IsSuccess)
+    {
+        CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf fail, db:%s, collection:%s, filter:", dbName.c_str(), collectionName.c_str())
+            , KERNEL_NS::LibString(bsoncxx::to_json(filterDoc)));
+        co_return false;
+    }
+
+    CLOG_DEBUG_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf success, db:%s, collection:%s, filter:", dbName.c_str(), collectionName.c_str())
+        , KERNEL_NS::LibString(bsoncxx::to_json(filterDoc)));
+    
+    co_return true;
+}
+
+
 KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *> *binaryKeyNameRefData, bool createIfNotExists)
 {
     if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
     {
         CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, kv:%s, binaryKeyNameRefData:"
             , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(kv, ',').c_str()), binaryKeyNameRefData ? DictContainerToString(binaryKeyNameRefData) : KERNEL_NS::LibString());
+
+        if(binaryKeyNameRefData)
+            DelStreamContainer(binaryKeyNameRefData);
+        
         co_return false;
     }
     
@@ -2256,10 +2384,6 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
             auto client = _connectionPool->acquire();
             auto db = client[dbName];
             auto collection = db[collectionName];
-                    
-            // 设置表的大多数写成功, 且journal写完成功才算成功
-            auto &&concern = _MakeMongoMajorityWriteConcern();
-            collection.write_concern(concern);
 
             // 唯一键检查
             // if(createIfNotExists)
@@ -2357,6 +2481,10 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
             mongocxx::options::update opts{};
             if(createIfNotExists)
                 opts.upsert(true);  // 无匹配时插入新文档
+
+            auto &&concern = MongoHelper::MakeMongoMajorityWriteConcern<mongocxx::write_concern>();
+            opts.write_concern(concern);
+
             auto result = collection.update_one(kvDoc.view(), setDoc.view(), opts);
             if (!result)
             {
@@ -2441,6 +2569,10 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
     {
         CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, kv:%s, keyNameRefData:"
             , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(kv, ',').c_str()), keyNameRefData ? DictContainerToString(keyNameRefData) : KERNEL_NS::LibString());
+
+        if(keyNameRefData)
+            DelStreamContainer(keyNameRefData);
+        
         co_return false;
     }
     
@@ -2468,10 +2600,6 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
             auto client = _connectionPool->acquire();
             auto db = client[dbName];
             auto collection = db[collectionName];
-                    
-            // 设置表的大多数写成功, 且journal写完成功才算成功
-            auto &&concern = _MakeMongoMajorityWriteConcern();
-            collection.write_concern(concern);
 
             // 唯一键检查
             // if(createIfNotExists)
@@ -2570,6 +2698,10 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
             mongocxx::options::update opts{};
             if(createIfNotExists)
                 opts.upsert(true);  // 无匹配时插入新文档
+
+            auto &&concern = MongoHelper::MakeMongoMajorityWriteConcern<mongocxx::write_concern>();
+            opts.write_concern(concern);
+
             auto result = collection.update_one(kvDoc.view(), setDoc.view(), opts);
             if (!result)
             {
@@ -2654,6 +2786,10 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KER
     {
         CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, kv:%s, keyNameRefData:"
             , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',').c_str()), keyNameRefData ? DictContainerToString(keyNameRefData) : KERNEL_NS::LibString());
+
+        if(keyNameRefData)
+            DelStreamContainer(keyNameRefData);
+            
         co_return false;
     }
     
@@ -2681,11 +2817,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KER
             auto client = _connectionPool->acquire();
             auto db = client[dbName];
             auto collection = db[collectionName];
-                    
-            // 设置表的大多数写成功, 且journal写完成功才算成功
-            auto &&concern = _MakeMongoMajorityWriteConcern();
-            collection.write_concern(concern);
-
+            
             // 唯一键检查
              // if(!_CheckHasUniqueKey(dbName, collectionName, [&uniqueKv](const KERNEL_NS::LibString &idxName, const KERNEL_NS::LibString &field) -> bool
              // {
@@ -2778,6 +2910,10 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KER
             // 找不到则创建
             mongocxx::options::replace opts{};
             opts.upsert(true);  // 无匹配时插入新文档
+
+            auto &&concern = MongoHelper::MakeMongoMajorityWriteConcern<mongocxx::write_concern>();
+            opts.write_concern(concern);
+
             auto result = collection.replace_one(kvDoc.view(), fullDoc.view(), opts);
             bool isSuccess = false;
             if (result)
@@ -2866,6 +3002,10 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
     {
         CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("mongodb will close db:%s, collection:%s, kv:%s, keyNameRefData:"
             , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(uniqueKv, ',').c_str()), keyNameRefData ? DictContainerToString(keyNameRefData) : KERNEL_NS::LibString());
+
+        if(keyNameRefData)
+            DelStreamContainer(keyNameRefData);
+        
         co_return false;
     }
     
@@ -2896,10 +3036,6 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
             auto db = client[dbName];
             auto collection = db[collectionName];
                     
-            // 设置表的大多数写成功, 且journal写完成功才算成功
-            auto &&concern = _MakeMongoMajorityWriteConcern();
-            collection.write_concern(concern);
-
             // 唯一键检查
              // if(!_CheckHasUniqueKey(dbName, collectionName, [&uniqueKv](const KERNEL_NS::LibString &idxName, const KERNEL_NS::LibString &field) -> bool
              // {
@@ -2938,7 +3074,11 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
             }
 
             // extract让数据脱离构建器, 建议使用, 而不是使用view(),view是借用指针, 序列化的时候会拷走数据, 此处为了少一些拷贝用view()
-            auto ret = collection.insert_one(fullDoc.view());
+            auto &&concern = MongoHelper::MakeMongoMajorityWriteConcern<mongocxx::write_concern>();
+            mongocxx::options::insert insertOption;
+            insertOption.write_concern(concern);
+
+            auto ret = collection.insert_one(fullDoc.view(), insertOption);
             if(!ret)
             {
                 auto &&kvStr = KERNEL_NS::StringUtil::ToString(uniqueKv, ',');
@@ -3023,14 +3163,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::Query(KERNEL_NS::LibString dbName, KERNEL_NS
             auto client = _connectionPool->acquire();
             auto db = client[dbName];
             auto collection = db[collectionName];
-            mongocxx::read_preference rp;
-            rp.mode(mongocxx::read_preference::read_mode::k_secondary_preferred);
-            collection.read_preference(rp);
-            
-            // 设置majority, 常用的隔离级别,相当于读已提交级别(rc级别) 解决事务的隔离性问题
-            mongocxx::read_concern rc;
-            rc.acknowledge_level(mongocxx::read_concern::level::k_majority);
-            collection.read_concern(rc);
+            MongoHelper::MakeRCReadOption<mongocxx::read_preference, mongocxx::read_concern>(collection);
                     
             bsoncxx::builder::basic::document fullKv;
             if(!_TurnDoc(kv, fullKv))
@@ -3226,14 +3359,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::Query(KERNEL_NS::LibString dbName, KERNEL_NS
                 auto db = client[dbName];
                 auto collection = db[collectionName];
                 // 优先从节点读
-                mongocxx::read_preference rp;
-                rp.mode(mongocxx::read_preference::read_mode::k_secondary_preferred);
-                collection.read_preference(rp);
-                
-                // 设置majority, 常用的隔离级别,相当于读已提交级别(rc级别) 解决事务的隔离性问题
-                mongocxx::read_concern rc;
-                rc.acknowledge_level(mongocxx::read_concern::level::k_majority);
-                collection.read_concern(rc);
+                MongoHelper::MakeRCReadOption<mongocxx::read_preference, mongocxx::read_concern>(collection);
                         
                 bsoncxx::builder::basic::document fullKv;
                 if(!_TurnDoc(kv, fullKv))
