@@ -134,8 +134,8 @@ public:
     virtual KERNEL_NS::CoTask<bool> UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, KERNEL_NS::LibString *jsonFields, bool createIfNotExists = false) = 0;
     virtual KERNEL_NS::CoTask<bool> UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *updateFields, bool createIfNotExists = false) = 0;
     virtual KERNEL_NS::CoTask<bool> UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *> *binaryKeyNameRefData, bool createIfNotExists = false) = 0;
-    // condition : 传入 bsoncxx::builder::basic::document 条件, UpdateDataIf 用于原子操作
-    virtual KERNEL_NS::CoTask<bool> UpdateDataIf(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *updateFields, void *condition, bool createIfNotExists = false) = 0;
+    // condition : 传入 bsoncxx::builder::basic::document 条件, UpdateDataIf 用于原子操作,返回结果:jsonResult(json),外部释放, 返回旧的文档 Condition带上唯一id, updateFields就不用带唯一id
+    virtual KERNEL_NS::CoTask<bool> UpdateDataIf(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *updateFields, void *condition) = 0;
 
     // 序列化发序列化:MongoDataSerialize, 序列化反序列化数据定义:MongoSerializeInfo keyNameRefData内部释放
     virtual KERNEL_NS::CoTask<bool> UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, MongoSerializeInfo> *keyNameRefData, bool createIfNotExists = false) = 0;

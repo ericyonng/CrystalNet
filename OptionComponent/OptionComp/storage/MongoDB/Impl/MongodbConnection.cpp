@@ -35,6 +35,8 @@
 #include <bsoncxx/builder/stream/document.hpp>
 
 #include "MongoHelper.h"
+#include "mongocxx/exception/operation_exception.hpp"
+#include "mongocxx/exception/write_exception.hpp"
 #include "testsuit/testinst/TestMongo.h"
 
 
@@ -173,16 +175,17 @@ KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> Mongo
                 bsoncxx::builder::basic::kvp("$exists", false)
             ))),
             bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("expireAt", bsoncxx::builder::basic::make_document(
-                bsoncxx::builder::basic::kvp("$lt", static_cast<std::int64_t>(now.GetMilliTimestamp()))
+                bsoncxx::builder::basic::kvp("$lte", static_cast<std::int64_t>(now.GetMilliTimestamp()))
             )))
         )));
         
         // 更新操作: 设置 owner 和新的过期时间
-        bsoncxx::builder::basic::document updateDoc;
-        updateDoc.append(bsoncxx::builder::basic::kvp("_id", lockName.GetRaw()));
-        updateDoc.append(bsoncxx::builder::basic::kvp("owner", ownerId.GetRaw()));
-        updateDoc.append(bsoncxx::builder::basic::kvp("expireAt", static_cast<std::int64_t>(expireTime.GetMilliTimestamp())));
-        
+        auto updateDoc = bsoncxx::builder::basic::make_document(
+            bsoncxx::builder::basic::kvp("$set", bsoncxx::builder::basic::make_document(
+                bsoncxx::builder::basic::kvp("owner", ownerId.GetRaw()),
+                bsoncxx::builder::basic::kvp("expireAt", static_cast<std::int64_t>(expireTime.GetMilliTimestamp()))
+            ))
+        );
         mongocxx::options::find_one_and_update options;
         auto &&wc = MongoHelper::MakeMongoMajorityWriteConcern<mongocxx::write_concern>();
         options.write_concern(wc);
@@ -190,10 +193,31 @@ KERNEL_NS::SmartPtr<ShardingLock, KERNEL_NS::AutoDelMethods::CustomDelete> Mongo
         options.return_document(mongocxx::options::return_document::k_after);
         
         auto result = locksDb.find_one_and_update(filterDoc.view(), updateDoc.view(), options);
-        // return_document: k_after + upsert: true → result 永远不会为空
-        // 匹配到: owner匹配则续期 / 锁已过期则抢占; 未匹配到: upsert 创建新文档(首次获取)
-        lock->Acquired = true;
-        CLOG_DEBUG("lock %s acquired by %s", lockName.c_str(), ownerId.c_str());
+
+        if (result)
+        {
+            // 匹配失败尝试重新插入, 如果锁已经被其他进程占有, 那么会触发duplicate key失败,用来表示其他进程占用锁了, 这里直接设置true
+            lock->Acquired = true;
+            CLOG_DEBUG("lock %s acquired by %s", lockName.c_str(), ownerId.c_str());
+        }
+        else
+        {
+            lock->Acquired = false;
+            CLOG_WARN("find_one_and_update fail lock %s ownerId: %s", lockName.c_str(), ownerId.c_str());
+        }
+
+    }
+    catch (const mongocxx::v_noabi::write_exception& e) {
+        // 锁已被其他进程持有
+        if (e.code().value() == 11000)
+        {
+            lock->Acquired = false;
+            CLOG_DEBUG("TryAcquireLock write_exception failed lock already held by another:%s, lockName:%s, ownerId:%s", e.what(), lockName.c_str(), ownerId.c_str());
+        }
+        else
+        {
+            CLOG_ERROR("TryAcquireLock write_exception failed:%s, lockName:%s, ownerId:%s", e.what(), lockName.c_str(), ownerId.c_str());
+        }
     }
     catch (const mongocxx::exception &e)
     {

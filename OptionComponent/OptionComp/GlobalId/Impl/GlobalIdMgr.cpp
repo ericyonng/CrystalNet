@@ -84,6 +84,8 @@ Int32 GlobalIdMgr::_OnAfterCompsInit()
         return Status::Failed;
     }
 
+    // 初始化索引
+
     std::atomic<Int32> lifeCount{0};
     KERNEL_NS::ObjLife<std::atomic<Int32>> isFinished(lifeCount);
     

@@ -2233,7 +2233,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
     co_return true;
 }
 
-KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIf(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *updateFields, void *condition, bool createIfNotExists)
+KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIf(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *updateFields, void *condition)
 {
     if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
     {
@@ -2258,7 +2258,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIf(KERNEL_NS::LibString dbName, KE
     bsoncxx::builder::basic::document filterDoc = std::move(*KERNEL_NS::KernelCastTo<bsoncxx::builder::basic::document>(condition));
     
     const auto hashValue = CalculateHash(dbName + collectionName);
-    auto isSuc = co_await g_EventLoopEasyTaskThreadPool->SendAsync<MongoAsyncRes>([this, createIfNotExists, dbName, collectionName, updateFields, filterDoc]()->MongoAsyncRes
+    auto isSuc = co_await g_EventLoopEasyTaskThreadPool->SendAsync<MongoAsyncRes>([this, dbName, collectionName, updateFields, filterDoc]()->MongoAsyncRes
     {
         MongoAsyncRes res;
         SmartPtr<std::map<KERNEL_NS::LibString, KERNEL_NS::Variant>> updateFieldsPtr(updateFields);
@@ -2286,25 +2286,27 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIf(KERNEL_NS::LibString dbName, KE
             mongocxx::options::find_one_and_update options;
             auto &&wc = MongoHelper::MakeMongoMajorityWriteConcern<mongocxx::write_concern>();
             options.write_concern(wc);
-            if(createIfNotExists)
-                options.upsert(true);
+            options.upsert(true);
             options.return_document(mongocxx::options::return_document::k_after);
                     
             auto result = collection.find_one_and_update(filterDoc.view(), setDoc.view(), options);
-            if(!result)
-            {
-                CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf op fail, db:%s, collection:%s unique filterDoc:%s",dbName.c_str(), collectionName.c_str()
-                    , bsoncxx::to_json(filterDoc).c_str()), KERNEL_NS::StringUtil::ToString(*updateFields, ','));
 
-                return res;
+            // 有旧的值
+            if(result)
+            {
+                res.IsSuccess = true;
+                // modified_count为0表示前后无变化, > 0 表示前后有变化, 变化的数量
+                CLOG_DEBUG("UpdateDataIf find_one_and_update success  db:%s, collection:%s filterDoc:%s, setDoc:%s, result:%s", dbName.c_str(), collectionName.c_str()
+                        , bsoncxx::to_json(filterDoc).c_str(), bsoncxx::to_json(setDoc).c_str(), bsoncxx::to_json(*result).c_str());
+            }
+            else
+            {
+                res.IsSuccess = false;
+
+                CLOG_DEBUG("UpdateDataIf find_one_and_update fail  db:%s, collection:%s filterDoc:%s, setDoc:%s", dbName.c_str(), collectionName.c_str()
+                , bsoncxx::to_json(filterDoc).c_str(), bsoncxx::to_json(setDoc).c_str());
             }
             
-            // modified_count为0表示前后无变化, > 0 表示前后有变化, 变化的数量
-            CLOG_DEBUG("UpdateDataIf find_one_and_update success  db:%s, collection:%s filterDoc:%s, setDoc:%s", dbName.c_str(), collectionName.c_str()
-                    , bsoncxx::to_json(filterDoc).c_str(), bsoncxx::to_json(setDoc).c_str());
-
-            res.IsSuccess = true;
-
             return res;
         }
         catch (const mongocxx::exception &e)
