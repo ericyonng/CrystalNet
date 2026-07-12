@@ -66,7 +66,8 @@ class KERNEL_EXPORT TlsDefs
 public:
     enum ENUMS
     {
-        LIB_RTTI_BUF_SIZE = 4096,            // 运行时识别缓冲大小
+        // 16KB
+        LIB_RTTI_BUF_SIZE = 16384,            // 运行时识别缓冲大小
     };
 };
 

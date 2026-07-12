@@ -46,6 +46,14 @@ public:
     void Release() override;
 
     virtual void SetMongodbMgr(IMongoDbMgr *mongodbMgr) override;
+    
+    // 添加参数
+    virtual CoTask<bool> UpdateParam(const KERNEL_NS::LibString &paramName, std::map<LibString, Variant> *keyRefValue) override;
+    
+    // 原子更新参数
+    virtual CoTask<bool> AtomicUpdateParam(const KERNEL_NS::LibString &paramName, std::map<LibString, Variant> *keyRefValue, void *condition, LibString *jsonBackOrigin) override;
+
+    virtual const KERNEL_NS::LibString &GetUniqueKeyFieldName() const override;
 
 protected:
     Int32 _OnHostInit() override;

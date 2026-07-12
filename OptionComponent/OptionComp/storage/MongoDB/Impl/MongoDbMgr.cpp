@@ -2233,7 +2233,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
     co_return true;
 }
 
-KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIf(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *updateFields, void *condition)
+KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIf(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *updateFields, void *condition, KERNEL_NS::LibString *jsonOriginValueBack)
 {
     if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
     {
@@ -2255,14 +2255,15 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIf(KERNEL_NS::LibString dbName, KE
     }
 
     // 条件
-    bsoncxx::builder::basic::document filterDoc = std::move(*KERNEL_NS::KernelCastTo<bsoncxx::builder::basic::document>(condition));
+    std::shared_ptr<bsoncxx::builder::basic::document> filterDoc(new bsoncxx::builder::basic::document(std::move(*KERNEL_NS::KernelCastTo<bsoncxx::builder::basic::document>(condition))));
     
     const auto hashValue = CalculateHash(dbName + collectionName);
-    auto isSuc = co_await g_EventLoopEasyTaskThreadPool->SendAsync<MongoAsyncRes>([this, dbName, collectionName, updateFields, filterDoc]()->MongoAsyncRes
+    auto isSuc = co_await g_EventLoopEasyTaskThreadPool->SendAsync<MongoAsyncRes>([this, dbName, collectionName, updateFields, filterDoc, kv, jsonOriginValueBack]()->MongoAsyncRes
     {
         MongoAsyncRes res;
         SmartPtr<std::map<KERNEL_NS::LibString, KERNEL_NS::Variant>> updateFieldsPtr(updateFields);
 
+        auto conditionDoc = filterDoc.get();
         try
         {
             auto client = _connectionPool->acquire();
@@ -2272,8 +2273,8 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIf(KERNEL_NS::LibString dbName, KE
             bsoncxx::builder::basic::document updateFieldsDoc;
             if(!_TurnDoc(*updateFields, updateFieldsDoc))
             {
-                CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf _TurnDoc updateFieldsPtr fail to update data into collection, filterDoc:%s dbName:%s, collectionName:%s,  updateFields:"
-                , bsoncxx::to_json(filterDoc).c_str(), dbName.c_str(), collectionName.c_str())
+                CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf _TurnDoc updateFieldsPtr fail to update data into collection, conditionDoc:%s dbName:%s, collectionName:%s,  updateFields:"
+                , bsoncxx::to_json(*conditionDoc).c_str(), dbName.c_str(), collectionName.c_str())
                 , KERNEL_NS::StringUtil::ToString(*updateFields, ','));
                 
                 return res;
@@ -2289,43 +2290,113 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIf(KERNEL_NS::LibString dbName, KE
             options.upsert(true);
             options.return_document(mongocxx::options::return_document::k_after);
                     
-            auto result = collection.find_one_and_update(filterDoc.view(), setDoc.view(), options);
+            auto result = collection.find_one_and_update(conditionDoc->view(), setDoc.view(), options);
 
             // 有旧的值
             if(result)
             {
                 res.IsSuccess = true;
                 // modified_count为0表示前后无变化, > 0 表示前后有变化, 变化的数量
-                CLOG_DEBUG("UpdateDataIf find_one_and_update success  db:%s, collection:%s filterDoc:%s, setDoc:%s, result:%s", dbName.c_str(), collectionName.c_str()
-                        , bsoncxx::to_json(filterDoc).c_str(), bsoncxx::to_json(setDoc).c_str(), bsoncxx::to_json(*result).c_str());
+                CLOG_DEBUG("UpdateDataIf find_one_and_update success  db:%s, collection:%s conditionDoc:%s, setDoc:%s, result:%s", dbName.c_str(), collectionName.c_str()
+                        , bsoncxx::to_json(*conditionDoc).c_str(), bsoncxx::to_json(setDoc).c_str(), bsoncxx::to_json(*result).c_str());
+
+                return res;
             }
             else
             {
                 res.IsSuccess = false;
 
-                CLOG_DEBUG("UpdateDataIf find_one_and_update fail  db:%s, collection:%s filterDoc:%s, setDoc:%s", dbName.c_str(), collectionName.c_str()
-                , bsoncxx::to_json(filterDoc).c_str(), bsoncxx::to_json(setDoc).c_str());
+                CLOG_DEBUG("UpdateDataIf find_one_and_update fail  db:%s, collection:%s conditionDoc:%s, setDoc:%s", dbName.c_str(), collectionName.c_str()
+                , bsoncxx::to_json(*conditionDoc).c_str(), bsoncxx::to_json(setDoc).c_str());
             }
-            
-            return res;
         }
         catch (const mongocxx::exception &e)
         {
-            CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf fail exception:%s, db:%s, collection:%s, filter:%s updateFields:"
-            ,e.what(), dbName.c_str(), collectionName.c_str(), bsoncxx::to_json(filterDoc).c_str())
-            , KERNEL_NS::StringUtil::ToString(*updateFields, ','));
+            if (e.code().value() == 11000)
+            {
+                CLOG_DEBUG_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf duplicate key, will return old doc, exception:%s, db:%s, collection:%s, filter:%s updateFields:"
+                ,e.what(), dbName.c_str(), collectionName.c_str(), bsoncxx::to_json(*conditionDoc).c_str())
+                , KERNEL_NS::StringUtil::ToString(*updateFields, ','));
+            }
+            else
+            {
+                CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf fail exception:%s, db:%s, collection:%s, filter:%s updateFields:"
+                ,e.what(), dbName.c_str(), collectionName.c_str(), bsoncxx::to_json(*conditionDoc).c_str())
+                , KERNEL_NS::StringUtil::ToString(*updateFields, ','));
+            }
+
         }
         catch (const std::exception &e)
         {
             CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf fail std exception:%s, db:%s, collection:%s, filter:%s, updateFields:"
-            ,e.what(), dbName.c_str(), collectionName.c_str(), bsoncxx::to_json(filterDoc).c_str())
+            ,e.what(), dbName.c_str(), collectionName.c_str(), bsoncxx::to_json(*conditionDoc).c_str())
             , KERNEL_NS::StringUtil::ToString(*updateFields, ','));
         }
         catch (...)
         {
             CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf fail unknown exception, db:%s, collection:%s, filter:%s, updateFields:"
-            , dbName.c_str(), collectionName.c_str(), bsoncxx::to_json(filterDoc).c_str())
+            , dbName.c_str(), collectionName.c_str(), bsoncxx::to_json(*conditionDoc).c_str())
             , KERNEL_NS::StringUtil::ToString(*updateFields, ','));
+        }
+
+        // 失败则查询一下
+        if(jsonOriginValueBack)
+        {
+            try
+            {
+                auto client = _connectionPool->acquire();
+                auto db = client[dbName];
+                auto collection = db[collectionName];
+
+                // 优先从节点读
+                mongocxx::options::find option;
+                // rc读
+                MongoHelper::MakeRCReadOption<mongocxx::read_preference, mongocxx::read_concern>(collection);
+                        
+                bsoncxx::builder::basic::document fullKv;
+                if(!_TurnDoc(kv, fullKv))
+                {
+                    CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf query data build full kv fail, query data into collection, kv:%s dbName:%s, collectionName:%s"
+                        ,  DictContainerToString(kv).c_str(), dbName.c_str(), collectionName.c_str()));
+
+                    return res;
+                }
+
+                auto ret = collection.find_one(fullKv.view(), option);
+                if(!ret)
+                {
+                    CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf query data Failed to query data into collection, dbName:%s, collectionName:%s, kv:%s", dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str()));
+                    return res;
+                }
+
+                {
+                    if(ret.has_value())
+                    {
+                        *jsonOriginValueBack = bsoncxx::to_json(ret.value());
+                    }
+                }
+
+                CLOG_DEBUG_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf query data one success, dbName:%s, collectionName:%s, kv:%s data:",
+                    dbName.c_str(), collectionName.c_str(), DictContainerToString(kv).c_str()), KERNEL_NS::LibString(jsonOriginValueBack ? jsonOriginValueBack->c_str() : ""));
+            }
+            catch (const mongocxx::exception &e)
+            {
+                CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf fail exception:%s, db:%s, collection:%s, filter:%s updateFields:"
+                ,e.what(), dbName.c_str(), collectionName.c_str(), bsoncxx::to_json(*conditionDoc).c_str())
+                , KERNEL_NS::StringUtil::ToString(*updateFields, ','));
+            }
+            catch (const std::exception &e)
+            {
+                CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf fail std exception:%s, db:%s, collection:%s, filter:%s, updateFields:"
+                ,e.what(), dbName.c_str(), collectionName.c_str(), bsoncxx::to_json(*conditionDoc).c_str())
+                , KERNEL_NS::StringUtil::ToString(*updateFields, ','));
+            }
+            catch (...)
+            {
+                CLOG_ERROR_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf fail unknown exception, db:%s, collection:%s, filter:%s, updateFields:"
+                , dbName.c_str(), collectionName.c_str(), bsoncxx::to_json(*conditionDoc).c_str())
+                , KERNEL_NS::StringUtil::ToString(*updateFields, ','));
+            }
         }
 
         return res;
@@ -2337,13 +2408,11 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIf(KERNEL_NS::LibString dbName, KE
     // 此时jsonStringPtr已经释放
     if(!isSuc->IsSuccess)
     {
-        CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf fail, db:%s, collection:%s, filter:", dbName.c_str(), collectionName.c_str())
-            , KERNEL_NS::LibString(bsoncxx::to_json(filterDoc)));
+        CLOG_WARN_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf fail, db:%s, collection:%s,  filterDoc:", dbName.c_str(), collectionName.c_str()), KERNEL_NS::LibString(bsoncxx::to_json(*filterDoc)));
         co_return false;
     }
 
-    CLOG_DEBUG_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf success, db:%s, collection:%s, filter:", dbName.c_str(), collectionName.c_str())
-        , KERNEL_NS::LibString(bsoncxx::to_json(filterDoc)));
+    CLOG_DEBUG_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf success, db:%s, collection:%s filterDoc:", dbName.c_str(), collectionName.c_str()), KERNEL_NS::LibString(bsoncxx::to_json(*filterDoc)));
     
     co_return true;
 }

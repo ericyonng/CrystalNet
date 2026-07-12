@@ -20,35 +20,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2026-07-07 01:07:49
+// Date: 2026-07-12 18:07:32
 // Author: Eric Yonng
 // Description:
 
 
-#ifndef __CRYSTAL_NET_OPTION_COMPONENT_OPTIONCOMP_GLOBAL_ID_IMPL_GLOBAL_ID_MGR_MONGO_FACTORY_H__
-#define __CRYSTAL_NET_OPTION_COMPONENT_OPTIONCOMP_GLOBAL_ID_IMPL_GLOBAL_ID_MGR_MONGO_FACTORY_H__
-
 #pragma once
 
-
-#include <kernel/comp/CompObject/CompFactory.h>
-#include <service/common/macro.h>
-
-KERNEL_BEGIN
-
-class GlobalIdMgrMongoFactory : public KERNEL_NS::CompFactory
+class TestGlobalOptionComps
 {
 public:
-    static constexpr KERNEL_NS::_Build::TL _buildType{};
-
-    static KERNEL_NS::CompFactory *FactoryCreate();
-
-    virtual void Release() override;
-    
-public:
-    virtual KERNEL_NS::CompObject *Create() const override;
+    static void Run();
 };
-
-KERNEL_END
-
-#endif

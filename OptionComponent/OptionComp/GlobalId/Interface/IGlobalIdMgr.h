@@ -35,7 +35,8 @@
 
 KERNEL_BEGIN
 
-class IMongodbProxy;
+class IMongoDbMgr;
+class IGlobalParamMgr;
 
 class IGlobalIdMgr : public CompHostObject
 {
@@ -49,7 +50,9 @@ public:
     virtual Int64 NewId() = 0;
 
     // 基于mongodb
-    virtual void SetMongoProxy(IMongodbProxy *mongoProxy) = 0;
+    virtual void SetMongodbMgr(IMongoDbMgr *mongodbMgr) = 0;
+    // 设置GlobalParam
+    virtual void SetGlobalParamMgr(IGlobalParamMgr *globalParamMgr) = 0;
 };
 
 KERNEL_END

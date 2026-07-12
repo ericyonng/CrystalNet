@@ -113,6 +113,7 @@
 #include <testsuit/testinst/TestCoLocker.h>
 #include <testsuit/testinst/TestLibConfig.h>
 #include <testsuit/testinst/TestHash.h>
+#include <testsuit/testinst/TestGlobalOptionComps.h>
 
 // void *operator new(size_t bytes)
 // {
@@ -274,7 +275,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestDelegate::Run();
     // TestPoller::Run();
     // TestMemoryAssist::Run();
-    TestService::Run(argc, argv);
+    // TestService::Run(argc, argv);
     // TestInlineStatic::Run();
     // TestList::Run();
     // TestDirectoryUtil::Run();
@@ -316,6 +317,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestCoLocker::Run();
     // TestLibConfig::Run();
     // TestHash::Run();
+    TestGlobalOptionComps::Run();
     
     // write a large file
     // do

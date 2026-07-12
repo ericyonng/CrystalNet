@@ -34,6 +34,7 @@
 #include <pch.h>
 #include <testsuit/testinst/TestService.h>
 
+#include "OptionComp/GlobalParam/Impl/GlobalParamMgr.h"
 #include "OptionComp/storage/MongoDB/Impl/MongoDbMgrFactory.h"
 #include "OptionComp/storage/MongoDB/Impl/MongodbProxyFactory.h"
 #include "OptionComp/storage/MongoDB/Interface/IMongoDbMgr.h"
@@ -41,6 +42,8 @@
 #ifdef ENABLE_TEST_SERVICE
  #include <service/TestService/service.h>
 #include <OptionComp/Command/Command.h>
+#include <OptionComp/GlobalParam/GlobalParam.h>
+#include <OptionComp/GlobalId/GlobalId.h>
 
 class TestServiceApplication : public SERVICE_COMMON_NS::Application
 {
@@ -62,9 +65,10 @@ public:
         // 先注册数据库, 让数据库先初始化好
 #if CRYSTAL_STORAGE_ENABLE
         RegisterComp<KERNEL_NS::MongoDbMgrFactory>();
-
-        // 需要mongodb代理
-        RegisterComp<KERNEL_NS::MongodbProxyFactory>();
+        // 全局参数
+        RegisterComp<KERNEL_NS::GlobalParamMgrFactory>();
+        // 全球id
+        RegisterComp<KERNEL_NS::GlobalIdMgrFactory>();
 #endif
         
         SERVICE_COMMON_NS::Application::OnRegisterComps();
@@ -104,6 +108,15 @@ public:
         auto mongodbMgr = GetComp<KERNEL_NS::IMongoDbMgr>();
         mongodbMgr->SetConfigSource(*GetSourceWrap());
         mongodbMgr->SetConfigKeyName("MongoTestSuit");
+
+        // 设置GlobalParam参数
+        auto globalParamMgr = GetComp<KERNEL_NS::IGlobalParamMgr>();
+        globalParamMgr->SetMongodbMgr(mongodbMgr);
+
+        // 设置GlobalId参数
+        auto globalIdMgr = GetComp<KERNEL_NS::IGlobalIdMgr>();
+        globalIdMgr->SetMongodbMgr(mongodbMgr);
+        globalIdMgr->SetGlobalParamMgr(globalParamMgr);
 #endif
         return Status::Success;
     }

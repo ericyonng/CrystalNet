@@ -32,6 +32,7 @@
 #pragma once
 
 #include <kernel/comp/CompObject/CompHostObject.h>
+#include <kernel/comp/Coroutines/CoTask.h>
 
 KERNEL_BEGIN
 
@@ -48,14 +49,12 @@ public:
     virtual void SetMongodbMgr(IMongoDbMgr *mongodbMgr) = 0;
 
     // 添加参数
-    virtual bool UpdateParam(const KERNEL_NS::LibString &paramName, std::map<LibString, Variant> *keyRefValue) = 0;
+    virtual CoTask<bool>  UpdateParam(const KERNEL_NS::LibString &paramName, std::map<LibString, Variant> *keyRefValue) = 0;
     
     // 原子更新参数
-    virtual bool AtomicUpdateParam(const KERNEL_NS::LibString &paramName, std::map<LibString, Variant> *keyRefValue, void *condition) = 0;
+    virtual CoTask<bool> AtomicUpdateParam(const KERNEL_NS::LibString &paramName, std::map<LibString, Variant> *keyRefValue, void *condition, LibString *jsonBackOrigin) = 0;
 
-    // 原子自增
-    virtual bool AtomicUpdateParam(const KERNEL_NS::LibString &paramName, std::map<LibString, Variant> *keyRefValue, void *condition) = 0;
-
+    virtual const KERNEL_NS::LibString &GetUniqueKeyFieldName() const = 0;
 };
 
 KERNEL_END
