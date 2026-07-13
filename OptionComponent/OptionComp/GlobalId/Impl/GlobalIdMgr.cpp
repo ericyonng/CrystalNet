@@ -138,6 +138,22 @@ const KERNEL_NS::LibString &GlobalIdMgr::GetOwnerId() const
     return _ownerId;
 }
 
+CoTask<KERNEL_NS::LibString> GlobalIdMgr::ForceOccupyMachineId(Int64 machineId)
+{
+    auto res = co_await TestRegisterMachine(machineId);
+    if(!res.IsSuccess)
+    {
+        CLOG_WARN("RegisterMachine force occupy fail machine id:%lld", machineId);
+    }
+    
+    co_return res.OriginOwnerId;
+}
+
+Int64 GlobalIdMgr::GetMaxMachineId() const
+{
+    return MAX_MACHINE_ID;
+}
+
 
 Int32 GlobalIdMgr::_OnAfterCompsInit()
 {
@@ -439,6 +455,7 @@ KERNEL_NS::CoTask<bool> GlobalIdMgr::RegisterMachine()
             if(jsonBack->empty())
             {
                 CLOG_WARN("AtomicUpdateParam fail but have no json back newMachineId:%lld, curOriginMachineId:%lld", newMachineId, curOriginMachineId);
+                curOriginMachineId = newMachineId;
                 continue;
             }
 
@@ -446,12 +463,14 @@ KERNEL_NS::CoTask<bool> GlobalIdMgr::RegisterMachine()
             if(!jsonDoc.is_object())
             {
                 CLOG_WARN("AtomicUpdateParam fail but json back not object json back:%s, newMachineId:%lld, curOriginMachineId:%lld", jsonBack->c_str(), newMachineId, curOriginMachineId);
+                curOriginMachineId = newMachineId;
                 continue;
             }
 
             if(!jsonDoc.contains(ParamCollectionFieldName.GetRaw()))
             {
                 CLOG_WARN("AtomicUpdateParam fail but json back not object json back:%s, newMachineId:%lld, curOriginMachineId:%lld", jsonBack->c_str(), newMachineId, curOriginMachineId);
+                curOriginMachineId = newMachineId;
                 continue;
             }
             
@@ -522,6 +541,8 @@ KERNEL_NS::CoTask<bool> GlobalIdMgr::RegisterMachine()
             bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp(HeartbeatTimeName.GetRaw(), bsoncxx::builder::basic::make_document(
                     bsoncxx::builder::basic::kvp("$lte", static_cast<std::int64_t>(invalidHeartbeatTimeByNow.GetMilliTimestamp()))
                 ))),
+
+                // mongodb 字符串如果是""被当做null处理, 所以关服设置成""也满足exists:false
                 bsoncxx::builder::basic::make_document(
                     bsoncxx::builder::basic::kvp(CurOwnerName.GetRaw(), bsoncxx::builder::basic::make_document(
                     bsoncxx::builder::basic::kvp("$exists", false)
@@ -579,73 +600,138 @@ KERNEL_NS::CoTask<bool> GlobalIdMgr::RegisterMachine()
     }
     while (true);
 
-    // 最后的时间部分是 finalTimePart 那么可用的就是 finalTimePart + 1
-    {
-        auto lastId = _lastId.load(std::memory_order_acquire);
+    // 更新lastId
+    _UpdateLastId(finalMachineId, finalTimePart);
 
-        // 说明在已经使用的情况下重新注册机器id
-        if(lastId != 0)
-        {
-            auto timePart = (lastId & TIME_PART_MASK) >> TIME_PART_POS;
-            const auto machineId = (lastId & MACHINE_ID_MASK) >> MACHINE_ID_POS;
-
-            // 重新注册到当前已经注册的机器id, 则看时间部分, 如果时间部分 finalTimePart + 1要大则使用finalTimePart + 1
-            if(machineId == finalMachineId)
-            {
-                const auto oldTimePart = timePart;
-                Int64 newTimePart = timePart;
-                if(timePart < (finalTimePart + 1))
-                    newTimePart = finalTimePart + 1;
-
-                // 直接跳过 timePart避免 seq冲突的麻烦
-                else
-                {
-                    newTimePart = timePart + 1;
-                }
-
-                // 相同的机器id需要cas
-                auto newLastId = (newTimePart << TIME_PART_POS) | finalMachineId << MACHINE_ID_POS;
-                while (!_lastId.compare_exchange_weak(lastId, newLastId, std::memory_order_acq_rel))
-                {
-                    timePart = (lastId & TIME_PART_MASK) >> TIME_PART_POS;
-                    if(timePart < (finalTimePart + 1))
-                        newTimePart = finalTimePart + 1;
-                    // 直接跳过 timePart避免 seq冲突的麻烦
-                    else
-                    {
-                        newTimePart = timePart + 1;
-                    }
-
-                    newLastId = (newTimePart << TIME_PART_POS) | finalMachineId << MACHINE_ID_POS;
-                }
-                
-                CLOG_INFO("RegisterMachine success old machine id:%lld, new machine id:%lld, oldTimePart:%lld => useful time part:%lld, newLastId:%lld"
-                    , machineId, finalMachineId, oldTimePart, newTimePart, newLastId);
-
-                co_return true;
-            }
-
-            // 注册到新的机器id则使用 finalTimePart + 1
-            else
-            {
-                timePart = finalTimePart + 1;
-            }
-            const auto newLastId = (timePart << TIME_PART_POS) | finalMachineId << MACHINE_ID_POS;
-            _lastId.exchange(newLastId, std::memory_order_acq_rel);
-            CLOG_INFO("RegisterMachine success old machine id:%lld, new machine id:%lld, useful time part:%lld, last id:%lld"
-                , machineId, finalMachineId, (finalTimePart + 1), lastId);
-        }
-
-        // 启动注册时候直接使用 finalTimePart + 1
-        else
-        {
-            lastId = ((finalTimePart + 1) << TIME_PART_POS) | finalMachineId << MACHINE_ID_POS;
-            _lastId.exchange(lastId, std::memory_order_acq_rel);
-            CLOG_INFO("RegisterMachine success machine id:%lld, useful time part:%lld, last id:%lld", finalMachineId, (finalTimePart + 1), lastId);
-        }
-    }
+    CLOG_DEBUG("RegisterMachine new machine id:%lld, owner:%s, time part:%lld", finalMachineId, _ownerId.c_str(), finalTimePart);
 
     co_return true;
 }
+
+KERNEL_NS::CoTask<RegisterMachineRes> GlobalIdMgr::TestRegisterMachine(Int64 machineId)
+{
+    std::map<LibString, Variant> kv;
+    kv.emplace(GlobalIdKeyName, KERNEL_NS::Variant(machineId));
+    KERNEL_NS::SmartPtr<std::map<KERNEL_NS::LibString, KERNEL_NS::Variant>> resultDict = new std::map<KERNEL_NS::LibString, KERNEL_NS::Variant>();
+    KERNEL_NS::SmartPtr<KERNEL_NS::LibString, KERNEL_NS::AutoDelMethods::Release> jsonBack = new KERNEL_NS::LibString();
+
+    RegisterMachineRes res;
+    Int64 finalTimePart = 0;
+    do
+    {
+        auto ret = co_await _mongodbMgr->Query(DbName, CollectionName, kv, resultDict.AsSelf(), true);
+        if(ret && (!resultDict->empty()))
+        {
+            CLOG_DEBUG("query global id info, machine id:%lld, global id info:%s", machineId, KERNEL_NS::StringUtil::ToString(*resultDict, ',').c_str());
+            
+            // 尝试注册机器id
+            const auto &nowTime = LibTime::Now();
+            const auto &nowTimeByBase = KERNEL_NS::LibTime::FromMilliSeconds((nowTime - _baseTime).GetTotalMilliSeconds());
+                
+            auto updateFields = new std::map<KERNEL_NS::LibString, KERNEL_NS::Variant>();
+
+            auto iterTimePart = resultDict->find(TimePartName.GetRaw());
+            // 时间位溢出, 告警提示, 并continue, 下一个机器id
+            if(iterTimePart != resultDict->end())
+            {
+                const auto timePartValue = iterTimePart->second.AsInt64();
+                if((timePartValue + 1) >= TIME_PART_MAX_ID)
+                {
+                    CLOG_WARN("machine id:%lld, time part:%lld, will overflow owner:%s, resultDict:%s"
+                        , machineId, timePartValue, _ownerId.c_str(), KERNEL_NS::StringUtil::ToString(*resultDict, ',').c_str());
+                    co_return res;
+                }
+            }
+            
+            // 时间部分: 如果当前时间比数据库的时间部分大那么取当前时间, 如果小那么取数据库时间
+            auto newTimePart = nowTimeByBase.GetSecTimestamp();
+            Int64 curDbTimePart = 0;
+            if(iterTimePart != resultDict->end())
+            {
+                curDbTimePart = iterTimePart->second.AsInt64();
+                if(curDbTimePart > newTimePart)
+                    newTimePart = curDbTimePart;
+            }
+
+            // 已经用到了 newTimePart 那么可用的是 newTimePart + 1, 需要提前占用, 所以落地需落地newTimePart + 1
+            updateFields->emplace(TimePartName, newTimePart + 1);
+            updateFields->emplace(HeartbeatTimeName, nowTime.GetMilliTimestamp());
+            updateFields->emplace(CurOwnerName, _ownerId);
+            updateFields->emplace(GlobalIdKeyName, KERNEL_NS::Variant(machineId));
+            
+            bsoncxx::builder::basic::document filterDoc;
+            filterDoc.append(bsoncxx::builder::basic::kvp(GlobalIdKeyName.GetRaw(), static_cast<std::int64_t>(machineId)));
+
+            ret = co_await _mongodbMgr->UpdateDataIfAndBack(DbName, CollectionName, kv, updateFields, &filterDoc, true, jsonBack.AsSelf());
+            if(ret)
+            {
+                CLOG_INFO("occupiedMachineId:%lld, RegisterMachine success, TimePart:%lld", machineId, newTimePart);
+                finalTimePart = newTimePart;
+
+                if(!jsonBack->empty())
+                {
+                    auto json = nlohmann::json::parse(*jsonBack, NULL, false);
+                    if(json.is_object() && (json.contains(CurOwnerName)))
+                    {
+                        res.OriginOwnerId = json[CurOwnerName].get<std::string>();
+                    }
+                }
+                res.IsSuccess = true;
+                break;
+            }
+
+            // 跳过机器id
+            CLOG_DEBUG("UpdateDataIf fail other machine ocuppied, finalMachineId:%lld, jsonBack:%s", machineId, jsonBack->c_str());
+            co_return res;
+        }
+        else
+        {
+            CLOG_DEBUG("query global id info fail have no data, machine id:%lld, global id info:%s", machineId);
+
+            // 尝试注册机器id
+            const auto &nowTime = LibTime::Now();
+            const auto &nowTimeByBase = KERNEL_NS::LibTime::FromMilliSeconds((nowTime - _baseTime).GetTotalMilliSeconds());
+                
+            auto updateFields = new std::map<KERNEL_NS::LibString, KERNEL_NS::Variant>();
+            updateFields->emplace(TimePartName, nowTimeByBase.GetSecTimestamp() + 1);
+            updateFields->emplace(HeartbeatTimeName, nowTime.GetMilliTimestamp());
+            updateFields->emplace(CurOwnerName, _ownerId);
+            updateFields->emplace(GlobalIdKeyName, KERNEL_NS::Variant(machineId));
+
+            bsoncxx::builder::basic::document filterDoc;
+            filterDoc.append(bsoncxx::builder::basic::kvp(GlobalIdKeyName.GetRaw(), static_cast<std::int64_t>(machineId)));
+
+            ret = co_await _mongodbMgr->UpdateDataIfAndBack(DbName, CollectionName, kv, updateFields, &filterDoc, true, jsonBack.AsSelf());
+            if(ret)
+            {
+                CLOG_INFO("occupiedMachineId:%lld, RegisterMachine success, TimePart:%lld", machineId, nowTimeByBase.GetSecTimestamp());
+                finalTimePart = nowTimeByBase.GetSecTimestamp();
+                if(!jsonBack->empty())
+                {
+                    auto json = nlohmann::json::parse(*jsonBack, NULL, false);
+                    if(json.is_object() && (json.contains(CurOwnerName)))
+                    {
+                        res.OriginOwnerId = json[CurOwnerName].get<std::string>();
+                    }
+                }
+                res.IsSuccess = true;
+
+                break;
+            }
+
+            CLOG_DEBUG("UpdateDataIf fail other machine ocuppied, finalMachineId:%lld, jsonBack:%s", machineId, jsonBack->c_str());
+            co_return res;
+        }
+    }
+    while (false);
+
+    // 成功注册, 更新本地的lastid
+    _UpdateLastId(machineId, finalTimePart);
+
+    CLOG_DEBUG("RegisterMachine specify machine id:%lld, old owner:%s, new owner:%s, time part:%lld", machineId, res.OriginOwnerId.c_str(), _ownerId.c_str(), finalTimePart);
+
+    co_return res;
+}
+
 
 KERNEL_END

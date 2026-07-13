@@ -45,6 +45,9 @@ class IGlobalIdMgr : public CompHostObject
 public:
     IGlobalIdMgr(UInt64 objTypeId) : CompHostObject(objTypeId){}
 
+    // 定时5秒持久化, 最多丢5秒的数据, 除非mongodb集群全挂了
+    // 一个机器id被占用, 会在12小时后才可用, 丢5秒是可控的(时间数据会取时间数据和当前时间的最大值, 12小时后可用可以覆盖掉丢失的5秒时间计数)
+    // 接口最高2亿qps, 按照丢失5秒数据算, 时间位最多会丢1.602小时, 在12小时范围内
     // [63bit] - [32      -      62bit] - [18 - 31 bit] - [0 - 17]
     //   [0]      时间bit(相对基准时间)      machine id      seq id
     virtual Int64 NewId() = 0;
@@ -60,6 +63,13 @@ public:
     virtual Int64 GetTimePart() const = 0;
     // owner
     virtual const KERNEL_NS::LibString &GetOwnerId() const = 0;
+
+    // 强行占据机器id
+    // 返回原owner id
+    virtual CoTask<KERNEL_NS::LibString> ForceOccupyMachineId(Int64 machineId) = 0;
+
+    // 最大机器id
+    virtual Int64 GetMaxMachineId() const = 0;
 };
 
 KERNEL_END

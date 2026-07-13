@@ -35,11 +35,18 @@
 #include <atomic>
 
 #include "OptionComp/storage/MongoDB/Impl/MongoSerializeInfo.h"
+#include <kernel/comp/Log/log.h>
 
 
 KERNEL_BEGIN
 
 class LibTimer;
+
+struct RegisterMachineRes
+{
+    bool IsSuccess = false;
+    KERNEL_NS::LibString OriginOwnerId;
+};
 
 class GlobalIdMgr : public IGlobalIdMgr
 {
@@ -90,6 +97,11 @@ public:
     // 获取owner
     virtual const KERNEL_NS::LibString &GetOwnerId() const override;
 
+    // 强行占用机器id
+    virtual CoTask<KERNEL_NS::LibString> ForceOccupyMachineId(Int64 machineId) override;
+
+    virtual Int64 GetMaxMachineId() const override;
+
 private:
     Int32 _OnAfterCompsInit() override;
     Int32 _OnHostWillStart() override;
@@ -103,6 +115,11 @@ private:
     CoTask<> _SaveData(bool isClose);
 
     KERNEL_NS::CoTask<bool> RegisterMachine();
+
+    // 测试, 不可直接使用
+    KERNEL_NS::CoTask<RegisterMachineRes> TestRegisterMachine(Int64 machineId);
+
+    void _UpdateLastId(Int64 finalMachineId, Int64 finalTimePart);
 
 private:
     alignas(SYSTEM_ALIGN_SIZE) IMongoDbMgr * _mongodbMgr;
@@ -141,6 +158,70 @@ private:
     // 定时同步时间间隔
     KERNEL_NS::TimeSlice _saveInterval;
 };
+
+ALWAYS_INLINE void GlobalIdMgr::_UpdateLastId(Int64 finalMachineId, Int64 finalTimePart)
+{
+    // 最后的时间部分是 finalTimePart 那么可用的就是 finalTimePart + 1
+    auto lastId = _lastId.load(std::memory_order_acquire);
+
+    // 说明在已经使用的情况下重新注册机器id
+    if(lastId != 0)
+    {
+        auto timePart = (lastId & TIME_PART_MASK) >> TIME_PART_POS;
+        const auto machineId = (lastId & MACHINE_ID_MASK) >> MACHINE_ID_POS;
+
+        // 重新注册到当前已经注册的机器id, 则看时间部分, 如果时间部分 finalTimePart + 1要大则使用finalTimePart + 1
+        if(machineId == finalMachineId)
+        {
+            const auto oldTimePart = timePart;
+            Int64 newTimePart = timePart;
+            if(timePart < (finalTimePart + 1))
+                newTimePart = finalTimePart + 1;
+
+            // 直接跳过 timePart避免 seq冲突的麻烦
+            else
+            {
+                newTimePart = timePart + 1;
+            }
+
+            // 相同的机器id需要cas
+            auto newLastId = (newTimePart << TIME_PART_POS) | finalMachineId << MACHINE_ID_POS;
+            while (!_lastId.compare_exchange_weak(lastId, newLastId, std::memory_order_acq_rel))
+            {
+                timePart = (lastId & TIME_PART_MASK) >> TIME_PART_POS;
+                if(timePart < (finalTimePart + 1))
+                    newTimePart = finalTimePart + 1;
+                // 直接跳过 timePart避免 seq冲突的麻烦
+                else
+                {
+                    newTimePart = timePart + 1;
+                }
+
+                newLastId = (newTimePart << TIME_PART_POS) | finalMachineId << MACHINE_ID_POS;
+            }
+            
+            CLOG_INFO("RegisterMachine success old machine id:%lld, new machine id:%lld, oldTimePart:%lld => useful time part:%lld, newLastId:%lld"
+                , machineId, finalMachineId, oldTimePart, newTimePart, newLastId);
+
+            return;
+        }
+
+        // 注册到新的机器id则使用 finalTimePart + 1
+        timePart = finalTimePart + 1;
+        const auto newLastId = (timePart << TIME_PART_POS) | finalMachineId << MACHINE_ID_POS;
+        _lastId.exchange(newLastId, std::memory_order_acq_rel);
+        CLOG_INFO("RegisterMachine success old machine id:%lld, new machine id:%lld, useful time part:%lld, last id:%lld"
+            , machineId, finalMachineId, (finalTimePart + 1), lastId);
+
+        return;
+    }
+
+    // 启动注册时候直接使用 finalTimePart + 1
+    lastId = ((finalTimePart + 1) << TIME_PART_POS) | finalMachineId << MACHINE_ID_POS;
+    _lastId.exchange(lastId, std::memory_order_acq_rel);
+    CLOG_INFO("RegisterMachine success machine id:%lld, useful time part:%lld, last id:%lld", finalMachineId, (finalTimePart + 1), lastId);
+}
+
 
 KERNEL_END
 
