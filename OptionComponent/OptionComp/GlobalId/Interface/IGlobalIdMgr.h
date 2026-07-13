@@ -53,6 +53,13 @@ public:
     virtual void SetMongodbMgr(IMongoDbMgr *mongodbMgr) = 0;
     // 设置GlobalParam
     virtual void SetGlobalParamMgr(IGlobalParamMgr *globalParamMgr) = 0;
+
+    // 机器id
+    virtual Int64 GetMachineId() const = 0;
+    // 时间位
+    virtual Int64 GetTimePart() const = 0;
+    // owner
+    virtual const KERNEL_NS::LibString &GetOwnerId() const = 0;
 };
 
 KERNEL_END

@@ -1011,10 +1011,10 @@ ALWAYS_INLINE void Poller::UnSubscribeStubEvent(UInt64 stub)
     if (iter == _stubRefCb.end())
         return;
 
-    if (g_Log)
-    {
-        CLOG_DEBUG("unsubscribe stub:%llu => callback:(%s) owner:%s.", stub, iter->second->GetCallbackRtti().c_str(), iter->second->GetOwnerRtti().c_str());
-    }
+    // if (g_Log)
+    // {
+    //     CLOG_DEBUG("unsubscribe stub:%llu => callback:(%s) owner:%s.", stub, iter->second->GetCallbackRtti().c_str(), iter->second->GetOwnerRtti().c_str());
+    // }
 
     iter->second->Release();
     _stubRefCb.erase(iter);

@@ -83,6 +83,12 @@ public:
 
     virtual void SetMongodbMgr(IMongoDbMgr *mongodbMgr) override;
     virtual void SetGlobalParamMgr(IGlobalParamMgr *globalParamMgr) override;
+    // 机器id
+    virtual Int64 GetMachineId() const override;
+    // 时间位
+    virtual Int64 GetTimePart() const override;
+    // 获取owner
+    virtual const KERNEL_NS::LibString &GetOwnerId() const override;
 
 private:
     Int32 _OnAfterCompsInit() override;

@@ -55,6 +55,10 @@ void TestGlobalOptionComps::Run()
     KERNEL_NS::SmartPtr<KERNEL_NS::IGlobalParamMgr, KERNEL_NS::AutoDelMethods::Release> globalParamMgr = KERNEL_NS::GlobalParamMgrFactory().Create()->CastTo<KERNEL_NS::IGlobalParamMgr>();
     globalParamMgr->SetMongodbMgr(mongodbMgr.AsSelf());
 
+    KERNEL_NS::SmartPtr<KERNEL_NS::IGlobalIdMgr, KERNEL_NS::AutoDelMethods::Release> globalIdMgr = KERNEL_NS::GlobalIdMgrFactory().Create()->CastTo<KERNEL_NS::IGlobalIdMgr>();
+    globalIdMgr->SetMongodbMgr(mongodbMgr.AsSelf());
+    globalIdMgr->SetGlobalParamMgr(globalParamMgr.AsSelf());
+
     auto st = commnadMgr->Init();
     if(st != Status::Success)
     {
@@ -73,6 +77,12 @@ void TestGlobalOptionComps::Run()
     if(st != Status::Success)
     {
         CLOG_ERROR_GLOBAL(TestGlobalOptionComps, "globalParamMgr init fail st:%d", st);
+        return;
+    }
+    st = globalIdMgr->Init();
+    if(st != Status::Success)
+    {
+        CLOG_ERROR_GLOBAL(TestGlobalOptionComps, "globalIdMgr init fail st:%d", st);
         return;
     }
 
@@ -98,6 +108,63 @@ void TestGlobalOptionComps::Run()
         CLOG_ERROR_GLOBAL(TestGlobalOptionComps, "globalParamMgr start fail st:%d", st);
         return;
     }
+
+    st = globalIdMgr->Start();
+    if(st != Status::Success)
+    {
+        CLOG_ERROR_GLOBAL(TestGlobalOptionComps, "globalIdMgr start fail st:%d", st);
+        return;
+    }
+
+    std::atomic<Int64> genIdCount{0};
+    std::atomic<Int64> sameCount{0};
+
+    // 消费者线程, 监控每秒生成数量, 当前机器id
+    std::atomic<Int32> lifeCount;
+    KERNEL_NS::ObjLife<std::atomic<Int32>> lifeCountGuard(lifeCount);
+    g_EventLoopEasyTaskThreadPool->Send([&genIdCount, poller, &globalIdMgr, &sameCount, lifeCountGuard]()
+    {
+        KERNEL_NS::PostCaller([&genIdCount, poller, &globalIdMgr, &sameCount, lifeCountGuard]()->KERNEL_NS::CoTask<>
+        {
+            auto ownerId = globalIdMgr->GetOwnerId();
+            while (!poller->IsQuit())
+            {
+                co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
+                auto genCount = genIdCount.exchange(0, std::memory_order_acq_rel);
+                auto machineId = globalIdMgr->GetMachineId();
+                auto timePart = globalIdMgr->GetTimePart();
+                auto sames = sameCount.load(std::memory_order_acquire);
+                CLOG_INFO_GLOBAL(TestGlobalOptionComps, "gen %lld qps, machine id:%lld, owner:%s, last time part:%lld, total same count:%lld"
+                    , genCount, machineId, ownerId.c_str(), timePart, sames);
+            }
+        });
+    });
+    
+    // 生产者线程, 生产id
+    KERNEL_NS::SmartPtr<KERNEL_NS::LibEventLoopThread> thread =  new KERNEL_NS::LibEventLoopThread([&genIdCount, &globalIdMgr, poller, &sameCount, lifeCountGuard]()
+    {
+        KERNEL_NS::PostCaller([&genIdCount, &globalIdMgr, poller, &sameCount, lifeCountGuard]()->KERNEL_NS::CoTask<>
+        {
+            std::set<Int64> genIds;
+            while (!poller->IsQuit())
+            {
+                globalIdMgr->NewId();
+                // auto iter = genIds.insert(id);
+                //
+                // // 有没id冲突
+                // if (!iter.second)
+                //     sameCount.fetch_add(1, std::memory_order_release);
+                
+                genIdCount.fetch_add(1, std::memory_order_release);
+            }
+
+            co_return;
+        });
+    });
+
+    thread->Start();
+
+    // 另一个线程, 强行占用Owner, 
 
     // TODO:先测试UpdatParam
     // g_EventLoopEasyTaskThreadPool->Send([globalParamMgr, poller] () mutable -> void
@@ -184,11 +251,23 @@ void TestGlobalOptionComps::Run()
     poller->EventLoop();
     poller->OnLoopEnd();
 
+    thread->Close();
+
+    while (lifeCount.load(std::memory_order_acquire) > 1)
+    {
+        KERNEL_NS::SystemUtil::ThreadSleep(1000);
+        CLOG_INFO_GLOBAL(TestGlobalOptionComps, "waiting life count reset...");
+    }
+
+    CLOG_INFO_GLOBAL(TestGlobalOptionComps, "life count reset completed.");
+
+    globalIdMgr->WillClose();
     globalParamMgr->WillClose();
     mongodbMgr->WillClose();
     commnadMgr->WillClose();
 
-    globalParamMgr->WillClose();
+    globalIdMgr->Close();
+    globalParamMgr->Close();
     mongodbMgr->Close();
     commnadMgr->Close();
 }

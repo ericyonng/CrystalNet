@@ -121,6 +121,24 @@ void GlobalIdMgr::SetGlobalParamMgr(IGlobalParamMgr *globalParamMgr)
     _globalParamMgr = globalParamMgr;
 }
 
+// 机器id
+Int64 GlobalIdMgr::GetMachineId() const
+{
+    return (_lastId.load(std::memory_order_acquire) & MACHINE_ID_MASK) >> MACHINE_ID_POS;
+}
+
+// 时间位
+Int64 GlobalIdMgr::GetTimePart() const
+{
+    return (_lastId.load(std::memory_order_acquire) & TIME_PART_MASK) >> TIME_PART_POS;
+}
+
+const KERNEL_NS::LibString &GlobalIdMgr::GetOwnerId() const
+{
+    return _ownerId;
+}
+
+
 Int32 GlobalIdMgr::_OnAfterCompsInit()
 {
     if (!_mongodbMgr)
@@ -268,6 +286,7 @@ CoTask<> GlobalIdMgr::_SaveData(bool isClose)
         updateFields->emplace(TimePartName, KERNEL_NS::Variant(timePart));
         updateFields->emplace(HeartbeatTimeName, KERNEL_NS::Variant(nowTime.GetMilliTimestamp()));
         updateFields->emplace(CurOwnerName, KERNEL_NS::Variant(""));
+        updateFields->emplace(GlobalIdKeyName, KERNEL_NS::Variant(machineId));
         // 得是自己占用的才需要更新
         bsoncxx::builder::basic::document filterDoc;
         filterDoc.append(bsoncxx::builder::basic::kvp(GlobalIdKeyName.GetRaw(), static_cast<std::int64_t>(machineId)));
@@ -305,6 +324,7 @@ CoTask<> GlobalIdMgr::_SaveData(bool isClose)
         updateFields->emplace(TimePartName, KERNEL_NS::Variant(timePart));
         updateFields->emplace(HeartbeatTimeName, KERNEL_NS::Variant(nowTime.GetMilliTimestamp()));
         updateFields->emplace(CurOwnerName, KERNEL_NS::Variant(_ownerId));
+        updateFields->emplace(GlobalIdKeyName, KERNEL_NS::Variant(machineId));
 
         // 得是自己占用的才需要更新
         bsoncxx::builder::basic::document filterDoc;
@@ -359,7 +379,7 @@ CoTask<> GlobalIdMgr::_SaveData(bool isClose)
         }
         else
         {
-            CLOG_INFO("_SaveData UpdateDataIf success, db:%s, collection:%s, kv:%s, TimePart:%lld, CurOwner:%s, HeartbeatTime:%lld"
+            CLOG_DEBUG("_SaveData UpdateDataIf success, db:%s, collection:%s, kv:%s, TimePart:%lld, CurOwner:%s, HeartbeatTime:%lld"
                 , DbName.c_str(), CollectionName.c_str(), KERNEL_NS::StringUtil::ToString(kv, ',').c_str(), timePart, _ownerId.c_str(), nowTime.GetMilliTimestamp());
         }
     }
@@ -384,6 +404,7 @@ KERNEL_NS::CoTask<bool> GlobalIdMgr::RegisterMachine()
             // 构造条件
             bsoncxx::builder::basic::document doc;
             doc.append(bsoncxx::builder::basic::kvp(ParamCollectionFieldName.GetRaw(), static_cast<std::int64_t>(curOriginMachineId)));
+            doc.append(bsoncxx::builder::basic::kvp(_globalParamMgr->GetUniqueKeyFieldName().GetRaw(), ParamCollectionKeyValue.GetRaw()));
 
             // 要更新的值
             const auto newMachineId = (curOriginMachineId + 1) % MACHINE_ID_MOD;
@@ -491,7 +512,8 @@ KERNEL_NS::CoTask<bool> GlobalIdMgr::RegisterMachine()
             updateFields->emplace(TimePartName, newTimePart + 1);
             updateFields->emplace(HeartbeatTimeName, nowTime.GetMilliTimestamp());
             updateFields->emplace(CurOwnerName, _ownerId);
-        
+            updateFields->emplace(GlobalIdKeyName, KERNEL_NS::Variant(finalMachineId));
+            
             bsoncxx::builder::basic::document filterDoc;
             filterDoc.append(bsoncxx::builder::basic::kvp(GlobalIdKeyName.GetRaw(), static_cast<std::int64_t>(finalMachineId)));
             filterDoc.append(bsoncxx::builder::basic::kvp(HeartbeatTimeName.GetRaw(), static_cast<std::int64_t>(heartbeatTimeFromDb)));
@@ -532,6 +554,7 @@ KERNEL_NS::CoTask<bool> GlobalIdMgr::RegisterMachine()
             updateFields->emplace(TimePartName, nowTimeByBase.GetSecTimestamp() + 1);
             updateFields->emplace(HeartbeatTimeName, nowTime.GetMilliTimestamp());
             updateFields->emplace(CurOwnerName, _ownerId);
+            updateFields->emplace(GlobalIdKeyName, KERNEL_NS::Variant(finalMachineId));
 
             bsoncxx::builder::basic::document filterDoc;
             filterDoc.append(bsoncxx::builder::basic::kvp(GlobalIdKeyName.GetRaw(), static_cast<std::int64_t>(finalMachineId)));
@@ -616,7 +639,7 @@ KERNEL_NS::CoTask<bool> GlobalIdMgr::RegisterMachine()
         // 启动注册时候直接使用 finalTimePart + 1
         else
         {
-            const auto lastId = ((finalTimePart + 1) << TIME_PART_POS) | finalMachineId << MACHINE_ID_POS;
+            lastId = ((finalTimePart + 1) << TIME_PART_POS) | finalMachineId << MACHINE_ID_POS;
             _lastId.exchange(lastId, std::memory_order_acq_rel);
             CLOG_INFO("RegisterMachine success machine id:%lld, useful time part:%lld, last id:%lld", finalMachineId, (finalTimePart + 1), lastId);
         }

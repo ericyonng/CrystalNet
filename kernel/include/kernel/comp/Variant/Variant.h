@@ -277,7 +277,9 @@ private:
         {
             if(!_obj._strData)
                 _obj._strData = CRYSTAL_NEW(LibString);
-            *_obj._strData = *other._obj._strData;
+
+            if (other._obj._strData)
+                *_obj._strData = *other._obj._strData;
         }
         else if(_type == VariantRtti::VT_DICTIONARY_DEF)
         {

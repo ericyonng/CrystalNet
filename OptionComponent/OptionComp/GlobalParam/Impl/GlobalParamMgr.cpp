@@ -76,6 +76,8 @@ CoTask<bool> GlobalParamMgr::AtomicUpdateParam(const KERNEL_NS::LibString &param
 {
     std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv;
     kv.emplace(_uniqueIndexFieldName, paramName);
+    if (keyRefValue && (!keyRefValue->contains(_uniqueIndexFieldName)))
+        keyRefValue->emplace(_uniqueIndexFieldName, KERNEL_NS::Variant(paramName));
     auto ret = co_await _mongodbMgr->UpdateDataIf(_db, _collectionName, kv, keyRefValue, condition, jsonBackOrigin);
 
     CLOG_DEBUG("AtomicUpdateParam UpdateDataIf kv:%s, jsonBackOrigin:%s, ", KERNEL_NS::StringUtil::ToString(kv, ',').c_str(), jsonBackOrigin ? jsonBackOrigin->c_str():"");
