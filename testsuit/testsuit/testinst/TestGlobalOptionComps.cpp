@@ -146,9 +146,10 @@ void TestGlobalOptionComps::Run()
         KERNEL_NS::PostCaller([&genIdCount, &globalIdMgr, poller, &sameCount, lifeCountGuard]()->KERNEL_NS::CoTask<>
         {
             std::set<Int64> genIds;
+            auto ptr = globalIdMgr.AsSelf();
             while (!poller->IsQuit())
             {
-                globalIdMgr->NewId();
+                ptr->NewId();
                 // auto iter = genIds.insert(id);
                 //
                 // // 有没id冲突
@@ -157,11 +158,38 @@ void TestGlobalOptionComps::Run()
                 
                 genIdCount.fetch_add(1, std::memory_order_release);
             }
-
+    
             co_return;
         });
     });
 
+    // 注册机器id
+  //   KERNEL_NS::SmartPtr<KERNEL_NS::LibEventLoopThread> thread =  new KERNEL_NS::LibEventLoopThread([&genIdCount, &globalIdMgr, poller, &sameCount, lifeCountGuard]()
+  // {
+  //     KERNEL_NS::PostCaller([&genIdCount, &globalIdMgr, poller, &sameCount, lifeCountGuard]()->KERNEL_NS::CoTask<>
+  //     {
+  //         std::set<Int64> genIds;
+  //         Int64 machineId = 0;
+  //         while (!poller->IsQuit())
+  //         {
+  //             co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
+  //             machineId = (machineId + 1) % globalIdMgr->GetMaxMachineId();
+  //             auto lastOwner = co_await globalIdMgr->ForceOccupyMachineId(machineId);
+  //             CLOG_INFO_GLOBAL(TestGlobalOptionComps, "register machine:%lld, last owner:%s, cur owner:%s", machineId, lastOwner.c_str(), globalIdMgr->GetOwnerId().c_str());
+  //             
+  //             globalIdMgr->NewId();
+  //             // auto iter = genIds.insert(id);
+  //             //
+  //             // // 有没id冲突
+  //             // if (!iter.second)
+  //             //     sameCount.fetch_add(1, std::memory_order_release);
+  //               
+  //             // genIdCount.fetch_add(1, std::memory_order_release);
+  //         }
+  //
+  //         co_return;
+  //     });
+  // });
     thread->Start();
 
     // 另一个线程, 强行占用Owner, 

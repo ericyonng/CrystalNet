@@ -185,7 +185,7 @@ ALWAYS_INLINE void GlobalIdMgr::_UpdateLastId(Int64 finalMachineId, Int64 finalT
             }
 
             // 相同的机器id需要cas
-            auto newLastId = (newTimePart << TIME_PART_POS) | finalMachineId << MACHINE_ID_POS;
+            auto newLastId = (newTimePart << TIME_PART_POS) | (finalMachineId << MACHINE_ID_POS);
             while (!_lastId.compare_exchange_weak(lastId, newLastId, std::memory_order_acq_rel))
             {
                 timePart = (lastId & TIME_PART_MASK) >> TIME_PART_POS;
@@ -197,7 +197,7 @@ ALWAYS_INLINE void GlobalIdMgr::_UpdateLastId(Int64 finalMachineId, Int64 finalT
                     newTimePart = timePart + 1;
                 }
 
-                newLastId = (newTimePart << TIME_PART_POS) | finalMachineId << MACHINE_ID_POS;
+                newLastId = (newTimePart << TIME_PART_POS) | (finalMachineId << MACHINE_ID_POS);
             }
             
             CLOG_INFO("RegisterMachine success old machine id:%lld, new machine id:%lld, oldTimePart:%lld => useful time part:%lld, newLastId:%lld"
@@ -208,7 +208,7 @@ ALWAYS_INLINE void GlobalIdMgr::_UpdateLastId(Int64 finalMachineId, Int64 finalT
 
         // 注册到新的机器id则使用 finalTimePart + 1
         timePart = finalTimePart + 1;
-        const auto newLastId = (timePart << TIME_PART_POS) | finalMachineId << MACHINE_ID_POS;
+        const auto newLastId = (timePart << TIME_PART_POS) | (finalMachineId << MACHINE_ID_POS);
         _lastId.exchange(newLastId, std::memory_order_acq_rel);
         CLOG_INFO("RegisterMachine success old machine id:%lld, new machine id:%lld, useful time part:%lld, last id:%lld"
             , machineId, finalMachineId, (finalTimePart + 1), lastId);
@@ -217,7 +217,7 @@ ALWAYS_INLINE void GlobalIdMgr::_UpdateLastId(Int64 finalMachineId, Int64 finalT
     }
 
     // 启动注册时候直接使用 finalTimePart + 1
-    lastId = ((finalTimePart + 1) << TIME_PART_POS) | finalMachineId << MACHINE_ID_POS;
+    lastId = ((finalTimePart + 1) << TIME_PART_POS) | (finalMachineId << MACHINE_ID_POS);
     _lastId.exchange(lastId, std::memory_order_acq_rel);
     CLOG_INFO("RegisterMachine success machine id:%lld, useful time part:%lld, last id:%lld", finalMachineId, (finalTimePart + 1), lastId);
 }

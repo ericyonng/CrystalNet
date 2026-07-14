@@ -565,7 +565,7 @@ KERNEL_NS::CoTask<bool> GlobalIdMgr::RegisterMachine()
         }
         else
         {
-            CLOG_DEBUG("query global id info fail have no data, machine id:%lld, global id info:%s", finalMachineId);
+            CLOG_DEBUG("query global id info fail have no data, machine id:%lld", finalMachineId);
 
             // 尝试注册机器id
             const auto &nowTime = LibTime::Now();
@@ -686,7 +686,7 @@ KERNEL_NS::CoTask<RegisterMachineRes> GlobalIdMgr::TestRegisterMachine(Int64 mac
         }
         else
         {
-            CLOG_DEBUG("query global id info fail have no data, machine id:%lld, global id info:%s", machineId);
+            CLOG_DEBUG("query global id info fail have no data, machine id:%lld", machineId);
 
             // 尝试注册机器id
             const auto &nowTime = LibTime::Now();

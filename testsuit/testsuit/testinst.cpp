@@ -318,7 +318,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestLibConfig::Run();
     // TestHash::Run();
     TestGlobalOptionComps::Run();
-    
+    // TestRandom::Run();
     // write a large file
     // do
     // {

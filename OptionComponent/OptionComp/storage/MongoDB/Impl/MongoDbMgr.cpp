@@ -2301,6 +2301,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIf(KERNEL_NS::LibString dbName, KE
         }
         catch (const mongocxx::exception &e)
         {
+            // 说明匹配失败, 被别人抢先更新了
             if (e.code().value() == 11000)
             {
                 CLOG_DEBUG_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf duplicate key, will return old doc, exception:%s, db:%s, collection:%s, filter:%s updateFields:"
@@ -2490,6 +2491,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIfAndBack(KERNEL_NS::LibString dbN
         }
         catch (const mongocxx::exception &e)
         {
+            // 说明匹配失败, 被别人抢先更新了
             if (e.code().value() == 11000)
             {
                 CLOG_DEBUG_ARGS(KERNEL_NS::LibString().AppendFormat("UpdateDataIf duplicate key, will return old doc, exception:%s, db:%s, collection:%s, filter:%s updateFields:"

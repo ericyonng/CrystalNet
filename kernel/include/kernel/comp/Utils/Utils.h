@@ -70,5 +70,6 @@
 #include <kernel/comp/Utils/SortUtil.h>
 #include <kernel/comp/Utils/YamlUtil.h>
 #include <kernel/comp/Utils/HashUtil.h>
+#include <kernel/comp/Utils/RandomUtil.h>
 
 #endif
