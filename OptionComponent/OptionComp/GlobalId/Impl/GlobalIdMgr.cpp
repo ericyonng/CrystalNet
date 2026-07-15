@@ -169,6 +169,20 @@ Int32 GlobalIdMgr::_OnAfterCompsInit()
         return Status::Failed;
     }
 
+    // 设置分片
+    std::vector<ShardKeyInfo> shardKeyInfos;
+    shardKeyInfos.push_back(
+    {
+        GlobalIdKeyName,
+        ShardKeyType::HASHED
+    });
+    if (!_mongodbMgr->SetShardKeyInfo(DbName, CollectionName, shardKeyInfos))
+    {
+        CLOG_ERROR("set mongodb shard key info fail, db:%s, collection:%s, shard key:%s"
+            , DbName.c_str(), CollectionName.c_str(), StringUtil::ToString(shardKeyInfos, ',').c_str());
+        return Status::Failed;
+    }
+
     // 初始化索引
     std::vector<std::pair<KERNEL_NS::LibString, Int32>> fields;
     fields.emplace_back(GlobalIdKeyName, 1);

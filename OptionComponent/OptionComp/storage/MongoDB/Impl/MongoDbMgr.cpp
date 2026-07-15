@@ -465,6 +465,14 @@ bool MongoDbMgr::SetShardKeyInfo(const KERNEL_NS::LibString &dbName, const KERNE
     KERNEL_NS::ObjLife<std::atomic<Int32>> isDone(isFinished);
     ObjLife<std::atomic<Int64>> lifeCtl(_pendingRequests);
 
+    auto currentConfig = _configMonitor->Current();
+    if (!currentConfig->ReplicaSetName.empty())
+    {
+        CLOG_WARN("mongodb in replicaset mode cant set shard key, db:%s, collection:%s, shardKeyInfos%s, isUnique:%d"
+            , dbName.c_str(), collectionName.c_str(), KERNEL_NS::StringUtil::ToString(shardKeyInfos, ',').c_str(), isUnique);
+        return true;
+    }
+
     g_EventLoopEasyTaskThreadPool->Send([this, &dbName, isDone, &isSuc, &collectionName, &shardKeyInfos, &isUnique]()mutable 
     {
         KERNEL_NS::RunRightNow([this, &dbName, isDone, &isSuc, &collectionName, &shardKeyInfos, &isUnique]() mutable ->KERNEL_NS::CoTask<>

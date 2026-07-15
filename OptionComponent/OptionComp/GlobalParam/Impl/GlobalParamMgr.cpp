@@ -97,6 +97,20 @@ Int32 GlobalParamMgr::_OnHostInit()
         CLOG_ERROR("have no mongodb mgr");
         return Status::ConfigError;
     }
+
+    // 设置分片
+    std::vector<ShardKeyInfo> shardKeyInfos;
+    shardKeyInfos.push_back(
+    {
+        _uniqueIndexFieldName,
+        ShardKeyType::HASHED
+    });
+    if (!_mongodbMgr->SetShardKeyInfo(_db, _collectionName, shardKeyInfos))
+    {
+        CLOG_ERROR("set mongodb shard key info fail, db:%s, collection:%s, shard key:%s"
+            , _db.c_str(), _collectionName.c_str(), StringUtil::ToString(shardKeyInfos, ',').c_str());
+        return Status::Failed;
+    }
     
     // 创建索引
     std::vector<std::pair<KERNEL_NS::LibString, Int32>> fields;
