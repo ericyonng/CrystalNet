@@ -54,10 +54,11 @@ class GlobalIdMgr : public IGlobalIdMgr
     
 public:
     // 时间位宽
-    static constexpr Int32 TIME_PART_WIDTH = 31;
+    static constexpr Int32 TIME_PART_WIDTH = 34;
     // 机器id位宽 14BIT
     static constexpr Int32 MACHINE_ID_WIDTH = 14;
-    static constexpr Int32 SEQ_WIDTH = 18;
+    // 序列号
+    static constexpr Int32 SEQ_WIDTH = 15;
 
     // 时间位
     static constexpr Int64 TIME_PART_POS = SEQ_WIDTH + MACHINE_ID_WIDTH;
