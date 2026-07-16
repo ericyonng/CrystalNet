@@ -38,6 +38,7 @@
 #include <kernel/comp/LibString.h>
 
 #include "NetEngine/BriefSockAddr.h"
+#include <kernel/comp/Delegate/IDelegate.h>
 
 KERNEL_BEGIN
 
@@ -59,10 +60,12 @@ struct KERNEL_EXPORT LibTraceId
     // 只有在idgenerator还没初始化的时候使用
     static std::atomic<UInt64> &GetAtomicMaxId();
 
+    // 唯一id生成器回调, 如果外部实现更可靠的唯一id生成器, 那么优先使用
+    static std::atomic<IDelegate<UInt64> *> &GetOutsideIdGen();
+
   UInt64 _mainTraceId;
   UInt64 _subTraceId;
   LibString _desc;
-
 };
 
 ALWAYS_INLINE LibString LibTraceId::ToString() const

@@ -69,7 +69,8 @@ GlobalIdMgr::GlobalIdMgr()
 
 GlobalIdMgr::~GlobalIdMgr()
 {
- 
+    auto deleg = LibTraceId::GetOutsideIdGen().exchange(NULL, std::memory_order_acq_rel);
+    CRYSTAL_RELEASE_SAFE(deleg);
 }
 
 void GlobalIdMgr::Release()
@@ -234,6 +235,15 @@ Int32 GlobalIdMgr::_OnAfterCompsInit()
 
         _saveDataTime.store(timer, std::memory_order_release);
     });
+
+    // 设置Trace的唯一id生成入口
+    auto deleg = [this]()->UInt64
+    {
+        return static_cast<UInt64>(NewId());
+    };
+    auto cb = KERNEL_CREATE_CLOSURE_DELEGATE(deleg, UInt64);
+    auto oldCb = LibTraceId::GetOutsideIdGen().exchange(cb, std::memory_order_acq_rel);
+    CRYSTAL_RELEASE_SAFE(oldCb);
     
     // TODO:时间同步过程中如果,发生机器id被强占(一般发生在mongodb不可用(12小时以上), 导致无法同步和更新心跳,此时需要重新注册机器id)
     // TODO:监控Id是否超前, 超前多少秒, 分片速率统计等指标监控
@@ -248,6 +258,9 @@ Int32 GlobalIdMgr::_OnHostWillStart()
 
 void GlobalIdMgr::_OnHostClose()
 {
+    auto deleg = LibTraceId::GetOutsideIdGen().exchange(NULL, std::memory_order_acq_rel);
+    CRYSTAL_RELEASE_SAFE(deleg);
+    
     // 即时保存
     auto saveDataPoller = _saveDataPoller.exchange(NULL, std::memory_order_acq_rel);
     if(saveDataPoller)

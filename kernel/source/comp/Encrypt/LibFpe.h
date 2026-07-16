@@ -24,7 +24,7 @@
  * Date: 2026-07-16 10:57:05
  * Author: Eric Yonng
  * Description:
- * FPE加解密为密文长度与原文长度一致而设计,不需要对外暴露FPE接口
+ * FPE(格式保留加密)加解密为密文长度与原文长度一致而设计,不需要对外暴露FPE接口
 */
 
 #ifndef __CRYSTAL_NET_KERNEL_SOURCE_COMP_ENCRYPT_LIB_FPE_H__

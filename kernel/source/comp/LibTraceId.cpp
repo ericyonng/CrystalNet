@@ -45,6 +45,13 @@ LibTraceId::LibTraceId()
 void LibTraceId::UpdateMain()
 {
     DEF_STATIC_THREAD_LOCAL_DECLEAR IdGenerator *s_IdGen = NULL;
+    auto idGenCb = GetOutsideIdGen().load(std::memory_order_acquire);
+    if (idGenCb)
+    {
+        _mainTraceId = idGenCb->Invoke();
+        return;
+    }
+    
     if(LIKELY(s_IdGen))
     {
         _mainTraceId = s_IdGen->NewId();
@@ -64,6 +71,13 @@ void LibTraceId::UpdateMain()
 void LibTraceId::UpdateSub()
 {
     DEF_STATIC_THREAD_LOCAL_DECLEAR IdGenerator *s_IdGen = NULL;
+    auto idGenCb = GetOutsideIdGen().load(std::memory_order_acquire);
+    if (idGenCb)
+    {
+        _subTraceId = idGenCb->Invoke();
+        return;
+    }
+    
     if(LIKELY(s_IdGen))
     {
         _subTraceId = s_IdGen->NewId();
@@ -85,6 +99,13 @@ std::atomic<UInt64> &LibTraceId::GetAtomicMaxId()
     static std::atomic<UInt64> s_AtomicMaxId(0);
     return s_AtomicMaxId;
 }
+
+std::atomic<IDelegate<UInt64> *> &LibTraceId::GetOutsideIdGen()
+{
+    static std::atomic<IDelegate<UInt64> *> s_idGen {NULL};
+    return s_idGen;
+}
+
 
 LibTraceId *LibTraceId::GetCurrentTrace()
 {
