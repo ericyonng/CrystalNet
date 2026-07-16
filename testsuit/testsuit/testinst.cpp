@@ -318,8 +318,8 @@ void TestInst::Run(int argc, char const *argv[])
     // TestCoLocker::Run();
     // TestLibConfig::Run();
     // TestHash::Run();
-    // TestGlobalOptionComps::Run();
-    TestShortId::Run();
+    TestGlobalOptionComps::Run();
+    // TestShortId::Run();
     // TestRandom::Run();
     // write a large file
     // do

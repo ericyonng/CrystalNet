@@ -32,6 +32,47 @@
 #include <OptionComp/Command/Command.h>
 #include "bsoncxx/builder/basic/document.hpp"
 #include "bsoncxx/builder/basic/array.hpp"
+#include <kernel/comp/Coder/ShortIdGenerator.h>
+
+
+// 测试用256位密钥(与NIST测试向量中的AES-256密钥一致, 仅用于测试)
+static const char *TEST_KEY_HEX = "2B7E151628AED2A6ABF7158809CF4F3CEF4359D8D580AA4F7F036D6F04FC6A94";
+// 测试用tweak(与NIST测试向量一致)
+static const char *TEST_TWEAK_HEX = "39383736353433323130";
+
+// NIST测试向量中字符到数字的映射(radix<=36时):
+// '0'-'9' → 0-9, 'a'-'z' → 10-35
+static unsigned int NistCharToDigit(char c)
+{
+    if (c >= '0' && c <= '9')
+        return static_cast<unsigned int>(c - '0');
+    if (c >= 'a' && c <= 'z')
+        return static_cast<unsigned int>(c - 'a' + 10);
+    return UINT_MAX;
+}
+
+static char NistDigitToChar(unsigned int d)
+{
+    if (d < 10)
+        return static_cast<char>('0' + d);
+    return static_cast<char>('a' + d - 10);
+}
+
+// 十六进制字符串转字节数组
+static Int32 HexToBytes(const char *hex, Byte8 *out, Int32 maxOut)
+{
+    Int32 hexLen = static_cast<Int32>(strlen(hex));
+    Int32 byteLen = hexLen / 2;
+    if (byteLen > maxOut)
+        return -1;
+
+    for (Int32 i = 0; i < byteLen; ++i)
+    {
+        char tmp[3] = {hex[i * 2], hex[i * 2 + 1], 0};
+        out[i] = static_cast<Byte8>(strtol(tmp, nullptr, 16));
+    }
+    return byteLen;
+}
 
 void TestGlobalOptionComps::Run()
 {
@@ -145,17 +186,33 @@ void TestGlobalOptionComps::Run()
     {
         KERNEL_NS::PostCaller([&genIdCount, &globalIdMgr, poller, &sameCount, lifeCountGuard]()->KERNEL_NS::CoTask<>
         {
+            // 准备密钥和tweak
+            Byte8 key[32];
+            HexToBytes(TEST_KEY_HEX, key, sizeof(key));
+            Byte8 tweak[16];
+            Int32 tweakLen = HexToBytes(TEST_TWEAK_HEX, tweak, sizeof(tweak));
+            Int32 keyBits = 256;
+            
             std::set<Int64> genIds;
             auto ptr = globalIdMgr.AsSelf();
             while (!poller->IsQuit())
             {
-                ptr->NewId();
+                auto id = ptr->NewId();
                 // auto iter = genIds.insert(id);
                 //
                 // // 有没id冲突
                 // if (!iter.second)
                 //     sameCount.fetch_add(1, std::memory_order_release);
-                
+
+                KERNEL_NS::LibString shortId;
+                KERNEL_NS::ShortIdGenerator::Generate(id, key, keyBits, tweak, static_cast<UInt32>(tweakLen), shortId);
+                UInt64 parseId;
+                KERNEL_NS::ShortIdGenerator::Parse(shortId, parseId, key, keyBits, tweak, static_cast<UInt32>(tweakLen));
+
+                if (parseId != id)
+                {
+                    CLOG_WARN_GLOBAL(TestGlobalOptionComps, "id:%lld, parse id:%llu", id, parseId);
+                }
                 genIdCount.fetch_add(1, std::memory_order_release);
             }
     
