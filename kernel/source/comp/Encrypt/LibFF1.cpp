@@ -33,8 +33,8 @@
   #include <WinSock2.h>
 #endif
 
-#include <kernel/comp/Log.h>
-#include <fpe.h>
+#include <kernel/comp/Log/log.h>
+#include "LibFpe.h"
 
 KERNEL_BEGIN
 
@@ -72,7 +72,7 @@ Int32 LibFF1::Encrypt(const Byte8 *key, Int32 keyBits,
 
     if (UNLIKELY(ret != 0))
     {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(LibFF1, "FPE_set_ff1_key fail ret:%d keyBits:%d radix:%d"), ret, keyBits, radix);
+        CLOG_ERROR_GLOBAL(LibFF1, "FPE_set_ff1_key fail ret:%d keyBits:%d radix:%d", ret, keyBits, radix);
         return Status::Ff1_SetKeyFail;
     }
 
@@ -121,7 +121,7 @@ Int32 LibFF1::Decrypt(const Byte8 *key, Int32 keyBits,
 
     if (UNLIKELY(ret != 0))
     {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(LibFF1, "FPE_set_ff1_key fail ret:%d keyBits:%d radix:%d"), ret, keyBits, radix);
+        CLOG_ERROR_GLOBAL(LibFF1, "FPE_set_ff1_key fail ret:%d keyBits:%d radix:%d", ret, keyBits, radix);
         return Status::Ff1_SetKeyFail;
     }
 

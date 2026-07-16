@@ -35,21 +35,21 @@
 
 #include <kernel/comp/Coder/LibBase62.h>
 #include <kernel/comp/Encrypt/LibFF1.h>
-#include <kernel/comp/Log.h>
+#include <kernel/comp/Log/log.h>
 
 KERNEL_BEGIN
 
-LibString ShortIdGenerator::Generate(Int64 id,
+bool ShortIdGenerator::Generate(UInt64 id,
                                      const Byte8 *key, Int32 keyBits,
-                                     const Byte8 *tweak, UInt32 tweakLen)
+                                     const Byte8 *tweak, UInt32 tweakLen, LibString &outStr)
 {
     if (UNLIKELY(!key))
     {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(ShortIdGenerator, "key is null"));
-        return LibString();
+        CLOG_ERROR_GLOBAL(ShortIdGenerator, "key is null");
+        return false;
     }
 
-    // 1. Int64 → 11位radix-62数字数组
+    // 1. UInt64 → 11位radix-62数字数组
     unsigned int inDigits[LibBase62::SHORT_ID_LEN];
     LibBase62::ToRadixArray(id, inDigits, LibBase62::SHORT_ID_LEN);
 
@@ -60,38 +60,45 @@ LibString ShortIdGenerator::Generate(Int64 id,
                                 LibBase62::SHORT_ID_LEN, LibBase62::RADIX);
     if (UNLIKELY(ret != Status::Success))
     {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(ShortIdGenerator, "FF1 encrypt fail err:%d id:%lld"), ret, static_cast<long long>(id));
-        return LibString();
+        CLOG_ERROR_GLOBAL(ShortIdGenerator, "FF1 encrypt fail err:%d id:%llu",  ret, id);
+        return false;
     }
 
     // 3. 数字数组 → Base62字符
-    LibString result;
-    result.resize(LibBase62::SHORT_ID_LEN);
-    char *buf = const_cast<char *>(result.data());
+    outStr.resize(LibBase62::SHORT_ID_LEN);
+    char *buf = const_cast<char *>(outStr.data());
     for (Int32 i = 0; i < LibBase62::SHORT_ID_LEN; ++i)
     {
         buf[i] = LibBase62::DigitToChar(outDigits[i]);
     }
 
-    return result;
+    return !outStr.empty();
 }
 
 Int32 ShortIdGenerator::Parse(const LibString &shortId,
-                              Int64 &id,
+                              UInt64 &id,
                               const Byte8 *key, Int32 keyBits,
                               const Byte8 *tweak, UInt32 tweakLen)
 {
     if (UNLIKELY(!key))
         return Status::ShortId_InvalidInput;
 
-    if (static_cast<Int32>(shortId.size()) != LibBase62::SHORT_ID_LEN)
+    const auto idLen = static_cast<Int32>(shortId.size());
+    if (idLen > LibBase62::SHORT_ID_LEN)
         return Status::ShortId_InvalidShortIdLen;
+
+    // 这个index是最大的'0'值索引(如果shortId小于 SHORT_ID_LEN, 给前面自动补'0'字符)
+    const auto maxZeroIndex = LibBase62::SHORT_ID_LEN - idLen - 1;
 
     // 1. Base62字符 → 数字数组
     unsigned int inDigits[LibBase62::SHORT_ID_LEN];
     for (Int32 i = 0; i < LibBase62::SHORT_ID_LEN; ++i)
     {
-        unsigned int d = LibBase62::CharToDigit(shortId[i]);
+        unsigned int d = LibBase62::CharToDigit('0');
+        if (i > maxZeroIndex)
+        {
+            d = LibBase62::CharToDigit(shortId[i - (maxZeroIndex + 1)]);
+        }
         if (d == UINT_MAX)
             return Status::ShortId_InvalidChar;
         inDigits[i] = d;
@@ -104,12 +111,16 @@ Int32 ShortIdGenerator::Parse(const LibString &shortId,
                                 LibBase62::SHORT_ID_LEN, LibBase62::RADIX);
     if (UNLIKELY(ret != Status::Success))
     {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(ShortIdGenerator, "FF1 decrypt fail err:%d"), ret);
+        CLOG_ERROR_GLOBAL(ShortIdGenerator, "FF1 decrypt fail err:%d, shortId:%s", ret, shortId.c_str());
         return ret;
     }
 
-    // 3. 数字数组 → Int64
-    id = LibBase62::FromRadixArray(outDigits, LibBase62::SHORT_ID_LEN);
+    // 3. 数字数组 → UInt64
+    if (!LibBase62::FromRadixArray(outDigits, id, LibBase62::SHORT_ID_LEN))
+    {
+        CLOG_WARN_GLOBAL(ShortIdGenerator, "FromRadixArray fail shortid:%s", shortId.c_str());
+        return Status::ShortId_DecodedIdOverflow;
+    }
 
     return Status::Success;
 }

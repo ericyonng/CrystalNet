@@ -40,7 +40,6 @@ project "CrystalKernel"
 		ROOT_DIR .. "/3rd/curl/include/",
 		ROOT_DIR .. "/3rd/idn2/include/",
 		ROOT_DIR .. "/3rd/yaml/include/",
-        ROOT_DIR .. "/3rd/ff1/",
      }
 	 
     -- files
@@ -50,7 +49,6 @@ project "CrystalKernel"
 		"../../kernel/**.cpp",
 		"../../3rd/*.h",
 		"../../3rd/**.hpp",
-        "../../3rd/ff1/**.c",
 		--"../../3rd/tiny-utf8/lib/*.cpp",
     }
 

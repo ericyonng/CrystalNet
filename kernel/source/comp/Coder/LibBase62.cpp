@@ -28,6 +28,7 @@
 
 #include <pch.h>
 #include <kernel/comp/Coder/LibBase62.h>
+#include <kernel/comp/Log/log.h>
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
   #include <WinSock2.h>
@@ -36,31 +37,39 @@
 #include <limits.h>
 #include <cstring>
 
+#include "kernel/comp/Log/LogMacro.h"
+
 KERNEL_BEGIN
-
-void LibBase62::ToRadixArray(Int64 value, unsigned int *digits, Int32 len)
+    void LibBase62::ToRadixArray(UInt64 value, unsigned int *digits, Int32 len)
 {
-    // 处理负数: 取绝对值
-    UInt64 uv = static_cast<UInt64>(value < 0 ? -value : value);
-
     for (Int32 i = len - 1; i >= 0; --i)
     {
-        digits[i] = static_cast<unsigned int>(uv % RADIX);
-        uv /= RADIX;
+        digits[i] = static_cast<unsigned int>(value % RADIX);
+        value /= RADIX;
     }
 }
 
-Int64 LibBase62::FromRadixArray(const unsigned int *digits, Int32 len)
+bool LibBase62::FromRadixArray(const unsigned int *digits, UInt64 &result, Int32 len)
 {
-    UInt64 result = 0;
+    result = 0;
     for (Int32 i = 0; i < len; ++i)
     {
-        result = result * RADIX + digits[i];
+        const unsigned int d = digits[i];
+
+        // 预检查: result * RADIX + d 是否会超出 UInt64 范围
+        // 等价于 result > (MAX_UINT64 - d) / RADIX 则溢出
+        // 事前检查避免无符号乘加溢出后结果不确定的问题
+        if (result > (MAX_UINT64 - d) / RADIX)
+        {
+            return false;
+        }
+
+        result = result * RADIX + d;
     }
-    return static_cast<Int64>(result);
+    return true;
 }
 
-LibString LibBase62::Encode(Int64 value)
+LibString LibBase62::Encode(UInt64 value)
 {
     unsigned int digits[SHORT_ID_LEN];
     ToRadixArray(value, digits, SHORT_ID_LEN);
@@ -75,21 +84,35 @@ LibString LibBase62::Encode(Int64 value)
     return result;
 }
 
-bool LibBase62::Decode(const LibString &str, Int64 &value)
+bool LibBase62::Decode(const LibString &str, UInt64 &value)
 {
-    if (static_cast<Int32>(str.size()) != SHORT_ID_LEN)
+    const auto idLen = static_cast<Int32>(str.size());
+    if (idLen > SHORT_ID_LEN)
         return false;
+
+    // 这个index是最大的'0'值索引(如果shortId小于 SHORT_ID_LEN, 给前面自动补'0'字符)
+    const auto maxZeroIndex = SHORT_ID_LEN - idLen - 1;
 
     unsigned int digits[SHORT_ID_LEN];
     for (Int32 i = 0; i < SHORT_ID_LEN; ++i)
     {
-        unsigned int d = CharToDigit(str[i]);
+        unsigned int d = CharToDigit('0');
+        if (i > maxZeroIndex)
+        {
+            d = CharToDigit(str[i - (maxZeroIndex + 1)]);
+        }
+        
         if (d == UINT_MAX)
             return false;
         digits[i] = d;
     }
 
-    value = FromRadixArray(digits, SHORT_ID_LEN);
+    if (!FromRadixArray(digits, value,SHORT_ID_LEN))
+    {
+        CLOG_WARN_GLOBAL(LibBase62, "FromRadixArray fail str:%s", str.c_str());
+        return false;
+    }
+    
     return true;
 }
 

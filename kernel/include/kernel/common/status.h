@@ -288,7 +288,7 @@ namespace Status
         ShortId_InvalidInput = 6200,                           // 输入参数非法
         ShortId_Ff1EncryptFail = 6201,                         // FF1加密失败
         ShortId_Ff1DecryptFail = 6202,                         // FF1解密失败
-        ShortId_InvalidShortIdLen = 6203,                       // 短ID长度非法(必须为11字符)
+        ShortId_InvalidShortIdLen = 6203,                       // 短ID长度非法(必须不大于11字符)
         ShortId_InvalidChar = 6204,                            // 短ID包含非法字符(非Base62)
         ShortId_DecodedIdOverflow = 6205,                      // 解密后的ID超出Int64范围
 

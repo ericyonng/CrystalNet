@@ -23,9 +23,9 @@
  * 
  * Date: 2026-07-16 01:30:00
  * Author: Eric Yonng
- * Description: 短ID生成器. 将Int64全球唯一ID通过FF1格式保留加密后编码为11字符Base62短字符串.
- *              加密: Int64 → 11位radix-62数字数组 → FF1加密 → Base62字符表映射 → 11字符字符串
- *              解密: 11字符字符串 → Base62字符表反映射 → FF1解密 → 11位radix-62数字数组 → Int64
+ * Description: 短ID生成器. 将UInt64通过FF1格式保留加密后编码为11字符Base62短字符串.
+ *              加密: UInt64 → 11位radix-62数字数组 → FF1加密 → Base62字符表映射 → 11字符字符串
+ *              解密: 11字符字符串 → Base62字符表反映射 → FF1解密 → 11位radix-62数字数组 → UInt64
  *              密钥和tweak通过参数传入, 不持有状态, 线程安全.
 */
 
@@ -44,18 +44,20 @@ KERNEL_BEGIN
 class KERNEL_EXPORT ShortIdGenerator
 {
 public:
-    // Int64 → FF1加密 → 11字符Base62短字符串
+    // UInt64 → FF1加密 → 11字符Base62短字符串
     // key: AES密钥(16/24/32字节), keyBits: 128/192/256
     // tweak: 调整参数(可变长度, 可为nullptr当tweakLen=0时), tweakLen: tweak字节数
     // 返回: 11字符Base62短字符串. 失败时返回空字符串(可通过日志查看错误)
-    static LibString Generate(Int64 id,
+    // 连续id不产生连续的短id(足够离散)
+    static bool Generate(UInt64 id,
                               const Byte8 *key, Int32 keyBits,
-                              const Byte8 *tweak, UInt32 tweakLen);
+                              const Byte8 *tweak, UInt32 tweakLen, LibString &outStr);
 
-    // 11字符Base62短字符串 → FF1解密 → Int64
+    // 不大于11字符Base62短字符串 → FF1解密 → UInt64
     // 成功返回Status::Success, 其他为错误码
+    // shortId不够11个字符的左塞0
     static Int32 Parse(const LibString &shortId,
-                       Int64 &id,
+                       UInt64 &id,
                        const Byte8 *key, Int32 keyBits,
                        const Byte8 *tweak, UInt32 tweakLen);
 };

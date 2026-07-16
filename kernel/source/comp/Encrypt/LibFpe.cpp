@@ -1,11 +1,33 @@
 /*!
- * Source: https://github.com/0NG/Format-Preserving-Encryption
- * License: MIT License (Copyright (c) 2017)
- *
- * FF1 Format-Preserving Encryption core implementation following
- * NIST Special Publication 800-38G.
- * Based on OpenSSL BIGNUM + AES-ECB.
- */
+*  MIT License
+ *  
+ *  Copyright (c) 2020 ericyonng<120453674@qq.com>
+ *  
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *  
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *  
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ * 
+ * Date: 2026-07-16 10:57:05
+ * Author: Eric Yonng
+ * Description: 
+*/
+
+#include <pch.h>
+#include "LibFpe.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -14,8 +36,12 @@
 #include <openssl/aes.h>
 #include <openssl/crypto.h>
 #include <openssl/bn.h>
-#include "fpe.h"
-#include "fpe_locl.h"
+#include "LibFpe.h"
+#include "FpeLocal.h"
+
+# ifdef __cplusplus
+extern "C" {
+# endif
 
 // convert numeral string to number
 void str2num(BIGNUM *Y, const unsigned int *X, unsigned long long radix, unsigned int len, BN_CTX *ctx)
@@ -377,3 +403,7 @@ void FPE_ff1_encrypt(unsigned int *in, unsigned int *out, unsigned int inlen, FP
         FF1_decrypt(in, out, &key->aes_enc_ctx, key->tweak,
                     key->radix, inlen, key->tweaklen);
 }
+
+# ifdef __cplusplus
+}
+# endif

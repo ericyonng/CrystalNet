@@ -23,9 +23,9 @@
  * 
  * Date: 2026-07-16 01:30:00
  * Author: Eric Yonng
- * Description: Base62编码工具类. 将Int64与11字符Base62字符串互相转换.
+ * Description: Base62编码工具类. 将UInt64与11字符Base62字符串互相转换.
  *              字符表: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
- *              62^11 > 2^63, 11字符可覆盖整个Int64(非负)空间.
+ *              62^11 > 2^63, 11字符可覆盖整个UInt64空间.
  *              注意: 本类不包含FF1加密, 仅做纯Base62编码. 加密请使用ShortIdGenerator.
 */
 
@@ -46,19 +46,21 @@ KERNEL_BEGIN
 class KERNEL_EXPORT LibBase62
 {
 public:
-    static const Int32 RADIX = 62;
-    static const Int32 SHORT_ID_LEN = 11;  // 11个字符覆盖Int64非负全空间
+    static constexpr Int32 RADIX = 62;
+    static constexpr Int32 SHORT_ID_LEN = 11;  // 11个字符覆盖UInt64全空间
+    // UInt64 最大值, 与项目 BigNum.h 风格一致
+    static constexpr UInt64 MAX_UINT64 = 0xFFFFFFFFFFFFFFFFLLU;
 
-    // Int64非负值 → 指定长度的radix-62数字数组(不足前导补0)
+    // UInt64 → 指定长度的radix-62数字数组(不足前导补0)
     // digits[0]为最高位, digits[len-1]为最低位
-    static void ToRadixArray(Int64 value, unsigned int *digits, Int32 len = SHORT_ID_LEN);
-    // radix-62数字数组 → Int64
-    static Int64 FromRadixArray(const unsigned int *digits, Int32 len = SHORT_ID_LEN);
+    static void ToRadixArray(UInt64 value, unsigned int *digits, Int32 len = SHORT_ID_LEN);
+    // radix-62数字数组 → UInt64
+    static bool FromRadixArray(const unsigned int *digits, UInt64 &result, Int32 len = SHORT_ID_LEN);
 
-    // Int64非负值 → 11字符Base62字符串(不含FF1加密)
-    static LibString Encode(Int64 value);
-    // 11字符Base62字符串 → Int64, 成功返回true
-    static bool Decode(const LibString &str, Int64 &value);
+    // UInt64 → 11字符Base62字符串(不含FF1加密)
+    static LibString Encode(UInt64 value);
+    // 11字符Base62字符串 → UInt64, 成功返回true
+    static bool Decode(const LibString &str, UInt64 &value);
 
     // 数字(0-61) → Base62字符, 非法digit返回'\0'
     static char DigitToChar(unsigned int digit);

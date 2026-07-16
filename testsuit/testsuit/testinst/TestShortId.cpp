@@ -36,7 +36,7 @@
 #include <kernel/comp/Coder/LibBase62.h>
 #include <kernel/comp/Coder/ShortIdGenerator.h>
 #include <kernel/comp/Encrypt/LibFF1.h>
-#include <kernel/comp/Log.h>
+#include <kernel/comp/Log/log.h>
 #include <kernel/comp/LibString.h>
 
 #include <set>
@@ -220,7 +220,7 @@ void TestShortId::Run()
 
     struct Base62TestCase
     {
-        Int64 id;
+        UInt64 id;
         const char *desc;
     };
 
@@ -242,7 +242,7 @@ void TestShortId::Run()
     Int32 numB62 = static_cast<Int32>(sizeof(b62Cases) / sizeof(b62Cases[0]));
     for (Int32 i = 0; i < numB62; ++i)
     {
-        Int64 id = b62Cases[i].id;
+        UInt64 id = b62Cases[i].id;
         KERNEL_NS::LibString encoded = KERNEL_NS::LibBase62::Encode(id);
 
         // 验证长度
@@ -255,26 +255,26 @@ void TestShortId::Run()
         }
 
         // 验证解码
-        Int64 decoded;
+        UInt64 decoded;
         bool ok = KERNEL_NS::LibBase62::Decode(encoded, decoded);
         if (!ok || decoded != id)
         {
             ++failCount;
-            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestShortId, "Base62 round-trip FAIL for %s: id=%lld encoded=%s decoded=%lld ok=%d"),
-                b62Cases[i].desc, static_cast<long long>(id), encoded.c_str(), static_cast<long long>(decoded), ok);
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestShortId, "Base62 round-trip FAIL for %s: id=%llu encoded=%s decoded=%llu ok=%d"),
+                b62Cases[i].desc, id, encoded.c_str(), decoded, ok);
         }
         else
         {
             ++passCount;
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestShortId, "Base62 case '%s' PASS: id=%lld → %s → %lld"),
-                b62Cases[i].desc, static_cast<long long>(id), encoded.c_str(), static_cast<long long>(decoded));
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestShortId, "Base62 case '%s' PASS: id=%llu → %s → %llu"),
+                b62Cases[i].desc, id, encoded.c_str(), decoded);
         }
     }
 
     // 测试非法字符解码
     {
         KERNEL_NS::LibString badStr = "ABCDEFGHIJK"; // 11 chars, all valid
-        Int64 val;
+        UInt64 val;
         bool ok = KERNEL_NS::LibBase62::Decode(badStr, val);
         if (ok)
         {
@@ -300,7 +300,7 @@ void TestShortId::Run()
         }
 
         // 长度不对
-        KERNEL_NS::LibString shortStr = "ABC";
+        KERNEL_NS::LibString shortStr = "ABCddddddddddxxxxxaaaaa";
         ok = KERNEL_NS::LibBase62::Decode(shortStr, val);
         if (!ok)
         {
@@ -327,7 +327,7 @@ void TestShortId::Run()
 
     struct ShortIdTestCase
     {
-        Int64 id;
+        UInt64 id;
         const char *desc;
     };
 
@@ -347,14 +347,14 @@ void TestShortId::Run()
     Int32 numShortId = static_cast<Int32>(sizeof(shortIdCases) / sizeof(shortIdCases[0]));
     for (Int32 i = 0; i < numShortId; ++i)
     {
-        Int64 id = shortIdCases[i].id;
-        KERNEL_NS::LibString shortId = KERNEL_NS::ShortIdGenerator::Generate(id, key, keyBits, tweak, static_cast<UInt32>(tweakLen));
+        UInt64 id = shortIdCases[i].id;
+        KERNEL_NS::LibString shortId;
 
-        if (shortId.empty())
+        if (!KERNEL_NS::ShortIdGenerator::Generate(id, key, keyBits, tweak, static_cast<UInt32>(tweakLen), shortId))
         {
             ++failCount;
-            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestShortId, "ShortId Generate FAIL for %s: id=%lld returned empty"),
-                shortIdCases[i].desc, static_cast<long long>(id));
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestShortId, "ShortId Generate FAIL for %s: id=%llu returned empty"),
+                shortIdCases[i].desc, id);
             continue;
         }
 
@@ -368,49 +368,50 @@ void TestShortId::Run()
         }
 
         // 解密验证
-        Int64 parsedId;
+        UInt64 parsedId;
         Int32 ret = KERNEL_NS::ShortIdGenerator::Parse(shortId, parsedId, key, keyBits, tweak, static_cast<UInt32>(tweakLen));
 
-        if (ret != KERNEL_NS::Status::Success || parsedId != id)
+        if (ret != Status::Success || parsedId != id)
         {
             ++failCount;
-            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestShortId, "ShortId round-trip FAIL for %s: id=%lld shortId=%s parsedId=%lld ret=%d"),
-                shortIdCases[i].desc, static_cast<long long>(id), shortId.c_str(), static_cast<long long>(parsedId), ret);
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestShortId, "ShortId round-trip FAIL for %s: id=%llu shortId=%s parsedId=%llu ret=%d"),
+                shortIdCases[i].desc, id, shortId.c_str(), parsedId, ret);
         }
         else
         {
             ++passCount;
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestShortId, "ShortId case '%s' PASS: id=%lld → shortId=%s → parsedId=%lld"),
-                shortIdCases[i].desc, static_cast<long long>(id), shortId.c_str(), static_cast<long long>(parsedId));
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestShortId, "ShortId case '%s' PASS: id=%llu → shortId=%s → parsedId=%llu"),
+                shortIdCases[i].desc, id, shortId.c_str(), parsedId);
         }
     }
 
     // 测试空tweak的情况
     {
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestShortId, "--- 3b. ShortIdGenerator with empty tweak ---"));
-        Int64 id = 1234567890123LL;
-        KERNEL_NS::LibString shortId = KERNEL_NS::ShortIdGenerator::Generate(id, key, keyBits, nullptr, 0);
+        UInt64 id = 1234567890123LL;
+        KERNEL_NS::LibString shortId;
 
-        if (shortId.empty())
+        if (!KERNEL_NS::ShortIdGenerator::Generate(id, key, keyBits, nullptr, 0, shortId))
         {
             ++failCount;
-            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestShortId, "ShortId with empty tweak Generate FAIL id=%lld"), static_cast<long long>(id));
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestShortId, "ShortId with empty tweak Generate FAIL id=%llu")
+                , id);
         }
         else
         {
-            Int64 parsedId;
+            UInt64 parsedId;
             Int32 ret = KERNEL_NS::ShortIdGenerator::Parse(shortId, parsedId, key, keyBits, nullptr, 0);
-            if (ret == KERNEL_NS::Status::Success && parsedId == id)
+            if (ret == Status::Success && parsedId == id)
             {
                 ++passCount;
-                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestShortId, "ShortId empty tweak PASS: id=%lld → %s → %lld"),
-                    static_cast<long long>(id), shortId.c_str(), static_cast<long long>(parsedId));
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestShortId, "ShortId empty tweak PASS: id=%llu → %s → %llu"),
+                    id, shortId.c_str(), parsedId);
             }
             else
             {
                 ++failCount;
-                g_Log->Error(LOGFMT_NON_OBJ_TAG(TestShortId, "ShortId empty tweak round-trip FAIL: id=%lld shortId=%s parsedId=%lld ret=%d"),
-                    static_cast<long long>(id), shortId.c_str(), static_cast<long long>(parsedId), ret);
+                g_Log->Error(LOGFMT_NON_OBJ_TAG(TestShortId, "ShortId empty tweak round-trip FAIL: id=%llu shortId=%s parsedId=%llu ret=%d"),
+                id, shortId.c_str(), parsedId, ret);
             }
         }
     }
@@ -426,10 +427,10 @@ void TestShortId::Run()
 
     for (Int32 i = 0; i < uniquenessCount; ++i)
     {
-        Int64 id = static_cast<Int64>(i) * 92233720368547LL + i * 7 + 1;
-        KERNEL_NS::LibString shortId = KERNEL_NS::ShortIdGenerator::Generate(id, key, keyBits, tweak, static_cast<UInt32>(tweakLen));
+        UInt64 id = static_cast<UInt64>(i) * 92233720368547LLU + i * 7 + 1;
+        KERNEL_NS::LibString shortId;
 
-        if (shortId.empty())
+        if (!KERNEL_NS::ShortIdGenerator::Generate(id, key, keyBits, tweak, static_cast<UInt32>(tweakLen), shortId))
         {
             ++failCount;
             g_Log->Error(LOGFMT_NON_OBJ_TAG(TestShortId, "ShortId Generate empty at uniqueness test i=%d"), i);
@@ -442,8 +443,8 @@ void TestShortId::Run()
             ++duplicateCount;
             if (duplicateCount <= 5)
             {
-                g_Log->Warn(LOGFMT_NON_OBJ_TAG(TestShortId, "Duplicate shortId detected: id=%lld shortId=%s"),
-                    static_cast<long long>(id), shortId.c_str());
+                g_Log->Warn(LOGFMT_NON_OBJ_TAG(TestShortId, "Duplicate shortId detected: id=%llu shortId=%s"),
+                    id, shortId.c_str());
             }
         }
     }
@@ -460,13 +461,152 @@ void TestShortId::Run()
     }
 
     // ================================================================
-    // 5. 连续ID不产生连续短ID(加密扩散性验证)
+    // 5. 短字符串/空串 Parse 测试(覆盖补0分支)
     // ================================================================
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestShortId, "--- 5. Cipher Diffusion Test ---"));
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestShortId, "--- 5. Short String / Empty String Parse Test ---"));
 
-    Int64 baseId = 1000000;
-    KERNEL_NS::LibString baseShortId = KERNEL_NS::ShortIdGenerator::Generate(baseId, key, keyBits, tweak, static_cast<UInt32>(tweakLen));
-    KERNEL_NS::LibString nextShortId = KERNEL_NS::ShortIdGenerator::Generate(baseId + 1, key, keyBits, tweak, static_cast<UInt32>(tweakLen));
+    // 5a. 短字符串 Parse 往返: 取小ID的Generate结果去掉前导'0'后Parse, 应与原ID一致
+    {
+        struct ShortStrCase
+        {
+            UInt64 id;
+            const char *desc;
+        };
+        ShortStrCase shortStrCases[] = {
+            {0, "zero"},
+            {1, "one"},
+            {42, "answer"},
+            {61, "max_digit"},
+            {62, "first_carry"},
+            {3844, "62^2"},
+            {999999, "small"},
+        };
+
+        Int32 numShortStr = static_cast<Int32>(sizeof(shortStrCases) / sizeof(shortStrCases[0]));
+        for (Int32 i = 0; i < numShortStr; ++i)
+        {
+            UInt64 id = shortStrCases[i].id;
+            KERNEL_NS::LibString fullShortId;
+            if (!KERNEL_NS::ShortIdGenerator::Generate(id, key, keyBits, tweak, static_cast<UInt32>(tweakLen), fullShortId))
+            {
+                ++failCount;
+                g_Log->Error(LOGFMT_NON_OBJ_TAG(TestShortId, "ShortStr Generate FAIL for %s: id=%llu"),
+                    shortStrCases[i].desc, id);
+                continue;
+            }
+
+            // 去掉前导 '0' 构造短字符串
+            Int32 firstNonZero = 0;
+            while (firstNonZero < KERNEL_NS::LibBase62::SHORT_ID_LEN - 1
+                   && fullShortId[firstNonZero] == '0')
+            {
+                ++firstNonZero;
+            }
+            KERNEL_NS::LibString trimmedShortId = fullShortId.substr(firstNonZero);
+
+            UInt64 parsedId;
+            Int32 ret = KERNEL_NS::ShortIdGenerator::Parse(trimmedShortId, parsedId, key, keyBits, tweak, static_cast<UInt32>(tweakLen));
+            if (ret != Status::Success || parsedId != id)
+            {
+                ++failCount;
+                g_Log->Error(LOGFMT_NON_OBJ_TAG(TestShortId, "ShortStr Parse FAIL for %s: id=%llu full=%s trimmed=%s parsedId=%llu ret=%d"),
+                    shortStrCases[i].desc, id, fullShortId.c_str(), trimmedShortId.c_str(), parsedId, ret);
+            }
+            else
+            {
+                ++passCount;
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestShortId, "ShortStr case '%s' PASS: id=%llu → full=%s → trimmed=%s → parsedId=%llu"),
+                    shortStrCases[i].desc, id, fullShortId.c_str(), trimmedShortId.c_str(), parsedId);
+            }
+        }
+    }
+
+    // 5b. 空串 Parse: 空串视为全0数组, FF1 Decrypt(全0)=D, D是否超出UInt64取决于key, 两种结果均合法
+    {
+        KERNEL_NS::LibString emptyStr;
+        UInt64 parsedId = 0;
+        Int32 ret = KERNEL_NS::ShortIdGenerator::Parse(emptyStr, parsedId, key, keyBits, tweak, static_cast<UInt32>(tweakLen));
+
+        // 空串=全0数组 → FF1 Decrypt(全0数组)=D
+        //  - D 超出 UINT64_MAX: FromRadixArray 检测溢出 → ShortId_DecodedIdOverflow (合法)
+        //  - D 在 UINT64_MAX 内: Parse 成功, parsedId=D; 自洽性: Generate(D)=FF1_Encrypt(FF1_Decrypt(全0))=全0数组 → "00000000000"
+        if (ret == Status::ShortId_DecodedIdOverflow)
+        {
+            ++passCount;
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestShortId, "Empty string Parse PASS: returned ShortId_DecodedIdOverflow (FF1 Decrypt(all-zero) exceeds UInt64 for this key)"));
+        }
+        else if (ret == Status::Success)
+        {
+            // 验证自洽性: Generate(parsedId) 应为全0短ID "00000000000"
+            KERNEL_NS::LibString regenShortId;
+            bool genOk = KERNEL_NS::ShortIdGenerator::Generate(parsedId, key, keyBits, tweak, static_cast<UInt32>(tweakLen), regenShortId);
+            const KERNEL_NS::LibString allZeroShortId = KERNEL_NS::LibBase62::Encode(0); // "00000000000"
+
+            if (genOk && regenShortId == allZeroShortId)
+            {
+                ++passCount;
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestShortId, "Empty string Parse PASS: ret=Success parsedId=%llu, Generate(parsedId)=%s (all-zero)"),
+                    parsedId, regenShortId.c_str());
+            }
+            else
+            {
+                ++failCount;
+                g_Log->Error(LOGFMT_NON_OBJ_TAG(TestShortId, "Empty string Parse self-consistency FAIL: parsedId=%llu genOk=%d regen=%s expected=%s"),
+                    parsedId, genOk ? 1 : 0, regenShortId.c_str(), allZeroShortId.c_str());
+            }
+        }
+        else
+        {
+            ++failCount;
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestShortId, "Empty string Parse unexpected ret=%d (expected Success or ShortId_DecodedIdOverflow) parsedId=%llu"),
+                ret, parsedId);
+        }
+    }
+
+    // 5c. 超长字符串 Parse 应拒绝
+    {
+        KERNEL_NS::LibString tooLong = "ABCDEFGHIJKL"; // 12 chars
+        UInt64 parsedId;
+        Int32 ret = KERNEL_NS::ShortIdGenerator::Parse(tooLong, parsedId, key, keyBits, tweak, static_cast<UInt32>(tweakLen));
+        if (ret == Status::ShortId_InvalidShortIdLen)
+        {
+            ++passCount;
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestShortId, "Too-long string Parse correctly rejected with ShortId_InvalidShortIdLen"));
+        }
+        else
+        {
+            ++failCount;
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestShortId, "Too-long string Parse should return ShortId_InvalidShortIdLen but got ret=%d"), ret);
+        }
+    }
+
+    // 5d. 非法字符短字符串 Parse 应拒绝
+    {
+        KERNEL_NS::LibString badShortStr = "ABC!"; // 含非法字符
+        UInt64 parsedId;
+        Int32 ret = KERNEL_NS::ShortIdGenerator::Parse(badShortStr, parsedId, key, keyBits, tweak, static_cast<UInt32>(tweakLen));
+        if (ret == Status::ShortId_InvalidChar)
+        {
+            ++passCount;
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestShortId, "Invalid-char short string Parse correctly rejected with ShortId_InvalidChar"));
+        }
+        else
+        {
+            ++failCount;
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestShortId, "Invalid-char short string Parse should return ShortId_InvalidChar but got ret=%d"), ret);
+        }
+    }
+
+    // ================================================================
+    // 6. 连续ID不产生连续短ID(加密扩散性验证)
+    // ================================================================
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestShortId, "--- 6. Cipher Diffusion Test ---"));
+
+    UInt64 baseId = 1000000;
+    KERNEL_NS::LibString baseShortId;
+    KERNEL_NS::ShortIdGenerator::Generate(baseId, key, keyBits, tweak, static_cast<UInt32>(tweakLen), baseShortId);
+    KERNEL_NS::LibString nextShortId;
+    KERNEL_NS::ShortIdGenerator::Generate(baseId + 1, key, keyBits, tweak, static_cast<UInt32>(tweakLen), nextShortId);
 
     Int32 diffCount = 0;
     for (Int32 i = 0; i < KERNEL_NS::LibBase62::SHORT_ID_LEN; ++i)
@@ -478,9 +618,9 @@ void TestShortId::Run()
     if (diffCount >= 5) // 加密后至少5个字符不同(11个字符中)
     {
         ++passCount;
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestShortId, "Diffusion test PASS: id=%lld → %s, id=%lld → %s, %d chars differ"),
-            static_cast<long long>(baseId), baseShortId.c_str(),
-            static_cast<long long>(baseId + 1), nextShortId.c_str(), diffCount);
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestShortId, "Diffusion test PASS: id=%llu → %s, id=%llu → %s, %d chars differ"),
+            baseId, baseShortId.c_str(),
+            baseId + 1, nextShortId.c_str(), diffCount);
     }
     else
     {
