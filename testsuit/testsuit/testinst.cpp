@@ -114,6 +114,7 @@
 #include <testsuit/testinst/TestLibConfig.h>
 #include <testsuit/testinst/TestHash.h>
 #include <testsuit/testinst/TestGlobalOptionComps.h>
+#include <testsuit/testinst/TestShortId.h>
 
 // void *operator new(size_t bytes)
 // {
@@ -318,6 +319,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestLibConfig::Run();
     // TestHash::Run();
     TestGlobalOptionComps::Run();
+    TestShortId::Run();
     // TestRandom::Run();
     // write a large file
     // do

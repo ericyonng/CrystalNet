@@ -21,19 +21,24 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2021-02-06 19:57:10
+ * Date: 2026-07-16 01:30:00
  * Author: Eric Yonng
- * Description: 
+ * Description: 测试ShortId模块(FF1加密+Base62编码的短ID生成器)
+ *              1. NIST FF1官方测试向量验证
+ *              2. Base62编解码往返测试
+ *              3. ShortIdGenerator加密-解密往返测试
+ *              4. 唯一性测试(不同ID生成不同短ID)
 */
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_CODER_CODER_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_CODER_CODER_H__
+#ifndef __CRYSTAL_NET_TEST_SUIT_TEST_SUIT_TEST_INST_TEST_SHORT_ID_H__
+#define __CRYSTAL_NET_TEST_SUIT_TEST_SUIT_TEST_INST_TEST_SHORT_ID_H__
 
 #pragma once
 
-#include <kernel/comp/Coder/base64.h>
-#include <kernel/comp/Coder/UrlCoder.h>
-#include <kernel/comp/Coder/LibBase62.h>
-#include <kernel/comp/Coder/ShortIdGenerator.h>
+class TestShortId
+{
+public:
+    static void Run();
+};
 
 #endif

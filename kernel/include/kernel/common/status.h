@@ -275,7 +275,22 @@ namespace Status
 
         // Poller[6000, 6999]
         Poller_PollerNotExits = 6000,                           // poller不存在
-        
+
+        // FPE/FF1[6100, 6199]
+        Ff1_InvalidKeyBits = 6100,                             // 密钥位数非法(只支持128/192/256)
+        Ff1_SetKeyFail = 6101,                                  // 设置FF1密钥失败
+        Ff1_RadixNotSupported = 6102,                           // 不支持的进制基数
+        Ff1_InputLenTooShort = 6103,                            // 输入数字数组长度过短(FF1要求>=2)
+        Ff1_InvalidKeyLen = 6104,                              // 密钥字节长度与指定位数不匹配
+        Ff1_InvalidTweakLen = 6105,                            // tweak长度非法
+
+        // ShortId[6200, 6299]
+        ShortId_InvalidInput = 6200,                           // 输入参数非法
+        ShortId_Ff1EncryptFail = 6201,                         // FF1加密失败
+        ShortId_Ff1DecryptFail = 6202,                         // FF1解密失败
+        ShortId_InvalidShortIdLen = 6203,                       // 短ID长度非法(必须为11字符)
+        ShortId_InvalidChar = 6204,                            // 短ID包含非法字符(非Base62)
+        ShortId_DecodedIdOverflow = 6205,                      // 解密后的ID超出Int64范围
 
         FrameStatusEnd = 65535,                                 // 框架层状态码截至
     };

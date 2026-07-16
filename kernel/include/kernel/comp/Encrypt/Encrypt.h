@@ -35,5 +35,6 @@
 #include <kernel/comp/Encrypt/XorEncrypt.h>
 #include <kernel/comp/Encrypt/LibRsa.h>
 #include <kernel/comp/Encrypt/LibDigest.h>
+#include <kernel/comp/Encrypt/LibFF1.h>
 
 #endif

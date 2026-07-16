@@ -100,6 +100,16 @@ TestSuit:
   # 协议加密key过期时间
   EncryptKeyExpireTime: 3000
   
+  # FF1短ID配置(用于将GlobalIdMgr生成的Int64全球唯一ID加密为11字符Base62短字符串)
+  # FF1Key: AES密钥的十六进制字符串(128位=32字符, 192位=48字符, 256位=64字符)
+  # FF1Tweak: 调整参数的十六进制字符串(可变长度, 可为空)
+  # FF1KeyBits: 密钥位数(128/192/256)
+  # 注意: 生产环境务必替换为随机生成的密钥
+  FF1ShortIdOptions:
+    FF1Key: EF4359D8D580AA4F7F036D6F04FC6A942B7E151628AED2A6ABF7158809CF4F3C
+    FF1Tweak: 3737373770717273373737
+    FF1KeyBits: 256
+  
   SysLogicOptions:
     # 监听信息
     TcpListenList:
@@ -214,12 +224,12 @@ MysqlCommonOptions:
   
 MongoTestSuit:
   # 分片集群填写分片集群的域名
-  SrvHostName: www.xxx.com
-  Account: abc
+  SrvHostName: rscluster.ericyonng.com
+  Account: eric
   # 使用明文, 不用使用url编码, 拼接的时候会自动url编码
-  Pwd: xxx
+  Pwd: pK38U~mTk^3
   # 如果指定了复制集则mongodb驱动会直连复制集,分片集群不需要填写
-  ReplicaSetName: rs0
+  ReplicaSetName: testsuit_rs
   # 定时清脏落地时间间隔
   PurgeInterval: 00:00:03
 
