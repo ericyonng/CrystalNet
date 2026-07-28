@@ -39,9 +39,9 @@
 #include <set>
 #include <atomic>
 
-KERNEL_BEGIN
 
-class MemoryPool;
+KERNEL_BEGIN
+    class MemoryPool;
 class SpinLock;
 
 extern KERNEL_EXPORT MemoryPool *KernelGetTlsMemoryPool();
@@ -165,6 +165,17 @@ extern KERNEL_EXPORT std::set<UInt64> &GetCoroutineThreadSet(UInt64 threadId, UI
 
 // 获取tls 自己的set, 
 extern KERNEL_EXPORT std::set<UInt64> &GetCoroutineThreadLocalSet(UInt64 moduleId);
+
+// 注册静态对象生命周期管理(dll/so/exe释放时统一释放全局对象内存), 每个模块(dll/exe/so都实现RegisterGlobalObjLife)
+extern ALWAYS_HIDDEN void RegisterGlobalObjLife(void *deleg);
+
+// 注册全局变量生命周期, 全局变量
+#ifndef KERNEL_REGISTER_GLOBAL_LIFE
+ #define KERNEL_REGISTER_GLOBAL_LIFE(LAMB)                  \
+    KERNEL_NS::RegisterGlobalObjLife(KERNEL_CREATE_CLOSURE_DELEGATE(LAMB, void))
+
+#endif
+
 
 KERNEL_END
 

@@ -45,6 +45,12 @@ ALWAYS_HIDDEN UInt64 GetCrystalModuleId()
     return id;
 }
 
+ALWAYS_HIDDEN void RegisterGlobalObjLife(void *deleg)
+{
+    static GlobalLifeCtrl s_lifeCtrl;
+    s_lifeCtrl.Register(reinterpret_cast<IDelegate<void> *>(deleg));
+}
+
 KERNEL_END
 
 #include <service_common/application/ResponseInfo.h>

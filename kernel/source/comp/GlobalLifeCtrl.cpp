@@ -21,31 +21,43 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2026-07-10 09:46:12
+ * Date: 2026-07-28 15:49:18
  * Author: Eric Yonng
  * Description: 
 */
 
 #include <pch.h>
-#include <OptionComp/GlobalParam/Impl/GlobalParamMgrFactory.h>
-#include <OptionComp/GlobalParam/Impl/GlobalParamMgr.h>
+#include <kernel/comp/GlobalLifeCtrl.h>
+#include <kernel/comp/Delegate/IDelegate.h>
+#include <kernel/comp/Utils/ContainerUtil.h>
+#include <kernel/comp/Log/log.h>
 
 KERNEL_BEGIN
 
-KERNEL_NS::CompFactory *GlobalParamMgrFactory::FactoryCreate()
+GlobalLifeCtrl::GlobalLifeCtrl()
 {
- return KERNEL_NS::ObjPoolWrap<GlobalParamMgrFactory>::NewByAdapter(_buildType.V);
+ 
 }
 
-void GlobalParamMgrFactory::Release()
+GlobalLifeCtrl::~GlobalLifeCtrl()
 {
- KERNEL_NS::ObjPoolWrap<GlobalParamMgrFactory>::DeleteByAdapter(_buildType.V, this);
+ for (auto &deleg : _cbs)
+ {
+    if (g_Log)
+    {
+      CLOG_DEBUG("global life ctrl deleg:%s", deleg->GetCallbackRtti().c_str());
+    }
+
+  deleg->Invoke();
+   CRYSTAL_RELEASE_SAFE(deleg);
+ }
 }
-    
-KERNEL_NS::CompObject *GlobalParamMgrFactory::Create() const
+
+void GlobalLifeCtrl::Register(IDelegate<void> *deleg)
 {
- CREATE_CRYSTAL_COMP(var, GlobalParamMgr);
- return var;
+ _lck.Lock();
+ _cbs.push_back(deleg);
+ _lck.Unlock();
 }
 
 KERNEL_END

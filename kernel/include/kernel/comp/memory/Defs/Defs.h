@@ -34,12 +34,14 @@
 #pragma once
 
 #include <kernel/common/macro.h>
+#include <kernel/common/func.h>
 #include <kernel/common/LibObject.h>
 #include <kernel/comp/memory/Defs/MemoryAlloctorConfig.h>
 #include <kernel/comp/Utils/TlsUtil.h>
 #include <kernel/comp/Tls/TlsObjectPool.h>
 #include <kernel/comp/memory/ObjAlloctor.h>
 #include <kernel/comp/memory/AlloctorInfoCollector.h>
+#include <memory>
 
 // 禁用 new/delete,因为派生类会调用父类的new/delete,如果派生类没哟使用对象池宏,会导致父类的对象池分配子类,将导致内存错误
 // void  *operator new(size_t bytes)                                                                         
@@ -105,8 +107,13 @@ public:                                                                         
             DEF_STATIC_THREAD_LOCAL_DECLEAR KERNEL_NS::ObjAlloctor<ObjType> *staticThreadLocal##ObjType##Alloctor = NULL;           \
             if(UNLIKELY(!staticThreadLocal##ObjType##Alloctor))                                                                                                                                     \
             {                                                                                                                                                                                       \
-                staticThreadLocal##ObjType##Alloctor = KERNEL_NS::TlsUtil::GetTlsStack()->New<KERNEL_NS::TlsObjectPool<KERNEL_NS::ObjAlloctor<ObjType>> >()->GetPool(initBlockNumPerBuffer          \
-            , KERNEL_NS::MemoryAlloctorConfig(sizeof(ObjType), createBufferNumWhenInit));                                                                                                           \
+                staticThreadLocal##ObjType##Alloctor = new KERNEL_NS::ObjAlloctor<ObjType>(true, initBlockNumPerBuffer, KERNEL_NS::MemoryAlloctorConfig(sizeof(ObjType), createBufferNumWhenInit));          \
+                auto alloctor = staticThreadLocal##ObjType##Alloctor;               \
+                auto deleg = [alloctor]()->void                                                                         \
+                {                                                                                                                                   \
+                    alloctor->Release();                                                                                \
+                };                                                                                                                                  \
+                KERNEL_NS::RegisterGlobalObjLife(KERNEL_CREATE_CLOSURE_DELEGATE(deleg, void));                                                      \
             }                                                                                                                                                                                       \
                                                                                                                                     \
             return *staticThreadLocal##ObjType##Alloctor;                                                                           \
@@ -210,9 +217,9 @@ public:                                                                         
         }                                                                                                                           \
         static FORBID_INLINE KERNEL_NS::ObjAlloctor<ObjType> *GetStaticAllocter_##ObjType()                                         \
         {                                                                                                                           \
-            static KERNEL_NS::ObjAlloctor<ObjType> *s_alloctor = new KERNEL_NS::ObjAlloctor<ObjType>(false, initBlockNumPerBuffer   \
-            , KERNEL_NS::MemoryAlloctorConfig(sizeof(ObjType), createBufferNumWhenInit));                                           \
-            return s_alloctor;                                                                                                      \
+            static std::shared_ptr<KERNEL_NS::ObjAlloctor<ObjType>> s_alloctor(new KERNEL_NS::ObjAlloctor<ObjType>(false, initBlockNumPerBuffer   \
+            , KERNEL_NS::MemoryAlloctorConfig(sizeof(ObjType), createBufferNumWhenInit)));                                           \
+            return s_alloctor.get();                                                                                                      \
         }                                                                                                                           \
 
 

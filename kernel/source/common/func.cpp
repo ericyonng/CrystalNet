@@ -37,6 +37,7 @@
 #include <kernel/comp/Utils/BackTraceUtil.h>
 #include <kernel/comp/Log/log.h>
 #include <unordered_map>
+#include <kernel/comp/GlobalLifeCtrl.h>
 
 KERNEL_BEGIN
 
@@ -162,6 +163,13 @@ std::set<UInt64> &GetCoroutineThreadLocalSet(UInt64 moduleId)
 // {
 //     GetBackTraceLock().Unlock();
 // }
+
+ALWAYS_HIDDEN void RegisterGlobalObjLife(void *deleg)
+{
+    static GlobalLifeCtrl s_lifeCtrl;
+    s_lifeCtrl.Register(reinterpret_cast<IDelegate<void> *>(deleg));
+}
+
 
 KERNEL_END
 

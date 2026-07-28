@@ -21,31 +21,39 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2026-07-10 09:46:12
+ * Date: 2026-07-28 15:49:18
  * Author: Eric Yonng
  * Description: 
 */
 
-#include <pch.h>
-#include <OptionComp/GlobalParam/Impl/GlobalParamMgrFactory.h>
-#include <OptionComp/GlobalParam/Impl/GlobalParamMgr.h>
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_GLOBAL_LIFE_CTRL_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_GLOBAL_LIFE_CTRL_H__
+
+#pragma once
+
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
+
+#include <vector>
+#include <kernel/comp/Lock/Impl/SpinLock.h>
 
 KERNEL_BEGIN
 
-KERNEL_NS::CompFactory *GlobalParamMgrFactory::FactoryCreate()
-{
- return KERNEL_NS::ObjPoolWrap<GlobalParamMgrFactory>::NewByAdapter(_buildType.V);
-}
+template <typename Rtn, typename... Args>
+class IDelegate;
 
-void GlobalParamMgrFactory::Release()
+class KERNEL_EXPORT GlobalLifeCtrl
 {
- KERNEL_NS::ObjPoolWrap<GlobalParamMgrFactory>::DeleteByAdapter(_buildType.V, this);
-}
-    
-KERNEL_NS::CompObject *GlobalParamMgrFactory::Create() const
-{
- CREATE_CRYSTAL_COMP(var, GlobalParamMgr);
- return var;
-}
+public:
+ GlobalLifeCtrl();
+ ~GlobalLifeCtrl();
+
+ void Register(IDelegate<void> *deleg);
+ 
+ std::vector<IDelegate<void> *> _cbs;
+ SpinLock _lck;
+};
 
 KERNEL_END
+
+#endif

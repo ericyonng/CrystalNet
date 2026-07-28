@@ -276,7 +276,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestDelegate::Run();
     // TestPoller::Run();
     // TestMemoryAssist::Run();
-    // TestService::Run(argc, argv);
+    TestService::Run(argc, argv);
     // TestInlineStatic::Run();
     // TestList::Run();
     // TestDirectoryUtil::Run();
@@ -318,7 +318,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestCoLocker::Run();
     // TestLibConfig::Run();
     // TestHash::Run();
-    TestGlobalOptionComps::Run();
+    // TestGlobalOptionComps::Run();
     // TestShortId::Run();
     // TestRandom::Run();
     // write a large file

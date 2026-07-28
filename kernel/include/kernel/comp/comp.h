@@ -59,6 +59,7 @@
 #include <kernel/comp/ConcurrentPriorityQueue/SPSCQueue.h>
 #include <kernel/comp/ObjLife.h>
 #include <kernel/comp/Config/Config.h>
+#include <kernel/comp/GlobalLifeCtrl.h>
 
 // 简单组件
 #include <kernel/comp/Delegate/LibDelegate.h>

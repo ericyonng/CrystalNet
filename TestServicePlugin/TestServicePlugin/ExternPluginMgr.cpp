@@ -26,6 +26,7 @@
 
 #include "pch.h"
 #include <TestServicePlugin/ExternPluginMgr.h>
+#include <kernel/comp/GlobalLifeCtrl.h>
 
 ALWAYS_HIDDEN DEF_THREAD_LOCAL_DECLEAR SERVICE_NS::IPluginMgr *g_PluginMgr = NULL;
 ALWAYS_HIDDEN DEF_THREAD_LOCAL_DECLEAR SERVICE_NS::IPluginGlobal *g_PluginGlobal = NULL;
@@ -44,6 +45,12 @@ ALWAYS_HIDDEN UInt64 GetCrystalModuleId()
 // #endif
     
     return id;
+}
+
+ALWAYS_HIDDEN void RegisterGlobalObjLife(void *deleg)
+{
+    static GlobalLifeCtrl s_lifeCtrl;
+    s_lifeCtrl.Register(reinterpret_cast<IDelegate<void> *>(deleg));
 }
 
 KERNEL_END

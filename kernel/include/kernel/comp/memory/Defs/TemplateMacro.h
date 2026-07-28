@@ -95,9 +95,9 @@ public:                                                                         
         }                                                                                                           \
         static FORBID_INLINE  KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> *GetStaticAllocter_##ObjTypeNoTempArgs()    \
         {                                                                                                                           \
-            static KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> *s_alloctor = new KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >>(false, initBlockNumPerBuffer                      \
-            , KERNEL_NS::MemoryAlloctorConfig(sizeof(ObjTypeNoTempArgs< __VA_ARGS__ >), createBufferNumWhenInit));                   \
-            return s_alloctor;                                                                                                      \
+            static std::shared_ptr<KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >>> s_alloctor(new KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >>(false, initBlockNumPerBuffer                      \
+            , KERNEL_NS::MemoryAlloctorConfig(sizeof(ObjTypeNoTempArgs< __VA_ARGS__ >), createBufferNumWhenInit)));                   \
+            return s_alloctor.get();                                                                                                      \
         }                                                                                                                           \
                                                                                                                     \
         static FORBID_INLINE KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> &GetThreadLocalAlloctor_##_objAlloctor()    \
@@ -105,8 +105,13 @@ public:                                                                         
             DEF_STATIC_THREAD_LOCAL_DECLEAR KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> *staticThreadLocal##ObjTypeNoTempArgs##Alloctor = NULL;                                                                        \
             if(UNLIKELY(!staticThreadLocal##ObjTypeNoTempArgs##Alloctor))                                                                                                                                                           \
             {                                                                                                                                                                                                                       \
-                staticThreadLocal##ObjTypeNoTempArgs##Alloctor = KERNEL_NS::TlsUtil::GetTlsStack()->New< KERNEL_NS::TlsObjectPool<KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >>> >()->GetPool(initBlockNumPerBuffer      \
-                , KERNEL_NS::MemoryAlloctorConfig(sizeof(ObjTypeNoTempArgs< __VA_ARGS__ >), createBufferNumWhenInit));                                                                                                              \
+                staticThreadLocal##ObjTypeNoTempArgs##Alloctor = new KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >>(true, initBlockNumPerBuffer, KERNEL_NS::MemoryAlloctorConfig(sizeof(ObjTypeNoTempArgs< __VA_ARGS__ >), createBufferNumWhenInit));      \
+                auto alloctor = staticThreadLocal##ObjTypeNoTempArgs##Alloctor;                                         \
+                auto deleg = [alloctor]()->void                                                                         \
+                {                                                                                                                                   \
+                    alloctor->Release();                                                                                \
+                };                                                                                                                                  \
+                KERNEL_NS::RegisterGlobalObjLife(KERNEL_CREATE_CLOSURE_DELEGATE(deleg, void));                                                      \
             }                                                                                                                                                                                                                       \
                                                                                                                     \
             return *staticThreadLocal##ObjTypeNoTempArgs##Alloctor;                                                \

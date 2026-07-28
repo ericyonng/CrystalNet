@@ -49,6 +49,9 @@ void PluginLogic::OnPluginStartup()
     timer->SetTimeOutHandler(&PluginLogic::OnPluginTestTimer);
     timer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(5));
     SoInnerGlobal::_timer = timer;
+
+    auto list = KERNEL_NS::LibList<Int32, KERNEL_NS::_Build::TL>::NewThreadLocal_LibList();
+    list->PushBack(50);
     
     KERNEL_NS::PostCaller([]()->KERNEL_NS::CoTask<>
     {
@@ -81,7 +84,7 @@ void PluginLogic::OnNotifyClosePlugin()
 
 void PluginLogic::OnPluginTestEvent(KERNEL_NS::LibEvent *ev)
 {
-    CLOG_INFO_GLOBAL(PluginLogic, "OnPluginTestEvent");
+    // CLOG_INFO_GLOBAL(PluginLogic, "OnPluginTestEvent");
 
     g_PluginGlobal->GetEventManager()->AddListener(EventEnums::TEST_PLUGIN_EVENT2, &PluginLogic::OnPluginTestEvent2);
     auto ev2 = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::TEST_PLUGIN_EVENT2);
