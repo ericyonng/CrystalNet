@@ -84,31 +84,13 @@ void TestTls::Run()
     std::cout<< "tls def size = "<< sizeof(*tlsDef) << std::endl; 
 
     // 测试tls obj pool
-    {
-        auto objPool = KERNEL_NS::TlsUtil::GetTlsStack()->New<KERNEL_NS::TlsObjectPool<KERNEL_NS::ObjAlloctor<DeriveType>>>();
-        auto pool = objPool->GetPool(1, KERNEL_NS::MemoryAlloctorConfig(sizeof(DeriveType), 1));
-        auto obj = pool->New();
-
-        pool->Delete(obj);
-    }
-
-    // 测试 tls memory pool
-    {
-        auto tlsPool = KERNEL_NS::TlsUtil::GetTlsStack()->New<KERNEL_NS::TlsMemoryPool>()->GetPoolAndCreate<KERNEL_NS::MemoryPool, KERNEL_NS::InitMemoryPoolInfo>("test tls");
-        auto buffer = tlsPool->Alloc(1024);
-
-        tlsPool->Free(buffer);
-
-    }
-
-    // 测试 tls memory alloctor
-    {
-        auto tlsAlloctor = KERNEL_NS::TlsUtil::GetTlsStack()->New<KERNEL_NS::TlsMemoryAlloctor>()->GetMemoryAlloctorAndCreate<KERNEL_NS::MemoryAlloctor, KERNEL_NS::MemoryAlloctorConfig>(1024, 1, "test tls");
-
-        auto buffer = tlsAlloctor->Alloc(1024);
-
-        tlsAlloctor->Free(buffer);
-    }
+    // {
+    //     auto objPool = KERNEL_NS::TlsUtil::GetTlsStack()->New<KERNEL_NS::TlsObjectPool<KERNEL_NS::ObjAlloctor<DeriveType>>>();
+    //     auto pool = objPool->GetPool(1, KERNEL_NS::MemoryAlloctorConfig(sizeof(DeriveType), 1));
+    //     auto obj = pool->New();
+    //
+    //     pool->Delete(obj);
+    // }
 
     KERNEL_NS::TlsUtil::DestroyTlsStack();
 

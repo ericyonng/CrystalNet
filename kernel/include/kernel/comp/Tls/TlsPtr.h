@@ -64,7 +64,7 @@ public:
 
 // t需要有默认构造
 template<typename T>
-class TlsTargetPtr : public ITlsObj
+class TlsTargetPtr
 {
 public:
     TlsTargetPtr()
@@ -72,12 +72,7 @@ public:
     {
         _ptr = CRYSTAL_NEW(T);
     }
-    ~TlsTargetPtr() override
-    {
-        TlsTargetPtr::OnDestroy();
-    }
-
-    virtual void OnDestroy() override
+    ~TlsTargetPtr()
     {
         CRYSTAL_DELETE_SAFE(_ptr);
     }
@@ -87,7 +82,7 @@ public:
         return _ptr;
     }
 
-    virtual const char *GetObjTypeName() const override { return _objTypeName.c_str(); }
+    virtual const char *GetObjTypeName() const { return _objTypeName.c_str(); }
 
 public:
     const std::string _objTypeName;

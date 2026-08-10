@@ -55,7 +55,9 @@ void ThreadTool::OnInit(LibThread *thread, LibThreadPool *pool, UInt64 threadId,
     BUFFER256 reason;
     reason[0] = 0;
     sprintf(reason, "%s thread id = [%llu]", tlsMemPoolReason, defTls->_threadId);
-    TlsUtil::CreateMemoryPool(reason);
+
+    // tls内存池
+    KernelGetTlsMemoryPool();
 
     CRYSTAL_TRACE("thread init suc thread id:[%llu], tlsMemPoolReason:%s.", threadId, tlsMemPoolReason ? tlsMemPoolReason : "None");
 }

@@ -36,8 +36,6 @@
 #include <kernel/comp/Tls/TlsDefaultObj.h>
 #include <kernel/comp/Tls/TlsStack.h>
 #include <kernel/comp/Tls/TlsObjectPool.h>
-#include <kernel/comp/Tls/TlsMemoryAlloctor.h>
-#include <kernel/comp/Tls/TlsMemoryPool.h>
 #include <kernel/comp/Tls/TlsPtr.h>
 #include <kernel/comp/Tls/TlsCompsOwner.h>
 #include <kernel/comp/Tls/TlsTypeSystem.h>

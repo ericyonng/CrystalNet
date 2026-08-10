@@ -39,7 +39,7 @@
 KERNEL_BEGIN
 
 template<typename ObjType, AutoDelMethods::Way delMethod = AutoDelMethods::Delete>
-class TlsSmartPtr : public ITlsObj
+class TlsSmartPtr
 {
 public:
     TlsSmartPtr()
@@ -49,15 +49,9 @@ public:
     }
     ~TlsSmartPtr()
     {
-        OnDestroy();
     }
 
-    virtual const char *GetObjTypeName() const override { return _objTypeName.c_str(); }
-
-    virtual void OnDestroy() override 
-    {
-        _ptr.Release();
-    }
+    virtual const char *GetObjTypeName() const { return _objTypeName.c_str(); }
 
     KERNEL_NS::SmartPtr<ObjType, delMethod> &GetPtr()
     {

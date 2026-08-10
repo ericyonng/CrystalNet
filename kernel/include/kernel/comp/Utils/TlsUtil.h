@@ -39,7 +39,6 @@
 #include <kernel/comp/Utils/Defs/TlsDefs.h>
 #include <kernel/comp/Tls/Defs.h>
 #include <kernel/comp/Tls/TlsStack.h>
-#include <kernel/comp/Tls/TlsMemoryAlloctor.h>
 #include <kernel/comp/memory/MemoryDefs.h>
 #include <kernel/comp/Tls/TlsCoDict.h>
 #include <kernel/comp/Tls/TlsSmartPtr.h>
@@ -49,7 +48,6 @@ KERNEL_BEGIN
 
 class MemoryPool;
 
-class TlsMemoryPool;
 
 template<typename ObjPoolType>
 class TlsObjectPool;
@@ -76,16 +74,6 @@ public:
     static void DestroyTlsStack(TlsStack<TLS_STACK_DEFAULT_SIZE> *tlsTask);
     static void SetTlsValueNull();
 
-    // 获取thread local MemoryAlloc
-    template<typename MemAlloctorType, typename MemAloctorCfgType>
-    static MemAlloctorType *GetMemoryAlloctor(UInt64 allocUnitBytes);
-    template<typename MemAlloctorType, typename MemAloctorCfgType>
-    static MemAlloctorType *CreateMemoryAlloctor(UInt64 allocUnitBytes, const std::string &source, UInt64 initBlockNumPerBuffer = MEMORY_BUFFER_BLOCK_INIT);
-
-    // 获取thread local MemoryPoll
-    static MemoryPool *GetMemoryPool();
-    static MemoryPool *CreateMemoryPool(const std::string &reason);
-
     static void ClearTlsResource();
 
     template<typename ObjType>
@@ -101,9 +89,6 @@ public:
     static TlsTargetPtr<T> *GetOrCreateTargetPtr();
 
 private:
-    static TlsMemoryAlloctor *GetTlsMemoryAlloctorHost();
-    static TlsMemoryPool *GetTlsMemoryPoolHost();
-    static TlsMemoryPool **GetTlsMemoryPoolHostThreadLocalAddr();
     // 指定tlshandle
     static TlsHandle CreateTlsHandle();
     static void DestroyTlsHandle(TlsHandle &tlsHandle);
@@ -142,28 +127,9 @@ ALWAYS_INLINE void TlsUtil::DestroyTlsStack()
     DestroyTlsStack(tlsStack);
 }
 
-template<typename MemAlloctorType, typename MemAloctorCfgType>
-ALWAYS_INLINE MemAlloctorType *TlsUtil::GetMemoryAlloctor(UInt64 allocUnitBytes)
-{
-    // static_assert(false, "forbid use CreateMemoryAlloctor");
-    TlsMemoryAlloctor *alloctorHost = GetTlsMemoryAlloctorHost();
-    return alloctorHost->GetMemoryAlloctor<MemAlloctorType, MemAloctorCfgType>(allocUnitBytes);
-}
-
-template<typename MemAlloctorType, typename MemAloctorCfgType>
-ALWAYS_INLINE MemAlloctorType *TlsUtil::CreateMemoryAlloctor(UInt64 allocUnitBytes, const std::string &source, UInt64 initBlockNumPerBuffer)
-{
-    // static_assert(false, "forbid use CreateMemoryAlloctor");
-    TlsMemoryAlloctor *alloctorHost = GetTlsMemoryAlloctorHost();
-    return alloctorHost->CreateMemoryAlloctor<MemAlloctorType, MemAloctorCfgType>(allocUnitBytes, initBlockNumPerBuffer, source);
-}
-
 ALWAYS_INLINE void TlsUtil::ClearTlsResource()
 {
     // TODO:获取tls相关地址并重置成NULL
-
-    // 1.清理设置tls pool NULL
-    *GetTlsMemoryPoolHostThreadLocalAddr() = NULL;
 }
 
 template<typename ObjType>
@@ -172,20 +138,16 @@ ALWAYS_INLINE TlsObjectPool<ObjType> *TlsUtil::GetObjPool()
     DEF_STATIC_THREAD_LOCAL_DECLEAR TlsObjectPool<ObjType> * pool = NULL;
     if(UNLIKELY(pool == NULL))
     {
-        pool = TlsUtil::GetTlsStack()->New<TlsObjectPool<ObjType>>();
+        pool = new TlsObjectPool<ObjType>();
+        auto ptr = pool;
+        auto lamb =[ptr]()
+        {
+            CRYSTAL_DELETE(ptr);
+        };
+        KERNEL_REGISTER_GLOBAL_LIFE(lamb);
     }
 
     return pool;
-}
-
-ALWAYS_INLINE TlsCoDict *TlsUtil::GetTlsCoDict()
-{
-    DEF_STATIC_THREAD_LOCAL_DECLEAR TlsCoDict *tlsCoDict = NULL;
-
-    if(UNLIKELY(!tlsCoDict))
-        tlsCoDict = TlsUtil::GetTlsStack()->New<TlsCoDict>();
-
-    return tlsCoDict;
 }
 
 template<typename ObjType, AutoDelMethods::Way delMethod>
@@ -194,7 +156,15 @@ ALWAYS_INLINE TlsSmartPtr<ObjType, delMethod> *TlsUtil::GetOrCreateSmartPtr()
     DEF_STATIC_THREAD_LOCAL_DECLEAR TlsSmartPtr<ObjType, delMethod> *s_ptr = NULL;
 
     if(UNLIKELY(!s_ptr))
-        s_ptr = TlsUtil::GetTlsStack()->New<TlsSmartPtr<ObjType, delMethod>>();
+    {
+        s_ptr = new TlsSmartPtr<ObjType, delMethod>();
+        auto ptr = s_ptr;
+        auto lamb = [ptr]()
+        {
+            CRYSTAL_DELETE(ptr);   
+        };
+        KERNEL_REGISTER_GLOBAL_LIFE(lamb);
+    }
 
     return s_ptr;
 }
@@ -205,26 +175,16 @@ ALWAYS_INLINE TlsTargetPtr<T> *TlsUtil::GetOrCreateTargetPtr()
     DEF_STATIC_THREAD_LOCAL_DECLEAR TlsTargetPtr<T> *s_ptr = NULL;
     if(UNLIKELY(!s_ptr))
     {
-        s_ptr = TlsUtil::GetTlsStack()->New<TlsTargetPtr<T>>();
+        s_ptr = new TlsTargetPtr<T>();
+        auto ptr = s_ptr;
+        auto lamb = [ptr]() 
+        {
+            CRYSTAL_DELETE(ptr);   
+        };
+        KERNEL_REGISTER_GLOBAL_LIFE(lamb);
     }
 
     return s_ptr;
-}
-
-ALWAYS_INLINE TlsMemoryAlloctor *TlsUtil::GetTlsMemoryAlloctorHost()
-{
-    DEF_STATIC_THREAD_LOCAL_DECLEAR TlsMemoryAlloctor *tlsAlloctor = NULL;
-    if(UNLIKELY(!tlsAlloctor))
-    {
-        tlsAlloctor = TlsUtil::GetTlsStack()->New<TlsMemoryAlloctor>();
-    }
-
-    return tlsAlloctor;
-}
-
-ALWAYS_INLINE TlsMemoryPool *TlsUtil::GetTlsMemoryPoolHost()
-{
-    return *GetTlsMemoryPoolHostThreadLocalAddr();
 }
 
 ALWAYS_INLINE IdGenerator *TlsUtil::GetIdGenerator()

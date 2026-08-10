@@ -46,7 +46,22 @@ MemoryPool *KernelGetTlsMemoryPool()
     DEF_STATIC_THREAD_LOCAL_DECLEAR MemoryPool *memPool = NULL;
     if(UNLIKELY(!memPool))
     {
-        memPool = TlsUtil::GetMemoryPool() ? TlsUtil::GetMemoryPool() : TlsUtil::CreateMemoryPool("KernelGetTlsMemoryPool tls memory pool");
+        auto newPool = new MemoryPool(true, InitMemoryPoolInfo(), "KernelGetTlsMemoryPool tls memory pool");
+        auto st = newPool->Init();
+        if (st != Status::Success)
+        {
+            CRYSTAL_TRACE("create tls memory pool fail st:%d", st);
+            newPool->Destroy();
+            CRYSTAL_DELETE_SAFE(newPool);
+            return NULL;
+        }
+        memPool = newPool;
+
+        auto lamb = [newPool]()
+        {
+            CRYSTAL_DELETE(newPool);
+        };
+        KERNEL_REGISTER_GLOBAL_LIFE(lamb);
     }
 
     return memPool;

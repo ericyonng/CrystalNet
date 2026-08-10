@@ -45,7 +45,7 @@ public:
     template<typename... Args>
     static ObjType *NewByAdapter(_Build::MT::Type, Args &&... args)
     {
-        return _staticAlloctor->New(std::forward<Args>(args)...);
+        return GetAlloctor()->New(std::forward<Args>(args)...);
     }
 
     template<typename... Args>
@@ -56,7 +56,7 @@ public:
 
     static void DeleteByAdapter(_Build::MT::Type, ObjType *ptr)
     {
-        _staticAlloctor->Delete(ptr);
+        GetAlloctor()->Delete(ptr);
     }
     static void DeleteByAdapter(_Build::TL::Type, ObjType *ptr)
     {
@@ -66,7 +66,7 @@ public:
     // // 给没有构造与析构的用,或者不需要相关需求的对象用
     static ObjType *NewByAdapterNoConstructor(_Build::MT::Type)
     {
-        return _staticAlloctor->NewNoConstruct();
+        return GetAlloctor()->NewNoConstruct();
     }
 
     static ObjType *NewByAdapterNoConstructor(_Build::TL::Type)
@@ -76,7 +76,7 @@ public:
 
     static void DeleteByAdapterNoDestructor(_Build::MT::Type, ObjType *ptr)
     {
-        _staticAlloctor->DeleteNoDestructor(ptr);
+        GetAlloctor()->DeleteNoDestructor(ptr);
     }
     static void DeleteByAdapterNoDestructor(_Build::TL::Type, ObjType *ptr)
     {
@@ -85,47 +85,32 @@ public:
     
 
 public:
-    static ObjAlloctor<ObjType> &GetAlloctor()
-    {                                                                                                                          
-        // static ObjAlloctor<ObjType> *staticAlloctor =                   
-        // new ObjAlloctor<ObjType>(MEMORY_BUFFER_BLOCK_INIT                                                               
-        // , MemoryAlloctorConfig(sizeof(ObjType)));                                              
-
-        // _staticAlloctor->_againstLazy = 0;                                                                                             
-        return *_staticAlloctor;                                                                                                 
-    }                                                                                                                           
     static ObjAlloctor<ObjType> &GetThreadLocalAlloctor()                               
     {                                                                                                                           
-        // DEF_STATIC_THREAD_LOCAL_DECLEAR ObjAlloctor<ObjType> *staticAlloctor =  NULL;
-        // if(UNLIKELY(!staticAlloctor))
-        // {
-        //     staticAlloctor = AllocUtil::GetStaticThreadLocalTemplateObjNoFree<ObjAlloctor<ObjType>>([]()-> void *{
-        //         return TlsUtil::GetTlsStack()->New< TlsObjectPool<ObjAlloctor<ObjType>> >()->GetPool(MEMORY_BUFFER_BLOCK_INIT
-        // , MemoryAlloctorConfig(sizeof(ObjType)));
-        //     });
-        // }
-
+        DEF_STATIC_THREAD_LOCAL_DECLEAR ObjAlloctor<ObjType> *_staticThreadLocalAlloctor = NULL;
         if(UNLIKELY(!_staticThreadLocalAlloctor))
         {
-            _staticThreadLocalAlloctor = TlsUtil::GetTlsStack()->New< TlsObjectPool<ObjAlloctor<ObjType>> >()->GetPool(MEMORY_BUFFER_BLOCK_INIT
-            , MemoryAlloctorConfig(sizeof(ObjType)));
-            // _staticThreadLocalAlloctor->_againstLazy = 0;                                                                                                   
+            _staticThreadLocalAlloctor = new ObjAlloctor<ObjType>(false, MEMORY_BUFFER_BLOCK_INIT                                                               
+        , MemoryAlloctorConfig(sizeof(ObjType)));
+            auto ptr = _staticThreadLocalAlloctor;
+            auto lamb = [ptr]()
+            {
+                CRYSTAL_DELETE(ptr);
+            };
+            KERNEL_REGISTER_GLOBAL_LIFE(lamb);
         }
 
-        return *_staticThreadLocalAlloctor;                                                                                                   
+        return *_staticThreadLocalAlloctor;                                                                                                 
     }  
 
-    static ObjAlloctor<ObjType> *_staticAlloctor;
-
-    DEF_STATIC_THREAD_LOCAL_DECLEAR ObjAlloctor<ObjType> *_staticThreadLocalAlloctor;
-};
-
-template<typename ObjType>
-ObjAlloctor<ObjType> * ObjPoolWrap<ObjType>::_staticAlloctor = new ObjAlloctor<ObjType>(false, MEMORY_BUFFER_BLOCK_INIT                                                               
+    static ObjAlloctor<ObjType> *GetAlloctor()
+    {
+        static ObjAlloctor<ObjType> *_staticAlloctor = new ObjAlloctor<ObjType>(false, MEMORY_BUFFER_BLOCK_INIT                                                               
         , MemoryAlloctorConfig(sizeof(ObjType)));
-
-template<typename ObjType>
-DEF_THREAD_LOCAL_DECLEAR ObjAlloctor<ObjType> * ObjPoolWrap<ObjType>::_staticThreadLocalAlloctor =  NULL;
+        
+        return _staticAlloctor;
+    }
+};
 
 // 创建对象
 #undef OBJ_POOL_WRAP_NEW

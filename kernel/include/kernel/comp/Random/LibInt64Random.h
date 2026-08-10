@@ -136,6 +136,12 @@ ALWAYS_INLINE Rtn &LibInt64RandomInstance::GetInstance(_Build::TL::Type)
     if(UNLIKELY(!instance))
     {
         instance = new Rtn(minValue, maxValue);
+        auto obj = instance;
+        auto lamb = [obj]()mutable 
+        {
+            CRYSTAL_DELETE_SAFE(obj);
+        };
+        KERNEL_REGISTER_GLOBAL_LIFE(lamb);
     }
     return *instance;
 }

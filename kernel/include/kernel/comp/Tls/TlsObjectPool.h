@@ -38,7 +38,7 @@
 KERNEL_BEGIN
 
 template<typename ObjPoolType>
-class TlsObjectPool : public ITlsObj
+class TlsObjectPool
 {
 public:
     TlsObjectPool()
@@ -52,7 +52,7 @@ public:
         OnDestroy();
     }
 
-    virtual void OnDestroy() override
+    virtual void OnDestroy()
     {
         if(UNLIKELY(!_pool))
         {
@@ -65,7 +65,7 @@ public:
     }
 
 public:
-    virtual const char *GetObjTypeName() const override { return _objTypeName.c_str(); }
+    virtual const char *GetObjTypeName() const { return _objTypeName.c_str(); }
     template<typename MemoryAllocCfg>
     ObjPoolType *GetPool(UInt64 initBlockNumPerBuffer, const MemoryAllocCfg &alloctorCfg)
     {

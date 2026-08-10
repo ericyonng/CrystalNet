@@ -30,7 +30,6 @@
 #include <kernel/comp/Utils/TlsUtil.h>
 #include <kernel/comp/Utils/SystemUtil.h>
 #include <kernel/comp/memory/MemoryPool.h>
-#include <kernel/comp/Tls/TlsMemoryPool.h>
 #include <kernel/comp/Utils/AllocUtil.h>
 #include <kernel/comp/Tls/TlsCompsOwner.h>
 #include <kernel/comp/Poller/Poller.h>
@@ -106,16 +105,15 @@ void TlsUtil::DestroyTlsStack(TlsStack<TLS_STACK_DEFAULT_SIZE> *tlsStack)
     CRYSTAL_DELETE_SAFE(ptr);
 }
 
-MemoryPool *TlsUtil::GetMemoryPool()
+TlsCoDict *TlsUtil::GetTlsCoDict()
 {
-    return GetTlsMemoryPoolHost()->GetPool<MemoryPool>();
-}
+    DEF_STATIC_THREAD_LOCAL_DECLEAR TlsCoDict *tlsCoDict = NULL;
 
-MemoryPool *TlsUtil::CreateMemoryPool(const std::string &reason)
-{
-    return GetTlsMemoryPoolHost()->CreatePool<MemoryPool, InitMemoryPoolInfo>(reason);
-}
+    if(UNLIKELY(!tlsCoDict))
+        tlsCoDict = TlsUtil::GetTlsStack()->New<TlsCoDict>();
 
+    return tlsCoDict;
+}
 
 TlsHandle TlsUtil::CreateTlsHandle()
 {
@@ -153,17 +151,6 @@ void TlsUtil::SetTlsValueNull()
     #else
             (void)::TlsSetValue(handle, NULL);
     #endif
-}
-
-TlsMemoryPool **TlsUtil::GetTlsMemoryPoolHostThreadLocalAddr()
-{
-    DEF_STATIC_THREAD_LOCAL_DECLEAR TlsMemoryPool *tlsPool = NULL;
-    if(UNLIKELY(!tlsPool))
-    {
-        tlsPool = TlsUtil::GetTlsStack()->New<TlsMemoryPool>();
-    }
-
-    return &tlsPool;
 }
 
 Poller *TlsUtil::GetPoller()
