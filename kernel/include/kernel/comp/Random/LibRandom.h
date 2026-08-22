@@ -144,10 +144,15 @@ ALWAYS_INLINE Rtn &LibRandomInstance::GetInstance(_Build::TL::Type)
     DEF_STATIC_THREAD_LOCAL_DECLEAR Rtn *instance = NULL;
     if(UNLIKELY(!instance))
     {
-        instance = KERNEL_NS::AllocUtil::GetStaticThreadLocalTemplateObjNoFree<Rtn>([]()-> void *{
-            return new Rtn(minValue, maxValue);
-        });
+        instance = new Rtn(minValue, maxValue);
+        auto ptr = instance;
+        auto lamb = [ptr]()
+        {
+            CRYSTAL_DELETE(ptr);
+        };
+        KERNEL_REGISTER_GLOBAL_LIFE(lamb);
     }
+    
     return *instance;
 }
 

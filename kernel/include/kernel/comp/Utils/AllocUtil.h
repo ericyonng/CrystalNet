@@ -50,17 +50,6 @@ public:
     static ObjType *NewMultiByPtr(void *ptr, UInt64 count);
     template<typename ObjType>
     static ObjType *NewByPtrNoConstructorParams(void *ptr);
-
-    static void *&GetStaticObjNoFree(std::function<void *()> &&createFactory);
-    static void *&GetThreadLocalStaticObjNoFree(std::function<void *()> &&createFactory);
-
-    template<typename ObjType>
-    static ObjType *&GetStaticTemplateObjNoFree(std::function<ObjType *()> &&createFactory);
-
-    template<typename ObjType>
-    static ObjType *GetStaticThreadLocalTemplateObjNoFree(std::function<void *()> &&createFactory);
-
-    static void *GetThreadLocalStaticObjNoFreeByDict(const KERNEL_NS::LibString &objName, std::function<void *()> &&createFactory);
 };
 
 template<typename ObjType, typename... Args>
@@ -79,26 +68,6 @@ template<typename ObjType>
 ALWAYS_INLINE ObjType *AllocUtil::NewByPtrNoConstructorParams(void *ptr)
 {
     return ::new(ptr)ObjType();
-}
-
-template<typename ObjType>
-ALWAYS_INLINE ObjType *&AllocUtil::GetStaticTemplateObjNoFree(std::function<ObjType *()> &&createFactory)
-{
-    static ObjType *s_obj = createFactory();
-    return s_obj;
-}
-
-template<typename ObjType>
-ALWAYS_INLINE ObjType *AllocUtil::GetStaticThreadLocalTemplateObjNoFree(std::function<void *()> &&createFactory)
-{
-    DEF_STATIC_THREAD_LOCAL_DECLEAR ObjType *s_obj = NULL;
-    if(UNLIKELY(s_obj == NULL))
-    {
-        s_obj = reinterpret_cast<ObjType *>( GetThreadLocalStaticObjNoFreeByDict(RttiUtil::GetByType<ObjType>()
-        , std::forward<std::function<void *()> &&>(createFactory)));
-    }
-
-    return s_obj;
 }
 
 KERNEL_END

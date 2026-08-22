@@ -43,7 +43,8 @@
 
 
 KERNEL_BEGIN
-    // @param(ObjType): 反序列化最终的结果, 需要有:CreateNewObj/Release 接口
+
+// @param(ObjType): 反序列化最终的结果, 需要有:CreateNewObj/Release 接口
 // @param(FileDeserializer): 反序列化器, 将文件反序列化成ObjType, 需要有SwapNewData/Register接口, 
 // @param(FileDeserializerFactoryType): 反序列化器工厂, 需要有Create/Release接口, 
 template<typename ObjType, typename FileDeserializerType>

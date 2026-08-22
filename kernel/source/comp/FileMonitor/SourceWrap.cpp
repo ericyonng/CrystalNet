@@ -20,39 +20,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2026-03-28 18:03:32
+// Date: 2026-08-21 19:24:02
 // Author: Eric Yonng
 // Description:
 
-
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_MONITOR_SOURCE_WRAP_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_MONITOR_SOURCE_WRAP_H__
-
-#pragma once
-
-
-#include <kernel/kernel_export.h>
-#include <kernel/common/BaseType.h>
-#include <kernel/common/BaseMacro.h>
-#include <kernel/comp/LibString.h>
+#include <pch.h>
+#include <kernel/comp/FileMonitor/SourceWrap.h>
+#include <kernel/comp/Utils/HashUtil.h>
 
 KERNEL_BEGIN
 
-struct KERNEL_EXPORT SourceWrap
+LibString SourceWrap::ToString() const
 {
-    KERNEL_NS::LibString Path = "";
-
-    // 共享的一块内存配置, FileMonitor不能操作, 由FileChangeManager检查是否内容变化,fromMemory由外部管生命周期, 这里不管生命周期, 但是不好处理fromMemory, 战略性泄露fromMemory 对象:YamlMemory
-    void *FromMemory = NULL;
+    return LibString().AppendFormat("Path:%s, FromMemory:%p", Path, FromMemory);
+}
     
-    // 用 MakeKey 计算hash
-    UInt64 MakeKeyHashCode = 0;
+LibString SourceWrap::MakeKey() const
+{
+    return LibString().AppendFormat("%s-%p", Path.c_str(), FromMemory);
+}
     
-    LibString ToString() const;
-    LibString MakeKey() const;
-    UInt64 HashCode();
-};
-
+UInt64 SourceWrap::HashCode()
+{
+    if (LIKELY(MakeKeyHashCode != 0))
+        return MakeKeyHashCode;
+    
+    auto &&key = MakeKey();
+    MakeKeyHashCode = HashUtil::Hash64(key.data(), key.size());
+    
+    return MakeKeyHashCode;
+}
 KERNEL_END
-
-#endif

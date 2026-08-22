@@ -37,6 +37,7 @@
 
 #include <kernel/kernel_export.h>
 #include <kernel/comp/LibBasicString.h>
+#include <kernel/comp/Utils/HashUtil.h>
 
 KERNEL_BEGIN
 
@@ -61,17 +62,10 @@ namespace std
         #endif // Comp == Gcc or Comp == Clang
         size_t operator()(const KERNEL_NS::LibString &str) const noexcept
         {
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
             if (!str.empty())
-                return ::std::_Hash_array_representation(str.data(), str.size());
+                return KERNEL_NS::HashUtil::Hash64(str.data(), str.size());
             else
-                return ::std::_Hash_representation(nullptr);
-#else
-            if (!str.empty())
-                return ::std::_Hash_impl::hash(str.data(), str.size());
-            else
-                return ::std::_Hash_impl::hash(nullptr, 0);
-#endif
+                return KERNEL_NS::HashUtil::Hash64(NULL, 0);
         }
     };
 

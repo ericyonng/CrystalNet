@@ -20,38 +20,46 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2026-03-28 18:03:32
+// Date: 2026-08-20 17:13:13
 // Author: Eric Yonng
 // Description:
 
-
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_MONITOR_SOURCE_WRAP_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_MONITOR_SOURCE_WRAP_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_MONITOR_FILE_CHANGE_IMPL_H__
+#define  __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_MONITOR_FILE_CHANGE_IMPL_H__
 
 #pragma once
 
-
 #include <kernel/kernel_export.h>
-#include <kernel/common/BaseType.h>
 #include <kernel/common/BaseMacro.h>
-#include <kernel/comp/LibString.h>
+#include <kernel/comp/Delegate/IDelegate.h>
 
 KERNEL_BEGIN
 
-struct KERNEL_EXPORT SourceWrap
+class KERNEL_EXPORT FileChangeImpl
 {
-    KERNEL_NS::LibString Path = "";
-
-    // 共享的一块内存配置, FileMonitor不能操作, 由FileChangeManager检查是否内容变化,fromMemory由外部管生命周期, 这里不管生命周期, 但是不好处理fromMemory, 战略性泄露fromMemory 对象:YamlMemory
-    void *FromMemory = NULL;
+    // FIRST_RUN:注册时候执行
+    FileChangeImpl(IDelegate<void> *firstRun, IDelegate<void> *run);
+    ~FileChangeImpl();
     
-    // 用 MakeKey 计算hash
-    UInt64 MakeKeyHashCode = 0;
+public:
+    UInt64 GetHandle() const;
     
-    LibString ToString() const;
-    LibString MakeKey() const;
-    UInt64 HashCode();
+    void Release();
+    static FileChangeImpl *Create(IDelegate<void> *firstRun, IDelegate<void> *run);
+    
+    void FirstRun();
+    void Run();
+    
+private:
+    const UInt64 _handle;
+    IDelegate<void> *_firstRun;
+    IDelegate<void> *_run;
 };
+
+ALWAYS_INLINE UInt64 FileChangeImpl::GetHandle() const
+{
+    return _handle;
+}
 
 KERNEL_END
 

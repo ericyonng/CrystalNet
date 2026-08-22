@@ -37,40 +37,4 @@
 
 KERNEL_BEGIN
 
-void *&AllocUtil::GetStaticObjNoFree(std::function<void *()> &&createFactory)
-{
-    static void *s_obj = createFactory();
-    return s_obj;
-}
-
-void *&AllocUtil::GetThreadLocalStaticObjNoFree(std::function<void *()> &&createFactory)
-{
-    static void *s_obj = createFactory();
-    return s_obj;
-}
-
-void *AllocUtil::GetThreadLocalStaticObjNoFreeByDict(const KERNEL_NS::LibString &objName, std::function<void *()> &&createFactory)
-{
-    DEF_STATIC_THREAD_LOCAL_DECLEAR std::unordered_map<LibString, void *>* s_objTypeRefPtr = NULL;
-    if(UNLIKELY(!s_objTypeRefPtr))
-    {
-        s_objTypeRefPtr = new std::unordered_map<LibString, void *>;
-    }
-
-    auto iter = s_objTypeRefPtr->find(objName);
-    if(iter == s_objTypeRefPtr->end())
-    {
-        iter = s_objTypeRefPtr->insert(std::make_pair(objName, createFactory())).first;
-        // g_Log->Info(LOGFMT_NON_OBJ_TAG(AllocUtil, "thread id:%llu, thread local create new obj:%s:%p")
-        //     , SystemUtil::GetCurrentThreadId(), objName.c_str(), iter->second);
-    }
-    // else
-    // {
-    //     // g_Log->Info(LOGFMT_NON_OBJ_TAG(AllocUtil, "thread id:%llu, get thread local obj:%s:%p")
-    //     //     , SystemUtil::GetCurrentThreadId(), objName.c_str(), iter->second);
-    // }
-
-    return iter->second;
-}
-
 KERNEL_END

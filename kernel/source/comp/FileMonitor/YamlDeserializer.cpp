@@ -37,6 +37,7 @@ KERNEL_BEGIN
 
 YamlDeserializer::YamlDeserializer()
     :_handle(NULL)
+    ,_id(FileChangeManager::GenId())
 {
     
 }
@@ -307,7 +308,5 @@ void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, vo
 
     return obj;
 }
-
-
 
 KERNEL_END

@@ -40,6 +40,8 @@
 #include "kernel/comp/Utils/ContainerUtil.h"
 #include <kernel/comp/Timer/LibTimer.h>
 #include <kernel/comp/Lock/Lock.h>
+#include <kernel/comp/FileMonitor/FileChangeImpl.h>
+#include <kernel/comp/Coroutines/CoDelay.h>
 
 KERNEL_NS::FileChangeManager *g_FileChangeManager = NULL;
 
@@ -68,39 +70,83 @@ void FileChangeManager::Release()
 {
     delete this;
 }
+//
+// bool FileChangeManager::_InitWorker()
+// {
+//     g_EventLoopHeavyTaskThreadPool->Send([this]()
+//     {
+//         KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<>
+//         {
+//             auto poller = KERNEL_NS::TlsUtil::GetPoller();
+//             _workerPoller.store(poller, std::memory_order_release);
+//
+//             _isWorking.exchange(true, std::memory_order_release);
+//             
+//             // 等待start完成
+//             while (!_isStart.load(std::memory_order_acquire))
+//             {
+//                 co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
+//                 CRYSTAL_TRACE("FileChangeManager waiting started...")
+//             }
+//             
+//             CRYSTAL_TRACE("file change manage working")
+//
+//              // 阻塞等待
+//              while (!poller->IsQuit() && !_isQuit.load(std::memory_order_acquire))
+//              {
+//                  // 唤醒者在当前poller执行唤醒时, 一定处于挂起状态, 即使挂起点在Waiting之后, 只要params一样, 那么一定可以使用同一个param唤醒, 如果不想要那么
+//                  co_await _locker->TimeWait(KERNEL_NS::TimeSlice::FromSeconds(5));
+//
+//                  _DoWork();
+//              }
+//
+//             _isWorking.exchange(false, std::memory_order_release);
+//         });
+//     });
+//
+//     // 等待初始化完成
+//     while (_workerPoller.load(std::memory_order_acquire) == NULL)
+//     {
+//         CRYSTAL_TRACE("FileChangeManager worker waiting init worker poller...")
+//     }
+//
+//     CRYSTAL_TRACE("FileChangeManager init worker poller completed.")
+//     
+//     return true;
+// }
 
-bool FileChangeManager::_InitWorker()
+bool FileChangeManager::_InitWorker2()
 {
     g_EventLoopHeavyTaskThreadPool->Send([this]()
-    {
-        KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<>
-        {
-            auto poller = KERNEL_NS::TlsUtil::GetPoller();
-            _workerPoller.store(poller, std::memory_order_release);
+     {
+         KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<>
+         {
+             auto poller = KERNEL_NS::TlsUtil::GetPoller();
+             _workerPoller.store(poller, std::memory_order_release);
 
-            _isWorking.exchange(true, std::memory_order_release);
-            
-            // 等待start完成
-            while (!_isStart.load(std::memory_order_acquire))
-            {
-                co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
-                CRYSTAL_TRACE("FileChangeManager waiting started...")
-            }
-            
-            CRYSTAL_TRACE("file change manage working")
-
-             // 阻塞等待
-             while (!poller->IsQuit() && !_isQuit.load(std::memory_order_acquire))
+             _isWorking.exchange(true, std::memory_order_release);
+                
+             // 等待start完成
+             while (!_isStart.load(std::memory_order_acquire))
              {
-                 // 唤醒者在当前poller执行唤醒时, 一定处于挂起状态, 即使挂起点在Waiting之后, 只要params一样, 那么一定可以使用同一个param唤醒, 如果不想要那么
-                 co_await _locker->TimeWait(KERNEL_NS::TimeSlice::FromSeconds(5));
-
-                 _DoWork();
+                 co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
+                 CRYSTAL_TRACE("FileChangeManager waiting started...")
              }
+                
+             CRYSTAL_TRACE("file change manage working")
 
-            _isWorking.exchange(false, std::memory_order_release);
-        });
-    });
+              // 阻塞等待
+              while (!poller->IsQuit() && !_isQuit.load(std::memory_order_acquire))
+              {
+                  // 唤醒者在当前poller执行唤醒时, 一定处于挂起状态, 即使挂起点在Waiting之后, 只要params一样, 那么一定可以使用同一个param唤醒, 如果不想要那么
+                  co_await _locker->TimeWait(KERNEL_NS::TimeSlice::FromSeconds(5));
+
+                  co_await _DoWork2();
+              }
+
+             _isWorking.exchange(false, std::memory_order_release);
+         });
+     });
 
     // 等待初始化完成
     while (_workerPoller.load(std::memory_order_acquire) == NULL)
@@ -113,9 +159,10 @@ bool FileChangeManager::_InitWorker()
     return true;
 }
 
+
 Int32 FileChangeManager::_OnInit()
 {
-    if(!_InitWorker())
+    if(!_InitWorker2())
     {
         return Status::Failed;
     }
@@ -156,62 +203,181 @@ void FileChangeManager::_OnClose()
 
     CRYSTAL_TRACE("file change manager close.")
 }
+//
+// void FileChangeManager::_DoWork()
+// {
+//     // 扫描文件看是否文件变化
+//     for(auto iter : _filePathRefFileObj)
+//     {
+//         auto monitorInfo = iter.second;
+//         void *fromMemory = NULL;
+//         if(!monitorInfo->_checkChange->Invoke(fromMemory))
+//             continue;
+//
+//         auto newObj = monitorInfo->_loadNewObj->Invoke(fromMemory);
+//         if(!newObj)
+//         {
+//             if (g_Log)
+//                 CLOG_ERROR("file: %s, load file fail", monitorInfo->_path.c_str());
+//
+//             continue;
+//         }
+//
+//         if (g_Log)
+//             CLOG_INFO("file: %s, changed, and load new one", monitorInfo->_path.c_str());
+//
+//         {
+//             if(monitorInfo->_sourceObj)
+//                 monitorInfo->_releaseObj->Invoke(monitorInfo->_sourceObj);
+//
+//             monitorInfo->_sourceObj = newObj;
+//         }
+//         
+//         for(auto iterHandle : monitorInfo->_keyRefFileChangeHandle)
+//         {
+//             auto handle = iterHandle.second;
+//             if(handle->_notListen.load(std::memory_order_acquire))
+//                 continue;
+//
+//             // 反序列化新数据
+//             auto newData = handle->_deserialize->Invoke(newObj);
+//             if(!newData)
+//             {
+//                 if (g_Log)
+//                     CLOG_WARN("file:%s deserialize from file fail dataName:%s, "
+//                     , monitorInfo->_path.c_str(), handle->_dataName.c_str());
+//                 continue;
+//             }
+//
+//             // 切换成新数据,移除旧的数据
+//             if(auto oldData = handle->_data.exchange(newData))
+//             {
+//                 handle->_release->Invoke(oldData);
+//
+//                 if (g_Log)
+//                     CLOG_INFO("new data:%s updated", handle->_dataName.c_str());
+//             }
+//         }
+//     }
+// }
 
-void FileChangeManager::_DoWork()
+KERNEL_NS::CoTask<> FileChangeManager::_DoWork2()
 {
-    // 扫描文件看是否文件变化
-    for(auto iter : _filePathRefFileObj)
+    // 先取所有的key
+    std::vector<UInt64> keys;
+    keys.reserve(_handleRefFileChangeImpl.size());
+    for (auto iter : _handleRefFileChangeImpl)
     {
-        auto monitorInfo = iter.second;
-        void *fromMemory = NULL;
-        if(!monitorInfo->_checkChange->Invoke(fromMemory))
+        keys.push_back(iter.first);
+    }
+    
+    for (auto key : keys)
+    {
+        auto iter = _handleRefFileChangeImpl.find(key);
+        if (iter == _handleRefFileChangeImpl.end())
             continue;
-
-        auto newObj = monitorInfo->_loadNewObj->Invoke(fromMemory);
-        if(!newObj)
-        {
-            if (g_Log)
-                CLOG_ERROR("file: %s, load file fail", monitorInfo->_path.c_str());
-
-            continue;
-        }
-
-        if (g_Log)
-            CLOG_INFO("file: %s, changed, and load new one", monitorInfo->_path.c_str());
-
-        {
-            if(monitorInfo->_sourceObj)
-                monitorInfo->_releaseObj->Invoke(monitorInfo->_sourceObj);
-
-            monitorInfo->_sourceObj = newObj;
-        }
         
-        for(auto iterHandle : monitorInfo->_keyRefFileChangeHandle)
-        {
-            auto handle = iterHandle.second;
-            if(handle->_notListen.load(std::memory_order_acquire))
-                continue;
-
-            // 反序列化新数据
-            auto newData = handle->_deserialize->Invoke(newObj);
-            if(!newData)
-            {
-                if (g_Log)
-                    CLOG_WARN("file:%s deserialize from file fail dataName:%s, "
-                    , monitorInfo->_path.c_str(), handle->_dataName.c_str());
-                continue;
-            }
-
-            // 切换成新数据,移除旧的数据
-            if(auto oldData = handle->_data.exchange(newData))
-            {
-                handle->_release->Invoke(oldData);
-
-                if (g_Log)
-                    CLOG_INFO("new data:%s updated", handle->_dataName.c_str());
-            }
-        }
+        iter->second->Run();
+        
+        co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromMilliSeconds(5));
     }
 }
+
+
+UInt64 FileChangeManager::GenId()
+{
+    static std::atomic<UInt64> s_id{0};
+    return s_id.fetch_add(1, std::memory_order_release) + 1;
+}
+
+UInt64 FileChangeManager::GenVersion()
+{
+    static std::atomic<UInt64> s_id{0};
+    return s_id.fetch_add(1, std::memory_order_release) + 1;
+}
+
+
+bool FileChangeManager::Register(FileChangeImpl *impl)
+{
+    auto poller = _workerPoller.load(std::memory_order_acquire);
+    if (UNLIKELY(!poller))
+    {
+        CRYSTAL_TRACE("register poller is not ready... impl:%llu, %p", impl->GetHandle(), impl);
+        return false;
+    }
+    
+    std::atomic_bool isFinish = {false};
+    
+    // 注册
+    auto handleRegisterLamb = [this, &isFinish, impl]()
+    {
+        auto handle = impl->GetHandle();
+        _handleRefFileChangeImpl.insert(std::make_pair(handle, impl));
+        impl->FirstRun();
+        
+        isFinish.store(true, std::memory_order_release);
+        
+        CRYSTAL_TRACE("Register FileChangeImpl handle:%llu", handle);
+    };
+    
+    if (poller->GetWorkerThreadId() != KERNEL_NS::SystemUtil::GetCurrentThreadId())
+    {
+        poller->Push(handleRegisterLamb);
+
+        // 等待完成(如果是在FileChangeManager同一个线程就G了)
+        while (!isFinish.load(std::memory_order_acquire))
+        {
+            KERNEL_NS::SystemUtil::ThreadSleep(2);
+            CRYSTAL_TRACE("register waiting... impl:%llu, %p", impl->GetHandle(), impl);
+        }
+    }
+    else
+    {
+        // 在Poller线程中, 直接执行, 避免后面阻塞
+        handleRegisterLamb();
+    }
+    
+    return true;
+}
+
+void FileChangeManager::UnRegister(UInt64 handle)
+{
+    auto poller = _workerPoller.load(std::memory_order_acquire);
+    if (UNLIKELY(!poller))
+    {
+        CRYSTAL_TRACE("register poller is not ready... impl:%llu", handle);
+        return;
+    }
+    
+    std::atomic_bool isFinish = {false};
+    
+    // 取消注册
+    auto handleUnRegisterLamb = [this, &isFinish, handle]()
+    {
+        CRYSTAL_TRACE("UnRegister FileChangeImpl handle:%llu", handle);
+        
+        _handleRefFileChangeImpl.erase(handle);
+        isFinish.store(true, std::memory_order_release);
+    };
+    
+    if (poller->GetWorkerThreadId() != KERNEL_NS::SystemUtil::GetCurrentThreadId())
+    {
+        poller->Push(handleUnRegisterLamb);
+
+        // 等待完成
+        while (!isFinish.load(std::memory_order_acquire))
+        {
+            KERNEL_NS::SystemUtil::ThreadSleep(2);
+            CRYSTAL_TRACE("UnRegister waiting... impl:%llu", handle);
+        }
+    }
+    else
+    {
+        // 在Poller线程中, 直接执行, 避免后面阻塞
+        handleUnRegisterLamb();
+    }
+}
+
+
 
 KERNEL_END

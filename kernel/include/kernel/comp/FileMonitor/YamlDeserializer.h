@@ -166,11 +166,22 @@ private:
     // return:具体的对象T
     void *_Register(const LibString &dataName, IDelegate<void, void *> * releaseObj, IDelegate<void *, YAML::Node *> *deserializeObj, YamlMemory *fromMemory);
 
+    UInt64 GetId() const;
+    
 private:
     LibString _path;
     // 注册后获取到的_handle,handle的生命周期比YamlDeserializer长, 由FileChangeManager管理
     FileChangeHandle *_handle;
+    const UInt64 _id;
+
+    // FileChangeManager调用这里
 };
+
+ALWAYS_INLINE UInt64 YamlDeserializer::GetId() const
+{
+    return _id;
+}
+
 
 KERNEL_END
 

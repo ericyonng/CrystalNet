@@ -42,11 +42,13 @@
 #include <kernel/comp/Coroutines/CoTaskParam.h>
 #include <kernel/comp/FileMonitor/FileChangeDefine.h>
 
+#include "kernel/comp/Coroutines/CoTask.h"
+
 
 KERNEL_BEGIN
-
-class LibTimer;
+    class LibTimer;
 class CoLocker;
+class FileChangeImpl;
 
 class KERNEL_EXPORT FileChangeManager : public CompObject
 {
@@ -64,9 +66,18 @@ public:
     std::unordered_map<KERNEL_NS::LibString, FileMonitorInfo *> &GetFilePathRefFileObj();
     const std::unordered_map<KERNEL_NS::LibString, FileMonitorInfo *> &GetFilePathRefFileObj() const;
 
+    static UInt64 GenId();
+    static UInt64 GenVersion();
+
+    // 注册监听
+    bool Register(FileChangeImpl *impl);
+    // 移除监听
+    void UnRegister(UInt64 handle);
+    bool IsWorking() const;
+    
 private:
     // 监控 5秒一次
-    bool _InitWorker();
+    bool _InitWorker2();
 
     Int32 _OnInit() override;
     // start 可以启动线程，再此之前都不可以启动线程
@@ -75,7 +86,8 @@ private:
 
     void _OnClose() override;
 
-    void _DoWork();
+    KERNEL_NS::CoTask<> _DoWork2();
+    
     
 private:
     std::unordered_map<KERNEL_NS::LibString, FileMonitorInfo *> _filePathRefFileObj;
@@ -87,6 +99,9 @@ private:
 
     // 使用定时器监控文件变更
     KERNEL_NS::CoLocker *_locker;
+    
+    // 文件变化监听 attach模式, 不释放 FileChangeImpl
+    std::unordered_map<UInt64, FileChangeImpl *> _handleRefFileChangeImpl;
 };
 
 
@@ -104,6 +119,12 @@ ALWAYS_INLINE const std::unordered_map<KERNEL_NS::LibString, FileMonitorInfo *> 
 {
     return _filePathRefFileObj;
 }
+
+ALWAYS_INLINE bool FileChangeManager::IsWorking() const
+{
+    return _isWorking.load(std::memory_order_acquire);
+}
+
 
 KERNEL_END
 

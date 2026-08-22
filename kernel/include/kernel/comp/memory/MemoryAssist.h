@@ -419,9 +419,13 @@ ALWAYS_INLINE MemoryAssist<ObjType, BuildType, ParticleType> *MemoryAssist<ObjTy
     DEF_STATIC_THREAD_LOCAL_DECLEAR MemoryAssist<ObjType, BuildType, ParticleType> *staticAlloctor = NULL;
     if(UNLIKELY(!staticAlloctor))
     {
-        staticAlloctor = AllocUtil::GetStaticThreadLocalTemplateObjNoFree<MemoryAssist<ObjType, BuildType, ParticleType>>([]() -> void * {
-            return new MemoryAssist<ObjType, BuildType, ParticleType>();
-        });
+        staticAlloctor = new MemoryAssist<ObjType, BuildType, ParticleType>();
+        auto ptr = staticAlloctor;
+        auto lamb = [ptr]()
+        {
+            CRYSTAL_DELETE(ptr);
+        };
+        KERNEL_REGISTER_GLOBAL_LIFE(lamb);
     }                                       
 
     // staticAlloctor->_againstLazy = 0;                                                                                                         

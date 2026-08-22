@@ -30,6 +30,7 @@
 #pragma once
 
 #include <kernel/comp/FileMonitor/FileMonitorMacro.h>
+#include <kernel/comp/FileMonitor/FileChangeImpl.h>
 #include <kernel/comp/FileMonitor/FileMonitor.h>
 #include <kernel/comp/FileMonitor/FileChangeManager.h>
 #include <kernel/comp/FileMonitor/YamlDeserializer.h>
