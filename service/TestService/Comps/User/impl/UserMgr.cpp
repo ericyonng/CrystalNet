@@ -353,7 +353,7 @@ Int32 UserMgr::Login(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS:
     }
 
     // 是否禁止无权限的人登录
-    if(GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::DISABLE_NO_AUTH_LOGIN)->_value != 0)
+    if(GetService()->GetComp<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::DISABLE_NO_AUTH_LOGIN)->_value != 0)
     {
         auto authRoleConfig = CetAuthRoleConfig(pendingInfo->_byAccountName);
         if(authRoleConfig == NULL)
@@ -836,7 +836,7 @@ Int32 UserMgr::AuthRoleLogin(const RoleAuthConfig &config, KERNEL_NS::SmartPtr<P
 
 const RoleAuthConfig *UserMgr::CetAuthRoleConfig(const KERNEL_NS::LibString &accountName) const
 {
-    auto configLoader = GetService()->GetComp<ConfigLoader>();
+    auto configLoader = GetService()->GetComp<ConfigLoaderProxy>()->GetConfigLoader();
     auto roleAuthMgr = configLoader->GetComp<RoleAuthConfigMgr>();
     return roleAuthMgr->GetConfigById(accountName);  
 }
@@ -1202,7 +1202,7 @@ Int32 UserMgr::_OnGlobalSysInit()
         return Status::Failed;
     }
 
-    auto commonMgr = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>();
+    auto commonMgr = GetService()->GetComp<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>();
     _lruCapacityLimit = commonMgr->GetConfigById(CommonConfigIdEnums::USER_LRU_CAPACITY_LIMIT)->_value;
 
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_LoginReq, this, &UserMgr::_OnClientLoginReq);
@@ -1894,8 +1894,8 @@ Int32 UserMgr::_CheckRegisterInfo(const LoginInfo &loginInfo) const
         return Status::Failed;
     }
 
-    auto commonConfig = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::USER_LOGIN_KEY_CHAR_COUNT);
-    auto maxKenLenCommonConfig = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::USER_LOGIN_KEY_CHAR_COUNT_MAX_LEN);
+    auto commonConfig = GetService()->GetComp<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::USER_LOGIN_KEY_CHAR_COUNT);
+    auto maxKenLenCommonConfig = GetService()->GetComp<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::USER_LOGIN_KEY_CHAR_COUNT_MAX_LEN);
     if(static_cast<Int32>(plainPwdText.length()) < commonConfig->_value)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("pwd less than :%d, size:%d plainPwdText:%s")
@@ -1938,7 +1938,7 @@ Int32 UserMgr::_CheckRegisterInfo(const LoginInfo &loginInfo) const
         return Status::Failed;
     }
 
-    auto nameMaxLenConfig = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::NAME_MAX_LEN);
+    auto nameMaxLenConfig = GetService()->GetComp<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::NAME_MAX_LEN);
     KERNEL_NS::LibString accountname = regiseterInfo.accountname();
     if(static_cast<Int32>(accountname.length_with_utf8()) > nameMaxLenConfig->_value)
     {

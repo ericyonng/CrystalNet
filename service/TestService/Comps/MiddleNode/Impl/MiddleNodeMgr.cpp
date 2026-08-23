@@ -30,6 +30,7 @@
 #include <Comps/User/User.h>
 
 #include "Comps/config/impl/ConfigLoader.h"
+#include "Comps/config/impl/ConfigLoaderProxy.h"
 #include "cpp/RoleAuthConfig.h"
 
 SERVICE_BEGIN
@@ -134,7 +135,7 @@ void MiddleNodeMgr::_OnSendDataRequest(KERNEL_NS::LibPacket *&packet)
             for(auto iter : allUsers)
             {
                 auto user = iter.second;
-                auto config = GetService()->GetComp<ConfigLoader>()->GetComp<RoleAuthConfigMgr>()->GetConfigById(user->GetUserBaseInfo()->accountname());
+                auto config = GetService()->GetComp<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<RoleAuthConfigMgr>()->GetConfigById(user->GetUserBaseInfo()->accountname());
                 if(!config)
                     continue;
 
@@ -204,7 +205,7 @@ void MiddleNodeMgr::_OnBroadcastSendDataConfirmResponse(KERNEL_NS::LibPacket *&p
         for(auto iter : allUsers)
         {
             auto user = iter.second;
-            auto config = GetService()->GetComp<ConfigLoader>()->GetComp<RoleAuthConfigMgr>()->GetConfigById(user->GetUserBaseInfo()->accountname());
+            auto config = GetService()->GetComp<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<RoleAuthConfigMgr>()->GetConfigById(user->GetUserBaseInfo()->accountname());
             if(!config)
                 continue;
 
@@ -239,7 +240,7 @@ void MiddleNodeMgr::_OnResendTimer(KERNEL_NS::LibTimer *timer)
     for(auto iter : allUsers)
     {
         auto user = iter.second;
-        auto config = GetService()->GetComp<ConfigLoader>()->GetComp<RoleAuthConfigMgr>()->GetConfigById(user->GetUserBaseInfo()->accountname());
+        auto config = GetService()->GetComp<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<RoleAuthConfigMgr>()->GetConfigById(user->GetUserBaseInfo()->accountname());
         if(!config)
             continue;
 

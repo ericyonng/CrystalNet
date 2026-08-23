@@ -42,7 +42,8 @@ ConfigLoader::ConfigLoader()
 
 ConfigLoader::~ConfigLoader()
 {
-
+    WillClose();
+    Close();
 }
 
 void ConfigLoader::Release()

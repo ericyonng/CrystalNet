@@ -93,7 +93,7 @@ bool InviteCodeGlobal::IsUsed(const KERNEL_NS::LibString &inviteCode) const
 
 bool InviteCodeGlobal::IsValidCode(const KERNEL_NS::LibString &inviteCode) const
 {
-    auto inviteCodeConfigMgr = GetGlobalSys<ConfigLoader>()->GetComp<InviteCodeConfigMgr>();
+    auto inviteCodeConfigMgr = GetGlobalSys<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<InviteCodeConfigMgr>();
     return inviteCodeConfigMgr->GetConfigByInviteCode(inviteCode) != NULL;
 }
 

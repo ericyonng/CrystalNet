@@ -173,7 +173,7 @@ Int32 BookBagMgr::SetBookBagInfo(const BookInfoItem &item)
             return Status::ParamError;
         }
 
-        auto maxBorrowDaysConfig = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::MAX_BORROW_DAYS);
+        auto maxBorrowDaysConfig = GetService()->GetComp<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::MAX_BORROW_DAYS);
         if(item.borrowdays() > maxBorrowDaysConfig->_value)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("borrowdays:[%d] over limit:[%d] book id:%llu, user:%s")
@@ -244,7 +244,7 @@ Int32 BookBagMgr::Submit(const KERNEL_NS::LibString &remark)
 
     auto libraryGlobal = GetUserMgr()->GetGlobalSys<ILibraryGlobal>();
     std::set<UInt64> bookIds;
-    auto maxBorrowDaysConfig = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::MAX_BORROW_DAYS);
+    auto maxBorrowDaysConfig = GetService()->GetComp<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::MAX_BORROW_DAYS);
     for(auto &item : _bookBagInfo->bookinfoitemlist())
     {
         if(item.bookcount() == 0)

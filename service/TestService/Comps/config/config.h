@@ -30,4 +30,5 @@
 
 #include <cpp/AllConfigs.h>
 #include <Comps/config/impl/ConfigLoader.h>
-#include <Comps/config/impl/ConfigLoaderFactory.h>
+#include <Comps/config/impl/ConfigLoaderProxy.h>
+#include <Comps/config/impl/ConfigLoaderProxyFactory.h>

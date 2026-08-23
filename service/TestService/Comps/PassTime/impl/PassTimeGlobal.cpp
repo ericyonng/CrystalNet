@@ -178,7 +178,7 @@ void PassTimeGlobal::_DoCheckPassTime(const KERNEL_NS::LibTime &nowTime)
             comp->CastTo<ILogicSys>()->OnPassDay(nowTime);
 
         // 跨周
-        const auto firstDayOfWeekConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::FIRST_DAY_OF_WEEK);
+        const auto firstDayOfWeekConfig = GetGlobalSys<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::FIRST_DAY_OF_WEEK);
         if(nowTime.GetLocalDayOfWeek() == firstDayOfWeekConfig->_value)
         {
             for(auto &comp : allLogicComps)

@@ -201,7 +201,7 @@ void MyTestService::_OnServiceRegisterComps()
     // 事件转发器 从Service 转发到其他事件管理器
     RegisterComp<EventRelayGlobalFactory>();
     // 配置表
-    RegisterComp<ConfigLoaderFactory>();
+    RegisterComp<ConfigLoaderProxyFactory>();
     // 会话管理
     RegisterComp<SessionMgrFactory>();
      // 系统逻辑管理
@@ -348,7 +348,7 @@ Int32 MyTestService::_OnServiceCompsCreated()
     _updateTimer->SetTimeOutHandler(this, &MyTestService::_OnFrameTimer);
 
     // 配置路径设置
-    auto configLoader = GetComp<SERVICE_COMMON_NS::IConfigLoader>();
+    auto configLoader = GetComp<SERVICE_NS::ConfigLoaderProxy>()->GetConfigLoader();
     auto curConfig = _serviceConfig->Current();
     configLoader->SetBasePath(curConfig->ConfigDataPath);
 

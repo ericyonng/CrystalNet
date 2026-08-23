@@ -105,7 +105,7 @@ void NotifyMgr::OnLogout()
 
 void NotifyMgr::AddNotify(const UserNotifyDataItem &item)
 {
-    auto limitConfig = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::NOTIFY_MAX_LIMIT);
+    auto limitConfig = GetService()->GetComp<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::NOTIFY_MAX_LIMIT);
     
     // 移除多的
     RemoveUserNotifyDataItemNty removeNty;

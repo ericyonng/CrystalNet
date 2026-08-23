@@ -253,7 +253,7 @@ void LoginMgr::_Update(bool isNty)
 {
     // TODO:更新token
     // 更新key
-    auto conmmonConfigMgr = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>();
+    auto conmmonConfigMgr = GetService()->GetComp<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>();
     auto config = conmmonConfigMgr->GetConfigById(CommonConfigIdEnums::USER_LOGIN_KEY_CHAR_COUNT);
 
     // 生成新的key

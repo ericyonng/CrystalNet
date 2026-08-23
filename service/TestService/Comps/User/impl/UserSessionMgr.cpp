@@ -75,7 +75,7 @@ Int32 UserSessionMgr::_OnInit()
     _heartbeatTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
     _heartbeatTimer->SetTimeOutHandler(this, &UserSessionMgr::_OnHeartbeatTimeOut);
 
-    _heartbeatExpireTime = _userMgr->GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::USER_HEARTBEAT_EXPIRE_TIME)->_int64Value;
+    _heartbeatExpireTime = _userMgr->GetService()->GetComp<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::USER_HEARTBEAT_EXPIRE_TIME)->_int64Value;
 
     _userMgr->GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_ClientHeartbeatReq, this, &UserSessionMgr::_OnHeartbeatReq);
 
@@ -177,7 +177,7 @@ void UserSessionMgr::_OnSessionCreated(KERNEL_NS::LibEvent *ev)
     if (!_userPorts.empty() && _userPorts.find(localAddr->_port) == _userPorts.end())
         return;
     
-    auto expireConfig = _userMgr->GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::USER_LOGIN_EXPIRE_TIME);
+    auto expireConfig = _userMgr->GetService()->GetComp<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::USER_LOGIN_EXPIRE_TIME);
     KERNEL_NS::SmartPtr<LoginPendingInfo, KERNEL_NS::AutoDelMethods::CustomDelete> pending = LoginPendingInfo::NewThreadLocal_LoginPendingInfo(sessionId);
     pending.SetClosureDelegate([](void *p){
         auto ptr = reinterpret_cast<LoginPendingInfo *>(p);

@@ -224,7 +224,7 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, cons
 {
     if(!remark.empty())
     {
-        auto contentConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CONTENT_LIMIT);
+        auto contentConfig = GetGlobalSys<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CONTENT_LIMIT);
         if(!remark.IsUtf8())
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("bad remark content user:%s"), user->ToString().c_str());
@@ -270,7 +270,7 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, cons
     }
 
     // 图书校验
-    auto maxBorrowDaysConfig = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::MAX_BORROW_DAYS);
+    auto maxBorrowDaysConfig = GetService()->GetComp<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::MAX_BORROW_DAYS);
     
     std::map<UInt64, Int64> bookIdRefCount;
     for(auto &item : bookBagInfo.bookinfoitemlist())
@@ -588,7 +588,7 @@ void LibraryGlobal::_OnCreateLibraryReq(KERNEL_NS::LibPacket *&packet)
     req->set_telphonenumber(req->telphonenumber());
 
     auto inviteCodeGlobal = GetGlobalSys<IInviteCodeGlobal>();
-    const CommonConfig *isNeedInviteCodeConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CREATE_LIBRARY_NEED_INVITE_CODE);
+    const CommonConfig *isNeedInviteCodeConfig = GetGlobalSys<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CREATE_LIBRARY_NEED_INVITE_CODE);
     auto isNeedInviteCode = (!isNeedInviteCodeConfig || (isNeedInviteCodeConfig->_value > 0));
     CreateLibraryRes res;
     Int32 errCode = Status::Success;
@@ -646,7 +646,7 @@ void LibraryGlobal::_OnCreateLibraryReq(KERNEL_NS::LibPacket *&packet)
         }
 
         // 其他内容长度限制
-        auto contentConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CONTENT_LIMIT);
+        auto contentConfig = GetGlobalSys<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CONTENT_LIMIT);
         if((!req->address().empty()) && (!KERNEL_NS::StringUtil::IsUtf8String(req->address())))
         {
             errCode = Status::InvalidContent;
@@ -1362,14 +1362,14 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
         return;
     }
 
-    auto contentConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CONTENT_LIMIT);
-    auto imageSizeLimitConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::MAX_IMAGE_SIZE);
+    auto contentConfig = GetGlobalSys<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CONTENT_LIMIT);
+    auto imageSizeLimitConfig = GetGlobalSys<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::MAX_IMAGE_SIZE);
     const size_t contentMaxLen = static_cast<size_t>(contentConfig->_int64Value);
     const size_t imageMaxSize = static_cast<size_t>(imageSizeLimitConfig->_int64Value);
-    auto bookContentConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::BOOK_CONTENT_LIMIT);
+    auto bookContentConfig = GetGlobalSys<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::BOOK_CONTENT_LIMIT);
     const size_t maxBookContentLen = static_cast<size_t>(bookContentConfig->_int64Value);
-    auto keyWordsConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::KEYWORDS_LIMIT);
-    auto snapshotConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::BOOK_SNAP_SHOT_MAX_LIMIT);
+    auto keyWordsConfig = GetGlobalSys<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::KEYWORDS_LIMIT);
+    auto snapshotConfig = GetGlobalSys<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::BOOK_SNAP_SHOT_MAX_LIMIT);
     Int32 err = Status::Success;
 
     do
@@ -2001,7 +2001,7 @@ void LibraryGlobal::_OnOutStoreOrderReq(KERNEL_NS::LibPacket *&packet)
         // 切换状态出库成功
         orderInfo->set_orderstate(BorrowOrderState_ENUMS_WAIT_USER_RECEIVE);
 
-        auto outstoreWaitGotDaysConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::OUTSTORE_WAIT_GOT_DAYS);
+        auto outstoreWaitGotDaysConfig = GetGlobalSys<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::OUTSTORE_WAIT_GOT_DAYS);
         const auto &nowTime = KERNEL_NS::LibTime::Now();
         const auto &getOverTime = nowTime.AddDays(outstoreWaitGotDaysConfig->_value);
         orderInfo->set_getovertime(getOverTime.GetMilliTimestamp());
@@ -2162,7 +2162,7 @@ void LibraryGlobal::_OnManagerScanOrderForUserGettingBooksReq(KERNEL_NS::LibPack
             KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
         });
 
-        auto confirmTimeConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CONFIRM_CODE_TIME);
+        auto confirmTimeConfig = GetGlobalSys<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CONFIRM_CODE_TIME);
         newTimer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(confirmTimeConfig->_int64Value * KERNEL_NS::TimeDefs::SECOND_PER_MINUTE));
         
         if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
@@ -2342,7 +2342,7 @@ void LibraryGlobal::_OnCancelOrderReq(KERNEL_NS::LibPacket *&packet)
         }
 
         // 原因内容是否合法
-        auto contentConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CONTENT_LIMIT);
+        auto contentConfig = GetGlobalSys<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CONTENT_LIMIT);
         KERNEL_NS::LibString decodedContent;
         if(!req->reason().empty())
         {

@@ -94,7 +94,7 @@ bool NicknameGlobal::CheckNickname(const KERNEL_NS::LibString &nickname) const
     }
 
     // 名字长度限制
-    auto maxlenConfig = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CONTENT_LIMIT);
+    auto maxlenConfig = GetService()->GetComp<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CONTENT_LIMIT);
     if(static_cast<Int32>(nickname.length_with_utf8()) > maxlenConfig->_value)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("nickname too long:%s, utf8 len:%d"), nickname.c_str(),  static_cast<Int32>(nickname.length_with_utf8()));
@@ -115,7 +115,7 @@ void NicknameGlobal::GenRandNickname(KERNEL_NS::LibString &newName)
 {
     const auto id = GetGlobalSys<IGlobalUidMgr>()->NewGuid();
     newName.AppendFormat("nick_%llu", id);
-    auto maxlenConfig = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::NAME_MAX_LEN);
+    auto maxlenConfig = GetService()->GetComp<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::NAME_MAX_LEN);
 
     const Int32 utf8Len = static_cast<Int32>(newName.length_with_utf8());
     if(utf8Len >  maxlenConfig->_value)
