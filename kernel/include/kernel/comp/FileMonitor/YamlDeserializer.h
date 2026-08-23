@@ -131,7 +131,7 @@ private:
     alignas(SYSTEM_ALIGN_SIZE) FileChangeImpl *_impl;
     
     alignas(SYSTEM_ALIGN_SIZE) std::atomic<void *> _data;
-    mutable alignas(SYSTEM_ALIGN_SIZE) std::atomic<UInt64> _version;
+    alignas(SYSTEM_ALIGN_SIZE) mutable std::atomic<UInt64> _version;
 
     alignas(SYSTEM_ALIGN_SIZE) IDelegate<void *, YAML::Node &> *_parser;
     alignas(SYSTEM_ALIGN_SIZE) IDelegate<void, void *> *_releaseData;
