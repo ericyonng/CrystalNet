@@ -32,7 +32,6 @@
 
 #include "kernel/comp/Delegate/LibDelegate.h"
 #include "kernel/comp/FileMonitor/FileChangeManager.h"
-#include <yaml-cpp/yaml.h>
 #include <kernel/comp/Utils/FileUtil.h>
 
 KERNEL_BEGIN
@@ -43,9 +42,9 @@ YamlFileDeserializer::YamlFileDeserializer(const SourceWrap &source)
     ,_data{NULL}
     ,_version{0}
     ,_fileSize(0)
-    ,_modifyTIme(0)
 {
-    
+    _impl = FileChangeImpl::Create(DelegateFactory::Create(this, &YamlFileDeserializer::_FirstRun)
+        , DelegateFactory::Create(this, &YamlFileDeserializer::_Run));
 }
 
 YamlFileDeserializer::~YamlFileDeserializer()
@@ -55,25 +54,46 @@ YamlFileDeserializer::~YamlFileDeserializer()
     
     CRYSTAL_RELEASE_SAFE(_impl);
 
-    if (auto data = KERNEL_NS::KernelCastTo<YAML::Node>(_data.exchange(NULL, std::memory_order_acq_rel)))
+    if (auto data = _data.exchange(NULL, std::memory_order_acq_rel))
         delete data;
 }
 
 YamlFileDeserializer *YamlFileDeserializer::Create(const SourceWrap &source)
 {
-    auto obj = new YamlFileDeserializer(source);
-    obj->_impl = FileChangeImpl::Create(DelegateFactory::Create(obj, &YamlFileDeserializer::_FirstRun)
-        , DelegateFactory::Create(obj, &YamlFileDeserializer::_Run));
+    KERNEL_NS::SmartPtr<YamlFileDeserializer, KERNEL_NS::AutoDelMethods::Release> obj = new YamlFileDeserializer(source);
+    if(!g_FileChangeManager->Register(obj->_impl))
+    {
+        if(g_Log)
+            CLOG_ERROR_GLOBAL(YamlFileDeserializer, "file change manager register fail source:%s", source.ToString().c_str());
+        
+        return NULL;
+    }
+
+    if(g_Log)
+        CRYSTAL_TRACE("yaml file desiriallize source:%s, impl:%s", source.ToString().c_str(), obj->_impl->ToString().c_str());
     
-    g_FileChangeManager->Register(obj->_impl);
-    
-    return obj;
+    return obj.pop();
 }
 
 void YamlFileDeserializer::Release()
 {
     delete this;
 }
+
+KERNEL_NS::SmartPtr<YAML::Node> YamlFileDeserializer::SwapNewData(UInt64 &currentVersion)
+{
+    KERNEL_NS::SmartPtr<YAML::Node> node;
+    auto oldVersion = _version.load(std::memory_order_acquire);
+    if(oldVersion == currentVersion)
+        return node;
+
+    node = _data.exchange(NULL, std::memory_order_acq_rel);
+    if(node)
+        currentVersion = oldVersion;
+
+    return node;
+}
+
 
 void YamlFileDeserializer::_Run()
 {
@@ -156,13 +176,6 @@ void YamlFileDeserializer::_Run()
         }
         while (false);
     }
-    
-    if (!config)
-    {
-        if (g_Log)
-            CLOG_ERROR("source:%s, load yaml fail"
-                , _source.ToString().c_str());
-    }
 }
 
 void YamlFileDeserializer::_FirstRun()
@@ -181,8 +194,8 @@ void YamlFileDeserializer::_FirstRun()
         {
             if (g_Log)
             {
-                CLOG_ERROR("use yaml memory data, but have no yaml memory data, from memory:%p, dataName:%s, path:%s"
-                    ,fromMemory, _source.Path.c_str());
+                CLOG_ERROR("use yaml memory data, but have no yaml memory data, source:%s"
+                    ,_source.ToString().c_str());
             }
         }
     }
@@ -236,13 +249,14 @@ void YamlFileDeserializer::_FirstRun()
     }
     
     // 更新新数据, 移除旧数据
-    _ReplaceConfig(config);
+    if(config)
+        _ReplaceConfig(config);
 }
 
-void YamlFileDeserializer::_ReplaceConfig(void *data)
+void YamlFileDeserializer::_ReplaceConfig(YAML::Node *data)
 {
     // 更新新数据, 移除旧数据
-    if (auto oldData = KERNEL_NS::KernelCastTo<YAML::Node>(_data.exchange(data, std::memory_order_acq_rel)))
+    if (auto oldData = _data.exchange(data, std::memory_order_acq_rel))
     {
         delete oldData;
     }

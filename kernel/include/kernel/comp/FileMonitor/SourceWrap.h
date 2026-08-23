@@ -46,11 +46,12 @@ struct KERNEL_EXPORT SourceWrap
     void *FromMemory = NULL;
     
     // 用 MakeKey 计算hash
-    UInt64 MakeKeyHashCode = 0;
+    mutable UInt64 MakeKeyHashCode = 0;
+    mutable LibString GenKey;
     
     LibString ToString() const;
-    LibString MakeKey() const;
-    UInt64 HashCode();
+    LibString &MakeKey() const;
+    UInt64 HashCode() const;
 };
 
 KERNEL_END

@@ -31,6 +31,16 @@
 ALWAYS_HIDDEN DEF_THREAD_LOCAL_DECLEAR SERVICE_NS::IPluginMgr *g_PluginMgr = NULL;
 ALWAYS_HIDDEN DEF_THREAD_LOCAL_DECLEAR SERVICE_NS::IPluginGlobal *g_PluginGlobal = NULL;
 
+namespace
+{
+    static ALWAYS_HIDDEN KERNEL_NS::GlobalLifeCtrl &GetGlobalLifeCtrl()
+    {
+        static KERNEL_NS::GlobalLifeCtrl s_lifeCtrl;
+
+        return s_lifeCtrl;
+    }
+}
+
 KERNEL_BEGIN
 
 ALWAYS_HIDDEN UInt64 GetCrystalModuleId()
@@ -49,8 +59,15 @@ ALWAYS_HIDDEN UInt64 GetCrystalModuleId()
 
 ALWAYS_HIDDEN void RegisterGlobalObjLife(void *deleg)
 {
-    static GlobalLifeCtrl s_lifeCtrl;
-    s_lifeCtrl.Register(reinterpret_cast<IDelegate<void> *>(deleg));
+    auto &lifeCtrl = GetGlobalLifeCtrl();
+    lifeCtrl.Register(reinterpret_cast<IDelegate<void> *>(deleg));
+}
+
+ALWAYS_HIDDEN void EnableGlobalLife(bool enable)
+{
+    auto &lifeCtrl = GetGlobalLifeCtrl();
+
+    lifeCtrl.Enable(enable);
 }
 
 KERNEL_END

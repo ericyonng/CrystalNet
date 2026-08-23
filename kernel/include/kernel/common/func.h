@@ -44,6 +44,8 @@ KERNEL_BEGIN
     class MemoryPool;
 class SpinLock;
 
+extern KERNEL_EXPORT UInt64 KernelGenIncUniqueId();
+
 extern KERNEL_EXPORT MemoryPool *KernelGetTlsMemoryPool();
 extern KERNEL_EXPORT MemoryPool *KernelGetDefaultMemoryPool();
 extern KERNEL_EXPORT UInt64 KernelGetCurrentThreadId();
@@ -169,6 +171,9 @@ extern KERNEL_EXPORT std::set<UInt64> &GetCoroutineThreadLocalSet(UInt64 moduleI
 // 注册静态对象生命周期管理(dll/so/exe释放时统一释放全局对象内存), 每个模块(dll/exe/so都实现RegisterGlobalObjLife)
 extern ALWAYS_HIDDEN void RegisterGlobalObjLife(void *deleg);
 
+// 开启全局对象是否释放
+extern ALWAYS_HIDDEN void EnableGlobalLife(bool enable);
+
 // 注册全局变量生命周期, 全局变量
 #ifndef KERNEL_REGISTER_GLOBAL_LIFE
  #define KERNEL_REGISTER_GLOBAL_LIFE(LAMB)                  \
@@ -176,6 +181,12 @@ extern ALWAYS_HIDDEN void RegisterGlobalObjLife(void *deleg);
 
 #endif
 
+// 释放启动全局对象销毁, 默认不开启
+#ifndef KERNEL_ENABLE_GLOBAL_LIFE
+ #define KERNEL_ENABLE_GLOBAL_LIFE(ENABLE)  \
+    KERNEL_NS::EnableGlobalLife(ENABLE)
+
+#endif
 
 KERNEL_END
 

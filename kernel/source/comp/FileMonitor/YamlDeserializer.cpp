@@ -32,23 +32,47 @@
 #include "kernel/comp/Poller/Poller.h"
 #include "kernel/comp/Utils/FileUtil.h"
 #include <kernel/comp/FileMonitor/YamlMemory.h>
+#include <kernel/comp/FileMonitor/FileChangeImpl.h>
+#include <kernel/comp/FileMonitor/YamlFileDeserialize.h>
+
+namespace
+{
+    struct YamlFileInfoWrapper
+    {
+        KERNEL_NS::SmartPtr<KERNEL_NS::YamlFileDeserializer, KERNEL_NS::AutoDelMethods::Release> _fileDeserializer;
+        UInt64 _curVersion = 0;
+        KERNEL_NS::SmartPtr<YAML::Node> _curNode;
+    };
+}
 
 KERNEL_BEGIN
 
-YamlDeserializer::YamlDeserializer()
-    :_handle(NULL)
-    ,_id(FileChangeManager::GenId())
+YamlDeserializer::YamlDeserializer(const SourceWrap &source, const LibString &dataName, IDelegate<void *, YAML::Node &> *parser, IDelegate<void, void *> *releaseData, const KERNEL_NS::LibString &key)
+    :_source(source)
+    ,_key(key.strip())
+    ,_dataName(dataName.strip())
+    ,_impl(NULL)
+    , _data{NULL}
+    ,_version{0}
+    ,_parser(parser)
+    ,_releaseData(releaseData)
 {
-    
+    _impl = FileChangeImpl::Create(DelegateFactory::Create(this, &YamlDeserializer::_FirstRun)
+     , DelegateFactory::Create(this, &YamlDeserializer::_Run)); 
 }
 
 YamlDeserializer::~YamlDeserializer()
 {
-    // YamlDeserializer结束后就不监听了
-    if(_handle)
-    {
-        _handle->_notListen.store(true, std::memory_order_release);
-    }
+    if (_impl)
+        g_FileChangeManager->UnRegister(_impl->GetHandle());
+
+    CRYSTAL_RELEASE_SAFE(_impl);
+
+    if (auto data = _data.exchange(NULL, std::memory_order_acq_rel))
+        _releaseData->Invoke(data);
+
+    CRYSTAL_RELEASE_SAFE(_parser);
+    CRYSTAL_RELEASE_SAFE(_releaseData);
 }
 
 void YamlDeserializer::Release()
@@ -56,257 +80,199 @@ void YamlDeserializer::Release()
     delete this;
 }
 
-YamlDeserializer *YamlDeserializer::Create()
+YamlDeserializer *YamlDeserializer::Create(const SourceWrap &source, const LibString &dataName, IDelegate<void *, YAML::Node &> *parser, IDelegate<void, void *> *releaseData, const KERNEL_NS::LibString &key)
 {
-    return new YamlDeserializer();
+    KERNEL_NS::SmartPtr<YamlDeserializer, KERNEL_NS::AutoDelMethods::Release> obj = new YamlDeserializer(source, dataName, parser, releaseData, key);
+
+    if(!g_FileChangeManager->Register(obj->_impl))
+    {
+        if(g_Log)
+            CLOG_ERROR_GLOBAL(YamlDeserializer, "file change manager register fail source:%s, dataName:%s, key:%s", source.ToString().c_str(), dataName.c_str(), key.c_str());
+        
+        return NULL;
+    }
+
+    if(g_Log)
+        CRYSTAL_TRACE("yaml desiriallize source:%s, impl:%s", source.ToString().c_str(), obj->_impl->ToString().c_str());
+    
+    return obj.pop();
 }
 
-void *YamlDeserializer::_Register(const LibString &dataName,  IDelegate<void, void *> * releaseObj, IDelegate<void *, YAML::Node *> *deserializeObj, YamlMemory *fromMemory)
+void YamlDeserializer::_Run()
 {
-    auto poller = g_FileChangeManager->GetPoller();
-    auto fileChangeManager = g_FileChangeManager;
-    void *obj = NULL;
-    std::atomic_bool isFinish = {false};
-    void *registerKey = this;
-    auto path = _path;
-
-    // 不用担心投递到poller线程后由于没执行导致delegate泄露, 因为如果没执行那么程序应该处于关闭状态, 无所谓内存泄露
-    auto handleRegisterLamb = [this, dataName, registerKey, releaseObj, deserializeObj, &isFinish, &obj, path, fileChangeManager, fromMemory]()
+    bool isChange = false;
+    auto yamlFileNode = GetTlsSourceYaml(isChange);
+    if(!isChange)
+        return;
+    
+    try
     {
-        KERNEL_NS::SmartPtr<IDelegate<void *, YAML::Node *>, KERNEL_NS::AutoDelMethods::Release> deserializePtr(deserializeObj);
-        KERNEL_NS::SmartPtr<IDelegate<void, void *>, KERNEL_NS::AutoDelMethods::Release> releaseObjPtr(releaseObj);
-
-        // 注册monitorInfo
-        auto &filePathRefFileObj = fileChangeManager->GetFilePathRefFileObj();
-        auto iter = filePathRefFileObj.find(path);
-        FileMonitorInfo *monitorInfo = NULL;
-        YAML::Node* config;
-
-        if(iter == filePathRefFileObj.end())
+        if(_key.empty())
         {
-            auto loadNewObjLamb = [path](void *fromMemoryData) mutable  -> void *
+            auto tName = KERNEL_NS::RttiUtil::GetSimpleTypeName(_dataName);
+            tName.strip();
+            auto value = (*yamlFileNode)[tName.c_str()];
+            auto data = _parser->Invoke(value);
+            auto oldData = _data.exchange(data, std::memory_order_acq_rel);
+            if(oldData)
             {
-                YAML::Node *config = NULL;
-                // fromMemoryData 加载后就得释放, 已经脱离生命周期，这里用智能指针管理
-                KERNEL_NS::SmartPtr<YamlMemoryData, KERNEL_NS::AutoDelMethods::Release> fromMemoryCache(KERNEL_NS::KernelCastTo<YamlMemoryData>(fromMemoryData));
-                try
-                {
-                    // 优先使用内存的
-                    if (fromMemoryData)
-                    {
-                        if (fromMemoryCache && (!fromMemoryCache->_data.empty()))
-                        {
-                            config = new YAML::Node(YAML::Load(fromMemoryCache->_data.GetRaw()));
-                        }
-                    }
-
-                    // 内存的没有就使用path
-                    if (!config)
-                        config = new YAML::Node(YAML::LoadFile(path.c_str()));
-                }
-                catch (std::exception &e)
-                {
-                    if (g_Log)
-                        CLOG_ERROR_GLOBAL(YamlDeserializer, "path:%s, load yaml fail, exception:%s, fromMemoryData:%p", path.c_str(), e.what(), fromMemoryData);
-                }
-                catch (...)
-                {                    
-                    if (g_Log)
-                        CLOG_ERROR_GLOBAL(YamlDeserializer, "path:%s, load yaml fail, fromMemoryData:%p", path.c_str(), fromMemoryData);
-                }
-
-                return config;
-            };
-
-            // 内存yaml(交换出memoryData)
-            YamlMemoryData *memoryData = NULL;
-            if (fromMemory)
-            {
-                memoryData = fromMemory->CheckAndChange();
-                if (!memoryData)
-                {
-                    if (g_Log)
-                    {
-                        CLOG_ERROR_GLOBAL(YamlDeserializer, "use yaml memory data, but have no yaml memory data, from memory:%p, dataName:%s, path:%s"
-                            , fromMemory, dataName.c_str(), path.c_str());
-                    }
-                }
-            }
-
-            // memoryData在loadNewObjLamb中释放
-            config = KERNEL_NS::KernelCastTo<YAML::Node>(loadNewObjLamb(memoryData));
-            if(config)
-            {
-                monitorInfo = new FileMonitorInfo();
-                monitorInfo->_path = path;
-                monitorInfo->_sourceObj = config;
-
-                // 来自内存
-                monitorInfo->_fromMemory =  fromMemory;
-
-                // 加载新的配置
-                monitorInfo->_loadNewObj = KERNEL_CREATE_CLOSURE_DELEGATE(loadNewObjLamb, void *, void *);
-
-                // 处理文件变化
-                {
-                    // 内存yaml
-                    if (monitorInfo->_fromMemory)
-                    {
-                        // 检查文件是否变化回调
-                        auto ckeckChange = [monitorInfo](void *&outFromMemoryData) mutable -> bool
-                        {
-                            if (!monitorInfo->_fromMemory)
-                                return false;
-                            
-                            auto yamlMemory = KERNEL_NS::KernelCastTo<YamlMemory>(monitorInfo->_fromMemory);
-                            outFromMemoryData = yamlMemory->CheckAndChange();
-
-                            return outFromMemoryData != NULL;
-                        };
-                
-                        monitorInfo->_checkChange = KERNEL_CREATE_CLOSURE_DELEGATE(ckeckChange, bool, void *&);
-                    }
-                    else
-                    {
-                        KERNEL_NS::SmartPtr<Int64> fileSize(new Int64);
-                        KERNEL_NS::SmartPtr<KERNEL_NS::LibTime> modifyTime(new KERNEL_NS::LibTime());
-
-                        *fileSize = 0;
-                        if(KERNEL_NS::FileUtil::IsFileExist(path.c_str()))
-                        {
-                            // 初始化文件大小
-                            *fileSize = KERNEL_NS::FileUtil::GetFileSizeEx(path.c_str());
-
-                            // 初始化文件时间
-                            *modifyTime = KERNEL_NS::FileUtil::GetFileModifyTime(path.c_str());
-                        }
-
-                        // 检查文件是否变化回调
-                        auto ckeckChange = [path, fileSize, modifyTime](void *&) mutable -> bool
-                        {
-                            if(!KERNEL_NS::FileUtil::IsFileExist(path.c_str()))
-                                return false;
-
-                            auto curSize = KERNEL_NS::FileUtil::GetFileSizeEx(path.c_str());
-                            if(curSize <= 0)
-                                return false;
-                        
-                            auto curModifyTime = KERNEL_NS::FileUtil::GetFileModifyTime(path.c_str());
-                            if(!curModifyTime)
-                                return false;
-                        
-                            if(curSize != *fileSize || curModifyTime != *modifyTime)
-                            {
-                                *fileSize = curSize;
-                                *modifyTime = curModifyTime;
-                                return true;
-                            }
-
-                            return false;
-                        };
-                
-                        monitorInfo->_checkChange = KERNEL_CREATE_CLOSURE_DELEGATE(ckeckChange, bool, void *&);
-                    }
-                }
-
-                // 释放config
-                {
-                    auto releaseConfig = [](void *obj)
-                    {
-                        auto yamlConfig  = KERNEL_NS::KernelCastTo<YAML::Node>(obj);
-                        delete yamlConfig;
-                    };
-                    monitorInfo->_releaseObj = KERNEL_CREATE_CLOSURE_DELEGATE(releaseConfig, void, void *);
-                }
-
-                iter = filePathRefFileObj.insert(std::make_pair(path, monitorInfo)).first;
+                _releaseData->Invoke(oldData);
             }
         }
         else
         {
-            monitorInfo = iter->second;
-            config = KERNEL_NS::KernelCastTo<YAML::Node>(monitorInfo->_sourceObj);
-        }
-
-        // 注册handle并反序列化
-        if(monitorInfo != NULL)
-        {
-            auto iterHandle = monitorInfo->_keyRefFileChangeHandle.find(registerKey);
-            if(iterHandle == monitorInfo->_keyRefFileChangeHandle.end())
+            auto &&parts = _key.Split(".");
+            if(UNLIKELY(parts.empty()))
             {
-                auto handle = new FileChangeHandle();
-                auto deserializeLamb = [deserializePtr](void *config)->void *
+                if (g_Log)
                 {
-                    return deserializePtr->Invoke(KERNEL_NS::KernelCastTo<YAML::Node>(config));
-                };
-                handle->_deserialize = KERNEL_CREATE_CLOSURE_DELEGATE(deserializeLamb, void *, void *);
+                    CLOG_ERROR("yaml deserialize fail tName invalid, source:%s, key:%s", _source.ToString().c_str(), _key.c_str());
+                }
 
-                auto releaseLamb = [releaseObjPtr](void *ptr)
-                {
-                    releaseObjPtr->Invoke(ptr);
-                };
-                handle->_release = KERNEL_CREATE_CLOSURE_DELEGATE(releaseLamb, void, void *);
-                handle->_dataName = dataName;
-                
-                iterHandle = monitorInfo->_keyRefFileChangeHandle.insert(std::make_pair(registerKey, handle)).first;
+                return;
             }
 
-            // 注册需要持有handle, 以便及时的更新配置
-            _handle = iterHandle->second;
-
-            // 反序列化
-            if(config)
+            const Int32 sz = static_cast<Int32>(parts.size());
+            auto node = IndexNode(*yamlFileNode, parts, 0, sz - 1);
+            auto data = _parser->Invoke(node);
+            auto oldData = _data.exchange(data, std::memory_order_acq_rel);
+            if(oldData)
             {
-                try
-                {
-                    obj = iterHandle->second->_deserialize->Invoke(config);
-                }
-                catch (std::exception &e)
-                {
-                    if (g_Log)
-                        CLOG_ERROR_GLOBAL(YamlDeserializer, "path:%s, deserialize yaml fail, exception:%s, deserializeObj:%s"
-                        , path.c_str(), e.what(), KERNEL_NS::RttiUtil::GetByObj(iterHandle->second->_deserialize).c_str());
-                }
-                catch (...)
-                {
-                    if (g_Log)
-                        CLOG_ERROR_GLOBAL(YamlDeserializer, "path:%s, deserialize yaml fail, deserializeObj:%s"
-                        , path.c_str(), KERNEL_NS::RttiUtil::GetByObj(iterHandle->second->_deserialize).c_str());
-                }
+                _releaseData->Invoke(oldData);
             }
-          
         }
-
-        isFinish.store(true, std::memory_order_release);
-    };
-    
-    // 判断如果当前线程是poller线程则不需要Push, 直接处理
-    if (poller->GetWorkerThreadId() != KERNEL_NS::SystemUtil::GetCurrentThreadId())
+    }
+    catch (std::exception &e)
     {
-        poller->Push(handleRegisterLamb);
-
-        // 等待完成(如果是在FileChangeManager同一个线程就G了)
-        while (!isFinish.load(std::memory_order_acquire))
+        if (g_Log)
         {
-            KERNEL_NS::SystemUtil::ThreadSleep(2);
-            CRYSTAL_TRACE("YamlDeserializer register waiting... path:%s, dataName:%s, fromMemory:%p", path.c_str(), dataName.c_str(), fromMemory);
+            CLOG_ERROR("yaml deserialize fail exception:%s source:%s, key:%s"
+                ,e.what(), _source.ToString().c_str(), _key.c_str());
         }
     }
-    else
+    catch (...)
     {
-        // 在Poller线程中, 直接执行, 避免后面阻塞
-        handleRegisterLamb();
+        if (g_Log)
+        {
+            CLOG_ERROR("yaml deserialize fail unknown exception source:%s, key:%s"
+                , _source.ToString().c_str(), _key.c_str());
+        }
     }
-
-    // 以上执行如果是NULL则失败
-    if(!obj)
-    {
-        CRYSTAL_TRACE("register yaml fail path:%s, data name:%s, from memory:%p", _path.c_str(), dataName.c_str(), fromMemory);
-
-        return NULL;
-    }
-
-    return obj;
 }
+
+void YamlDeserializer::_FirstRun()
+{
+    bool isChange = false;
+    auto yamlFileNode = GetTlsSourceYaml(isChange);
+    if(!yamlFileNode)
+    {
+        if(g_Log)
+            CLOG_ERROR("GetTlsSourceYaml fail source:%s", _source.ToString().c_str());
+        return;
+    }
+    try
+    {
+        if(_key.empty())
+        {
+            auto tName = KERNEL_NS::RttiUtil::GetSimpleTypeName(_dataName);
+            tName.strip();
+            auto value = (*yamlFileNode)[tName.c_str()];
+            auto data = _parser->Invoke(value);
+            auto oldData = _data.exchange(data, std::memory_order_acq_rel);
+            if(oldData)
+            {
+                _releaseData->Invoke(oldData);
+            }
+        }
+        else
+        {
+            auto &&parts = _key.Split(".");
+            if(UNLIKELY(parts.empty()))
+            {
+                if (g_Log)
+                {
+                    CLOG_ERROR("yaml deserialize fail tName invalid, source:%s, key:%s", _source.ToString().c_str(), _key.c_str());
+                }
+
+                return;
+            }
+
+            const Int32 sz = static_cast<Int32>(parts.size());
+            auto node = IndexNode(*yamlFileNode, parts, 0, sz - 1);
+            auto data = _parser->Invoke(node);
+            auto oldData = _data.exchange(data, std::memory_order_acq_rel);
+            if(oldData)
+            {
+                _releaseData->Invoke(oldData);
+            }
+        }
+    }
+    catch (std::exception &e)
+    {
+        if (g_Log)
+        {
+            CLOG_ERROR("yaml deserialize fail exception:%s source:%s, key:%s"
+                ,e.what(), _source.ToString().c_str(), _key.c_str());
+        }
+    }
+    catch (...)
+    {
+        if (g_Log)
+        {
+            CLOG_ERROR("yaml deserialize fail unknown exception source:%s, key:%s"
+                , _source.ToString().c_str(), _key.c_str());
+        }
+    }
+}
+
+KERNEL_NS::SmartPtr<YAML::Node> YamlDeserializer::GetTlsSourceYaml(bool &isChange) const
+{
+    // key:SourceWrap::MakeKey, pair:first:yaml文件解析, second:文件解析获取的数据的版本号
+    DEF_STATIC_THREAD_LOCAL_DECLEAR std::unordered_map<LibString, YamlFileInfoWrapper> *s_SourceRefYamlFile = NULL;
+    if(UNLIKELY(!s_SourceRefYamlFile))
+    {
+        s_SourceRefYamlFile = new std::unordered_map<LibString, YamlFileInfoWrapper>();
+        auto ptr = s_SourceRefYamlFile;
+        auto lamb = [ptr]()
+        {
+            delete ptr;
+        };
+        KERNEL_REGISTER_GLOBAL_LIFE(lamb);
+    }
+
+    auto &key = _source.MakeKey();
+    auto iter = s_SourceRefYamlFile->find(key);
+    if(UNLIKELY(iter == s_SourceRefYamlFile->end()))
+    {
+        KERNEL_NS::SmartPtr<YamlFileDeserializer, KERNEL_NS::AutoDelMethods::Release> fileDeserializer = YamlFileDeserializer::Create(_source);
+        if(UNLIKELY(!fileDeserializer))
+        {
+            if(g_Log)
+                CLOG_ERROR("YamlFileDeserializer create fail source:%s", _source.ToString().c_str());
+            return NULL;
+        }
+        
+        iter = s_SourceRefYamlFile->insert(std::make_pair(key,YamlFileInfoWrapper{fileDeserializer, 0, NULL})).first;
+    }
+
+    // yaml文件解析器
+    auto &yamlFileWrapper = iter->second;
+    auto yamlFileDeserializer = yamlFileWrapper._fileDeserializer;
+    // 获取新的数据
+    auto current = yamlFileDeserializer->SwapNewData(yamlFileWrapper._curVersion);
+    if(current)
+    {
+        yamlFileWrapper._curNode = current;
+        isChange = true;
+    }
+
+    // 本地 YamlDeserializer 的版本号与yamlFileWrapper的不同说明热更了
+    auto oldVersion = _version.exchange(yamlFileWrapper._curVersion, std::memory_order_acq_rel);
+    if(oldVersion != yamlFileWrapper._curVersion)
+        isChange = true;
+    
+    return yamlFileWrapper._curNode;
+}
+
 
 KERNEL_END

@@ -44,6 +44,20 @@
 
 KERNEL_BEGIN
 
+template<typename ObjType, typename DeserializerType>
+struct DeserializerWrapper
+{
+    DeserializerWrapper(){}
+    ~DeserializerWrapper()
+    {
+        
+    }
+    
+    KERNEL_NS::SmartPtr<DeserializerType, KERNEL_NS::AutoDelMethods::Release> _deserializer;
+    KERNEL_NS::SmartPtr<ObjType, KERNEL_NS::AutoDelMethods::Release> _data;
+};
+
+
 // @param(ObjType): 反序列化最终的结果, 需要有:CreateNewObj/Release 接口
 // @param(FileDeserializer): 反序列化器, 将文件反序列化成ObjType, 需要有SwapNewData/Register接口, 
 // @param(FileDeserializerFactoryType): 反序列化器工厂, 需要有Create/Release接口, 
@@ -57,6 +71,8 @@ class FileMonitor
 
 public:
     FileMonitor()
+        :_source(NULL)
+        ,_id(KERNEL_NS::KernelGenIncUniqueId())
     {
         
     }
@@ -71,24 +87,28 @@ public:
     // 初始化,key支持多级key: a.b.c
     bool Init(const SourceWrap *source, const KERNEL_NS::LibString &key = "");
 
-    const LibString &GetPath() const;
-
     // 对于多线程访问, 应该对_currentObject/_deserialize放在thread_load级别, 这样避免了多线程竞争问题
 private:
     // 多线程访问
-    static  std::unordered_map<const FileMonitor<ObjType, FileDeserializerType> *, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>> *&GetFileMonitorInstRefCurrentObjAndDeserialize()
+    static std::map<UInt64, DeserializerWrapper<ObjType, FileDeserializerType>> *&GetTlsDict()
     {
-        DEF_STATIC_THREAD_LOCAL_DECLEAR std::unordered_map<const FileMonitor<ObjType, FileDeserializerType> *, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>> * s_FileMonitorInstRefCurrentObjAndDeserialize = NULL;
-        if(UNLIKELY(!s_FileMonitorInstRefCurrentObjAndDeserialize))
+        DEF_STATIC_THREAD_LOCAL_DECLEAR std::map<UInt64,DeserializerWrapper<ObjType, FileDeserializerType>> *s_IdRefDeserializer = NULL;
+        if(UNLIKELY(!s_IdRefDeserializer))
         {
-            s_FileMonitorInstRefCurrentObjAndDeserialize = new std::unordered_map<const  FileMonitor<ObjType, FileDeserializerType> *, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>>();
+            s_IdRefDeserializer = new std::map<UInt64, DeserializerWrapper<ObjType, FileDeserializerType>>();
+            auto ptr = s_IdRefDeserializer;
+            auto lamb = [ptr]()
+            {
+                delete ptr;
+            };
+            KERNEL_REGISTER_GLOBAL_LIFE(lamb);
         }
-        return s_FileMonitorInstRefCurrentObjAndDeserialize;
-
+        return s_IdRefDeserializer;
     }
 
     alignas(SYSTEM_ALIGN_SIZE) const SourceWrap *_source;
     alignas(SYSTEM_ALIGN_SIZE) LibString _key;
+    alignas(SYSTEM_ALIGN_SIZE) const UInt64 _id;
 };
 
 template<typename ObjType, typename FileDeserializerType>
@@ -97,26 +117,32 @@ requires FileMonitorConcept<ObjType, FileDeserializerType>
 #endif
 ALWAYS_INLINE SmartPtr<ObjType, AutoDelMethods::Release> FileMonitor<ObjType, FileDeserializerType>::Current() const
 {
-    auto &dict = GetFileMonitorInstRefCurrentObjAndDeserialize();
-    auto iter = dict->find(this);
+    auto dict = FileMonitor<ObjType, FileDeserializerType>::GetTlsDict();
+    auto iter = dict->find(_id);
     if(UNLIKELY(iter == dict->end()))
     {
-        auto deserializeObj = FileDeserializerType::Create();
-        iter = dict->insert(std::make_pair(this, std::pair<SmartPtr<ObjType, AutoDelMethods::Release>, FileDeserializerType *>( 
-            deserializeObj->template Register<ObjType>(_source->Path, _source->FromMemory, _key), deserializeObj
-        ))).first;
+        iter = dict->insert(std::make_pair(_id, DeserializerWrapper<ObjType, FileDeserializerType>())).first;
+        auto &deserializerWrapper = iter->second;
+        deserializerWrapper._deserializer = FileDeserializerType::template Create<ObjType>(*_source, _key);
+        if(UNLIKELY(!deserializerWrapper._deserializer))
+        {
+            dict->erase(iter);
+            return NULL;
+        }
     }
 
-    auto &currentAndDeserialize = iter->second;
+    auto &wrapper = iter->second;
+    auto currentAndDeserialize = wrapper._deserializer;
     
     // 如果配置有变更, 则更新配置
-    ObjType *newObj = currentAndDeserialize.second->template SwapNewData<ObjType>();
-    if(UNLIKELY((newObj != NULL) && (newObj != currentAndDeserialize.first.AsSelf())))
+    ObjType *newObj = currentAndDeserialize->template SwapNewData<ObjType>();
+    if(UNLIKELY((newObj != NULL) && (newObj != wrapper._data.AsSelf())))
     {
-        currentAndDeserialize.first = newObj;
+        // （热更）释放旧的数据
+        wrapper._data = newObj;
     }
 
-    return currentAndDeserialize.first;
+    return wrapper._data;
 }
 
 template<typename ObjType, typename FileDeserializerType>

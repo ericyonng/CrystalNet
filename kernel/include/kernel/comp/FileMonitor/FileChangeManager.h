@@ -40,7 +40,6 @@
 
 #include "kernel/comp/CompObject/CompObject.h"
 #include <kernel/comp/Coroutines/CoTaskParam.h>
-#include <kernel/comp/FileMonitor/FileChangeDefine.h>
 
 #include "kernel/comp/Coroutines/CoTask.h"
 
@@ -62,9 +61,6 @@ public:
 public:
     // 为外部提供 FileChangeManager 所在线程, 外部需要投递到FileChangeManager所在线程执行相关无锁任务
     Poller *GetPoller();
-
-    std::unordered_map<KERNEL_NS::LibString, FileMonitorInfo *> &GetFilePathRefFileObj();
-    const std::unordered_map<KERNEL_NS::LibString, FileMonitorInfo *> &GetFilePathRefFileObj() const;
 
     static UInt64 GenId();
     static UInt64 GenVersion();
@@ -90,7 +86,6 @@ private:
     
     
 private:
-    std::unordered_map<KERNEL_NS::LibString, FileMonitorInfo *> _filePathRefFileObj;
     std::atomic_bool _isStart;
     std::atomic_bool _isQuit;
     std::atomic_bool _isWorking;
@@ -108,16 +103,6 @@ private:
 ALWAYS_INLINE Poller *FileChangeManager::GetPoller()
 {
     return _workerPoller.load(std::memory_order_acquire);
-}
-
-ALWAYS_INLINE std::unordered_map<KERNEL_NS::LibString, FileMonitorInfo *> &FileChangeManager::GetFilePathRefFileObj()
-{
-    return _filePathRefFileObj;
-}
-
-ALWAYS_INLINE const std::unordered_map<KERNEL_NS::LibString, FileMonitorInfo *> &FileChangeManager::GetFilePathRefFileObj() const
-{
-    return _filePathRefFileObj;
 }
 
 ALWAYS_INLINE bool FileChangeManager::IsWorking() const

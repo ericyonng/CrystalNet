@@ -365,7 +365,7 @@ void FileChangeManager::UnRegister(UInt64 handle)
         poller->Push(handleUnRegisterLamb);
 
         // 等待完成
-        while (!isFinish.load(std::memory_order_acquire))
+        while (!isFinish.load(std::memory_order_acquire) && (!poller->IsQuit()))
         {
             KERNEL_NS::SystemUtil::ThreadSleep(2);
             CRYSTAL_TRACE("UnRegister waiting... impl:%llu", handle);

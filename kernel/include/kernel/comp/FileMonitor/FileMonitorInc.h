@@ -34,6 +34,7 @@
 #include <kernel/comp/FileMonitor/FileMonitor.h>
 #include <kernel/comp/FileMonitor/FileChangeManager.h>
 #include <kernel/comp/FileMonitor/YamlDeserializer.h>
+#include <kernel/comp/FileMonitor/YamlFileDeserialize.h>
 #include <kernel/comp/FileMonitor/YamlMemory.h>
 #include <kernel/comp/FileMonitor/SourceWrap.h>
 

@@ -29,6 +29,17 @@
 #include <pch.h>
 #include <kernel/kernel.h>
 
+namespace
+{
+    static ALWAYS_HIDDEN KERNEL_NS::GlobalLifeCtrl &GetGlobalLifeCtrl()
+    {
+        static KERNEL_NS::GlobalLifeCtrl s_lifeCtrl;
+
+        return s_lifeCtrl;
+    }
+}
+
+
 KERNEL_BEGIN
 
 ALWAYS_HIDDEN UInt64 GetCrystalModuleId()
@@ -47,8 +58,15 @@ ALWAYS_HIDDEN UInt64 GetCrystalModuleId()
 
 ALWAYS_HIDDEN void RegisterGlobalObjLife(void *deleg)
 {
-    static GlobalLifeCtrl s_lifeCtrl;
-    s_lifeCtrl.Register(reinterpret_cast<IDelegate<void> *>(deleg));
+    auto &lifeCtrl = GetGlobalLifeCtrl();
+    lifeCtrl.Register(reinterpret_cast<IDelegate<void> *>(deleg));
+}
+
+ALWAYS_HIDDEN void EnableGlobalLife(bool enable)
+{
+    auto &lifeCtrl = GetGlobalLifeCtrl();
+
+    lifeCtrl.Enable(enable);
 }
 
 KERNEL_END

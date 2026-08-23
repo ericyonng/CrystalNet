@@ -35,22 +35,26 @@
 KERNEL_BEGIN
 
 GlobalLifeCtrl::GlobalLifeCtrl()
+    :_enable(false)
 {
  
 }
 
 GlobalLifeCtrl::~GlobalLifeCtrl()
 {
- for (auto &deleg : _cbs)
- {
-    if (g_Log)
+    if(_enable)
     {
-      CLOG_DEBUG("global life ctrl deleg:%s", deleg->GetCallbackRtti().c_str());
-    }
+        for (auto &deleg : _cbs)
+        {
+            if (g_Log)
+            {
+                CLOG_DEBUG("global life ctrl deleg:%s", deleg->GetCallbackRtti().c_str());
+            }
 
-  deleg->Invoke();
-   CRYSTAL_RELEASE_SAFE(deleg);
- }
+            deleg->Invoke();
+            CRYSTAL_RELEASE_SAFE(deleg);
+        }
+    }
 }
 
 void GlobalLifeCtrl::Register(IDelegate<void> *deleg)
@@ -59,5 +63,11 @@ void GlobalLifeCtrl::Register(IDelegate<void> *deleg)
  _cbs.push_back(deleg);
  _lck.Unlock();
 }
+
+void GlobalLifeCtrl::Enable(bool enable)
+{
+    _enable = true;
+}
+
 
 KERNEL_END

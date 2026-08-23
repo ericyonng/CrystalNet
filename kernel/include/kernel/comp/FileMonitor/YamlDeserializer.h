@@ -36,25 +36,32 @@
 #include <kernel/comp/LibString.h>
 #include <yaml-cpp/yaml.h>
 #include <kernel/comp/Log/ILog.h>
-#include <kernel/comp/FileMonitor/FileChangeDefine.h>
+#include <kernel/comp/FileMonitor/SourceWrap.h>
+#include <kernel/comp/SmartPtr.h>
+#include <kernel/comp/Delegate/IDelegate.h>
 
 KERNEL_BEGIN
 
-struct FileChangeHandle;
 class YamlMemory;
+class FileChangeImpl;
+
+class YamlDeserializer;
+
 
 class KERNEL_EXPORT YamlDeserializer
 {
-public:
-    YamlDeserializer();
+    YamlDeserializer(const SourceWrap &source, const KERNEL_NS::LibString &dataName, IDelegate<void *, YAML::Node &> *parser, IDelegate<void, void *> *releaseData, const KERNEL_NS::LibString &key);
     ~YamlDeserializer();
 
+public:
     // tls delete, 建议tls创建factory
     void Release();
-    static YamlDeserializer *Create();
 
+    // key:可以是多级的, 比如:a.b.c
+    static YamlDeserializer *Create(const SourceWrap &source, const LibString &dataName, IDelegate<void *, YAML::Node &> *parser, IDelegate<void, void *> *releaseData, const KERNEL_NS::LibString &key = "");
+
+    // key:可以是多级的, 比如:a.b.c
     template<typename T>
-#ifdef CRYSTAL_NET_CPP20
     requires requires(T t, YAML::Node node)
     {
         // 需要有Release接口
@@ -67,120 +74,68 @@ public:
         YAML::convert<T>::encode(t);
         YAML::convert<T>::decode(node, t);
     }
-#endif
-    // key:可以是多级的, 比如:a.b.c
-    T *Register(const LibString &path, void *fromMemory, const KERNEL_NS::LibString &key = "")
+    static YamlDeserializer *Create(const SourceWrap &source, const KERNEL_NS::LibString &key = "")
     {
-        _path = path;
-        
         // 释放T对象
         auto releaseLamb = [](void *ptr)
         {
+            if(!ptr)
+                return;
+            
             auto p = KERNEL_NS::KernelCastTo<T>(ptr);
             p->Release();
         };
-        auto releaseDeleg = KERNEL_CREATE_CLOSURE_DELEGATE(releaseLamb, void, void *);
-        // 反序列化
-        const auto &dataName = KERNEL_NS::RttiUtil::GetByType<T>();
-        auto deserializeLamb = [dataName, path, key](YAML::Node *config) -> void *
+        auto parser = [](YAML::Node &node) -> void *
         {
-            T *yamlOption = NULL;
-            auto tName = key;
-
-            try
-            {
-                // TODO:需要测试是不是把命名空间等移除掉
-                if(tName.empty())
-                {
-                    tName = KERNEL_NS::RttiUtil::GetSimpleTypeName(dataName);
-                    tName.strip();
-                    yamlOption = T::CreateNewObj((*config)[tName.c_str()].template as<T>());
-                }
-
-                // 多级key处理
-                else
-                {
-                    tName.strip();
-                    auto &&parts = tName.Split(".");
-                    if(UNLIKELY(parts.empty()))
-                    {
-                        if (g_Log)
-                        {
-                            CLOG_ERROR_GLOBAL(YamlDeserializer, "yaml deserialize fail tName invalid, path:%s, key:%s", path.c_str(), tName.c_str());
-                        }
-                        return NULL;
-                    }
-
-                    const Int32 sz = static_cast<Int32>(parts.size());
-                    auto &&node = IndexNode(std::move(*config), parts, 0, sz - 1);
-
-                    yamlOption = T::CreateNewObj(node.template as<T>());
-                }
-            }
-            catch (std::exception &e)
-            {
-                if (g_Log)
-                {
-                    CLOG_ERROR_GLOBAL(YamlDeserializer, "yaml deserialize fail, path:%s, exception:%s, key:%s", path.c_str(), e.what(), tName.c_str());
-                }
-            }
-            catch (...)
-            {
-                if (g_Log)
-                {
-                    CLOG_ERROR_GLOBAL(YamlDeserializer, "yaml deserialize fail, path:%s, key:%s", path.c_str(), tName.c_str());
-                }
-            }
-
-            return yamlOption;
+            return T::CreateNewObj(node.template as<T>());
         };
-        auto deserializeDelg = KERNEL_CREATE_CLOSURE_DELEGATE(deserializeLamb, void *, YAML::Node *);
-        
-        return KERNEL_NS::KernelCastTo<T>(_Register(dataName, releaseDeleg, deserializeDelg, reinterpret_cast<YamlMemory *>(fromMemory)));
+        auto releaseDeleg = KERNEL_CREATE_CLOSURE_DELEGATE(releaseLamb, void, void *);
+        auto parserDeleg = KERNEL_CREATE_CLOSURE_DELEGATE(parser, void *, YAML::Node &);
+        const auto &dataName = KERNEL_NS::RttiUtil::GetByType<T>();
+        return YamlDeserializer::Create(source, dataName, parserDeleg, releaseDeleg, key);
     }
 
+    // 返回新数据
     template<typename T>
     T *SwapNewData()
     {
-        auto data = _handle->_data.load(std::memory_order_relaxed);
-        while (!_handle->_data.compare_exchange_weak(data, NULL, std::memory_order_acq_rel))
-        {
-        }
-        return KERNEL_NS::KernelCastTo<T>(data);
+        return KERNEL_NS::KernelCastTo<T>(_data.exchange(NULL, std::memory_order_acq_rel));
     }
 
 private:
     // 多级YamlNode索引, keys多级key集合
-    static YAML::Node IndexNode(YAML::Node &&config, const std::vector<KERNEL_NS::LibString> &keys, Int32 curIndex, Int32 maxIndex)
+    static YAML::Node IndexNode(YAML::Node &config, const std::vector<KERNEL_NS::LibString> &keys, Int32 curIndex, Int32 maxIndex)
     {
         // 最后一级config
         if(curIndex == maxIndex)
         {
-            return std::forward<YAML::Node>(config)[keys[curIndex].c_str()];
+            return config[keys[curIndex].c_str()];
         }
 
         // 下一级config
-        return IndexNode(std::forward<YAML::Node>(config)[keys[curIndex].c_str()], keys, curIndex + 1, maxIndex);
+        auto node = config[keys[curIndex].c_str()];
+        return IndexNode(node, keys, curIndex + 1, maxIndex);
     }
 
-    // return:具体的对象T
-    void *_Register(const LibString &dataName, IDelegate<void, void *> * releaseObj, IDelegate<void *, YAML::Node *> *deserializeObj, YamlMemory *fromMemory);
+private:
+    void _Run();
+    void _FirstRun();
+    void _ReplaceConfig(YAML::Node *data);
 
-    UInt64 GetId() const;
+    KERNEL_NS::SmartPtr<YAML::Node> GetTlsSourceYaml(bool &isChange) const;
     
 private:
-    LibString _path;
-    // 注册后获取到的_handle,handle的生命周期比YamlDeserializer长, 由FileChangeManager管理
-    FileChangeHandle *_handle;
-    const UInt64 _id;
+    alignas(SYSTEM_ALIGN_SIZE) const SourceWrap _source;
+    alignas(SYSTEM_ALIGN_SIZE) const LibString _key;
+    alignas(SYSTEM_ALIGN_SIZE) const LibString _dataName;
+    alignas(SYSTEM_ALIGN_SIZE) FileChangeImpl *_impl;
+    
+    alignas(SYSTEM_ALIGN_SIZE) std::atomic<void *> _data;
+    mutable alignas(SYSTEM_ALIGN_SIZE) std::atomic<UInt64> _version;
 
-    // FileChangeManager调用这里
+    alignas(SYSTEM_ALIGN_SIZE) IDelegate<void *, YAML::Node &> *_parser;
+    alignas(SYSTEM_ALIGN_SIZE) IDelegate<void, void *> *_releaseData;
 };
-
-ALWAYS_INLINE UInt64 YamlDeserializer::GetId() const
-{
-    return _id;
-}
 
 
 KERNEL_END

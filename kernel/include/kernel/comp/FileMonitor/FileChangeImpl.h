@@ -32,6 +32,7 @@
 #include <kernel/kernel_export.h>
 #include <kernel/common/BaseMacro.h>
 #include <kernel/comp/Delegate/IDelegate.h>
+#include <kernel/comp/LibString.h>
 
 KERNEL_BEGIN
 
@@ -49,6 +50,8 @@ public:
     
     void FirstRun();
     void Run();
+
+    LibString ToString() const;
     
 private:
     const UInt64 _handle;

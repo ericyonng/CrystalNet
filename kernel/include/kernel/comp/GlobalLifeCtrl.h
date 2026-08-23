@@ -49,9 +49,14 @@ public:
  ~GlobalLifeCtrl();
 
  void Register(IDelegate<void> *deleg);
- 
+ void Enable(bool enable = true);
+
+private:
  std::vector<IDelegate<void> *> _cbs;
  SpinLock _lck;
+
+ // 默认不开启   
+ bool _enable;   
 };
 
 KERNEL_END

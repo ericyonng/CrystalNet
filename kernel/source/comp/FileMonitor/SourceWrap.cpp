@@ -32,15 +32,19 @@ KERNEL_BEGIN
 
 LibString SourceWrap::ToString() const
 {
-    return LibString().AppendFormat("Path:%s, FromMemory:%p", Path, FromMemory);
+    return LibString().AppendFormat("Path:%s, FromMemory:%p", Path.c_str(), FromMemory);
 }
     
-LibString SourceWrap::MakeKey() const
+LibString &SourceWrap::MakeKey() const
 {
-    return LibString().AppendFormat("%s-%p", Path.c_str(), FromMemory);
+    if(LIKELY(!GenKey.empty()))
+        return GenKey;
+    
+    GenKey.AppendFormat("%s-%p", Path.c_str(), FromMemory);
+    return GenKey;
 }
     
-UInt64 SourceWrap::HashCode()
+UInt64 SourceWrap::HashCode() const
 {
     if (LIKELY(MakeKeyHashCode != 0))
         return MakeKeyHashCode;

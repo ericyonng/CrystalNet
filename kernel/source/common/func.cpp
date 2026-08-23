@@ -39,7 +39,23 @@
 #include <unordered_map>
 #include <kernel/comp/GlobalLifeCtrl.h>
 
+namespace
+{
+    static ALWAYS_HIDDEN KERNEL_NS::GlobalLifeCtrl &GetGlobalLifeCtrl()
+    {
+        static KERNEL_NS::GlobalLifeCtrl s_lifeCtrl;
+
+        return s_lifeCtrl;
+    }
+}
+
 KERNEL_BEGIN
+
+KERNEL_EXPORT UInt64 KernelGenIncUniqueId()
+{
+    static std::atomic<UInt64> s_Id{0};
+    return s_Id.fetch_add(1, std::memory_order_release) + 1;
+}
 
 MemoryPool *KernelGetTlsMemoryPool()
 {
@@ -179,12 +195,20 @@ std::set<UInt64> &GetCoroutineThreadLocalSet(UInt64 moduleId)
 //     GetBackTraceLock().Unlock();
 // }
 
+
+
 ALWAYS_HIDDEN void RegisterGlobalObjLife(void *deleg)
 {
-    static GlobalLifeCtrl s_lifeCtrl;
-    s_lifeCtrl.Register(reinterpret_cast<IDelegate<void> *>(deleg));
+    auto &lifeCtrl = GetGlobalLifeCtrl();
+    lifeCtrl.Register(reinterpret_cast<IDelegate<void> *>(deleg));
 }
 
+ALWAYS_HIDDEN void EnableGlobalLife(bool enable)
+{
+    auto &lifeCtrl = GetGlobalLifeCtrl();
+
+    lifeCtrl.Enable(enable);
+}
 
 KERNEL_END
 

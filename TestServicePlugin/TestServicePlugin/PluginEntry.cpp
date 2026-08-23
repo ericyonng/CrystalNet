@@ -42,6 +42,9 @@ extern "C"
     // 初始化插件集
     Int32 InitPlugin()
     {
+        // 需要在plugin释放时, 释放GlobalLifeCtrl接管的对象
+        KERNEL_ENABLE_GLOBAL_LIFE(true);
+        
         auto pluginModuleId = GetPluginModuleId();
         PluginWrap pluginWrap;
         UNUSED(pluginWrap);

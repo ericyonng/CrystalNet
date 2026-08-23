@@ -41,6 +41,10 @@ void PluginLogic::OnPluginStartup()
 {
     CLOG_INFO_GLOBAL(PluginLogic, "OnPluginStartup");
 
+    auto logFileMonitor = KERNEL_NS::KernelCastTo<KERNEL_NS::FileMonitor<KERNEL_NS::LogCfg, KERNEL_NS::YamlDeserializer>>(g_Log->GetFileMonitor());
+    auto curLogCfg = logFileMonitor->Current();
+    CLOG_INFO_GLOBAL(PluginLogic, "log enabl:%d 2", curLogCfg->IsEnableLog());
+
     // 监听事件
     g_PluginGlobal->GetEventManager()->AddListener(EventEnums::TEST_PLUGIN_EVENT, &PluginLogic::OnPluginTestEvent);
 

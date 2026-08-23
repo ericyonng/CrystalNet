@@ -35,6 +35,8 @@
 #include <kernel/common/BaseType.h>
 #include <kernel/common/BaseMacro.h>
 #include <kernel/comp/LibString.h>
+#include <kernel/comp/FileMonitor/SourceWrap.h>
+#include <concepts>
 
 KERNEL_BEGIN
 
@@ -43,15 +45,15 @@ class YamlMemory;
 // @param(ObjType): 反序列化最终的结果, 需要有:CreateNewObj/Release 接口
 // @param(FileDeserializerType): 反序列化器, 将文件反序列化成ObjType, 需要有Create/Release/SwapNewData/Register接口, 
 template<typename ObjType, typename FileDeserializerType>
-concept FileMonitorConcept = requires(ObjType obj, FileDeserializerType *d, KERNEL_NS::LibString path, void *fromMemory)
+concept FileMonitorConcept = requires(ObjType obj, FileDeserializerType *d, const KERNEL_NS::SourceWrap &sourceWrap, const LibString &key)
 {
     ObjType::CreateNewObj(std::move(obj));
     obj.Release();
 
-    d = FileDeserializerType::Create();
+    { FileDeserializerType::template Create<ObjType>(sourceWrap, key) } -> std::same_as<FileDeserializerType *>;
+
     d->Release();
     d->template SwapNewData<ObjType>();
-    d->template Register<ObjType>(path, fromMemory);
 };
 
 KERNEL_END

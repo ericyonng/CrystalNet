@@ -71,4 +71,10 @@ void FileChangeImpl::Run()
     _run->Invoke();
 }
 
+LibString FileChangeImpl::ToString() const
+{
+    return LibString().AppendFormat("FileChangeImpl handle:%llu, firstRun:%p, Run:%p", _handle, _firstRun, _run);
+}
+
+
 KERNEL_END

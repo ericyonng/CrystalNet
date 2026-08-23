@@ -22,7 +22,7 @@
 // 
 // Date: 2026-01-21 22:01:02
 // Author: Eric Yonng
-// Description:Yaml整个文件解析, 转成YAML::Node
+// Description:Yaml整个文件解析, 转成YAML::Node, YamlFileDeserializer 通过 SwapNewData 获取到新的变更的数据
 
 #ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_MONITOR_YAML_FILE_DESERIALIZE_H__
 #define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_MONITOR_YAML_FILE_DESERIALIZE_H__
@@ -34,11 +34,14 @@
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/FileMonitor/SourceWrap.h>
 #include <kernel/comp/SmartPtr.h>
+#include <yaml-cpp/yaml.h>
+
+#include "kernel/comp/LibTime.h"
 
 KERNEL_BEGIN
 
 class FileChangeImpl;
-class YamlMemoryData;
+struct YamlMemoryData;
 
 class KERNEL_EXPORT YamlFileDeserializer
 {
@@ -51,31 +54,32 @@ public:
     void Release();
 
     UInt64 GetVersion() const;
+
+    // 获取最新的数据, 如果返回的是空的说明没有新数据, 如果有新的数据返回新的版本号
+    KERNEL_NS::SmartPtr<YAML::Node> SwapNewData(UInt64 &currentVersion);
     
 private:
     void _Run();
     void _FirstRun();
     
-    void _ReplaceConfig(void *data);
+    void _ReplaceConfig(YAML::Node *data);
     bool _CheckFileChange();
     
 private:
     alignas(SYSTEM_ALIGN_SIZE) const SourceWrap _source;
     alignas(SYSTEM_ALIGN_SIZE) FileChangeImpl *_impl;
     
-    // yaml::node
-    alignas(SYSTEM_ALIGN_SIZE) std::atomic<void *> _data;
+    alignas(SYSTEM_ALIGN_SIZE) std::atomic<YAML::Node *> _data;
     alignas(SYSTEM_ALIGN_SIZE) std::atomic<UInt64> _version;
     
     alignas(SYSTEM_ALIGN_SIZE) Int64 _fileSize;
-    alignas(SYSTEM_ALIGN_SIZE) Int64 _modifyTIme;
+    alignas(SYSTEM_ALIGN_SIZE) LibTime _modifyTIme;
 };
 
 ALWAYS_INLINE UInt64 YamlFileDeserializer::GetVersion() const
 {
     return _version.load(std::memory_order_acquire);
 }
-
 
 KERNEL_END
 
