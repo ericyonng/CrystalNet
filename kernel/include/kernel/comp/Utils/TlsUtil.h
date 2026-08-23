@@ -179,7 +179,7 @@ ALWAYS_INLINE TlsTargetPtr<T> *TlsUtil::GetOrCreateTargetPtr()
         auto ptr = s_ptr;
         auto lamb = [ptr]() 
         {
-            CRYSTAL_DELETE(ptr);   
+            CRYSTAL_DELETE(ptr);
         };
         KERNEL_REGISTER_GLOBAL_LIFE(lamb);
     }

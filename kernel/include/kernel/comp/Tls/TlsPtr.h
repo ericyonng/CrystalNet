@@ -72,7 +72,7 @@ public:
     {
         _ptr = CRYSTAL_NEW(T);
     }
-    ~TlsTargetPtr()
+    virtual ~TlsTargetPtr()
     {
         CRYSTAL_DELETE_SAFE(_ptr);
     }

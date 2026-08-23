@@ -46,9 +46,9 @@ KERNEL_BEGIN
 class LibRandomInstance
 {
 public:
-    template<typename Rtn, Int64 minValue, Int64 maxValue>
+    template<typename Rtn, typename ValueType, ValueType minValue, ValueType maxValue>
     static Rtn &GetInstance(_Build::MT::Type);
-    template<typename Rtn, Int64 minValue, Int64 maxValue>
+    template<typename Rtn, typename ValueType, ValueType minValue, ValueType maxValue>
     static Rtn &GetInstance(_Build::TL::Type);
 };
 
@@ -89,7 +89,7 @@ template<typename ValueType, typename BuildType, RandDistibuteType::ENUMS distTy
 template<ValueType minValue, ValueType maxValue>
 ALWAYS_INLINE LibRandom<ValueType, BuildType, distType, sourceType> &LibRandom<ValueType, BuildType, distType, sourceType>::GetInstance()
 {
-    return LibRandomInstance::GetInstance<LibRandom<ValueType, BuildType, distType, sourceType>, minValue, maxValue>(BuildType::V);
+    return LibRandomInstance::GetInstance<LibRandom<ValueType, BuildType, distType, sourceType>, ValueType, minValue, maxValue>(BuildType::V);
 }
 
 template<typename ValueType, typename BuildType, RandDistibuteType::ENUMS distType, RandSourceAlgorithmType::ENUMS sourceType>
@@ -131,14 +131,14 @@ ALWAYS_INLINE ValueType LibRandom<ValueType, BuildType, distType, sourceType>::G
     return rand;
 }
 
-template<typename Rtn, Int64 minValue, Int64 maxValue>
+template<typename Rtn, typename ValueType, ValueType minValue, ValueType maxValue>
 ALWAYS_INLINE Rtn &LibRandomInstance::GetInstance(_Build::MT::Type)
 {
     static Rtn *instance = new Rtn(minValue, maxValue);
     return *instance;
 }
 
-template<typename Rtn, Int64 minValue, Int64 maxValue>
+template<typename Rtn, typename ValueType, ValueType minValue, ValueType maxValue>
 ALWAYS_INLINE Rtn &LibRandomInstance::GetInstance(_Build::TL::Type)
 {
     DEF_STATIC_THREAD_LOCAL_DECLEAR Rtn *instance = NULL;
