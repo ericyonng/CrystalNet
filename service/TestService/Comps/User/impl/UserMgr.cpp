@@ -1079,7 +1079,7 @@ KERNEL_NS::CoTask<IUser *> UserMgr::CreateUser(const KERNEL_NS::LibString accoun
         auto err = user->Init();
         if(err != Status::Success)
         {
-            co_return NULL;
+            co_return nullptr;
         }
         user->SetUserStatus(UserStatus::USER_INITED);
 
@@ -1087,7 +1087,7 @@ KERNEL_NS::CoTask<IUser *> UserMgr::CreateUser(const KERNEL_NS::LibString accoun
         err = user->Start();
         if(err != Status::Success)
         {
-            co_return NULL;
+            co_return nullptr;
         }
         user->SetUserStatus(UserStatus::USER_STARTED);
 
@@ -1101,7 +1101,7 @@ KERNEL_NS::CoTask<IUser *> UserMgr::CreateUser(const KERNEL_NS::LibString accoun
     {
         auto iterKey = wrapper.Ptr->find(UserMgrMongoStorage::GetKeyName());
         if(iterKey == wrapper.Ptr->end())
-            co_return NULL;
+            co_return nullptr;
 
         auto &keyInfo = iterKey->second;
         const auto userId = keyInfo._stream->ReadInt64();
@@ -1124,7 +1124,7 @@ KERNEL_NS::CoTask<IUser *> UserMgr::CreateUser(const KERNEL_NS::LibString accoun
         auto err = user->Init();
         if(err != Status::Success)
         {
-            co_return NULL;
+            co_return nullptr;
         }
         user->SetUserStatus(UserStatus::USER_INITED);
 
@@ -1132,7 +1132,7 @@ KERNEL_NS::CoTask<IUser *> UserMgr::CreateUser(const KERNEL_NS::LibString accoun
         err = user->Start();
         if(err != Status::Success)
         {
-            co_return NULL;
+            co_return nullptr;
         }
         user->SetUserStatus(UserStatus::USER_STARTED);
 
@@ -1140,7 +1140,7 @@ KERNEL_NS::CoTask<IUser *> UserMgr::CreateUser(const KERNEL_NS::LibString accoun
         err =  user->OnLoaded(userId, turnDict);
         if(err != Status::Success)
         {
-            co_return NULL;
+            co_return nullptr;
         }
         user->SetUserStatus(UserStatus::USER_ONLOADED);
 
@@ -1150,7 +1150,7 @@ KERNEL_NS::CoTask<IUser *> UserMgr::CreateUser(const KERNEL_NS::LibString accoun
 
     if(!finalUser)
     {
-        co_return NULL;
+        co_return nullptr;
     }
 
     auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::USER_OBJ_CREATED);

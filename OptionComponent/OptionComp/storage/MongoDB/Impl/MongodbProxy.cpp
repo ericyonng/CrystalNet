@@ -36,15 +36,6 @@
 
 namespace 
 {
-    static ALWAYS_INLINE void DelStreamContainer(std::map<KERNEL_NS::LibString, KERNEL_NS::MongoSerializeInfo> *d)
-    {
-        KERNEL_NS::ContainerUtil::DelContainer(*d, [](const KERNEL_NS::MongoSerializeInfo &p)
-        {
-            KERNEL_NS::LibStreamTL::DeleteThreadLocal_LibStream(p._stream);
-        });
-        CRYSTAL_DELETE_SAFE(d);
-    }
-
     static ALWAYS_INLINE KERNEL_NS::LibString DictContainerToString(const std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> &kv)
     {
         return KERNEL_NS::StringUtil::ToStringBy(kv, ",", [](const std::pair<KERNEL_NS::LibString, KERNEL_NS::Variant> &iter)->KERNEL_NS::LibString
