@@ -364,7 +364,7 @@ KERNEL_NS::CoTask<bool> MongodbProxy::Query(KERNEL_NS::LibString dbName, KERNEL_
 {
     if(UNLIKELY(!fieldNameRefDataResult))
     {
-        CLOG_ERROR("query fail logic or fieldNameRefDataResult is null collectionName:%s, db:%s, key:%lld", collectionName.c_str(), dbName.c_str(), key);
+        CLOG_ERROR("query fail logic or fieldNameRefDataResult is null collectionName:%s, db:%s, key:%s", collectionName.c_str(), dbName.c_str(), key.c_str());
         co_return false;
     }
     
@@ -1247,7 +1247,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringAddDirtyHandler(KERNEL_NS::LibDirtyHe
         err = storageCom->OnSave(logic, key, *valueStream);
         if (err != Status::Success)
         {
-            CLOG_ERROR("logic save db fail err:%d, logic:%s, key:%lld", err, logic->GetObjName().c_str(), key);
+            CLOG_ERROR("logic save db fail err:%d, logic:%s, key:%s", err, logic->GetObjName().c_str(), key.c_str());
             co_return;
         }
 
@@ -1392,7 +1392,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringModifyDirtyHandler(KERNEL_NS::LibDirt
     }
     if(err != Status::Success)
     {
-        CLOG_ERROR("logic save db fail err:%d, logic:%s, key:%lld", err, logic->GetObjName().c_str(), key);
+        CLOG_ERROR("logic save db fail err:%d, logic:%s, key:%s", err, logic->GetObjName().c_str(), key.c_str());
         co_return;
     }
 
@@ -1536,7 +1536,7 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringReplaceDirtyHandler(KERNEL_NS::LibDir
         err = storageCom->OnSave(logic, key, *valueStream);
         if (err != Status::Success)
         {
-            CLOG_ERROR("logic save db fail err:%d, logic:%s, key:%lld", err, logic->GetObjName().c_str(), key);
+            CLOG_ERROR("logic save db fail err:%d, logic:%s, key:%s", err, logic->GetObjName().c_str(), key.c_str());
             co_return;
         }
 
