@@ -430,9 +430,14 @@ void CommandMgr::_OnTimeOut(KERNEL_NS::LibTimer *t)
 
     CLOG_DEBUG("command scan in path:%s", _scanPath.c_str());
     
-    KERNEL_NS::DirectoryUtil::TraverseDirRecursively(_scanPath, [&cmdContainer](const FindFileInfo &fileInfo, bool &isContinue) mutable  ->bool
+    std::set<KERNEL_NS::LibString> delFiles;
+    KERNEL_NS::DirectoryUtil::TraverseDirRecursively(_scanPath, [&cmdContainer, &delFiles](const FindFileInfo &fileInfo, bool &isContinue) mutable  ->bool
     {
         if (!KERNEL_NS::FileUtil::IsFile(fileInfo))
+            return true;
+        
+        // 过滤非.cmd的文件
+        if (fileInfo._extension != ".cmd")
             return true;
 
         bool isRunRegular = false;
@@ -450,6 +455,7 @@ void CommandMgr::_OnTimeOut(KERNEL_NS::LibTimer *t)
                     CLOG_INFO("invoke command(filename):%s, input:%s", first.c_str(), fileInfo._fileName.c_str());
                     cb->Invoke(fileInfo._fileName);
                     CLOG_INFO("invoke command(filename):%s finished", first.c_str());
+                    delFiles.insert(fileInfo._fileName);
                     break;
                 }
             }
@@ -471,11 +477,25 @@ void CommandMgr::_OnTimeOut(KERNEL_NS::LibTimer *t)
                 auto cb = iter->second;
                 cb->Invoke();
                 CLOG_INFO("invoke cmd:%s finished.", fileInfo._fileName.c_str());
+                
+                delFiles.insert(fileInfo._fileName);
             }
         }
 
         return true;
     }, 1);
+    
+    // 移除文件
+    if (!delFiles.empty())
+    {
+        auto &&projPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();
+        for (auto &fileName : delFiles)
+        {
+            // 删除文件
+            auto &&fullFilePath = projPath + "/" + fileName;
+            KERNEL_NS::FileUtil::DelFileCStyle(fullFilePath.c_str());
+        }
+    }
 }
 
 KERNEL_END

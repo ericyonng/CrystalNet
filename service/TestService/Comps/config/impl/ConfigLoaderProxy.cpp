@@ -91,14 +91,6 @@ Int32 ConfigLoaderProxy::_OnHostInit()
     {
         CLOG_INFO_GLOBAL(ConfigLoaderProxy, "will start command cmd:%s", cmd.c_str());
 
-        // 非windows删文件
-#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-        // 删除文件
-        auto &&projPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();
-        auto &&fullFilePath = projPath + "/" + cmd;
-        KERNEL_NS::FileUtil::DelFileCStyle(fullFilePath.c_str());
-#endif
-        
         g_EventLoopHeavyTaskThreadPool->Send([service]()
         {
             auto curConfig = service->GetServiceConfig();
