@@ -4,8 +4,9 @@ Rem Generate visual studio project files
 setlocal
 
 SET CUR_PATH=%~dp0
-SET ROOT_PATH="%CUR_PATH%..\.."
+SET ROOT_PATH="%CUR_PATH%..\..\..\"
 SET VSWHERE_PATH=%ROOT_PATH%\tools\vswhere
+SET XPROJ_PATH="%CUR_PATH%..\..\"
 
 :: 使用 vswhere 查找 Visual Studio 2022 的安装路径
 cd %VSWHERE_PATH%
@@ -63,10 +64,10 @@ if '%VsBuildType%' == 'y' SET FINAL_BUILD=Rebuild
 echo FINAL_BUILD:%FINAL_BUILD%
 
 :: 生成sln
-cd %ROOT_PATH%\tools\premake && win_premake5.exe %choose%
+cd %ROOT_PATH%\tools\premake && win_premake5.exe --file=%XPROJ_PATH%tools\premake5.lua %choose% '' use_kernel_so use_storage
 
 :: sln路径
-SET SLN_PATH=%ROOT_PATH%\\build\\%choose%\\CrystalNet_%choose%.sln
+SET SLN_PATH=%XPROJ_PATH%\\build_x\\%choose%\\CrystalNet_%choose%.sln
 :: 判断sln文件是否存在
 if not exist %SLN_PATH% (
     echo sln not exist %SLN_PATH%

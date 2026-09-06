@@ -30,9 +30,9 @@ project "CrystalKernel"
 	
     -- includedirs
     includedirs {
-		"../../",
-		"../../kernel/include/",
-		"../../kernel/kernel_pch/",
+		ROOT_DIR,
+		ROOT_DIR .. "kernel/include/",
+		ROOT_DIR .. "kernel/kernel_pch/",
         ROOT_DIR .. "/3rd/openssl/include/",
         ROOT_DIR .. "/3rd/uuid/include/",
 		ROOT_DIR .. "/3rd/miniz/include/",
@@ -44,11 +44,11 @@ project "CrystalKernel"
 	 
     -- files
     files {
-        "../../kernel/**.h",
-		"../../kernel/**.c",
-		"../../kernel/**.cpp",
-		"../../3rd/*.h",
-		"../../3rd/**.hpp",
+        ROOT_DIR .. "kernel/**.h",
+		ROOT_DIR .. "kernel/**.c",
+		ROOT_DIR .. "kernel/**.cpp",
+		ROOT_DIR .. "3rd/*.h",
+		ROOT_DIR .. "3rd/**.hpp",
 		--"../../3rd/tiny-utf8/lib/*.cpp",
     }
 
@@ -127,7 +127,7 @@ project "CrystalKernel"
 	-- macos需要额外添加
     filter { "system:macosx" }
     files {
-        "../../kernel/**.mm",
+        ROOT_DIR .. "kernel/**.mm",
     }
     filter {}
 
@@ -193,17 +193,6 @@ project "CrystalKernel"
 
     -- enable multithread compile
     -- enable_multithread_comp("C++14")
-	
-    -- post prebuild(linux)
-    filter { "system:linux"}
-	prebuildmessage "Merge partition files ..."
-	prebuildcommands(string.format("sh %smerge_files.sh",  ROOT_DIR))
-	filter {}
-
-    filter { "system:windows"}
-	prebuildmessage "Merge partition files ..."
-	prebuildcommands(string.format("start %smerge_files.bat",  WIN_ROOT_DIR))
-	filter {}
 
 	-- post build(linux)
 	filter { "system:linux", "configurations:debug*"}

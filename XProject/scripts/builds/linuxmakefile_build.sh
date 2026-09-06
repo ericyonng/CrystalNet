@@ -4,8 +4,9 @@
 #!/usr/bin/env bash
 
 SCRIPT_PATH="$(cd $(dirname $0); pwd)"
-PREMAKE_SCRIPT_PATH=$SCRIPT_PATH/../../tools/premake
-PREMAKE_TOOL=$PREMAKE_SCRIPT_PATH/linux_premake5
+ROOT_PATH=${SCRIPT_PATH}/../../../
+PREMAKE_SCRIPT_PATH=$SCRIPT_PATH/../../tools
+PREMAKE_TOOL=${ROOT_PATH}/tools/premake/linux_premake5
 
 echo "=======================Generate gmake Makefiles==================="
 sudo chmod +x ${PREMAKE_TOOL}

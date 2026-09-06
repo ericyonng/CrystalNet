@@ -105,9 +105,9 @@ function include_mongodb_driver_libs(root_dir)
     filter { "system:windows"}
         -- include headers path
         includedirs {
-            "../../3rd/mongodb/MONGO_CXX_DRIVER/include/",
-            "../../3rd/mongodb/MONGO_CXX_DRIVER/include/mongocxx/v_noabi/",
-            "../../3rd/mongodb/MONGO_CXX_DRIVER/include/bsoncxx/v_noabi/"
+            root_dir .. "3rd/mongodb/MONGO_CXX_DRIVER/include/",
+            root_dir .. "3rd/mongodb/MONGO_CXX_DRIVER/include/mongocxx/v_noabi/",
+            root_dir .. "3rd/mongodb/MONGO_CXX_DRIVER/include/bsoncxx/v_noabi/"
         }
 
         -- include libs path
@@ -140,9 +140,9 @@ function include_mongodb_driver_libs(root_dir)
     filter { "system:not windows"}
         -- include headers path
         includedirs {
-            "../../3rd/mongodb/MONGO_CXX_DRIVER_LINUX/include/",
-            "../../3rd/mongodb/MONGO_CXX_DRIVER_LINUX/include/mongocxx/v_noabi/",
-            "../../3rd/mongodb/MONGO_CXX_DRIVER_LINUX/include/bsoncxx/v_noabi/"
+            root_dir .. "3rd/mongodb/MONGO_CXX_DRIVER_LINUX/include/",
+            root_dir .. "3rd/mongodb/MONGO_CXX_DRIVER_LINUX/include/mongocxx/v_noabi/",
+            root_dir .. "3rd/mongodb/MONGO_CXX_DRIVER_LINUX/include/bsoncxx/v_noabi/"
         }
 
         -- include libs path

@@ -10,21 +10,17 @@ RELEASE_LIBS=$("libCrystalKernel.so")
 OPEN_COREDUMP="opencoredump"
 COREDUMPFLAG="$2"
 ROOT_PATH=${SCRIPT_PATH}/../..
-OUTPUT_DIR=${ROOT_PATH}/output/gmake/build/
+XPROJ_PATH=${ROOT_PATH}/XProject
+OUTPUT_DIR=${XPROJ_PATH}/output/gmake/build_x/
 
 # 连接配置与ini
 sudo rm -rf ${OUTPUT_DIR}/Cfgs
-sudo rm -rf ${OUTPUT_DIR}/ini
-sudo ln -sv ${ROOT_PATH}/service/TestService/config/data/cpp ${OUTPUT_DIR}/Cfgs
-sudo ln -sv ${ROOT_PATH}/doc/ini ${OUTPUT_DIR}/ini
-
-# 拷贝mysqlclient.so到运行目录
-sudo cp -rf  ${ROOT_PATH}/3rd/mysql/linux/lib/libmysqlclient.so ${OUTPUT_DIR}/
-rm -f ${OUTPUT_DIR}/libmysqlclient.so.21
-ln -sv ${OUTPUT_DIR}/libmysqlclient.so ${OUTPUT_DIR}/libmysqlclient.so.21
+sudo rm -rf ${OUTPUT_DIR}/Yaml
+sudo ln -sv ${XPROJ_PATH}/Config/data/cpp ${OUTPUT_DIR}/Cfgs
+sudo ln -sv ${XPROJ_PATH}/Yaml ${OUTPUT_DIR}/Yaml
 
 # sasl2库
-sudo cp -rf  ${SCRIPT_PATH}/../../3rd/sasl2/libs/libsasl2.so ${OUTPUT_DIR}/
+sudo cp -rf  ${ROOT_PATH}/3rd/sasl2/libs/libsasl2.so ${OUTPUT_DIR}/
 
 # 动态库连接
 if [ -n "$1" ]
