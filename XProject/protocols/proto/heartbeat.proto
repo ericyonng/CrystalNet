@@ -1,0 +1,62 @@
+syntax = "proto3";
+package CRYSTAL_NET.service;
+
+import "com_heartbeat.proto";
+
+/// Opcode:, NoLog:true
+message NodeHeartbeatReq
+{
+
+}
+
+/// Opcode:, NoLog:true
+message NodeHeartbeatRes 
+{
+    // 当前服务器对时
+    sint64 NowTimeNanoseconds = 1;
+}
+
+// 注册节点信息
+/// Opcode:
+message RegisterNodeReq 
+{
+    NodeHeartbeatInfo NodeInfo = 1;
+}
+
+// 注册节点信息
+/// Opcode:
+message RegisterNodeRes
+{
+    sint32 ErrCode = 1;
+}
+
+/// Opcode:
+message GetNodeListReq 
+{
+    // 集群名
+    string ClusterName = 1;
+
+    // 关心的节点服务名列表
+    repeated string CareNodeServiceNameList = 2;
+}
+
+/// Opcode:
+message GetNodeListRes 
+{
+    repeated NodeHeartbeatInfo NodeInfoList = 1;
+}
+
+// 客户端的心跳
+/// Opcode:, NoLog:true, XorEncrypt:true, KeyBase64:true
+message ClientHeartbeatReq 
+{
+
+}
+
+/// Opcode:, NoLog:true
+message ClientHeartbeatRes
+{
+    // 服务器时间
+    sint64 ServerTimeMs = 1;
+}
+

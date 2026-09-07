@@ -1,0 +1,20 @@
+syntax = "proto3";
+package CRYSTAL_NET.service;
+
+import "com_rpc.proto";
+
+/// Opcode:
+message RpcReq
+{
+    string RpcName = 1;
+    uint64 Stub = 2;
+    bytes Data = 3;
+}
+
+/// Opcode:
+message RpcRes
+{
+    sint32 ErrCode = 1;
+    uint64 Stub = 2;
+    bytes Data = 3;
+}

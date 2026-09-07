@@ -1,0 +1,8 @@
+syntax = "proto3";
+package CRYSTAL_NET.service;
+
+message TestMgrData 
+{
+    string Account = 1;
+    sint64 TestId = 2;
+}

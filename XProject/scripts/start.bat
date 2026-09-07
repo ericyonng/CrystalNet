@@ -1,6 +1,7 @@
 @echo off
 
 SET CUR_PATH=%~dp0
+SET XPROJ_PATH=%CUR_PATH%../
 echo For now supported Visual Studio versions:
 echo    vs2015
 echo    vs2017
@@ -8,7 +9,7 @@ echo    vs2019
 echo    vs2022
 set /p choose=Please input:
 
-call stop.bat
+:: call stop.bat
 
-cd %CUR_PATH%/output/%choose%/build && start testsuit_debug.exe
+cd %XPROJ_PATH%/output/%choose%/build_x && start LogicServer.exe
 

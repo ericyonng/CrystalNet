@@ -1,0 +1,45 @@
+syntax = "proto3";
+package CRYSTAL_NET.service;
+
+message ClientUserStatus 
+{
+    enum ENUMS
+    {
+        // 未登录
+        UNLOGIN = 0;
+        // 登录中
+        LOGINING = 1;
+        // 登录完成
+        LOGINED = 2;
+        // 登录结束
+        CLIENT_LOGIN_ENDING = 3;
+        // 登陆结束的结束
+        CLIENT_LOGIN_ENDING_FINISH = 4;
+        // 登出中(定时15秒切换状态)
+        LOGOUTING = 5;
+        // 登出完成
+        LOGOUTED = 6;
+    }
+}
+
+message ClientUserInfo
+{
+    // uid
+    uint64 UserId = 1;
+    // 账号
+    string AccountName = 2;
+    // 姓名
+    bytes Name = 3;
+    // 昵称
+    bytes Nickname = 4;
+    // 手机设备imei
+    string PhoneImei = 5;
+    // 登录状态 ClientUserStatus
+    sint32 ClientStatus = 6;
+    // token
+    string LastToken = 7;
+    // token过期时间
+    sint64 TokenExpireTime = 8;
+    // 绑定手机
+    uint64 BindPhone = 9;
+}

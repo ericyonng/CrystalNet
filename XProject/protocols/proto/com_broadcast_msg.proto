@@ -1,0 +1,16 @@
+syntax = "proto3";
+package CRYSTAL_NET.service;
+
+
+// 请求过去需要给回执, 避免丢包, 请求端会定时重传, 如果对端已接收过, 就丢弃即可
+message DataSourceInfo
+{
+  // 试用全球唯一id, 接收端可以认为是唯一的
+  sint64 RequestId = 1;
+  // 数据
+  bytes Data = 2;
+
+  // 时间戳
+  sint64 MsTime = 3;
+}
+

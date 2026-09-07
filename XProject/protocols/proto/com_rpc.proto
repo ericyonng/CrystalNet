@@ -1,0 +1,9 @@
+syntax = "proto3";
+package CRYSTAL_NET.service;
+
+message RpcInfo
+{
+    string RpcName = 1;
+    uint64 Stub = 2;
+    bytes Data = 3;
+}

@@ -1,0 +1,59 @@
+syntax = "proto3";
+option cc_enable_arenas = true;
+
+package CRYSTAL_NET.service;
+
+import "com_login.proto";
+import "com_user.proto";
+
+/// Opcode:, XorEncrypt:true, KeyBase64:true
+message LoginReq
+{
+    LoginInfo LoginUserInfo = 1;
+}
+
+/// Opcode:
+message LoginRes
+{
+    sint32 errCode = 1;
+    uint64 UserId = 2;
+    // 毫秒级
+    sint64 ServerTime = 3;
+}
+
+/// Opcode:
+message LoginInfoNty 
+{
+    // 更新登录token
+    string Token = 1;
+    // 过期时间(秒级时间戳)
+    sint64 KeyExpireTime = 2;
+}
+
+/// Opcode:
+message LogoutReq 
+{
+
+}
+
+/// Opcode:
+message LogoutNty 
+{
+    // LogoutReason
+    sint32 LogoutReason = 1;
+    // 告知最后登陆的ip
+    string ip = 2;
+}
+
+/// Opcode:
+message LoginFinishReq
+{
+    
+}
+
+/// Opcode:
+message LoginFinishRes
+{
+    sint32 ErrCode = 1;
+}
+

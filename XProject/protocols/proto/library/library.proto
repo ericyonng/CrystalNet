@@ -1,0 +1,427 @@
+syntax = "proto3";
+package CRYSTAL_NET.service;
+
+import "com_library.proto";
+import "com_book.proto";
+import "com_user.proto";
+
+/// Opcode:
+message GetLibraryInfoReq
+{
+
+}
+
+// 图书馆信息, 登录成功后主动推送
+/// Opcode:
+message LibraryInfoNty 
+{
+    LibraryInfo LibraryInfo = 1;
+}
+
+/// Opcode:
+message GetLibraryInfoRes
+{
+    sint32 ErrCode = 1;
+}
+
+/// Opcode:
+message CreateLibraryReq
+{
+    // 邀请码
+    bytes InviteCode = 1;
+    // 管名
+    bytes Name = 2;
+    // 书馆地址
+    bytes Address = 3;
+    // 书馆经营时间
+    bytes OpenTime = 4;
+    // 书馆联系电话
+    string TelphoneNumber = 5;
+    // 必须绑定手机号
+    uint64 BindPhone = 6;
+}
+
+/// Opcode:
+message CreateLibraryRes
+{
+    sint32 ErrCode = 1;
+}
+
+// 加入图书馆: 不在图书馆内, 
+/// Opcode:
+message JoinLibraryReq 
+{
+    uint64 LibraryId = 1;
+}
+
+// 加入图书馆:刚开始是无权限的, 只有让管理员添加成为会员才有权限借阅
+/// Opcode:
+message JoinLibraryRes
+{
+    sint32 ErrCode = 1;
+}
+
+// 退出: 必须把书还完
+/// Opcode:
+message QuitLibraryReq
+{
+
+}
+
+// 退出
+/// Opcode:
+message QuitLibraryRes
+{
+    // 错误码
+    sint32 ErrCode = 1;
+}
+
+// 获取图书馆列表
+/// Opcode:
+message GetLibraryListReq
+{
+
+}
+
+// 获取图书馆列表
+/// Opcode:
+message GetLibraryListRes
+{
+    repeated LibraryPreviewInfo LibraryPreviewInfoList = 1;
+}
+
+// 转让馆长:只能转让给管理员, 转让后降级成管理员 TODO:
+/// Opcode:
+message TransferLibraianReq 
+{
+    uint64 TargetUserId = 1;
+}
+
+// 转让馆长
+/// Opcode:
+message TransferLibraianRes
+{
+    sint32 ErrCode = 1;
+}
+
+// 修改权限 馆长不可修改自己的权限, 只能转让, 管理员不可以将自己升级, 只能管理员修改权限 TODO:
+/// Opcode:
+message ModifyMemberInfoReq
+{
+    uint64 memberUserId = 1;
+
+    // 修改角色
+    oneof ModifyRole
+    {
+        sint32 newRole = 2;
+    }
+
+    // 修改手机号
+    oneof ModifyPhoneNumber
+    {
+        uint64 newMemberPhone = 3;
+    }
+}
+
+/// Opcode:
+message ModifyMemberInfoRes
+{
+    sint32 ErrCode = 1;
+}
+
+// 用户的图书馆简要信息
+/// Opcode:
+message UserLibraryInfoNty
+{
+    UserLibraryInfo UserLibraryInfo = 1;
+}
+
+// 获取用户信息
+/// Opcode:
+message GetLibraryMemberSimpleInfoReq
+{
+    
+}
+
+// 获取用户信息
+/// Opcode:
+message GetLibraryMemberSimpleInfoRes
+{
+    sint32 ErrCode = 1;
+    repeated SimpleUserInfo SimpleUserInfoList = 2;
+}
+
+// 录书
+/// Opcode:
+message AddLibraryBookReq
+{
+    // 书名
+    bytes BookName = 1;
+    // isbn
+    string IsbnCode = 2;
+    // 封面
+    oneof BookCoverImageOption
+    {
+        string BookCoverImage = 3;
+    }
+    // 价格(单位分)
+    sint64 Price = 4;
+    // 数量 增量
+    sint64 ModifyCount = 5;
+    // 关键词最多5个
+    oneof KeyWordsOption
+    {
+        KeyWordsField KeyWords = 6;
+    }
+
+    // 内容简介 最多10KB左右
+    oneof ContentOption
+    {
+        bytes Content = 7;
+    }
+    
+    // 截图最多9张
+    oneof SnapshotOption
+    {
+        SnapshotField Snapshot = 8;
+    }
+}
+
+// 录书结果
+/// Opcode:
+message AddLibraryBookRes
+{
+    sint32 ErrCode = 1;
+}
+
+// 书籍数量
+/// Opcode:
+message AddLibraryBookCountReq
+{
+    // 图书的id
+    uint64 BookId = 1;
+    // 修改数量
+    sint64 ModifyCount = 2;
+}
+
+// 书籍数量
+/// Opcode:
+message AddLibraryBookCountRes
+{
+    sint32 ErrCode = 1;
+}
+
+// 获取图书列表
+/// Opcode:
+message GetBookListReq
+{
+    
+}
+
+// 图书列表数据
+/// Opcode:
+message BookListNty
+{
+    repeated BookInfo BookInfoList = 1;
+}
+
+// 图书数据变更
+/// Opcode:
+message BooksChangeNty
+{
+    repeated BookInfo BookInfoList = 1;
+}
+
+// 图书数量变更
+/// Opcode:
+message BookVariantInfoItemsNty
+{
+    repeated BookVariantInfoItem BookVariantInfoItemList = 1;
+}
+
+// 图书数据请求
+/// Opcode:
+message GetBookListRes
+{
+    sint32 ErrCode = 1;
+}
+
+// 查图书信息
+/// Opcode:
+message GetBookInfoReq 
+{
+    string IsbnCode = 1;
+}
+
+// 查图书信息
+/// Opcode:
+message GetBookInfoRes
+{
+    sint32 ErrCode = 1;
+    // 图书
+    BookInfo BookInfo = 2;
+}
+
+// 按照书名或者关键字查询
+/// Opcode:
+message GetBookByBookNameReq
+{
+    bytes BookName = 1;
+}
+
+// 按照书名查询
+/// Opcode:
+message GetBookByBookNameRes
+{
+    repeated BookInfo BookInfoList = 1;
+}
+
+// 分页查询图书
+/// Opcode:
+message GetBookInfoListReq 
+{
+    // 基准图书id
+    uint64 BaseBookId = 1;
+
+    // 数量 负数表示 BaseBookId 之前的前n个图书信息, 整数表示 BaseBookId 之后n个图书信息
+    sint32 BookCount = 2;
+}
+
+// 分页查询图书
+/// Opcode:
+message GetBookInfoListRes
+{
+    repeated BookInfo BookInfoList = 1;
+}
+
+// 查询图书订单信息
+/// Opcode:
+message GetBookOrderDetailInfoReq
+{
+}
+
+// 查询图书订单信息
+/// Opcode:
+message GetBookOrderDetailInfoNty
+{
+    repeated BorrowOrderDetailInfo DetailInfo = 1;
+}
+
+// 查询图书订单信息
+/// Opcode:
+message GetBookOrderDetailInfoRes
+{
+    sint32 ErrCode = 1;
+}
+
+// 出库
+/// Opcode:
+message OutStoreOrderReq
+{
+    // 出库订单号
+    uint64 OrderId = 1;
+
+    // 出库图书参数
+    repeated OutStoreParam BookParams = 2;
+}
+
+// 出库
+/// Opcode:
+message OutStoreOrderRes
+{
+    sint32 ErrCode = 1;
+}
+
+// 用户领书管理员扫码
+/// Opcode:
+message ManagerScanOrderForUserGettingBooksReq
+{
+    // 订单id
+    uint64 OrderId = 1;
+}
+
+// 确认领取推送确认码(确认码有效期2分钟)
+/// Opcode:
+message UserGetBooksOrderConfirmNty
+{
+    uint64 OrderId = 1;
+    uint64 ConfirmCode = 2;
+}
+
+// 用户领书管理员扫码
+/// Opcode:
+message ManagerScanOrderForUserGettingBooksRes
+{
+    sint32 ErrCode = 1;
+}
+
+// 用户领书确认
+/// Opcode:
+message UserGetBooksOrderConfirmReq
+{
+    uint64 OrderId = 1;
+    uint64 ConfirmCode = 2;
+}
+
+// 用户领书确认
+/// Opcode:
+message UserGetBooksOrderConfirmRes
+{
+    sint32 ErrCode = 1;
+}
+
+// 取消订单(管理员或者用户自己取消订单)
+/// Opcode:
+message CancelOrderReq
+{
+    // 订单id
+    uint64 OrderId = 1;
+
+    // 原因(管理员必须填写)
+    bytes Reason = 2;   
+}
+
+// 取消订单(管理员或者用户自己取消订单)
+/// Opcode:
+message CancelOrderRes
+{
+    sint32 ErrCode = 1;
+}
+
+// 归还书
+/// Opcode:
+message ReturnBackReq
+{
+    // 订单id
+    uint64 OrderId = 1;
+
+    // 指定自订单
+    repeated uint64 SubOrderIds = 2;
+}
+
+// 归还书
+/// Opcode:
+message ReturnBackRes
+{
+    sint32 ErrCode = 1;
+}
+
+// 创建图书馆, 有开放时间, 初期的时候开放, 需要有邀请码才能建管
+
+// 获取图书馆信息（图书馆地址,图书馆联系电话, 图书馆管理员姓名, 图书馆管理员联系方式, 图书馆管理员昵称）
+// 转让馆长
+// 添加管理员账号,
+// 移除管理员账号
+// 权限设置
+// 图书馆角色设置
+// 图书数据
+// 图书分类
+// 最新上架图书()
+// 图书点赞
+// 上架新书, 下架书
+// 录书(录书不一定会上架)
+// 借书
+// 还书
+// 已借
+// 逾期待还列表
+// 

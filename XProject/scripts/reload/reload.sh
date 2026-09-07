@@ -3,7 +3,7 @@
 #!/usr/bin/env bash
 
 SCRIPT_PATH="$(cd $(dirname $0); pwd)"
-RUN_PATH=${SCRIPT_PATH}/../../output/gmake/build
+RUN_PATH=${SCRIPT_PATH}/../../output/gmake/build_x
 
 PROG_PID=$1
 

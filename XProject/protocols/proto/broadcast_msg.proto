@@ -1,0 +1,38 @@
+syntax = "proto3";
+package CRYSTAL_NET.service;
+
+import "com_broadcast_msg.proto";
+
+// 数据源发送数据过来
+/// Opcode:
+message SendDataRequest
+{
+    // 包id, response回传回来
+    sint64 PacketId = 1;
+    repeated DataSourceInfo DataList = 2;
+}
+
+// 数据源发送数据回执,用于确认收到
+/// Opcode:
+message SendDataResponse
+{
+    // 用发送数据的其中一条来代替整个包已收到
+    sint64 PacketId = 1;
+}
+
+// 转发消息
+/// Opcode:
+message BroadcastSendDataNty
+{
+    // 取ReqList其中一个Req的PacketId
+    sint64 PacketId = 1;
+    // req列表
+    repeated SendDataRequest ReqList = 2;
+}
+
+// 转发消息确认
+/// Opcode:
+message BroadcastSendDataConfirmResponse
+{
+    sint64 PacketId = 1;
+}

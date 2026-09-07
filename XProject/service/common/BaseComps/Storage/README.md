@@ -1,0 +1,6 @@
+# 存储系统设计
+
+1. 所有需要存储系统都需要注册StorageInfo组件到自己的系统
+2. 数据库组件会在Start的时候扫描service所有组件，如果组件注册了StorageInfo组件则会根据StorageInfo组件定义的信息来创建数据库表, 如果表StorageInfo定义的表信息有变更则会ALTER TABLE
+3. 数据库表字段的alter column只能往大的改, 由于业务是单线程，在alter column之前会先更新本地的storageinfo的大小，所以只会越改越大， 不用担心中途会变小
+4. TODO:本系统由于复杂度需要抽象出来放到OptionComp中以便即插即用

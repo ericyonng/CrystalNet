@@ -4,6 +4,7 @@
 
 # 路径
 SCRIPT_PATH="$(cd $(dirname $0); pwd)"
+ROOT_PATH=${SCRIPT_PATH}/../../
 
 # GREP_FLAG="CrystalNet"
 # if [ $1 ]
@@ -38,7 +39,7 @@ SCRIPT_PATH="$(cd $(dirname $0); pwd)"
 
 # echo "all process has closed."
 
-sudo chmod a+x $SCRIPT_PATH/tools/CloseProcess/CloseProcess
+sudo chmod a+x $ROOT_PATH/tools/CloseProcess/CloseProcess
 
-${SCRIPT_PATH}/tools/CloseProcess/CloseProcess testsuit is_waiting_close=1
+${ROOT_PATH}/tools/CloseProcess/CloseProcess LogicServer is_waiting_close=1
 

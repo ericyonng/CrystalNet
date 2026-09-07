@@ -1,0 +1,26 @@
+syntax = "proto3";
+package CRYSTAL_NET.service;
+
+import "com_variant.proto";
+
+message SystemLogData
+{
+    uint64 Id = 1;
+
+    uint64 libraryId = 2;
+
+     // title文字id
+     string TitleWordId = 3;
+ 
+     // title的参数
+     repeated VariantParam TitleParams = 4;
+ 
+     // 内容文字id
+     string ContentWordId = 5;
+ 
+     // 内容的参数
+     repeated VariantParam ContentParams = 6;
+ 
+     // 时间
+     sint64 CreateTime = 7;
+}

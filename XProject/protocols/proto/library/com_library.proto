@@ -1,0 +1,260 @@
+syntax = "proto3";
+package CRYSTAL_NET.service;
+
+import "com_book.proto";
+import "com_variant.proto";
+
+
+// 按照权限大小排
+message RoleType
+{
+    enum ENUMS 
+    {
+        // 无权限
+        NoAuth = 0;
+        // 普通成员
+        NormalMember = 1;
+        // 管理员
+        Manager = 2;
+        // 馆长
+        Librarian = 3;
+    }
+}
+
+// 管理员信息(包含馆长)
+message LibararyManagerInfo
+{
+    // 管理员id
+    uint64 UserId = 1;
+}
+
+// 当 ReturnBackCount == BorrowCount时表示还完
+message BorrowBookInfo 
+{
+    // book id
+    uint64 BookId = 1;
+    // isbn码
+    string IsbnCode = 2;
+    // 借阅数量
+    sint32 BorrowCount = 3;
+    // 借阅时间
+    sint64 BorrowTime = 4;
+    // 预计归还时间(领取后算起) TODO:
+    sint64 PlanGiveBackTime = 5;
+    // 实际归还时间
+    sint64 RealGiveBackTime = 6;
+    // 已还数量
+    uint64 ReturnBackCount = 7;
+    // 子单号(当前借的书的单号)
+    uint64 SubOrderId = 8;
+    // 要借的天数
+    sint32 BorrowDays = 9;
+}
+
+// 图书详情信息
+message BorrowBookDetailInfo
+{
+    BorrowBookInfo BookInfo = 1;
+
+    bytes BookName = 2;
+}
+
+
+// 订单状态
+message BorrowOrderState
+{
+    enum ENUMS 
+    {
+        // 待出库
+        WAITING_OUT_OF_WAREHOUSE = 0;
+
+        // 订单已出库等待领取
+        WAIT_USER_RECEIVE = 1;
+
+        // 用户已领取等待归还
+        WAIT_USER_RETURN_BACK = 2;
+
+        // 取消订单(需要填写原因, 当用户领取后不可取消订单只能归还, 还没领取的才可取消订单)
+        CANCEL_ORDER = 3;
+
+        // 已归还
+        RETURN_BAKCK = 4;
+    }
+}
+
+message CancelOrderReasonType
+{
+    enum ENUMS
+    {
+        UNKNOWN = 0;
+
+        // 等用户领取超时
+        WAIT_USER_GET_TIME_OUT = 1;
+
+        // 管理员取消订单(管理员需要填写理由)
+        MANAGTER_CANCEL = 2;
+
+        // 用户自己取消订单
+        USER_SELF_CANCEL = 3;
+    }
+}
+
+message CancelOrderReason
+{
+    // 原因code
+    sint32 CancelReason = 1;
+    // 具体原因内容
+    bytes CancelInfo = 2;
+}
+
+// 借还订单信息
+message BorrowOrderInfo
+{
+    // 订单号
+    uint64 OrderId = 1;
+    // 借的书
+    repeated BorrowBookInfo BorrowBookList = 2;
+    // 订单创建时间
+    uint64 CreateOrderTime = 3;
+    // 订单状态 BorrowOrderState
+    sint32 OrderState = 4;
+    // 取消原因
+    CancelOrderReason CancelReason = 5;
+    // 领取超时时间(出库后一到两天内领取),超过后自动取消订单 TODO:
+    sint64 GetOverTime = 6;
+    // 备注
+    bytes Remark = 7;
+    // 用户id
+    uint64 UserId = 8;
+}
+
+// 订单详情
+message BorrowOrderDetailInfo
+{
+    // 订单号
+    uint64 OrderId = 1;
+    // 借的书
+    repeated BorrowBookDetailInfo BorrowBookList = 2;
+    // 订单创建时间
+    uint64 CreateOrderTime = 3;
+    // 订单状态 BorrowOrderState
+    sint32 OrderState = 4;
+    // 取消原因
+    CancelOrderReason CancelReason = 5;
+    // 领取超时时间(出库后一到两天内领取),超过后自动取消订单 TODO:
+    sint64 GetOverTime = 6;
+    // 备注
+    bytes Remark = 7;
+    // 用户id
+    uint64 UserId = 8;
+    // 用户昵称
+    bytes Nickname = 9;
+}
+
+// 会员信息(包括管理员等)
+message MemberInfo 
+{
+    // user id
+    uint64 UserId = 1;
+    // 角色 RoleType
+    sint32 Role = 2;
+    // 会员昵称
+    bytes Nickname = 3;
+    // 当前借阅图书列表 只有有权限的人才会看到订单详情, 其他人只能看自己的, 避免被恶意下单, 最多一天借100本书 TODO:
+    repeated BorrowOrderInfo BorrowList = 4;
+    // 锁定操作超时时间
+    sint64 LockTimestampMs = 5;
+
+    oneof MemberBindPhone
+    {
+        uint64 BindPhone = 6;
+    }
+}
+
+message OperationType
+{
+    enum ENUMS
+    {
+        // 未知
+        UNKNOWN = 0;
+        
+    }
+}
+
+// 操作日志
+message OperationLogInfo
+{
+    sint32 OpType = 1;
+    uint64 OpUserId = 2;
+    bytes OpNickname = 3;
+    sint32 Role = 4;
+    sint64 OpTimeMs = 5;
+    repeated VariantParam Params = 6;
+}
+
+/// EnableStorage:true
+message LibraryInfo 
+{
+    // 唯一id
+    uint64 Id = 1;
+    // 图书馆名
+    bytes Name = 2;
+    // 图书馆地址
+    bytes Address = 3;
+    // 图书馆经营时间
+    bytes OpenTime = 4;
+    // 图书馆联系电话
+    string TelphoneNumber = 5;
+    // 馆长id
+    uint64 LibrarianUserId = 6;
+    // 馆长名
+    bytes LibrarianUserNickname = 7;
+    // 管理员列表
+    repeated LibararyManagerInfo ManagerInfoList = 8;
+    // 会员列表
+    repeated MemberInfo MemberList = 9;
+    // 书不直接推送详情下去 TODO:
+    repeated BookInfo BookList = 10;
+}
+
+// 玩家的图书馆数据
+message UserLibraryInfo 
+{
+    // 图书馆id
+    uint64 LibraryId = 1;
+}
+
+// 图书馆预览数据
+message LibraryPreviewInfo
+{
+    // 图书馆id
+    uint64 Id = 1;
+    // 图书馆名
+    bytes Name = 2;
+    // 馆长id
+    uint64 LibrarianUserId = 3;
+    // 馆长昵称
+    bytes LibrarianNickname = 4;
+}
+
+// 关键词
+message KeyWordsField
+{
+ repeated bytes KeyWords = 1;
+}
+
+// 截图
+message SnapshotField
+{
+ repeated string Snapshots = 1;
+}
+
+// 出库参数
+message OutStoreParam
+{
+    // 图书id
+    uint64 BookId = 1;
+
+    // 图书数量
+    sint64 Count = 2;
+}

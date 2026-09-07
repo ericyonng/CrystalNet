@@ -1,0 +1,161 @@
+syntax = "proto3";
+package CRYSTAL_NET.service;
+
+/// EnableStorage:true
+message UserBaseInfo
+{
+    // uid
+    uint64 UserId = 1;
+    // 账号
+    string AccountName = 2;
+    // 姓名
+    bytes Name = 3;
+    // 昵称
+    bytes Nickname = 4;
+    // 密码
+    string Pwd = 5;
+    // 盐
+    string PwdSalt = 6;
+    // 绑定手机
+    uint64 BindPhone = 7;
+    // 最后登录时间
+    sint64 LastLoginTime = 8;
+    // 最后登录ip
+    string LastLoginIp = 9;
+    // 最后登录收集imei
+    string LastLoginPhoneImei = 10;
+    // 创建号的ip
+    string CreateIp = 11;
+    // 创建时间
+    sint64 CreateTime = 12;
+    // 创建的收集imei
+    string CreatePhoneImei = 13;
+    // 绑定的邮箱地址
+    string BindMailAddr = 14;
+    // 上次跨天时间
+    sint64 LastPassDayTime = 15;
+}
+
+message TestCustomData
+{
+    int32 TestInt = 1;
+}
+
+/// EnableStorage:true
+message TestOrm
+{
+    int32 TestInt = 1;
+
+    string TestString = 2;
+
+    repeated int32 TestIntArray = 3;
+
+    repeated string TestStringArray = 4;
+
+    TestCustomData TestCustom = 5;
+
+    repeated TestCustomData TestCustomArray = 6;
+
+    oneof TestOneOf
+    {
+        int32 TestOneOfInt = 7;
+
+        string TestOneOfString = 8;
+
+        TestCustomData TestOneOfCustom = 9;
+    }
+}
+
+// 登录模式
+message LoginMode
+{
+    enum ENUMS
+    {
+        // 使用密码登录
+        PASSWORD = 0;
+        // 使用登录令牌登录
+        USE_LOGIN_TOKEN = 1;
+        // 注册登录
+        REGISTER = 2;
+    }
+}
+
+message RegisterUserInfo
+{
+    // 账号
+    bytes AccountName = 1;
+    // 昵称
+    bytes Nickname = 2;
+    // 密码
+    string Pwd = 3;
+    // 创建的收集imei
+    string CreatePhoneImei = 4;
+}
+
+// 登录信息
+message LoginInfo
+{
+    // 登录模式
+    sint32 LoginMode = 1;
+    // 账号
+    bytes AccountName = 2;
+    // 密码
+    string Pwd = 3;
+    // 登录令牌
+    string LoginToken = 4;
+    // 登录设备
+    string LoginPhoneImei = 5;
+    // 登录目标ip
+    bytes TargetIp = 6;
+    // 登录目标端口
+    uint32 Port = 7;
+
+    // 注册信息
+    oneof RegisterInfo
+    {
+        RegisterUserInfo UserRegisterInfo = 8;
+    }
+
+    // 鉴权:ip是黑白校验, 设备黑白校验, 账号黑白校验
+    // 产品id
+    string AppId = 9;
+    // 密文
+    string cypherText = 10;
+    // 原文
+    string originText = 11;
+    // 版本号
+    uint64 versionId = 12;
+}
+
+message LogoutReason 
+{
+    enum ENUMS 
+    {
+        // 其他地方登录
+        LOGIN_OTHER_PLACE = 0;
+        // 其他原因
+        OTHER_REASON = 1;
+        // 玩家主动退登
+        USER_LOGOUT = 2;
+        // 空闲
+        USER_IDLE = 3;
+        // 超时
+        TIMEOUT = 4;
+        // 关服
+        CLOSE_SERVER = 5;
+        // 登录其他账号
+        LOG_IN_OTHER_ACCOUNT = 6;
+    }
+}
+
+// 简要用户信息
+message SimpleUserInfo
+{
+    // uid
+    uint64 UserId = 1;
+    // 昵称
+    bytes Nickname = 2;
+    // 绑定手机
+    uint64 BindPhone = 3;
+}
+
