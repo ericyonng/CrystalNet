@@ -172,16 +172,16 @@ project "LogicPlugin"
     set_common_options(nil, true)
 	
 	includedirs {
-	    "../../",
+	    ROOT_DIR,
 		ROOT_DIR .. "kernel/include/",
 		ROOT_DIR .. "OptionComponent/",
 		XPROJ_PATH .. "protocols/cplusplus/",
 		XPROJ_PATH .. "LogicPlugin/",
 		XPROJ_PATH .. "LogicPlugin/LogicPlugin_pch/",
-        XPROJ_PATH .. "Service/",
+        XPROJ_PATH .. "service/",
         ROOT_DIR .. "service_common/",
         XPROJ_PATH .. "Config/code/",
-		XPROJ_PATH .. "Service/LogicService/",
+		XPROJ_PATH .. "service/LogicService/",
     }
     
     -- files
@@ -290,14 +290,14 @@ project "LogicServer"
 	enable_precompileheader("pch.h", ROOT_DIR .. "LogicServer/LogicServer_pch/pch.cpp")
 
 	includedirs {
-	    "../../",
+	    ROOT_DIR,
 		ROOT_DIR .. "kernel/include/",
 		XPROJ_PATH .. "LogicServer/",
 		XPROJ_PATH .. "LogicServer/LogicServer_pch/",
         XPROJ_PATH .. "Config/code/",
 		ROOT_DIR .. "OptionComponent/",
 		XPROJ_PATH .. "protocols/cplusplus/",
-		XPROJ_PATH .. "Service/LogicService/",
+		XPROJ_PATH .. "service/LogicService/",
 		XPROJ_PATH .. "LogicPlugin/",
     }
 
@@ -315,12 +315,12 @@ project "LogicServer"
         XPROJ_PATH .. "protocols/**.h",
         XPROJ_PATH .. "protocols/**.cc",
         XPROJ_PATH .. "protocols/**.cpp",
-        XPROJ_PATH .. "Service/Common/**.h",
-        XPROJ_PATH .. "Service/Common/**.cpp",
-        XPROJ_PATH .. "Service/LogicService/**.h",
-        XPROJ_PATH .. "Service/LogicService/**.cpp",
-        XPROJ_PATH .. "Service/LogicService/**.lua",
-        XPROJ_PATH .. "Service/LogicService/**.cppm",
+        XPROJ_PATH .. "service/common/**.h",
+        XPROJ_PATH .. "service/common/**.cpp",
+        XPROJ_PATH .. "service/LogicService/**.h",
+        XPROJ_PATH .. "service/LogicService/**.cpp",
+        XPROJ_PATH .. "service/LogicService/**.lua",
+        XPROJ_PATH .. "service/LogicService/**.cppm",
         XPROJ_PATH .. "Config/code/**.h",
         XPROJ_PATH .. "Config/code/**.cpp",
         ROOT_DIR .. "service_common/**.h",

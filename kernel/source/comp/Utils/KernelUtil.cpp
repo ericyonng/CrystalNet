@@ -72,9 +72,8 @@ KERNEL_BEGIN
 std::atomic_bool g_KernelInit{false};
 std::atomic_bool s_KernelStart{false};
 std::atomic_bool s_KernelDestroy{false};
-std::atomic<UInt64> s_KernelFlags {0};
 
-Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const Byte8 *iniPath, YamlMemory *yamlMemory, UInt64 flags, bool needSignalHandle, Int64 fileSoftLimit, Int64 fileHardLimit)
+Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const Byte8 *iniPath, YamlMemory *yamlMemory)
 {
     if(g_KernelInit.exchange(true, std::memory_order_acq_rel))
     {
@@ -84,6 +83,8 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
 
     s_KernelStart.store(false, std::memory_order_release);
     s_KernelDestroy.store(false, std::memory_order_release);
+
+    KERNEL_NS::LibString rootDir = KERNEL_NS::SystemUtil::GetCurProgRootPath();
 
     // 设置主线程名
     // const auto &processName = KERNEL_NS::SystemUtil::GetCurProgramNameWithoutExt();
@@ -95,14 +96,6 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     //         , err.c_str());
     //     }
     // }
-
-    // 转入后台
-    KERNEL_NS::LibString rootDir = KERNEL_NS::SystemUtil::GetCurProgRootPath();
-    // CRYSTAL_TRACE("kernel current root dir:%s", rootDir.c_str());
-
-    // 设置工作目录
-    if (KERNEL_NS::BitUtil::IsSet(flags, KernelFlags::CHANGE_WORK_DIR))
-        SystemUtil::ChgWorkDir(rootDir);
     
     // 标准输出,标准错误输出重定向到文件 TODO:版本发布情况下在外部开启,内核初始化不需要
     // auto stdiolog = rootDir + "stdio.log";
@@ -126,28 +119,6 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     Int64 oldHardLimit = 0;
 
     Int32 err = Status::Success;
-    #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-    if (KERNEL_NS::BitUtil::IsSet(flags, KernelFlags::MODIFY_FILE_DESC_LIMIT))
-    {
-        KERNEL_NS::LibString limitErr;
-        err = KERNEL_NS::SystemUtil::GetProcessFileDescriptLimit(KERNEL_NS::LinuxRlimitId::E_RLIMIT_NOFILE, oldSoftLimit, oldHardLimit, limitErr);
-        if(err != Status::Success)
-        {
-            CRYSTAL_TRACE("GetProcessFileDescriptLimit fail %d, %s", err, limitErr.c_str());
-            return Status::Failed;
-        }
-
-        err = KERNEL_NS::SystemUtil::SetProcessFileDescriptLimit(KERNEL_NS::LinuxRlimitId::E_RLIMIT_NOFILE, fileSoftLimit, fileHardLimit, limitErr);
-        if(err != Status::Success)
-        {
-            CRYSTAL_TRACE("SetProcessFileDescriptLimit fail %d, %s, oldSoftLimit:%lld, oldHardLimit:%lld, will set soft limit:%lld, will set hard limit:%lld"
-                    , err, limitErr.c_str(), oldSoftLimit, oldHardLimit, fileSoftLimit, fileHardLimit);
-            return Status::Failed;
-        }
-
-        // core dump 输出到当前程序下
-    }
-    #endif
 
     // ini 文件路径
     LibString iniRoot;
@@ -165,17 +136,12 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
         KERNEL_NS::DirectoryUtil::CreateDir(iniRoot);
 
     // 初始化tls
-    if(KERNEL_NS::BitUtil::IsSet(flags, KernelFlags::INIT_TLS))
+    if(KERNEL_NS::TlsUtil::GetUtileTlsHandle() == INVALID_TLS_HANDLE)
     {
-        if(KERNEL_NS::TlsUtil::GetUtileTlsHandle() == INVALID_TLS_HANDLE)
-        {
-            CRYSTAL_TRACE("GetUtileTlsHandle fail.");
-            return false;
-        }
+        CRYSTAL_TRACE("GetUtileTlsHandle fail.");
+        return false;
     }
 
-    // 初始化时区
-    KERNEL_NS::TimeUtil::SetTimeZone(BitUtil::IsSet(flags, KernelFlags::MODIFY_SYSTEM_TIME_ZONE));
     // 变体类型识别初始化
     KERNEL_NS::VariantRtti::InitRttiTypeNames();
     // 初始化id
@@ -192,7 +158,7 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     // 主线程初始化
     const auto mainThreadId = SystemUtil::GetCurrentThreadId();
 
-        // cpu frequancy
+    // cpu frequancy
     InitTSCSupportFlags();
     LibCpuFrequency::InitFrequancy();
 
@@ -211,33 +177,6 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
         CRYSTAL_TRACE("cpu init fail.");
         return false;
     }
-
-    // 异常信号处理
-    if (BitUtil::IsSet(flags, KernelFlags::CATCH_ABNORMAL_SIGNAL))
-    {
-        if(needSignalHandle)
-        {
-            err = SignalHandleUtil::Init();
-            if(err != Status::Success)
-            {
-                g_Log->Error(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "signal handle util fail err:%d"), err);
-                return err;
-            }
-        }
-    }
-
-
-    // 信号处理任务
-    // #if CRYSTAL_TARGET_PLATFORM_LINUX
-    if (BitUtil::IsSet(flags, KernelFlags::SET_SIGNAL_PROCESSOR))
-    {
-        if(needSignalHandle)
-        {
-            auto signalCloseHandler = DelegateFactory::Create(&KernelUtil::_OnSinalOccur);
-            SignalHandleUtil::PushAllConcernSignalTask(signalCloseHandler);
-        }
-    }
-
 
     // #endif
 
@@ -295,19 +234,6 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     g_LogIniName = logIniName;
     g_LogIniRootPath = iniRoot;
 
-    // 堆栈
-    if (BitUtil::IsSet(flags, KernelFlags::MODIFY_CRASH_HOOK))
-    {
-        KERNEL_NS::SmartPtr<KERNEL_NS::IDelegate<void>> destroyDelg = KERNEL_NS::DelegateFactory::Create(&KernelUtil::Destroy);
-        err = KERNEL_NS::BackTraceUtil::InitCrashHandleParams(g_Log, destroyDelg.AsSelf());
-        if(err != Status::Success)
-        {
-            g_Log->Error(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "InitCrashHandleParams fail err=[%d]."), err);
-            return err;
-        }
-        destroyDelg.pop();
-    }
-
     // 内存监控
     g_MemoryMonitor = KERNEL_NS::MemoryMonitor::GetInstance();
     err = g_MemoryMonitor->Init(15 * 60 * 1000);
@@ -318,37 +244,13 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
         return err;
     }
 
-    // 初始化网络环境
-    if (BitUtil::IsSet(flags, KernelFlags::INIT_SOCKET_ENV))
-    {
-        err = SocketUtil::InitSocketEnv();
-        if(err != Status::Success)
-        {
-            g_Log->Error(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "socket env Init fail err=[%d]."), err);
-            return err;
-        }
-    }
-
-    if (BitUtil::IsSet(flags, KERNEL_NS::KernelFlags::INIT_CURL))
-    {
-        // 初始化curl全局
-        auto curlCode = ::curl_global_init(CURL_GLOBAL_DEFAULT);
-        if(curlCode != CURLE_OK)
-        {
-            g_Log->Error(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "curl init fail(%d):%s"), (Int32)curlCode, curl_easy_strerror(curlCode));
-            return Status::Failed;
-        }
-    }
-
     auto nowTimeBySystem = KERNEL_NS::TimeUtil::GetNanoTimestamp();
     auto nowFastTime = KERNEL_NS::TimeUtil::GetFastNanoTimestamp();
     const auto &slice = KERNEL_NS::TimeSlice::FromNanoSeconds(std::abs(nowFastTime - nowTimeBySystem));
-    s_KernelFlags.store(flags, std::memory_order_release);
     
-    g_Log->Sys(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil
-    , "kernel inited root path:%s, old file soft limit:%lld, old file hard limit:%lld, new file soft limit:%lld, new file hard limit:%lld system time nanostamp:%lld, fast time nanostamp:%lld diff:%s, IsSurpportRdtscp:%d, TscFreq:%llu, IsInVariantTsc:%d kernerl flags:%llx.")
+    CLOG_SYS_GLOBAL(KernelUtil, "kernel inited root path:%s, old file soft limit:%lld, old file hard limit:%lld, new file soft limit:%lld, new file hard limit:%lld system time nanostamp:%lld, fast time nanostamp:%lld diff:%s, IsSurpportRdtscp:%d, TscFreq:%llu, IsInVariantTsc:%d"
                 , rootDir.c_str(), oldSoftLimit, oldHardLimit, fileSoftLimit, fileHardLimit, nowTimeBySystem, nowFastTime, slice.ToString().c_str()
-                , IsSurportRdtscp, KERNEL_NS::CrystalGetCpuCounterFrequancy(), IsCurrentEnvSupportInvariantRdtsc(), s_KernelFlags.load(std::memory_order_acquire));
+                , IsSurportRdtscp, KERNEL_NS::CrystalGetCpuCounterFrequancy(), IsCurrentEnvSupportInvariantRdtsc());
 
     return Status::Success;
 }
@@ -386,10 +288,6 @@ void KernelUtil::Destroy()
         return;
     }
 
-    auto flags = s_KernelFlags.load(std::memory_order_acquire);
-    
-    // CRYSTAL_TRACE("kernel will destroy.");
-
     if(LIKELY(g_Log))
     {
         g_Log->Sys(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "will destroy kernel log addr:[%p], log IsStart[%d], memory pool addr:[%p], Statistics addr:[%p]...")
@@ -399,12 +297,6 @@ void KernelUtil::Destroy()
     // CRYSTAL_TRACE("will destroy kernel log addr:[%p], log IsStart[%d], memory pool addr:[%p], Statistics addr:[%p]..."
     // , g_Log, g_Log && g_Log->IsStart(), g_MemoryPool,  g_MemoryPool ? g_MemoryMonitor->GetStatistics() : NULL);
 
-    if (BitUtil::IsSet(flags, KernelFlags::INIT_SOCKET_ENV))
-        SocketUtil::ClearSocketEnv();
-
-    // 清理curl资源
-    if (BitUtil::IsSet(flags, KernelFlags::INIT_CURL))
-        curl_global_cleanup();
 
     // if(LIKELY(g_Log))
     //     g_Log->Sys(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "comp will destroy."));
@@ -496,8 +388,7 @@ void KernelUtil::Destroy()
     // tls销毁
     beginTime = KERNEL_NS::LibTime::Now();
     CRYSTAL_TRACE("will destroy util tls handle time:%lld ...", beginTime.GetMilliTimestamp())
-    if(KERNEL_NS::BitUtil::IsSet(flags, KernelFlags::INIT_TLS))
-        KERNEL_NS::TlsUtil::DestroyUtilTlsHandle();
+    KERNEL_NS::TlsUtil::DestroyUtilTlsHandle();
     endTime = KERNEL_NS::LibTime::Now();
     CRYSTAL_TRACE("destroy util tls handle time:%lld completed cost:%lld(ms).", endTime.GetMilliTimestamp(), (endTime - beginTime).GetTotalMilliSeconds())
 
@@ -513,36 +404,6 @@ void KernelUtil::Destroy()
     s_KernelStart.store(false, std::memory_order_release);
 
     // CRYSTAL_TRACE("kernel destroy finish.");
-}
-
-void KernelUtil::OnSignalClose()
-{
-    KernelUtil::Destroy();
-}
-
-void KernelUtil::OnAbnormalClose()
-{
-    if(LIKELY(g_Log))
-    {
-        g_Log->Sys(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "will close kernel log abnormal addr:[%p], log IsStart[%d], memory pool addr:[%p], Statistics addr:[%p]...")
-        , g_Log, g_Log->IsStart(), g_MemoryPool,  g_MemoryMonitor->GetStatistics());
-    }
-
-    CRYSTAL_TRACE("will abnormal close kernel log addr:[%p], log IsStart[%d], memory pool addr:[%p], Statistics addr:[%p]..."
-    , g_Log, g_Log && g_Log->IsStart(), g_MemoryPool,  g_MemoryPool ? g_MemoryMonitor->GetStatistics() : NULL);
-
-    // if (g_MemoryMonitor)
-    //     g_MemoryMonitor->Close();
-
-    // // 日志关闭
-    // if(LIKELY(g_Log))
-    // {
-    //     g_Log->ForceLogToDiskAll();
-    // }
-
-    KernelUtil::Destroy();
-    
-    CRYSTAL_TRACE("kernel abnormal close finish.");
 }
 
 void KernelUtil::InstallSignalCloseHandler(IDelegate<void> *task)

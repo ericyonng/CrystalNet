@@ -39,16 +39,14 @@
 
 SERVICE_COMMON_BEGIN
 
-Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactory, int argc, char const *argv[], const KERNEL_NS::LibString &configPath, const KERNEL_NS::LibString &memoryIniConfig)
+Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactory, int argc, char const *argv[], const KERNEL_NS::LibString &configPath, const KERNEL_NS::LibString &memoryIniConfig, KERNEL_NS::IDelegate<void> *signalInvoke)
 {
-   g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application will start."));
+    CLOG_INFO_GLOBAL(ApplicationHelper, "application will start.");
 
-   #if CRYSTAL_STORAGE_ENABLE
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application will init mysql..."));
-    mysql_library_init(0, 0, 0);
-   #endif
-
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application will inited mysql."));
+//    #if CRYSTAL_STORAGE_ENABLE
+//     g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application will init mysql..."));
+//     mysql_library_init(0, 0, 0);
+//    #endif
 
     // 设置配置
     if(memoryIniConfig.empty())
@@ -97,7 +95,8 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
 
             g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application is final close all."));
 
-            KERNEL_NS::KernelUtil::OnSignalClose();
+            if(signalInvoke)
+                signalInvoke->Invoke();
 
             printf("\napplication quit finish.\n");
         }
@@ -116,9 +115,9 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
 
         }
 
-        #if CRYSTAL_STORAGE_ENABLE
-            mysql_library_end();
-        #endif
+        // #if CRYSTAL_STORAGE_ENABLE
+        //     mysql_library_end();
+        // #endif
 #else
         app->SinalFinish(Status::Success);
         // app->WillClose();
@@ -127,12 +126,10 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
         while (true)
             KERNEL_NS::SystemUtil::ThreadSleep(1000);
 
-        #if CRYSTAL_STORAGE_ENABLE
-            mysql_library_end();
-        #endif
+        // #if CRYSTAL_STORAGE_ENABLE
+        //     mysql_library_end();
+        // #endif
         // g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application close finished."));
-
-        // KERNEL_NS::KernelUtil::OnSignalClose();
 
         // printf("\napplication quit finish.\n");
         // while(true)
@@ -181,9 +178,9 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
     g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application close..."));
     app->Close();
 
-   #if CRYSTAL_STORAGE_ENABLE
-    mysql_library_end();
-   #endif
+//    #if CRYSTAL_STORAGE_ENABLE
+//     mysql_library_end();
+//    #endif
 
     g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application close finish..."));
 

@@ -43,7 +43,7 @@ void PluginLogic::OnPluginStartup()
 
     auto logFileMonitor = KERNEL_NS::KernelCastTo<KERNEL_NS::FileMonitor<KERNEL_NS::LogCfg, KERNEL_NS::YamlDeserializer>>(g_Log->GetFileMonitor());
     auto curLogCfg = logFileMonitor->Current();
-    CLOG_INFO_GLOBAL(PluginLogic, "log enabl:%d 2", curLogCfg->IsEnableLog());
+    CLOG_INFO_GLOBAL(PluginLogic, "log MaxFileSizeMB:%d 2", curLogCfg->LogCommon.MaxFileSizeMB);
 
     // 监听事件
     g_PluginGlobal->GetEventManager()->AddListener(EventEnums::TEST_PLUGIN_EVENT, &PluginLogic::OnPluginTestEvent);
@@ -124,7 +124,11 @@ KERNEL_NS::CoTask<Int32> PluginLogic::GetRandInt()
 void PluginLogic::OnPluginTestTimer(KERNEL_NS::LibTimer *t)
 {
     CLOG_INFO_GLOBAL(PluginLogic, "plugin test timer hello world service:%s", g_PluginMgr->GetService()->ToString().c_str());
-
+    
+    auto logFileMonitor = KERNEL_NS::KernelCastTo<KERNEL_NS::FileMonitor<KERNEL_NS::LogCfg, KERNEL_NS::YamlDeserializer>>(g_Log->GetFileMonitor());
+    auto curLogCfg = logFileMonitor->Current();
+    CLOG_INFO_GLOBAL(PluginLogic, "OnPluginTestTimer log MaxFileSizeMB:%d 2", curLogCfg->LogCommon.MaxFileSizeMB);
+    
     if(!IsTestAddTas())
     {
         IsTestAddTas() = true;

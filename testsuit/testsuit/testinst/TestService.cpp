@@ -182,7 +182,6 @@ public:
 
 void TestService::Run(int argc, char const *argv[])
 {
-#ifdef ENABLE_TEST_SERVICE
     KERNEL_NS::SmartPtr<TestServiceApplication, KERNEL_NS::AutoDelMethods::CustomDelete> app = TestServiceApplication::New_TestServiceApplication();
     app.SetClosureDelegate([](void *ptr)
     {
@@ -192,5 +191,4 @@ void TestService::Run(int argc, char const *argv[])
     });
 
     SERVICE_COMMON_NS::ApplicationHelper::Start(app.AsSelf(), SERVICE_NS::ServiceFactory::New_ServiceFactory(), argc, argv, "./ini/service.yaml");
-#endif
 }

@@ -21,32 +21,22 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-01-01 22:02:30
+ * Date: 2026-09-09 11:57:25
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_SERVICE_COMMON_APPLICATION_APPLICATION_HELPER_H__
-#define __CRYSTAL_NET_SERVICE_COMMON_APPLICATION_APPLICATION_HELPER_H__
-
 #pragma once
 
-#include <service_common/common/macro.h>
-#include <kernel/comp/LibString.h>
-#include <kernel/comp/Delegate/LibDelegate.h>
-#include <service_common/common/KernelForService.h>
+#include <service_common/service/IServiceFactory.h>
 
-SERVICE_COMMON_BEGIN
-
-class Application;
-class IServiceFactory;
-
-class ApplicationHelper
+class ServiceFactory :public SERVICE_COMMON_NS::IServiceFactory
 {
+    POOL_CREATE_OBJ_DEFAULT_P1(IServiceFactory, ServiceFactory);
+
 public:
-    static Int32 Start(Application *app,  IServiceFactory *serviceFactory, int argc, char const *argv[], const KERNEL_NS::LibString &configPath, const KERNEL_NS::LibString &memoryIniConfig = KERNEL_NS::LibString(), KERNEL_NS::IDelegate<void> *signalInvoke = KERNEL_NS::DelegateFactory::Create(&KernelForService::DefaultOnSignalClose));
+    virtual SERVICE_COMMON_NS::IService *Create(const KERNEL_NS::LibString &serviceName) override;
+    virtual void Release() override;
+
+    static constexpr KERNEL_NS::_Build::TL _buildType{};
 };
-
-SERVICE_COMMON_END
-
-#endif

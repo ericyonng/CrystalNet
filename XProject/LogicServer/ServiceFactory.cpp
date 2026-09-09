@@ -21,32 +21,28 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-01-01 22:02:30
+ * Date: 2026-09-09 11:57:25
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_SERVICE_COMMON_APPLICATION_APPLICATION_HELPER_H__
-#define __CRYSTAL_NET_SERVICE_COMMON_APPLICATION_APPLICATION_HELPER_H__
+#include <pch.h>
+#include <LogicServer/ServiceFactory.h>
+#include <kernel/comp/Log/log.h>
 
-#pragma once
+// TODO: LogicService
 
-#include <service_common/common/macro.h>
-#include <kernel/comp/LibString.h>
-#include <kernel/comp/Delegate/LibDelegate.h>
-#include <service_common/common/KernelForService.h>
-
-SERVICE_COMMON_BEGIN
-
-class Application;
-class IServiceFactory;
-
-class ApplicationHelper
+SERVICE_COMMON_NS::IService *ServiceFactory::Create(const KERNEL_NS::LibString &serviceName)
 {
-public:
-    static Int32 Start(Application *app,  IServiceFactory *serviceFactory, int argc, char const *argv[], const KERNEL_NS::LibString &configPath, const KERNEL_NS::LibString &memoryIniConfig = KERNEL_NS::LibString(), KERNEL_NS::IDelegate<void> *signalInvoke = KERNEL_NS::DelegateFactory::Create(&KernelForService::DefaultOnSignalClose));
-};
+    // TODO:
+    if(serviceName == "LogicServer")
+        return MyTestService::NewByAdapter_MyTestService(_buildType.V);
+    
+    CLOG_ERROR("unknown service name:%s", serviceName.c_str());
+    return NULL;
+}
 
-SERVICE_COMMON_END
-
-#endif
+void ServiceFactory::Release()
+{
+    ServiceFactory::Delete_ServiceFactory(this);
+}
