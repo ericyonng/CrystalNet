@@ -30,7 +30,7 @@
 #include <kernel/comp/Timer/Timer.h>
 #include <service_common/KillMonitor/impl/KillMonitorMgr.h>
 #include <service_common/KillMonitor/impl/KillMonitorMgrFactory.h>
-
+#include <kernel/comp/Log/log.h>
 SERVICE_COMMON_BEGIN
 
 KillMonitorMgr::KillMonitorMgr()
@@ -92,7 +92,7 @@ Int32 KillMonitorMgr::_OnInit()
         }
     }
 
-    g_Log->Info(LOGFMT_OBJ_TAG("enableDetection:%d _detectionInterval:%lld ms will detect deadth file:%s, name without dir:%s")
+    CLOG_INFO("enableDetection:%d _detectionInterval:%lld ms will detect deadth file:%s, name without dir:%s"
         , _enableDetection, _detectionInterval.GetTotalMilliSeconds(), _deadthDetectionFile.c_str(), _detectionFileNameWithoutDir.c_str());
 
     return Status::Success;

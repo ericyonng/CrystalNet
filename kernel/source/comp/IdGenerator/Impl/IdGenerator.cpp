@@ -32,7 +32,7 @@
 #include <kernel/comp/Utils/RttiUtil.h>
 
 #include "kernel/comp/LibTraceId.h"
-#include "kernel/comp/Log/ILog.h"
+#include "kernel/comp/Log/log.h"
 
 KERNEL_BEGIN
 

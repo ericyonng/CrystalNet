@@ -29,17 +29,18 @@
 #include <OptionComp/storage/MongoDB/Impl/MongodbProxyFactory.h>
 #include <OptionComp/storage/MongoDB/Impl/MongodbProxy.h>
 
+#include "kernel/comp/memory/ObjPoolWrap.h"
+
 
 KERNEL_BEGIN
-
-KERNEL_NS::CompFactory *MongodbProxyFactory::FactoryCreate()
+    KERNEL_NS::CompFactory *MongodbProxyFactory::FactoryCreate()
 {
     return KERNEL_NS::ObjPoolWrap<MongodbProxyFactory>::NewByAdapter(_buildType.V);
 }
 
 void MongodbProxyFactory::Release()
 {
-    KERNEL_NS::ObjPoolWrap<MongodbProxyFactory>::DeleteByAdapter(_buildType.V, this);
+    ObjPoolWrap<MongodbProxyFactory>::DeleteByAdapter(_buildType.V, this);
 }
 
 KERNEL_NS::CompObject *MongodbProxyFactory::Create() const

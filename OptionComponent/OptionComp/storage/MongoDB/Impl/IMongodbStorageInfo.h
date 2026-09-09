@@ -35,9 +35,10 @@
 #include <OptionComp/storage/MongoDB/Impl/ShardKeyInfo.h>
 #include <OptionComp/storage/MongoDB/Impl/MongoIndexInfo.h>
 
-KERNEL_BEGIN
+#include "kernel/comp/LibStream.h"
 
-class MongodbIndexFieldValue
+KERNEL_BEGIN
+    class MongodbIndexFieldValue
 {
 public:
     enum ENUMS
@@ -95,7 +96,7 @@ public:
 
     // 设置持久化回调
     template<typename T>
-    void SetOnSaveCb(Int32 (T::*Cb)(Int64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const)
+    void SetOnSaveCb(Int32 (T::*Cb)(Int64 key, std::map<KERNEL_NS::LibString, LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const)
     {
         auto lambCb = [Cb](const KERNEL_NS::CompHostObject *host, Int64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) -> Int32
         {

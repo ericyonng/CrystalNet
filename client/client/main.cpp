@@ -29,6 +29,7 @@
 
 #include <pch.h>
 #include <client/client.h>
+#include <service_common/common/KernelForService.h>
 
 class LibTestLog : public KERNEL_NS::LibLog
 {
@@ -63,7 +64,7 @@ int main(int argc, char const *argv[])
     KERNEL_NS::LibString logIniPath;
     logIniPath = programPath + "/ini/";
     KERNEL_NS::SystemUtil::GetProgramPath(true, programPath);
-    Int32 err = KERNEL_NS::KernelUtil::Init(&logFactory, "Log.yaml", logIniPath.c_str(), NULL, KERNEL_NS::KernelFlags::DefaultFlags, true, params._fileSoftLimit, params._fileHardLimit);
+    Int32 err = SERVICE_COMMON_NS::KernelForService::Init(argc, argv, NULL, "/ini/", "Log.yaml");
     if(err != Status::Success)
     {
         CRYSTAL_TRACE("kernel init fail err:%d", err);

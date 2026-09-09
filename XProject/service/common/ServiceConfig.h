@@ -43,9 +43,6 @@
 
 SERVICE_BEGIN
 
-
-
-
 struct ServiceConfig
 {
     POOL_CREATE_OBJ_DEFAULT(ServiceConfig);

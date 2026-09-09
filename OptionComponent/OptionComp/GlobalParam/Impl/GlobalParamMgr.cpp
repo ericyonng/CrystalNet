@@ -32,9 +32,13 @@
 #include <kernel/comp/Utils/RttiUtil.h>
 #include <OptionComp/storage/MongoDB/Interface/IMongoDbMgr.h>
 
-KERNEL_BEGIN
+#include "kernel/comp/Log/log.h"
+#include <kernel/comp/Utils/StringUtil.h>
 
-GlobalParamMgr::GlobalParamMgr()
+#include "kernel/comp/Variant/Variant.h"
+
+KERNEL_BEGIN
+    GlobalParamMgr::GlobalParamMgr()
  :IGlobalParamMgr(RttiUtil::GetTypeId<GlobalParamMgr>())
  ,_db("GlobalParam")
  ,_collectionName("GlobalParamMgr")

@@ -61,13 +61,15 @@ SERVICE_COMMON_BEGIN
 
 std::atomic<UInt64> s_KernelFlags {0};
 
-Int32 KernelForService::Init(int argc, char const *argv[], KERNEL_NS::YamlMemory *yamlMemory, const char *yamlPartPath, const char *logFilaName, UInt64 flags, bool needSignalHandle, Int64 fileSoftLimit, Int64 fileHardLimit)
+Int32 KernelForService::Init(int argc, char const *argv[], KERNEL_NS::YamlMemory *yamlMemory, const char *yamlPartPath, const char *logFilaName, UInt64 flags, bool needSignalHandle)
 {
     // 1. 初始化
     KERNEL_NS::ParamsInfo params;
     KERNEL_NS::LibString errParamsInfo;
     KERNEL_NS::LibString sucParamsInfo;
-    Int32 paramNum = KERNEL_NS::ParamsHandler::GetParams(argc, argv, params, sucParamsInfo, errParamsInfo);
+    Int32 paramNum = 0;
+    if(argv)
+        paramNum = KERNEL_NS::ParamsHandler::GetParams(argc, argv, params, sucParamsInfo, errParamsInfo);
 
     LogFactory logFactory;
     KERNEL_NS::LibString programPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();
@@ -98,11 +100,16 @@ Int32 KernelForService::Init(int argc, char const *argv[], KERNEL_NS::YamlMemory
             return Status::Failed;
         }
 
-        err = KERNEL_NS::SystemUtil::SetProcessFileDescriptLimit(KERNEL_NS::LinuxRlimitId::E_RLIMIT_NOFILE, fileSoftLimit, fileHardLimit, limitErr);
+        if(params._fileSoftLimit < 0)
+            params._fileSoftLimit = 1024000;
+        if(params._fileHardLimit < 0)
+            params._fileHardLimit = 1024000;
+
+        err = KERNEL_NS::SystemUtil::SetProcessFileDescriptLimit(KERNEL_NS::LinuxRlimitId::E_RLIMIT_NOFILE, params._fileSoftLimit, params._fileHardLimit, limitErr);
         if(err != Status::Success)
         {
             CRYSTAL_TRACE("SetProcessFileDescriptLimit fail %d, %s, oldSoftLimit:%lld, oldHardLimit:%lld, will set soft limit:%lld, will set hard limit:%lld"
-                    , err, limitErr.c_str(), oldSoftLimit, oldHardLimit, fileSoftLimit, fileHardLimit);
+                    , err, limitErr.c_str(), oldSoftLimit, oldHardLimit, params._fileSoftLimit, params._fileHardLimit);
             return Status::Failed;
         }
 

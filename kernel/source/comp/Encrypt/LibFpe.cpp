@@ -52,7 +52,8 @@ void str2num(BIGNUM *Y, const unsigned int *X, unsigned long long radix, unsigne
 
     BN_set_word(Y, 0);
     BN_set_word(r, radix);
-    for (int i = 0; i < len; ++i) {
+    for (unsigned int i = 0; i < len; ++i)
+    {
         // Y = Y * radix + X[i]
         BN_set_word(x, X[i]);
         BN_mul(Y, Y, r, ctx);

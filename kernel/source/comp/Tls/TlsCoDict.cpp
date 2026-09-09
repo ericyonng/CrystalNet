@@ -30,6 +30,7 @@
 #include <kernel/comp/Coroutines/CoHandle.h>
 
 #include "kernel/comp/Log/ILog.h"
+#include <kernel/comp/Log/GlobalLog.h>
 
 KERNEL_BEGIN
 TlsCoDict::TlsCoDict()

@@ -28,11 +28,12 @@
 #include <OptionComp/Command/Impl/CommandMgrFactory.h>
 #include <OptionComp/Command/Impl/CommandMgr.h>
 
-KERNEL_BEGIN
+#include "kernel/comp/memory/ObjPoolWrap.h"
 
-CompFactory* CommandMgrFactory::FactoryCreate()
+KERNEL_BEGIN
+    CompFactory* CommandMgrFactory::FactoryCreate()
 {
-    return KERNEL_NS::ObjPoolWrap<CommandMgrFactory>::NewByAdapter(_buildType.V);
+    return ObjPoolWrap<CommandMgrFactory>::NewByAdapter(_buildType.V);
 }
 
 void CommandMgrFactory::Release()

@@ -30,7 +30,12 @@
 #include <service_common/LibraryHotfixMonitor/Impl/LibraryHotfixMonitorFactory.h>
 #include <kernel/comp/Timer/Timer.h>
 
+#include "kernel/comp/Utils/StringUtil.h"
 #include "service_common/LibraryHotfixMonitor/Impl/HotFixDefine.h"
+#include <kernel/comp/Log/log.h>
+
+#include "kernel/comp/ShareLibraryLoader/ShareLibraryLoaderFactory.h"
+#include "kernel/comp/ShareLibraryLoader/ShareLibraryLoader.h"
 
 namespace 
 {

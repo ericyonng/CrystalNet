@@ -32,10 +32,13 @@
 #include <kernel/comp/Utils/FileUtil.h>
 #include <kernel/comp/Utils/DirectoryUtil.h>
 
+#include "kernel/comp/Utils/StringUtil.h"
+#include <kernel/comp/Log/log.h>
+
+#include "kernel/comp/Utils/Defs/FindFileInfo.h"
+
 KERNEL_BEGIN
-
-
-CodeAnalyzeMgr::CodeAnalyzeMgr()
+    CodeAnalyzeMgr::CodeAnalyzeMgr()
 :ICodeAnalyzeMgr(KERNEL_NS::RttiUtil::GetTypeId<CodeAnalyzeMgr>())
 {
 

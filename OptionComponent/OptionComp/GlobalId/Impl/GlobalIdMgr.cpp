@@ -38,9 +38,17 @@
 #include <kernel/comp/Poller/Poller.h>
 #include <bsoncxx/builder/basic/array.hpp>
 
-KERNEL_BEGIN
+#include "kernel/comp/ObjLife.h"
+#include "kernel/comp/Utils/StringUtil.h"
+#include <kernel/common/statics.h>
+#include <kernel/comp/thread/thread.h>
 
-const LibString GlobalIdMgr::ParamCollectionFieldName = "CurMachineId";
+#include "kernel/comp/Coroutines/Runner.h"
+#include "kernel/comp/Utils/GuidUtil.h"
+#include <3rd/3rd.h>
+
+KERNEL_BEGIN
+    const LibString GlobalIdMgr::ParamCollectionFieldName = "CurMachineId";
 const LibString GlobalIdMgr::ParamCollectionKeyValue = "GlobalIdMachineId";
 
 const LibString GlobalIdMgr::GlobalIdKeyName = "MachineId";
@@ -195,7 +203,7 @@ Int32 GlobalIdMgr::_OnAfterCompsInit()
     }
 
     std::atomic<Int32> lifeCount{0};
-    KERNEL_NS::ObjLife<std::atomic<Int32>> isFinished(lifeCount);
+    ObjLife<std::atomic<Int32>> isFinished(lifeCount);
 
     // 注册机器id
     g_EventLoopEasyTaskThreadPool->Send([this, isFinished]()

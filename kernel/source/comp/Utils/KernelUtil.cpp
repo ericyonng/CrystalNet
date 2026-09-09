@@ -248,8 +248,8 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     auto nowFastTime = KERNEL_NS::TimeUtil::GetFastNanoTimestamp();
     const auto &slice = KERNEL_NS::TimeSlice::FromNanoSeconds(std::abs(nowFastTime - nowTimeBySystem));
     
-    CLOG_SYS_GLOBAL(KernelUtil, "kernel inited root path:%s, old file soft limit:%lld, old file hard limit:%lld, new file soft limit:%lld, new file hard limit:%lld system time nanostamp:%lld, fast time nanostamp:%lld diff:%s, IsSurpportRdtscp:%d, TscFreq:%llu, IsInVariantTsc:%d"
-                , rootDir.c_str(), oldSoftLimit, oldHardLimit, fileSoftLimit, fileHardLimit, nowTimeBySystem, nowFastTime, slice.ToString().c_str()
+    CLOG_SYS_GLOBAL(KernelUtil, "kernel inited root path:%s, system time nanostamp:%lld, fast time nanostamp:%lld diff:%s, IsSurpportRdtscp:%d, TscFreq:%llu, IsInVariantTsc:%d"
+                , rootDir.c_str(), nowTimeBySystem, nowFastTime, slice.ToString().c_str()
                 , IsSurportRdtscp, KERNEL_NS::CrystalGetCpuCounterFrequancy(), IsCurrentEnvSupportInvariantRdtsc());
 
     return Status::Success;

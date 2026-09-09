@@ -39,9 +39,14 @@
 #include <kernel/comp/Timer/LibTimer.h>
 #include <kernel/comp/Utils/StringUtil.h>
 
-KERNEL_BEGIN
+#include "kernel/comp/Utils/FileUtil.h"
+#include <kernel/comp/Utils/Defs/FindFileInfo.h>
 
-CommandThreadContainer::~CommandThreadContainer()
+#include "kernel/comp/Coroutines/CoDelay.h"
+#include "kernel/comp/Coroutines/Runner.h"
+
+KERNEL_BEGIN
+    CommandThreadContainer::~CommandThreadContainer()
 {
     if(!IsNoRelease)
     {

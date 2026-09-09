@@ -39,6 +39,8 @@
 #include <kernel/comp/ObjLife.h>
 #include <OptionComp/storage/MongoDB/Impl/MongoHelper.h>
 
+#include "kernel/comp/Lock/Impl/CoLocker.h"
+
 
 namespace 
 {

@@ -30,6 +30,8 @@
 #include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/Utils/ContainerUtil.h>
+#include <kernel/common/status.h>
+#include <kernel/comp/Utils/StringUtil.h>
 
 #include <vector>
 

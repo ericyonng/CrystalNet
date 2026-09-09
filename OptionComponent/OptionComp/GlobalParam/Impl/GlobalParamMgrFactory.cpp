@@ -30,11 +30,13 @@
 #include <OptionComp/GlobalParam/Impl/GlobalParamMgrFactory.h>
 #include <OptionComp/GlobalParam/Impl/GlobalParamMgr.h>
 
+#include "kernel/comp/memory/ObjPoolWrap.h"
+
 KERNEL_BEGIN
 
 KERNEL_NS::CompFactory *GlobalParamMgrFactory::FactoryCreate()
 {
- return KERNEL_NS::ObjPoolWrap<GlobalParamMgrFactory>::NewByAdapter(_buildType.V);
+ return ObjPoolWrap<GlobalParamMgrFactory>::NewByAdapter(_buildType.V);
 }
 
 void GlobalParamMgrFactory::Release()

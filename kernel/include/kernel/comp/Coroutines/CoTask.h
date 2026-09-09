@@ -62,6 +62,7 @@
 
 #include "kernel/comp/LibTraceId.h"
 #include <kernel/common/func.h>
+#include <kernel/common/status.h>
 
 #ifdef CRYSTAL_NET_CPP20
 

@@ -34,7 +34,6 @@
 #include <service/common/BaseComps/LogicSys/Impl/ILogicSys.h>
 #include <service/common/BaseComps/Event/Defs/EventEnums.h>
 #include <service/common/BaseComps/ServiceCompType.h>
-#include <service/common/BaseComps/Storage/storage.h>
 
 SERVICE_BEGIN
 

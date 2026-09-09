@@ -29,14 +29,12 @@
 #include <pch.h>
 #include <LogicServer/ServiceFactory.h>
 #include <kernel/comp/Log/log.h>
-
-// TODO: LogicService
+#include <service/LogicService/LogicServiceFactory.h>
 
 SERVICE_COMMON_NS::IService *ServiceFactory::Create(const KERNEL_NS::LibString &serviceName)
 {
-    // TODO:
     if(serviceName == "LogicServer")
-        return MyTestService::NewByAdapter_MyTestService(_buildType.V);
+        return SERVICE_NS::LogicServiceFactory::Create();
     
     CLOG_ERROR("unknown service name:%s", serviceName.c_str());
     return NULL;

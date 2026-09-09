@@ -32,8 +32,6 @@
 #include <service/common/BaseComps/ServiceCompType.h>
 #include <service/common/BaseComps/SessionMgrComp/SessionMgr.h>
 #include <service/common/BaseComps/GlobalSys/GlobalSys.h>
-#include <service/common/BaseComps/Storage/storage.h>
-#include <service/common/BaseComps/GlobalUid/globaluid.h>
 #include <service/common/BaseComps/StubHandle/StubHandle.h>
 #include <service/common/BaseComps/SysLogic/SysLogic.h>
 

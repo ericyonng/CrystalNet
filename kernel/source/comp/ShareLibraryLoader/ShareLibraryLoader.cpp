@@ -29,6 +29,7 @@
 #include <kernel/comp/ShareLibraryLoader/ShareLibraryLoaderFactory.h>
 
 #include "kernel/comp/Log/ILog.h"
+#include <kernel/comp/Log/GlobalLog.h>
 #include "kernel/comp/Utils/FileUtil.h"
 
 #if CRYSTAL_TARGET_PLATFORM_LINUX

@@ -82,7 +82,7 @@ public:
 class KernelForService
 {
 public:
-    static Int32 Init(int argc, char const *argv[], KERNEL_NS::YamlMemory *yamlMemory = NULL, const char *yamlPartPath = "/Yaml/", const char *logFilaName = "Log.yaml", UInt64 flags = KernelFlags::DefaultFlags, bool needSignalHandle = true, Int64 fileSoftLimit = 1024000, Int64 fileHardLimit = 1024000);
+    static Int32 Init(int argc, char const *argv[], KERNEL_NS::YamlMemory *yamlMemory = NULL, const char *yamlPartPath = "/Yaml/", const char *logFilaName = "Log.yaml", UInt64 flags = KernelFlags::DefaultFlags, bool needSignalHandle = true);
     static void Start();
 
     static void Destroy();

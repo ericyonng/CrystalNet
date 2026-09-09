@@ -32,6 +32,7 @@
 #pragma once
 
 #include <kernel/comp/CompObject/CompHostObject.h>
+#include <kernel/comp/Coroutines/CoTask.h>
 
 KERNEL_BEGIN
 

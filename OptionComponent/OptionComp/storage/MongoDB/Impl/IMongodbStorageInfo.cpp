@@ -27,9 +27,11 @@
 #include <OptionComp/storage/MongoDB/Impl/IMongodbStorageInfo.h>
 #include <kernel/comp/Utils/RttiUtil.h>
 
-KERNEL_BEGIN
+#include "kernel/comp/Utils/StringUtil.h"
+#include <kernel/comp/Log/log.h>
 
-IMongodbStorageInfo::IMongodbStorageInfo(UInt64 objTypeId, const KERNEL_NS::LibString &rttiObjName, const UInt64 systemTypeId)
+KERNEL_BEGIN
+    IMongodbStorageInfo::IMongodbStorageInfo(UInt64 objTypeId, const KERNEL_NS::LibString &rttiObjName, const UInt64 systemTypeId)
     :CompHostObject(objTypeId)
     ,_systemName(KERNEL_NS::StringUtil::RemoveNameSpace(rttiObjName))
     ,_systemTypeId(systemTypeId)

@@ -33,10 +33,11 @@
 #include <kernel/comp/Coder/base64.h>
 #include <string_view>
 
+#include "kernel/comp/Log/log.h"
+
 
 KERNEL_BEGIN
-
-bool MongoDataSerialize::AppendSerialize(bsoncxx::builder::basic::document& doc, const KERNEL_NS::LibString &keyName, const MongoSerializeInfo& data)
+    bool MongoDataSerialize::AppendSerialize(bsoncxx::builder::basic::document& doc, const KERNEL_NS::LibString &keyName, const MongoSerializeInfo& data)
 {
     switch (data.DataType)
     {

@@ -30,9 +30,10 @@
 #include <OptionComponent/OptionComp/GlobalId/Impl/GlobalIdMgrFactory.h>
 #include <OptionComponent/OptionComp/GlobalId/Impl/GlobalIdMgr.h>
 
-KERNEL_BEGIN
+#include "kernel/comp/memory/ObjPoolWrap.h"
 
-CompFactory *GlobalIdMgrFactory::FactoryCreate()
+KERNEL_BEGIN
+    CompFactory *GlobalIdMgrFactory::FactoryCreate()
 {
     return KERNEL_NS::ObjPoolWrap<GlobalIdMgrFactory>::NewByAdapter(_buildType.V);
 }

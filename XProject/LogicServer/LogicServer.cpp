@@ -34,15 +34,7 @@
 #include <service_common/common/KernelForService.h>
 #include <LogicServer/LogicServerApp.h>
 #include <LogicServer/ServiceFactory.h>
-
-class LogFactory : public KERNEL_NS::ILogFactory
-{
-public:
-    virtual KERNEL_NS::ILog *Create()
-    {
-        return new KERNEL_NS::LibLog();
-    }
-};
+#include <service_common/application/ApplicationHelper.h>
 
 LogicServer::LogicServer()
 {

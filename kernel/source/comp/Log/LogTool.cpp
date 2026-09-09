@@ -29,6 +29,7 @@
 #include <pch.h>
 #include <kernel/comp/Log/LogTool.h>
 #include <kernel/comp/Log/ILog.h>
+#include <kernel/comp/Log/GlobalLog.h>
 #include <kernel/common/statics.h>
 
 KERNEL_BEGIN

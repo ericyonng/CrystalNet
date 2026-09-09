@@ -88,7 +88,7 @@ LogCfg:
       # 日志等级id
       LevelId: 1
       # 是否实时输出
-      EnableRealTime: 0
+      EnableRealTime: 1
       # 是否打印堆栈
       PRINT_STACK_TRACE_BACK: 0
       # 是否落盘

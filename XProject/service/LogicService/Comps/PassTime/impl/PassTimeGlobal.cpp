@@ -1,0 +1,226 @@
+/*!
+ *  MIT License
+ *  
+ *  Copyright (c) 2020 ericyonng<120453674@qq.com>
+ *  
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *  
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *  
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ * 
+ * Date: 2023-09-17 19:55:11
+ * Author: Eric Yonng
+ * Description: 
+*/
+
+#include <pch.h>
+#include <kernel/kernel.h>
+#include <service_common/ServiceCommon.h>
+#include <service/common/common.h>
+#include <service/TestService/Common/ServiceCommon.h>
+
+#include <Comps/PassTime/impl/PassTimeGlobal.h>
+#include <Comps/PassTime/impl/PassTimeGlobalFactory.h>
+#include <Comps/PassTime/impl/PassTimeGlobalStorageFactory.h>
+#include <Comps/config/config.h>
+#include <Comps/PassTime/impl/PassTimeGlobalMongoFactory.h>
+#include <OptionComp/storage/MongoDB/MongoDBComp.h>
+#include <Comps/PassTime/impl/PassTimeGlobalMongo.h>
+
+#include "MyTestService.h"
+#include <OptionComp/storage/MongoDB/Interface/IMongodbProxy.h>
+#include <protocols/orm_out/PassTimeDataOrmData.h>
+
+SERVICE_BEGIN
+    PassTimeGlobal::PassTimeGlobal()
+:IPassTimeGlobal(KERNEL_NS::RttiUtil::GetTypeId<PassTimeGlobal>())
+,_key(1000)
+,_passTimeData(NULL)
+,_timer(KERNEL_NS::LibTimer::NewThreadLocal_LibTimer())
+{
+    _timer->SetTimeOutHandler(this, &PassTimeGlobal::_OnZeroTimeOut);
+}
+
+PassTimeGlobal::~PassTimeGlobal()
+{
+    _Clear();
+}
+
+void PassTimeGlobal::Release()
+{
+    PassTimeGlobal::DeleteByAdapter_PassTimeGlobal(PassTimeGlobalFactory::_buildType.V, this);
+}
+
+void PassTimeGlobal::OnRegisterComps()
+{
+    RegisterComp<PassTimeGlobalMongoFactory>();
+}
+
+Int32 PassTimeGlobal::OnLoaded(UInt64 key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db)
+{
+    KERNEL_NS::LibString data;
+    const auto len = static_cast<size_t>(db.GetReadableSize());
+    if(!_passTimeData->FromJsonString(db.GetReadBegin(), len))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("parse pass time data fail key:%llu"), key);
+        return Status::ParseFail;
+    }
+
+    return Status::Success;
+}
+
+Int32 PassTimeGlobal::OnSave(Int64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const
+{
+    if(_key != key)
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("bad key:%llu, _key:%llu"), key, _key);
+        return Status::SerializeFail;
+    }
+
+    KERNEL_NS::LibString data;
+    if(!_passTimeData->ToJsonString(&(data.GetRaw())))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("parse pass time data serialize fail key:%llu"), key);
+        return Status::SerializeFail;
+    }
+
+    db.Write(data.data(), static_cast<Int64>(data.length()));
+    return Status::Success;
+}
+
+KERNEL_NS::CoTask<> PassTimeGlobal::CheckPassTime()
+{
+    // 判断有没数据
+    if (!_passTimeData)
+    {
+        auto mongodbProxy = GetService()->GetComp<KERNEL_NS::IMongodbProxy>();
+        auto storageOption = GetService()->CastTo<SERVICE_NS::MyTestService>()->GetStorageOption();
+
+        _passTimeData = SERVICE_COMMON_NS::PassTimeDataOrmData::NewThreadLocal_PassTimeDataOrmData();
+        _passTimeData->SetMaskDirtyCallback([this](SERVICE_COMMON_NS::IOrmData *)
+        {
+            MaskNumberKeyModifyDirty(_key);
+        });
+
+        KERNEL_NS::SmartMongoSerializeInfoWrapper wrapper;
+        auto ret = co_await mongodbProxy->Query(this, _key, wrapper.Ptr.AsSelf());
+        if (!ret)
+        {
+            // 有可能第一次
+            CLOG_WARN("Query pass time data fail key:%lld", _key);
+            _passTimeData->set_lastpassdaytime(KERNEL_NS::LibTime::NowMilliTimestamp());
+        }
+        else
+        {
+            auto iter = wrapper.Ptr->find(PassTimeGlobalMongo::ValueName);
+            if (iter == wrapper.Ptr->end())
+            {
+                CLOG_ERROR("Query pass time data fail key:%lld", _key);
+                co_return;
+            }
+
+            auto &info = iter->second;
+            if (!_passTimeData->FromJsonString(info._stream->GetReadBegin(),  static_cast<size_t>(info._stream->GetReadableSize())))
+            {
+                CLOG_ERROR("Query FromJsonString fail fail key:%lld", _key);
+                co_return;
+            }
+        }
+    }
+    const auto &nowTime = KERNEL_NS::LibTime::Now();
+    _DoCheckPassTime(nowTime);
+
+    // 调整时间
+    const auto &sliceToNextZeroTime = nowTime.GetIntervalTo(KERNEL_NS::TimeSlice(0));
+    _timer->Schedule(sliceToNextZeroTime);
+}
+
+void PassTimeGlobal::_OnZeroTimeOut(KERNEL_NS::LibTimer *t)
+{
+    const auto &nowTime = KERNEL_NS::LibTime::Now();
+    _DoCheckPassTime(nowTime);
+
+    // 调整时间
+    const auto &sliceToNextZeroTime = nowTime.GetIntervalTo(KERNEL_NS::TimeSlice(0));
+    _timer->Schedule(sliceToNextZeroTime);
+}
+
+void PassTimeGlobal::_DoCheckPassTime(const KERNEL_NS::LibTime &nowTime)
+{
+    const auto &lastPassDayTime = KERNEL_NS::LibTime::FromMilliSeconds(_passTimeData->lastpassdaytime());
+    auto &allLogicComps = GetService()->GetCompsByType(ServiceCompType::LOGIC_SYS);
+    
+    // 跨天
+    auto localYear = nowTime.GetLocalYear();
+    auto localMonth = nowTime.GetLocalMonth();
+    auto localDay = nowTime.GetLocalDay();
+    auto lastLocalYear = lastPassDayTime.GetLocalYear();
+    auto lastLocalMonth = lastPassDayTime.GetLocalMonth();
+    auto lastLocalDay = lastPassDayTime.GetLocalDay();
+    if((lastLocalYear != localYear) || 
+    (lastLocalMonth != localMonth) || 
+    (lastLocalDay != localDay))
+    {
+        for(auto &comp : allLogicComps)
+            comp->CastTo<ILogicSys>()->OnPassDay(nowTime);
+
+        // 跨周
+        const auto firstDayOfWeekConfig = GetGlobalSys<ConfigLoaderProxy>()->GetConfigLoader()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::FIRST_DAY_OF_WEEK);
+        if(nowTime.GetLocalDayOfWeek() == firstDayOfWeekConfig->_value)
+        {
+            for(auto &comp : allLogicComps)
+                comp->CastTo<ILogicSys>()->OnPassWeek(nowTime);
+        }
+
+        // 跨月
+        if((lastLocalYear != localYear) || 
+            (lastLocalMonth != localMonth))
+        {
+            for(auto &comp : allLogicComps)
+                comp->CastTo<ILogicSys>()->OnPassMonth(nowTime);
+        }
+
+        // 跨年
+        if(lastLocalYear != localYear)
+        {
+            for(auto &comp : allLogicComps)
+                comp->CastTo<ILogicSys>()->OnPassYear(nowTime);
+        }
+
+        // 结束
+        for(auto &comp : allLogicComps)
+            comp->CastTo<ILogicSys>()->OnPassTimeEnd(nowTime);
+
+        _passTimeData->set_lastpassdaytime(nowTime.GetMilliTimestamp());
+
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+            g_Log->Info(LOGFMT_OBJ_TAG("system pass day."));
+    }
+}
+
+void PassTimeGlobal::_Clear()
+{
+    CRYSTAL_RELEASE_SAFE(_passTimeData);
+    if(_timer)
+    {
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(_timer);
+        _timer = NULL;
+    }
+}
+
+
+
+SERVICE_END

@@ -29,9 +29,10 @@
 #include <pch.h>
 #include <service_common/LibraryHotfixMonitor/Impl/HotFixDefine.h>
 
-SERVICE_COMMON_BEGIN
+#include "kernel/comp/ShareLibraryLoader/ShareLibraryLoader.h"
 
-KERNEL_NS::LibString HotFixCommonParam::ToString() const
+SERVICE_COMMON_BEGIN
+    KERNEL_NS::LibString HotFixCommonParam::ToString() const
 {
   return KERNEL_NS::LibString().AppendFormat("_shareLib:%p,%s, hotfixKey:%s"
       , _shareLib.AsSelf(), (_shareLib ? _shareLib->ToString().c_str() : ""), _hotfixKey.c_str());

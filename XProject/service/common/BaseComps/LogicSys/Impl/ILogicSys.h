@@ -174,14 +174,6 @@ public:
    virtual Int32 OnSave(const KERNEL_NS::LibString &key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const;
    // sysRefdb:key:fieldName, tuple:data type, data
    virtual Int32 OnSave(const KERNEL_NS::LibString &key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const;
-  /*
-  * 数据库操作id 从MysqlMgr/或者其他数据库管理获取operatorId
-  */
- void SetStorageOperatorId(Int32 oid);
- Int32 GetStorageOperatorId() const;
-
- IStorageInfo *GetStorageInfo();
- const IStorageInfo *GetStorageInfo() const;
 
   /*
   * 标脏
@@ -342,8 +334,6 @@ protected:
     KERNEL_NS::ListenerStub _quitServiceEventDefaltStub;
 
     std::unordered_map<UInt64, UInt64> _flags;
-    Int32 _storageOperatorId;
-    IStorageInfo *_storage;
 };
 
 ALWAYS_INLINE SERVICE_COMMON_NS::IService *ILogicSys::GetService()
@@ -421,26 +411,6 @@ ALWAYS_INLINE void ILogicSys::FocusMethod(Int32 methodEnum)
 ALWAYS_INLINE bool ILogicSys::IsMethodFocus(Int32 methodEnum) const
 {
     return _intrestMethods.find(methodEnum) != _intrestMethods.end();
-}
-
-ALWAYS_INLINE void ILogicSys::SetStorageOperatorId(Int32 oid)
-{
-    _storageOperatorId = oid;
-}
-
-ALWAYS_INLINE Int32 ILogicSys::GetStorageOperatorId() const
-{
-    return _storageOperatorId;
-}
-
-ALWAYS_INLINE IStorageInfo *ILogicSys::GetStorageInfo()
-{
-    return _storage;
-}
-
-ALWAYS_INLINE const IStorageInfo *ILogicSys::GetStorageInfo() const
-{
-    return _storage;
 }
 
 ALWAYS_INLINE const std::unordered_map<UInt64, UInt64> &ILogicSys::GetFlags() const

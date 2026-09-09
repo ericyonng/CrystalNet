@@ -34,6 +34,8 @@
 #include <kernel/comp/Timer/LibTimer.h>
 #include <kernel/comp/Event/EventManager.h>
 
+#include "kernel/comp/FileMonitor/YamlDeserializer.h"
+
 namespace 
 {
     static ALWAYS_INLINE KERNEL_NS::LibString DictContainerToString(const std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> &kv)

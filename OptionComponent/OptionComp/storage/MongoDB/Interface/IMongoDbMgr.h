@@ -39,9 +39,13 @@
 #include <OptionComp/storage/MongoDB/Impl/MongodbConfig.h>
 #include <kernel/comp/FileMonitor/FileMonitor.h>
 #include <kernel/comp/ConcurrentPriorityQueue/MPMCQueue.h>
+#include <kernel/comp/Coroutines/CoTask.h>
+
+#include "kernel/comp/FileMonitor/YamlDeserializer.h"
 
 
 KERNEL_BEGIN
+    class CoLocker;
 
 struct SourceWrap;
 

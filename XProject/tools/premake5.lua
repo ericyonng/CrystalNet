@@ -16,6 +16,8 @@ print('_ARGS:', _ARGS[1], _ARGS[2], _ARGS[3], ', ISUSE_CLANG:', ISUSE_CLANG)
 ROOT_DIR = "../../"
 WIN_ROOT_DIR = ".\\..\\..\\"
 XPROJ_PATH = ROOT_DIR .. "XProject/"
+-- header directory
+KERNEL_HEADER_DIR = ROOT_DIR .. "kernel/kernel_pch/"
 
 OUTPUT_NAME = "build_x"
 -- All libraries output directory
@@ -45,9 +47,6 @@ ENABLE_PRECOMPILE_HEADER = 1
 
 -- 公共方法
 dofile(ROOT_DIR .. "/tools/premake/common.lua")
-
--- kernel模块
-dofile(ROOT_DIR .. "/tools/premake/kernel_premake5.lua")
 
 -----------------------------------------------------------------------------------------------------------
 
@@ -125,7 +124,8 @@ workspace ("CrystalNet_" .. _ACTION)
 
 -- ****************************************************************************
 
-
+-- kernel模块
+dofile(ROOT_DIR .. "/tools/premake/kernel_premake5.lua")
 
 -- ****************************************************************************
 
@@ -173,6 +173,7 @@ project "LogicPlugin"
 	
 	includedirs {
 	    ROOT_DIR,
+	    XPROJ_PATH,
 		ROOT_DIR .. "kernel/include/",
 		ROOT_DIR .. "OptionComponent/",
 		XPROJ_PATH .. "protocols/cplusplus/",
@@ -287,10 +288,11 @@ project "LogicServer"
     -- 导入内核接口 宏定义
 	defines {"CRYSTAL_NET_CPP20", "CRYSTAL_NET_IMPORT_KERNEL_LIB"}
 
-	enable_precompileheader("pch.h", ROOT_DIR .. "LogicServer/LogicServer_pch/pch.cpp")
+	enable_precompileheader("pch.h", XPROJ_PATH .. "LogicServer/LogicServer_pch/pch.cpp")
 
 	includedirs {
 	    ROOT_DIR,
+	    XPROJ_PATH,
 		ROOT_DIR .. "kernel/include/",
 		XPROJ_PATH .. "LogicServer/",
 		XPROJ_PATH .. "LogicServer/LogicServer_pch/",
@@ -329,8 +331,18 @@ project "LogicServer"
         XPROJ_PATH .. "LogicServer/**.cpp",
         XPROJ_PATH .. "LogicServer/**.lua",
         XPROJ_PATH .. "LogicServer/**.cppm",
-        ROOT_DIR .. "OptionComponent/OptionComp/**.h",
-        ROOT_DIR .. "OptionComponent/OptionComp/**.cpp",
+        ROOT_DIR .. "OptionComponent/OptionComp/BehaviorTree/**.h",
+        ROOT_DIR .. "OptionComponent/OptionComp/BehaviorTree/**.cpp",
+        ROOT_DIR .. "OptionComponent/OptionComp/CodeAnalyze/**.h",
+        ROOT_DIR .. "OptionComponent/OptionComp/CodeAnalyze/**.cpp",
+        ROOT_DIR .. "OptionComponent/OptionComp/Command/**.h",
+        ROOT_DIR .. "OptionComponent/OptionComp/Command/**.cpp",
+        ROOT_DIR .. "OptionComponent/OptionComp/GlobalId/**.h",
+        ROOT_DIR .. "OptionComponent/OptionComp/GlobalId/**.cpp",
+        ROOT_DIR .. "OptionComponent/OptionComp/GlobalParam/**.h",
+        ROOT_DIR .. "OptionComponent/OptionComp/GlobalParam/**.cpp",
+        ROOT_DIR .. "OptionComponent/OptionComp/storage/MongoDB/**.h",
+        ROOT_DIR .. "OptionComponent/OptionComp/storage/MongoDB/**.cpp",
         XPROJ_PATH .. "Yaml/**.yaml",
     }
 

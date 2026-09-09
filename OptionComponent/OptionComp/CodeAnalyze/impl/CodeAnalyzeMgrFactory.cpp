@@ -29,6 +29,7 @@
 #include <pch.h>
 #include <OptionComp/CodeAnalyze/impl/CodeAnalyzeMgrFactory.h>
 #include <OptionComp/CodeAnalyze/impl/CodeAnalyzeMgr.h>
+#include <kernel/comp/memory/ObjPoolWrap.h>
 
 KERNEL_BEGIN
 KERNEL_NS::CompFactory *CodeAnalyzeMgrFactory::FactoryCreate()

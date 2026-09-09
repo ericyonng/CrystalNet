@@ -40,6 +40,7 @@
 #include <optional>
 #include <kernel/comp/Coroutines/CoTaskParam.h>
 #include <kernel/comp/SmartPtr.h>
+#include <kernel/common/status.h>
 
 KERNEL_BEGIN
 

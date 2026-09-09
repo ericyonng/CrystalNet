@@ -30,6 +30,7 @@
 #include <pch.h>
 #include <file_tool/FileTool.h>
 #include <file_tool/Ini.h>
+#include <service_common/common/KernelForService.h>
 
 class LibTestLog : public KERNEL_NS::LibLog
 {
@@ -61,7 +62,7 @@ int main(int argc, char const *argv[])
     logIniPath = programPath + "/ini/";
     KERNEL_NS::SystemUtil::GetProgramPath(true, programPath);
     g_YamlMemory = KERNEL_NS::YamlMemory::From(s_LogYamlContent);
-    Int32 err = KERNEL_NS::KernelUtil::Init(&logFactory, "Log.yaml", logIniPath.c_str(), g_YamlMemory);
+    Int32 err = SERVICE_COMMON_NS::KernelForService::Init(argc, argv, g_YamlMemory);
     if(err != Status::Success)
     {
         CRYSTAL_TRACE("kernel init fail err:%d", err);

@@ -37,7 +37,6 @@
 
 KERNEL_BEGIN
 
-class ILog;
 class MemoryPool;
 class LibEventLoopThreadPool;
 
@@ -49,8 +48,6 @@ public:
 
 KERNEL_END
 
-// 底层默认认为g_Log已经在上层初始化过,所以可以安全使用
-extern KERNEL_EXPORT KERNEL_NS::ILog *g_Log;
 extern KERNEL_EXPORT KERNEL_NS::MemoryPool *g_MemoryPool;
 // 给重度业务使用, 比如读写文件, 文件监控等
 extern KERNEL_EXPORT KERNEL_NS::LibEventLoopThreadPool *g_EventLoopHeavyTaskThreadPool;

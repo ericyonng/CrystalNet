@@ -33,6 +33,7 @@
 
 #include <kernel/comp/Log/ILogFactory.h>
 #include <kernel/comp/Log/ILog.h>
+#include <kernel/comp/Log/GlobalLog.h>
 #include <kernel/comp/Log/LibLog.h>
 #include <kernel/comp/Log/LogTool.h>
 #include <kernel/comp/Log/LogCfg.h>

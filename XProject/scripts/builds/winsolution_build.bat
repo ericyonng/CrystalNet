@@ -2,9 +2,9 @@
 
 Rem Generate visual studio project files
 
-SET CUR_PATH="%~dp0"
-SET ROOT_PATH="%CUR_PATH%..\..\..\"
-SET XPROJ_PATH="%CUR_PATH%..\..\"
+SET CUR_PATH=%~dp0
+SET ROOT_PATH=%CUR_PATH%..\..\..\
+SET XPROJ_PATH=%CUR_PATH%..\..\
 
 echo ROOT PATH:%ROOT_PATH%
 echo XPROJ_PATH:%XPROJ_PATH%

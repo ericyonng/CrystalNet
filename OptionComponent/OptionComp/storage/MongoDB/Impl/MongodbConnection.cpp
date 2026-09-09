@@ -37,7 +37,9 @@
 #include "MongoHelper.h"
 #include "mongocxx/exception/operation_exception.hpp"
 #include "mongocxx/exception/write_exception.hpp"
-#include "testsuit/testinst/TestMongo.h"
+#include <kernel/comp/Log/log.h>
+
+#include "kernel/comp/Coroutines/CoDelay.h"
 
 
 KERNEL_BEGIN
