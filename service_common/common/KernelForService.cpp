@@ -42,8 +42,10 @@
 #include <kernel/comp/Utils/SignalHandleUtil.h>
 #include <curl/curl.h>
 #include <kernel/common/rdtsc.h>
-
 #include "kernel/comp/Utils/BitUtil.h"
+#include <kernel/comp/params/params_info.h>
+
+#include "kernel/comp/params/params_handler.h"
 
 namespace
 {
@@ -128,7 +130,7 @@ Int32 KernelForService::Init(int argc, char const *argv[], KERNEL_NS::YamlMemory
             auto err = KERNEL_NS::SignalHandleUtil::Init();
             if(err != Status::Success)
             {
-                CRYSTAL_TRACE("signal handle util fail err:%d"), err);
+                CRYSTAL_TRACE("signal handle util fail err:%d", err);
                 return err;
             }
         }

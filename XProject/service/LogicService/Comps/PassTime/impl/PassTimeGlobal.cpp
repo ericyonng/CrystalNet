@@ -30,19 +30,18 @@
 #include <kernel/kernel.h>
 #include <service_common/ServiceCommon.h>
 #include <service/common/common.h>
-#include <service/TestService/Common/ServiceCommon.h>
 
 #include <Comps/PassTime/impl/PassTimeGlobal.h>
 #include <Comps/PassTime/impl/PassTimeGlobalFactory.h>
-#include <Comps/PassTime/impl/PassTimeGlobalStorageFactory.h>
 #include <Comps/config/config.h>
 #include <Comps/PassTime/impl/PassTimeGlobalMongoFactory.h>
 #include <OptionComp/storage/MongoDB/MongoDBComp.h>
 #include <Comps/PassTime/impl/PassTimeGlobalMongo.h>
 
-#include "MyTestService.h"
 #include <OptionComp/storage/MongoDB/Interface/IMongodbProxy.h>
 #include <protocols/orm_out/PassTimeDataOrmData.h>
+
+#include <service/LogicService/LogicService.h>
 
 SERVICE_BEGIN
     PassTimeGlobal::PassTimeGlobal()
@@ -107,7 +106,7 @@ KERNEL_NS::CoTask<> PassTimeGlobal::CheckPassTime()
     if (!_passTimeData)
     {
         auto mongodbProxy = GetService()->GetComp<KERNEL_NS::IMongodbProxy>();
-        auto storageOption = GetService()->CastTo<SERVICE_NS::MyTestService>()->GetStorageOption();
+        auto storageOption = GetService()->CastTo<SERVICE_NS::LogicService>()->GetStorageOption();
 
         _passTimeData = SERVICE_COMMON_NS::PassTimeDataOrmData::NewThreadLocal_PassTimeDataOrmData();
         _passTimeData->SetMaskDirtyCallback([this](SERVICE_COMMON_NS::IOrmData *)

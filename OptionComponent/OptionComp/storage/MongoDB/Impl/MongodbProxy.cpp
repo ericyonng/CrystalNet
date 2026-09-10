@@ -33,8 +33,14 @@
 #include <OptionComp/storage/MongoDB/Interface/IMongoDbMgr.h>
 #include <kernel/comp/Timer/LibTimer.h>
 #include <kernel/comp/Event/EventManager.h>
+#include <kernel/comp/Event/event_inc.h>
 
 #include "kernel/comp/FileMonitor/YamlDeserializer.h"
+#include "kernel/comp/Utils/StringUtil.h"
+#include <kernel/comp/Log/log.h>
+
+#include "kernel/comp/Coroutines/CoDelay.h"
+#include "kernel/comp/Coroutines/Runner.h"
 
 namespace 
 {

@@ -29,11 +29,12 @@
 #include <Comps/PassTime/impl/PassTimeGlobalMongoFactory.h>
 #include <Comps/PassTime/impl/PassTimeGlobalMongo.h>
 
-SERVICE_BEGIN
+#include "kernel/comp/memory/ObjPoolWrap.h"
 
-KERNEL_NS::CompFactory *PassTimeGlobalMongoFactory::FactoryCreate()
+SERVICE_BEGIN
+    KERNEL_NS::CompFactory *PassTimeGlobalMongoFactory::FactoryCreate()
 {
-    return KERNEL_NS::ObjPoolWrap<PassTimeGlobalMongoFactory>::NewByAdapter(_buildType.V);
+    return kernel::ObjPoolWrap<PassTimeGlobalMongoFactory>::NewByAdapter(_buildType.V);
 }
 
 void PassTimeGlobalMongoFactory::Release()

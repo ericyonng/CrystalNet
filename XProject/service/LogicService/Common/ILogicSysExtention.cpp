@@ -28,12 +28,12 @@
 
 #include <pch.h>
 #include <service/common/BaseComps/LogicSys/LogicSys.h>
+#include <service_common/service/IService.h>
 
 
 // 存储
 #ifdef CRYSTAL_STORAGE_ENABLE
 
-#include <service/TestService/Comps/DB/db.h>
 #include "OptionComp/storage/MongoDB/Interface/IMongodbProxy.h"
 
 #endif

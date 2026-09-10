@@ -31,9 +31,10 @@
 #include <service_common/KillMonitor/impl/KillMonitorMgr.h>
 #include <service_common/KillMonitor/impl/KillMonitorMgrFactory.h>
 #include <kernel/comp/Log/log.h>
-SERVICE_COMMON_BEGIN
 
-KillMonitorMgr::KillMonitorMgr()
+#include "kernel/comp/Utils/FileUtil.h"
+SERVICE_COMMON_BEGIN
+    KillMonitorMgr::KillMonitorMgr()
 :IKillMonitorMgr(KERNEL_NS::RttiUtil::GetTypeId<KillMonitorMgr>())
 ,_isReadyToDie(false)
 ,_enableDetection(false)

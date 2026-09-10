@@ -32,14 +32,10 @@
 #pragma once
 
 #include <service_common/common/macro.h>
+#include <kernel/comp/ShareLibraryLoader/ShareLibraryLoader.h>
 #include <kernel/comp/SmartPtr.h>
 #include <kernel/comp/LibString.h>
-
-KERNEL_BEGIN
-
-class ShareLibraryLoader;
-
-KERNEL_END
+#include <kernel/comp/memory/ObjPoolMacro.h>
 
 SERVICE_COMMON_BEGIN
 

@@ -311,7 +311,7 @@ KERNEL_NS::CoTask<bool> MongodbConnection::ShardCollection(KERNEL_NS::LibString 
             if (!lock->Acquired)
             {
                 // 等待锁释放后再次检查状态
-                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMongo, "waiting for lock %s, will check sharding status after timeout"), lockName.c_str());
+                CLOG_INFO("waiting for lock %s, will check sharding status after timeout", lockName.c_str());
                 co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(MONGODB_LOCK_EXPIRE_SECONDS + 1));
 
                 if (_CheckCollectionSharded(dbName, lockName))

@@ -14,5 +14,7 @@
 
 * 全局组件继承于IGlobalSys有利于快速开发，也可根据需要继承于ILogicSys或者CompHostObject, 或者CompObject
 
+* 这里只放服务之间公共的抽象
+
   
 

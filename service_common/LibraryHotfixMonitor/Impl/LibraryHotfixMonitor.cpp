@@ -35,7 +35,8 @@
 #include <kernel/comp/Log/log.h>
 
 #include "kernel/comp/ShareLibraryLoader/ShareLibraryLoaderFactory.h"
-#include "kernel/comp/ShareLibraryLoader/ShareLibraryLoader.h"
+#include "kernel/comp/Utils/ContainerUtil.h"
+#include "kernel/comp/Utils/FileUtil.h"
 
 namespace 
 {

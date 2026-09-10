@@ -40,6 +40,7 @@
 #include <kernel/comp/FileMonitor/FileMonitor.h>
 #include <kernel/comp/ConcurrentPriorityQueue/MPMCQueue.h>
 #include <kernel/comp/Coroutines/CoTask.h>
+#include <kernel/comp/Variant/Variant.h>
 
 #include "kernel/comp/FileMonitor/YamlDeserializer.h"
 

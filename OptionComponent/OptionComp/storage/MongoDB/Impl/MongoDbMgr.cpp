@@ -39,7 +39,15 @@
 #include <kernel/comp/ObjLife.h>
 #include <OptionComp/storage/MongoDB/Impl/MongoHelper.h>
 
+#include "kernel/comp/Coder/base64.h"
 #include "kernel/comp/Lock/Impl/CoLocker.h"
+#include "kernel/comp/Variant/VariantHelper.h"
+#include <kernel/comp/Log/log.h>
+
+#include "kernel/common/statics.h"
+#include "kernel/comp/Coder/UrlCoder.h"
+#include "kernel/comp/Coroutines/Runner.h"
+#include "kernel/comp/thread/thread.h"
 
 
 namespace 

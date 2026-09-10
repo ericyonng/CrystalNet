@@ -1,5 +1,5 @@
 // Generate by ConfigExporter, Dont modify it!!!
-// file path:D:\workplace\Development\CrystalNet\CrystalNet\XProject\scripts\../Config/xlsx/example.xlsx
+// file path:C:\workplace\mine\CrystalNet\CrystalNet\CrystalNet\XProject\scripts\../Config/xlsx/example.xlsx
 // sheet name:目标|Goal
 
 #ifndef __CONFIG_GOAL_CONFIG_H__

@@ -34,7 +34,6 @@
 #include <service/common/BaseComps/LogicSys/Impl/ILogicSys.h>
 #include <service/common/BaseComps/Event/Defs/EventEnums.h>
 #include <service/common/BaseComps/ServiceCompType.h>
-#include <service/common/BaseComps/Storage/storage.h>
 
 SERVICE_BEGIN
 
@@ -46,8 +45,6 @@ ILogicSys::ILogicSys(UInt64 objTypeId)
 ,_timerMgr(NULL)
 ,_eventMgr(NULL)
 ,_quitServiceEventDefaltStub(INVALID_LISTENER_STUB)
-,_storageOperatorId(0)
-,_storage(NULL)
 {
     _SetType(ServiceCompType::LOGIC_SYS);
 }
@@ -76,61 +73,61 @@ void ILogicSys::OnRegisterComps()
 
 Int32 ILogicSys::OnLoaded(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db)
 {
-    g_Log->Warn(LOGFMT_OBJ_TAG("need override OnLoaded interface obj:%s, when loaded storage data, storage info:%s"), GetObjName().c_str(), _storage ? _storage->ToString().c_str() : "NO STORAGE INFO");
+    g_Log->Warn(LOGFMT_OBJ_TAG("need override OnLoaded interface obj:%s, when loaded storage data"), GetObjName().c_str());
     return Status::Failed;
 }
 
 Int32 ILogicSys::OnLoaded(UInt64 key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db)
 {
-    g_Log->Warn(LOGFMT_OBJ_TAG("need override OnLoaded interface obj:%s, when loaded storage data, storage info:%s"), GetObjName().c_str(), _storage ? _storage->ToString().c_str() : "NO STORAGE INFO");
+    g_Log->Warn(LOGFMT_OBJ_TAG("need override OnLoaded interface obj:%s, when loaded storage data"), GetObjName().c_str());
     return Status::Failed;
 }
 
 Int32 ILogicSys::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb)
 {
-    g_Log->Warn(LOGFMT_OBJ_TAG("need override OnLoaded interface obj:%s, when loaded storage data, storage info:%s"), GetObjName().c_str(), _storage ? _storage->ToString().c_str() : "NO STORAGE INFO");
+    g_Log->Warn(LOGFMT_OBJ_TAG("need override OnLoaded interface obj:%s, when loaded storage data"), GetObjName().c_str());
     return Status::Failed;
 }
 
 Int32 ILogicSys::OnLoaded(const KERNEL_NS::LibString &key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db)
 {
-    g_Log->Warn(LOGFMT_OBJ_TAG("need override OnLoaded interface obj:%s, when loaded storage data, storage info:%s"), GetObjName().c_str(), _storage ? _storage->ToString().c_str() : "NO STORAGE INFO");
+    g_Log->Warn(LOGFMT_OBJ_TAG("need override OnLoaded interface obj:%s, when loaded storage data"), GetObjName().c_str());
     return Status::Failed;
 }
 
 Int32 ILogicSys::OnLoaded(const KERNEL_NS::LibString &key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb)
 {
-    g_Log->Warn(LOGFMT_OBJ_TAG("need override OnLoaded interface obj:%s, when loaded storage data, storage info:%s"), GetObjName().c_str(), _storage ? _storage->ToString().c_str() : "NO STORAGE INFO");
+    g_Log->Warn(LOGFMT_OBJ_TAG("need override OnLoaded interface obj:%s, when loaded storage data"), GetObjName().c_str());
     return Status::Failed;
 }
 
 Int32 ILogicSys::OnSave(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const
 {
-    g_Log->Warn(LOGFMT_OBJ_TAG("need override OnSave interface obj:%s, when save storage data, storage info:%s"), GetObjName().c_str(), _storage ? _storage->ToString().c_str() : "NO STORAGE INFO");
+    g_Log->Warn(LOGFMT_OBJ_TAG("need override OnSave interface obj:%s, when save storage data,"), GetObjName().c_str());
     return Status::Failed;
 }
 
 Int32 ILogicSys::OnSave(UInt64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const
 {
-    g_Log->Warn(LOGFMT_OBJ_TAG("need override OnSave interface obj:%s, when save storage data, storage info:%s"), GetObjName().c_str(), _storage ? _storage->ToString().c_str() : "NO STORAGE INFO");
+    g_Log->Warn(LOGFMT_OBJ_TAG("need override OnSave interface obj:%s, when save storage data"), GetObjName().c_str());
     return Status::Failed;
 }
 
 Int32 ILogicSys::OnSave(UInt64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const
 {
-    g_Log->Warn(LOGFMT_OBJ_TAG("need override OnSave interface obj:%s, when save storage data, storage info:%s"), GetObjName().c_str(), _storage ? _storage->ToString().c_str() : "NO STORAGE INFO");
+    g_Log->Warn(LOGFMT_OBJ_TAG("need override OnSave interface obj:%s, when save storage data"), GetObjName().c_str());
     return Status::Failed;
 }
 
 Int32 ILogicSys::OnSave(const KERNEL_NS::LibString &key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const
 {
-    g_Log->Warn(LOGFMT_OBJ_TAG("need override OnSave interface obj:%s, when save storage data, storage info:%s"), GetObjName().c_str(), _storage ? _storage->ToString().c_str() : "NO STORAGE INFO");
+    g_Log->Warn(LOGFMT_OBJ_TAG("need override OnSave interface obj:%s, when save storage data, storage info:%s"), GetObjName().c_str());
     return Status::Failed;
 }
 
 Int32 ILogicSys::OnSave(const KERNEL_NS::LibString &key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const
 {
-    g_Log->Warn(LOGFMT_OBJ_TAG("need override OnSave interface obj:%s, when save storage data, storage info:%s"), GetObjName().c_str(), _storage ? _storage->ToString().c_str() : "NO STORAGE INFO");
+    g_Log->Warn(LOGFMT_OBJ_TAG("need override OnSave interface obj:%s, when save storage data"), GetObjName().c_str());
     return Status::Failed;
 }
 
@@ -170,10 +167,6 @@ Int32 ILogicSys::_OnHostInit()
 
 Int32 ILogicSys::_OnCompsCreated()
 { 
-    auto storage = GetCompByType(ServiceCompType::STORAGE_COMP);
-    if(storage)
-        _storage = storage->CastTo<IStorageInfo>();
-
     auto st = _OnSysCompsCreated();
     if(st != Status::Success)
     {

@@ -29,7 +29,7 @@
 #pragma once
 
 #include <service/common/macro.h>
-#include <service_common/config/IConfigLoder.h>
+#include <service_common/config/IConfigLoader.h>
 
 SERVICE_BEGIN
 

@@ -30,11 +30,12 @@
 #include <service_common/LibraryHotfixMonitor/Impl/LibraryHotfixMonitorFactory.h>
 #include <service_common/LibraryHotfixMonitor/Impl/LibraryHotfixMonitor.h>
 
-SERVICE_COMMON_BEGIN
+#include "kernel/comp/memory/ObjPoolWrap.h"
 
-KERNEL_NS::CompFactory *LibraryHotfixMonitorFactory::FactoryCreate()
+SERVICE_COMMON_BEGIN
+ KERNEL_NS::CompFactory *LibraryHotfixMonitorFactory::FactoryCreate()
 {
- return KERNEL_NS::ObjPoolWrap<LibraryHotfixMonitorFactory>::NewByAdapter(_buildType.V);
+ return kernel::ObjPoolWrap<LibraryHotfixMonitorFactory>::NewByAdapter(_buildType.V);
 }
 
 void LibraryHotfixMonitorFactory::Release()

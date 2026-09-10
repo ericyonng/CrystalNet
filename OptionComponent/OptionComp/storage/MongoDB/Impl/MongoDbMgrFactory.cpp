@@ -30,11 +30,12 @@
 #include <OptionComp/storage/MongoDB/Impl/MongoDbMgr.h>
 #include <OptionComp/storage/MongoDB/Impl/MongoDbMgrFactory.h>
 
-KERNEL_BEGIN
+#include "kernel/comp/memory/ObjPoolWrap.h"
 
-CompFactory *MongoDbMgrFactory::FactoryCreate()
+KERNEL_BEGIN
+    CompFactory *MongoDbMgrFactory::FactoryCreate()
 {
-    return KERNEL_NS::ObjPoolWrap<MongoDbMgrFactory>::NewByAdapter(_buildType.V);
+    return ObjPoolWrap<MongoDbMgrFactory>::NewByAdapter(_buildType.V);
 }
 
 void MongoDbMgrFactory::Release()

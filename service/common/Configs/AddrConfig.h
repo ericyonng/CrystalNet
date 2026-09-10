@@ -28,6 +28,7 @@
 
 #include <service/common/macro.h>
 #include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/comp/Utils/SocketUtil.h>
 
 SERVICE_BEGIN
 

@@ -29,9 +29,11 @@
 #include <pch.h>
 #include <service_common/config/DataTypeHelper.h>
 
-SERVICE_COMMON_BEGIN
+#include "kernel/comp/Utils/StringUtil.h"
+#include <kernel/comp/Log/log.h>
 
-bool DataTypeHelper::Assign(bool &field, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo)
+SERVICE_COMMON_BEGIN
+    bool DataTypeHelper::Assign(bool &field, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo)
 {
     const auto &jsonString = nlohmann::json::parse(dataInfo.c_str(), NULL, false);
     if(!jsonString.is_boolean())

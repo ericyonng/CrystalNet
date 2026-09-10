@@ -1870,6 +1870,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
     fileContent.AppendFormat("#include <pch.h>\n");
     fileContent.AppendFormat("#include <kernel/kernel.h>\n");
     fileContent.AppendFormat("#include <service_common/config/DataTypeHelper.h>\n");
+    fileContent.AppendFormat("#include <service_common/config/IConfigLoader.h>\n");
     fileContent.AppendFormat("#include <openssl/md5.h>\n");
     fileContent.AppendFormat("#include <openssl/pem.h>\n");
     fileContent.AppendFormat("#include <openssl/ssl.h>\n");
@@ -1979,7 +1980,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("       const UInt64 columnId = KERNEL_NS::StringUtil::StringToUInt64(columnIdString.c_str());\n");
             fileContent.AppendFormat("       if(columnId != %llu)\n", fieldInfo->_columnId);
             fileContent.AppendFormat("       {\n");
-            fileContent.AppendFormat("           CLOG_ERROR(\"parse field:%s, fail: bad comumn id, columnId:%%llu, real column id:%llu, please check if config data is old version, line data header len info line data:%%s, pos:%%d, headerTailPos:%%d, startPos:%%d, countFieldNum:%%d\"), columnId, lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);\n", fieldInfo->_fieldName.c_str(), fieldInfo->_columnId);
+            fileContent.AppendFormat("           CLOG_ERROR(\"parse field:%s, fail: bad comumn id, columnId:%%llu, real column id:%llu, please check if config data is old version, line data header len info line data:%%s, pos:%%d, headerTailPos:%%d, startPos:%%d, countFieldNum:%%d\", columnId, lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);\n", fieldInfo->_fieldName.c_str(), fieldInfo->_columnId);
             fileContent.AppendFormat("           return false;\n");
             fileContent.AppendFormat("       }\n");
             fileContent.AppendFormat("\n");
@@ -2001,7 +2002,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("      KERNEL_NS::LibString errInfo;\n");
             fileContent.AppendFormat("      if(!SERVICE_COMMON_NS::DataTypeHelper::Assign(%s, dataPart, errInfo))\n", memberName.c_str());
             fileContent.AppendFormat("      {\n");
-            fileContent.AppendFormat("          CLOG_ERROR(\"%%s, assign fail field name:%s, data part:%%s, errInfo:%%s  line data:%%s, pos:%%d, headerTailPos:%%d, dataEndPos:%%d\"), KERNEL_NS::RttiUtil::GetByObj(this).c_str(), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));\n", memberName.c_str());
+            fileContent.AppendFormat("          CLOG_ERROR(\"%%s, assign fail field name:%s, data part:%%s, errInfo:%%s  line data:%%s, pos:%%d, headerTailPos:%%d, dataEndPos:%%d\", KERNEL_NS::RttiUtil::GetByObj(this).c_str(), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));\n", memberName.c_str());
             fileContent.AppendFormat("          return false;\n");
             fileContent.AppendFormat("      }\n");
             fileContent.AppendFormat("\n");
@@ -2192,7 +2193,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("            Int64 retBytes = KERNEL_NS::FileUtil::ReadUtf8OneLine(*fp, lineData);\n");
             fileContent.AppendFormat("            if(retBytes == 0)\n");
             fileContent.AppendFormat("            {\n");
-            fileContent.AppendFormat("                CLOG_ERROR(\"ReadUtf8OneLine fail wholePath:%%s, line:%%d, lineData:%%s\"), wholePath.c_str(), line, lineData.c_str());\n");
+            fileContent.AppendFormat("                CLOG_ERROR(\"ReadUtf8OneLine fail wholePath:%%s, line:%%d, lineData:%%s\", wholePath.c_str(), line, lineData.c_str());\n");
             fileContent.AppendFormat("                KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);\n");
             fileContent.AppendFormat("                return Status::Failed;\n");
             fileContent.AppendFormat("            }\n");

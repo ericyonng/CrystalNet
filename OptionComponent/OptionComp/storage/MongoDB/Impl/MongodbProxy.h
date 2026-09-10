@@ -44,10 +44,13 @@
 #include <map>
 #include <kernel/comp/FileMonitor/FileMonitor.h>
 #include <kernel/comp/LibDirtyHelper.h>
+#include <kernel/comp/FileMonitor/YamlDeserializer.h>
+
+#include "kernel/comp/Event/Defs.h"
 
 KERNEL_BEGIN
-
-class LibTimer;
+    class LibTimer;
+class LibEvent;
 
 class StorageMode
 {

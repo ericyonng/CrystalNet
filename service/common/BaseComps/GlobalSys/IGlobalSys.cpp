@@ -32,7 +32,6 @@
 #include <service_common/application/Application.h>
 #include <service/common/BaseComps/GlobalSys/IGlobalSys.h>
 #include <service/common/BaseComps/SessionMgrComp/SessionMgr.h>
-#include <service/common/BaseComps/Storage/storage.h>
 
 #ifndef DISABLE_OPCODES
     #include <protocols/protocols.h>
@@ -365,14 +364,6 @@ Int32 IGlobalSys::_OnSysInit()
 
 Int32 IGlobalSys::_OnHostWillStart()
 {
-    // 全局系统需要启动时加载数据
-    auto storageInfo = GetStorageInfo();
-    if(storageInfo)
-    {
-        if(!storageInfo->HasFlags(StorageFlagType::DISABLE_LOAD_DATA_ON_STARTUP_FLAG))
-            storageInfo->AddFlags(StorageFlagType::LOAD_DATA_ON_STARTUP_FLAG);
-    }
-    
     auto st = _OnGlobalSysWillStart();
     if(st != Status::Success)
     {

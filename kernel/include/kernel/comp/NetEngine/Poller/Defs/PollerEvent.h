@@ -57,7 +57,8 @@
 #include "kernel/comp/ShareLibraryLoader/ShareLibraryLoader.h"
 
 KERNEL_BEGIN
-    struct LibConnectInfo;
+    
+struct LibConnectInfo;
 template<typename T>
 class LibStream;
 class LibPacket;

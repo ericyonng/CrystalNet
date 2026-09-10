@@ -31,6 +31,7 @@
 
 #include "LogicService.h"
 #include "OptionComp/Command/Interface/ICommandMgr.h"
+#include <kernel/comp/thread/thread.h>
 
 SERVICE_BEGIN
 
@@ -68,6 +69,8 @@ Int32 ConfigLoaderProxy::_OnHostInit()
         g_Log->Error(LOGFMT_OBJ_TAG("create ConfigLoader fail, owner:%s"), owner ? owner->GetObjName().c_str():"");
         return Status::ConfigError;
     }
+    
+    _basePath = _configLoader->GetBasePath();
 
     auto st = _configLoader->Init();
     if(st!= Status::Success)
@@ -76,7 +79,7 @@ Int32 ConfigLoaderProxy::_OnHostInit()
         return st;
     }
 
-    auto service = GetOwner()->CastTo<MyTestService>();
+    auto service = GetOwner()->CastTo<SERVICE_COMMON_NS::IService>();
     KERNEL_NS::LibString cmd;
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
@@ -87,15 +90,15 @@ Int32 ConfigLoaderProxy::_OnHostInit()
 #endif
     
     // 配置重加载
-    GetOwner()->CastTo<MyTestService>()->GetApp()->GetComp<KERNEL_NS::ICommandMgr>()->AddRegularCommand(cmd, [service](const KERNEL_NS::LibString &cmd)
+    auto basePath = _basePath;
+    service->GetApp()->GetComp<KERNEL_NS::ICommandMgr>()->AddRegularCommand(cmd, [service, basePath](const KERNEL_NS::LibString &cmd)
     {
         CLOG_INFO_GLOBAL(ConfigLoaderProxy, "will start command cmd:%s", cmd.c_str());
 
-        g_EventLoopHeavyTaskThreadPool->Send([service]()
+        g_EventLoopHeavyTaskThreadPool->Send([service, basePath]()
         {
-            auto curConfig = service->GetServiceConfig();
             KERNEL_NS::SmartPtr<SERVICE_NS::ConfigLoader, KERNEL_NS::AutoDelMethods::Release> newConfigLoader = ConfigLoaderFactory().Create()->CastTo<ConfigLoader>();
-            newConfigLoader->SetBasePath(curConfig->ConfigDataPath);
+            newConfigLoader->SetBasePath(basePath);
 
             auto st = newConfigLoader->Init();
             if(st != Status::Success)
@@ -113,8 +116,9 @@ Int32 ConfigLoaderProxy::_OnHostInit()
 
             service->GetPoller()->Push([service, newConfigLoader]()
             {
-                auto oldConfigLoader = service->GetComp<ConfigLoaderProxy>()->_configLoader;
-                service->GetComp<ConfigLoaderProxy>()->_configLoader = newConfigLoader;
+                auto configLoaderProxy = service->GetComp<ConfigLoaderProxy>();
+                auto oldConfigLoader = configLoaderProxy->_configLoader;
+                configLoaderProxy->_configLoader = newConfigLoader;
 
                 CLOG_INFO_GLOBAL(ConfigLoaderProxy, "reload success old config loader:%p, new config loader:%p", oldConfigLoader.AsSelf(), newConfigLoader.AsSelf());
             });

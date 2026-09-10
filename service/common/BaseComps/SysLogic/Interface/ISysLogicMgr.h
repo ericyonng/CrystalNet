@@ -33,8 +33,10 @@
 #include <kernel/comp/Delegate/LibDelegate.h>
 #include <kernel/common/statics.h>
 
+#include "service_common/protocol/CrystalProtocol/CrystalProtocolStackType.h"
+
 KERNEL_BEGIN
-class Variant;
+    class Variant;
 class IProtocolStack;
 KERNEL_END
 

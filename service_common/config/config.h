@@ -34,6 +34,6 @@
 #include <service_common/config/xlsx/xlsx.h>
 #include <service_common/config/DataTypeHelper.h>
 #include <service_common/config/IConfigMgr.h>
-#include <service_common/config/IConfigLoder.h>
+#include <service_common/config/IConfigLoader.h>
 
 #endif

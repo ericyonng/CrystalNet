@@ -1,5 +1,5 @@
 // Generate by ConfigExporter, Dont modify it!!!
-// file path:D:\workplace\Development\CrystalNet\CrystalNet\XProject\scripts\../Config/xlsx/文字id.xlsx
+// file path:C:\workplace\mine\CrystalNet\CrystalNet\CrystalNet\XProject\scripts\../Config/xlsx/文字id.xlsx
 // sheet name:文字id|WordId
 
 #ifndef __CONFIG_WORDID_CONFIG_H__

@@ -33,10 +33,6 @@
 #include <service_common/service_proxy/ServiceProxy.h>
 #include <service_common/service/service.h>
 
-#if CRYSTAL_STORAGE_ENABLE
- #include <OptionComp/storage/mysql/mysqlcomp.h>
-#endif
-
 SERVICE_COMMON_BEGIN
 
 Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactory, int argc, char const *argv[], const KERNEL_NS::LibString &configPath, const KERNEL_NS::LibString &memoryIniConfig, KERNEL_NS::IDelegate<void> *signalInvoke)

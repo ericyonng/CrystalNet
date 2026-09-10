@@ -32,6 +32,7 @@
 #include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/LibStringYaml.h>
+#include <kernel/comp/TimeSliceYaml.h>
 #include <yaml-cpp/yaml.h>
 
 

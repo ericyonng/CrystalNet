@@ -57,6 +57,7 @@ protected:
 
 private:
     KERNEL_NS::SmartPtr<ConfigLoader, KERNEL_NS::AutoDelMethods::Release> _configLoader;
+    KERNEL_NS::LibString _basePath;
 };
 
 SERVICE_END

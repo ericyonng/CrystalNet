@@ -44,9 +44,11 @@
 
 #include "kernel/comp/Coroutines/CoDelay.h"
 #include "kernel/comp/Coroutines/Runner.h"
+#include <kernel/comp/Timer/TimerMgr.h>
 
 KERNEL_BEGIN
-    CommandThreadContainer::~CommandThreadContainer()
+   
+CommandThreadContainer::~CommandThreadContainer()
 {
     if(!IsNoRelease)
     {

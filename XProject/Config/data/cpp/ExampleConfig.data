@@ -1,10 +1,10 @@
 Id|Type|title|Goal|TestDict|RoleBuff|IsLucky|Awards|Achieve|
 10
-column_2_2:12|column_3_1:1|column_4_10:"ZHONG_JI"|column_5_10:[8, 9, 10]|column_6_25:{"1":"NI_HAO", "2":"GAN"}|column_7_2:{}|column_8_5:false|column_9_2:{}|column_10_2:{}|
-column_2_2:13|column_3_1:1|column_4_8:"GAO_JI"|column_5_6:[1, 2]|column_6_2:{}|column_7_2:{}|column_8_5:false|column_9_2:{}|column_10_2:{}|
-column_2_2:19|column_3_1:3|column_4_8:"BAO_AN"|column_5_2:[]|column_6_2:{}|column_7_2:{}|column_8_5:false|column_9_2:{}|column_10_2:{}|
-column_2_2:20|column_3_1:3|column_4_18:"GUO_JIA_LING_XIU"|column_5_2:[]|column_6_2:{}|column_7_2:{}|column_8_5:false|column_9_2:{}|column_10_2:{}|
 column_2_1:2|column_3_1:1|column_4_10:"ZHONG_JI"|column_5_9:[1, 5, 8]|column_6_25:{"1":"NI_HAO", "2":"GAN"}|column_7_19:{"1":1000, "2":125}|column_8_5:false|column_9_31:{"100":[1, 5, 6], "200":[9,10]}|column_10_66:{"100":{"5":[1, 5], "2":[55, 69]}, "200":{"6":[9,10], "8":[1,2]} }|
 column_2_1:3|column_3_1:1|column_4_8:"GAO_JI"|column_5_2:[]|column_6_2:{}|column_7_2:{}|column_8_4:true|column_9_2:{}|column_10_2:{}|
 column_2_1:9|column_3_1:3|column_4_8:"BAO_AN"|column_5_2:[]|column_6_2:{}|column_7_2:{}|column_8_5:false|column_9_2:{}|column_10_2:{}|
 column_2_2:10|column_3_1:3|column_4_18:"GUO_JIA_LING_XIU"|column_5_2:[]|column_6_2:{}|column_7_2:{}|column_8_5:false|column_9_2:{}|column_10_2:{}|
+column_2_2:12|column_3_1:1|column_4_10:"ZHONG_JI"|column_5_10:[8, 9, 10]|column_6_25:{"1":"NI_HAO", "2":"GAN"}|column_7_2:{}|column_8_5:false|column_9_2:{}|column_10_2:{}|
+column_2_2:13|column_3_1:1|column_4_8:"GAO_JI"|column_5_6:[1, 2]|column_6_2:{}|column_7_2:{}|column_8_5:false|column_9_2:{}|column_10_2:{}|
+column_2_2:19|column_3_1:3|column_4_8:"BAO_AN"|column_5_2:[]|column_6_2:{}|column_7_2:{}|column_8_5:false|column_9_2:{}|column_10_2:{}|
+column_2_2:20|column_3_1:3|column_4_18:"GUO_JIA_LING_XIU"|column_5_2:[]|column_6_2:{}|column_7_2:{}|column_8_5:false|column_9_2:{}|column_10_2:{}|

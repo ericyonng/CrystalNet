@@ -28,7 +28,7 @@
 #include <pch.h>
 #include <kernel/kernel.h>
 #include <service_common/config/IConfigMgr.h>
-#include <service_common/config/IConfigLoder.h>
+#include <service_common/config/IConfigLoader.h>
 
 SERVICE_COMMON_BEGIN
 

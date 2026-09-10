@@ -31,11 +31,12 @@
 #include <service_common/common/common.h>
 #include <Comps/config/impl/ConfigLoaderProxy.h>
 
-SERVICE_BEGIN
+#include "kernel/comp/memory/ObjPoolWrap.h"
 
-KERNEL_NS::CompFactory *ConfigLoaderProxyFactory::FactoryCreate()
+SERVICE_BEGIN
+    KERNEL_NS::CompFactory *ConfigLoaderProxyFactory::FactoryCreate()
 {
-    return KERNEL_NS::ObjPoolWrap<ConfigLoaderProxyFactory>::NewByAdapter(_buildType.V);
+    return kernel::ObjPoolWrap<ConfigLoaderProxyFactory>::NewByAdapter(_buildType.V);
 }
 
 void ConfigLoaderProxyFactory::Release()

@@ -29,7 +29,6 @@
 #include <pch.h>
 #include <kernel/kernel.h>
 #include <service/common/ServiceConfig.h>
-#include <service/common/SessionType.h>
 #include <service_common/protocol/protocol.h>
 #include <service_common/common/Configs.h>
 

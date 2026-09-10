@@ -1,5 +1,5 @@
 // Generate by ConfigExporter, Dont modify it!!!
-// file path:D:\workplace\Development\CrystalNet\CrystalNet\XProject\scripts\../Config/xlsx/邀请码.xlsx
+// file path:C:\workplace\mine\CrystalNet\CrystalNet\CrystalNet\XProject\scripts\../Config/xlsx/邀请码.xlsx
 // sheet name:邀请码|InviteCode
 
 #ifndef __CONFIG_INVITECODE_CONFIG_H__

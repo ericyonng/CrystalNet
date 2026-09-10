@@ -31,9 +31,7 @@
 #include <service/common/macro.h>
 #include <service/common/status.h>
 #include <service/common/Params.h>
-#include <service/common/AppAlias.h>
 #include <service/common/ServiceConfig.h>
-#include <service/common/SessionType.h>
 #include <service/common/BaseComps/GlobalSys/GlobalSys.h>
 
 SERVICE_BEGIN

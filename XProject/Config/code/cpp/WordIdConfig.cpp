@@ -1,10 +1,11 @@
 // Generate by ConfigExporter, Dont modify it!!!
-// file path:D:\workplace\Development\CrystalNet\CrystalNet\XProject\scripts\../Config/xlsx/文字id.xlsx
+// file path:C:\workplace\mine\CrystalNet\CrystalNet\CrystalNet\XProject\scripts\../Config/xlsx/文字id.xlsx
 // sheet name:文字id|WordId
 
 #include <pch.h>
 #include <kernel/kernel.h>
 #include <service_common/config/DataTypeHelper.h>
+#include <service_common/config/IConfigLoader.h>
 #include <openssl/md5.h>
 #include <openssl/pem.h>
 #include <openssl/ssl.h>
@@ -36,14 +37,14 @@ bool WordIdConfig::Parse(const KERNEL_NS::LibString &lineData)
         auto pos = lineData.GetRaw().find("column_", startPos);
         if(pos == std::string::npos)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("parse field:Id, data format error: have no column_ prefix, lineData:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
+            CLOG_ERROR("parse field:Id, data format error: have no column_ prefix, lineData:%s, startPos:%d, countFieldNum:%d", lineData.c_str(), startPos, countFieldNum);
             return false;
         }
 
        auto headerTailPos = lineData.GetRaw().find(":", pos);
        if(headerTailPos == std::string::npos)
        {
-            g_Log->Error(LOGFMT_OBJ_TAG("parse field:Id, bad line data not find : symbol after column_ line data:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
+            CLOG_ERROR("parse field:Id, bad line data not find : symbol after column_ line data:%s, startPos:%d, countFieldNum:%d", lineData.c_str(), startPos, countFieldNum);
             return false;
        }
 
@@ -52,7 +53,7 @@ bool WordIdConfig::Parse(const KERNEL_NS::LibString &lineData)
        const auto headParts = headerInfo.Split('_');
        if(headParts.empty())
        {
-            g_Log->Error(LOGFMT_OBJ_TAG("parse field:Id, bad line data not find sep symbol:_ in header info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d,"),
+            CLOG_ERROR("parse field:Id, bad line data not find sep symbol:_ in header info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d,",
             lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
             return false;
        }
@@ -62,13 +63,13 @@ bool WordIdConfig::Parse(const KERNEL_NS::LibString &lineData)
        const auto &columnIdString = headParts[1];
        if(columnIdString.length() == 0)
        {
-           g_Log->Error(LOGFMT_OBJ_TAG("parse field:Id have no column id, bad line data header len info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d,"), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
+           CLOG_ERROR("parse field:Id have no column id, bad line data header len info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d,", lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
            return false;
        }
        const UInt64 columnId = KERNEL_NS::StringUtil::StringToUInt64(columnIdString.c_str());
        if(columnId != 2)
        {
-           g_Log->Error(LOGFMT_OBJ_TAG("parse field:Id, fail: bad comumn id, columnId:%llu, real column id:2, please check if config data is old version, line data header len info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d"), columnId, lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
+           CLOG_ERROR("parse field:Id, fail: bad comumn id, columnId:%llu, real column id:2, please check if config data is old version, line data header len info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d", columnId, lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
            return false;
        }
 
@@ -76,7 +77,7 @@ bool WordIdConfig::Parse(const KERNEL_NS::LibString &lineData)
        const auto &lenInfo = headParts[2];
        if(lenInfo.length() == 0)
        {
-           g_Log->Error(LOGFMT_OBJ_TAG("parse field:Id fail: bad line data header len info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d"), lineData.c_str(), 
+           CLOG_ERROR("parse field:Id fail: bad line data header len info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d", lineData.c_str(), 
            static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
            return false;
        }
@@ -89,7 +90,7 @@ bool WordIdConfig::Parse(const KERNEL_NS::LibString &lineData)
       KERNEL_NS::LibString errInfo;
       if(!SERVICE_COMMON_NS::DataTypeHelper::Assign(_id, dataPart, errInfo))
       {
-          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_id, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this).c_str(), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
+          CLOG_ERROR("%s, assign fail field name:_id, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d", KERNEL_NS::RttiUtil::GetByObj(this).c_str(), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
           return false;
       }
 
@@ -101,14 +102,14 @@ bool WordIdConfig::Parse(const KERNEL_NS::LibString &lineData)
         auto pos = lineData.GetRaw().find("column_", startPos);
         if(pos == std::string::npos)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("parse field:StringValue, data format error: have no column_ prefix, lineData:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
+            CLOG_ERROR("parse field:StringValue, data format error: have no column_ prefix, lineData:%s, startPos:%d, countFieldNum:%d", lineData.c_str(), startPos, countFieldNum);
             return false;
         }
 
        auto headerTailPos = lineData.GetRaw().find(":", pos);
        if(headerTailPos == std::string::npos)
        {
-            g_Log->Error(LOGFMT_OBJ_TAG("parse field:StringValue, bad line data not find : symbol after column_ line data:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
+            CLOG_ERROR("parse field:StringValue, bad line data not find : symbol after column_ line data:%s, startPos:%d, countFieldNum:%d", lineData.c_str(), startPos, countFieldNum);
             return false;
        }
 
@@ -117,7 +118,7 @@ bool WordIdConfig::Parse(const KERNEL_NS::LibString &lineData)
        const auto headParts = headerInfo.Split('_');
        if(headParts.empty())
        {
-            g_Log->Error(LOGFMT_OBJ_TAG("parse field:StringValue, bad line data not find sep symbol:_ in header info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d,"),
+            CLOG_ERROR("parse field:StringValue, bad line data not find sep symbol:_ in header info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d,",
             lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
             return false;
        }
@@ -127,13 +128,13 @@ bool WordIdConfig::Parse(const KERNEL_NS::LibString &lineData)
        const auto &columnIdString = headParts[1];
        if(columnIdString.length() == 0)
        {
-           g_Log->Error(LOGFMT_OBJ_TAG("parse field:StringValue have no column id, bad line data header len info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d,"), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
+           CLOG_ERROR("parse field:StringValue have no column id, bad line data header len info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d,", lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
            return false;
        }
        const UInt64 columnId = KERNEL_NS::StringUtil::StringToUInt64(columnIdString.c_str());
        if(columnId != 3)
        {
-           g_Log->Error(LOGFMT_OBJ_TAG("parse field:StringValue, fail: bad comumn id, columnId:%llu, real column id:3, please check if config data is old version, line data header len info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d"), columnId, lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
+           CLOG_ERROR("parse field:StringValue, fail: bad comumn id, columnId:%llu, real column id:3, please check if config data is old version, line data header len info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d", columnId, lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
            return false;
        }
 
@@ -141,7 +142,7 @@ bool WordIdConfig::Parse(const KERNEL_NS::LibString &lineData)
        const auto &lenInfo = headParts[2];
        if(lenInfo.length() == 0)
        {
-           g_Log->Error(LOGFMT_OBJ_TAG("parse field:StringValue fail: bad line data header len info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d"), lineData.c_str(), 
+           CLOG_ERROR("parse field:StringValue fail: bad line data header len info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d", lineData.c_str(), 
            static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
            return false;
        }
@@ -154,7 +155,7 @@ bool WordIdConfig::Parse(const KERNEL_NS::LibString &lineData)
       KERNEL_NS::LibString errInfo;
       if(!SERVICE_COMMON_NS::DataTypeHelper::Assign(_stringValue, dataPart, errInfo))
       {
-          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_stringValue, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this).c_str(), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
+          CLOG_ERROR("%s, assign fail field name:_stringValue, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d", KERNEL_NS::RttiUtil::GetByObj(this).c_str(), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
           return false;
       }
 
@@ -164,7 +165,7 @@ bool WordIdConfig::Parse(const KERNEL_NS::LibString &lineData)
 
     if(countFieldNum != fieldNum)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("field num not enough countFieldNum:%d, need fieldNum:%d lineData:%s"), countFieldNum, fieldNum, lineData.c_str());
+        CLOG_ERROR("field num not enough countFieldNum:%d, need fieldNum:%d lineData:%s", countFieldNum, fieldNum, lineData.c_str());
         return false;
     }
 
@@ -193,7 +194,7 @@ void WordIdConfig::Serialize(KERNEL_NS::LibString &lineData) const
 
     if(countFieldNum != fieldNum)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("field num not enough countFieldNum:%d, need fieldNum:%d"), countFieldNum, fieldNum);
+        CLOG_ERROR("field num not enough countFieldNum:%d, need fieldNum:%d", countFieldNum, fieldNum);
     }
 }
 
@@ -240,7 +241,7 @@ Int32 WordIdConfigMgr::Load()
     KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp = KERNEL_NS::FileUtil::OpenFile(wholePath.c_str(), false, "rb");
     if(!fp)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("data file not found wholePath:%s"), wholePath.c_str());
+        CLOG_ERROR("data file not found wholePath:%s", wholePath.c_str());
         return Status::Failed;
     }
 
@@ -253,7 +254,7 @@ Int32 WordIdConfigMgr::Load()
     MD5_CTX ctx;
     if(!KERNEL_NS::LibDigest::MakeMd5Init(&ctx))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("make md5 init fail wholePath:%s"), wholePath.c_str());
+        CLOG_ERROR("make md5 init fail wholePath:%s", wholePath.c_str());
         return Status::Failed;
     }
 
@@ -269,14 +270,14 @@ Int32 WordIdConfigMgr::Load()
             Int64 retBytes = KERNEL_NS::FileUtil::ReadUtf8OneLine(*fp, lineData);
             if(retBytes == 0)
             {
-                g_Log->Error(LOGFMT_OBJ_TAG("ReadUtf8OneLine fail wholePath:%s, line:%d, lineData:%s"), wholePath.c_str(), line, lineData.c_str());
+                CLOG_ERROR("ReadUtf8OneLine fail wholePath:%s, line:%d, lineData:%s", wholePath.c_str(), line, lineData.c_str());
                 KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);
                 return Status::Failed;
             }
             ++line;
             if(!KERNEL_NS::LibDigest::MakeMd5Continue(&ctx, lineData.data(), static_cast<UInt64>(lineData.size())))
             {
-                g_Log->Error(LOGFMT_OBJ_TAG("MakeMd5Continue fail wholePath:%s, line:%d, lineData:%s"), wholePath.c_str(), line, lineData.c_str());
+                CLOG_ERROR("MakeMd5Continue fail wholePath:%s, line:%d, lineData:%s", wholePath.c_str(), line, lineData.c_str());
                 KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);
                 return Status::Failed;
             }
@@ -286,7 +287,7 @@ Int32 WordIdConfigMgr::Load()
             {
                 if(lineData != "Id|StringValue|")
                 {
-                    g_Log->Error(LOGFMT_OBJ_TAG("current data not match this config data wholePath:%s, current data columns:%s, this config columns:Id|StringValue|"), wholePath.c_str(), lineData.c_str());
+                    CLOG_ERROR("current data not match this config data wholePath:%s, current data columns:%s, this config columns:Id|StringValue|", wholePath.c_str(), lineData.c_str());
                     return Status::Failed;
                 }
             }
@@ -310,8 +311,8 @@ Int32 WordIdConfigMgr::Load()
         Int64 readBytes = _ReadConfigData(*fp, lineData, totalLine, line + 1);
         if(readBytes < 0)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("Read a line config data fail wholePath:%s, line:%d, "), wholePath.c_str(), line);
-            g_Log->Error2(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString("lineData:"), lineData);
+            CLOG_ERROR("Read a line config data fail wholePath:%s, line:%d, ", wholePath.c_str(), line);
+            CLOG_ERROR_ARGS(KERNEL_NS::LibString("lineData:"), lineData);
             KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);
             return Status::Failed;
         }
@@ -323,7 +324,7 @@ Int32 WordIdConfigMgr::Load()
 
         if(!KERNEL_NS::LibDigest::MakeMd5Continue(&ctx, lineData.data(), static_cast<UInt64>(lineData.size())))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("MakeMd5Continue fail wholePath:%s, line:%d, lineData:%s"), wholePath.c_str(), line, lineData.c_str());
+            CLOG_ERROR("MakeMd5Continue fail wholePath:%s, line:%d, lineData:%s", wholePath.c_str(), line, lineData.c_str());
             KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);
             return Status::Failed;
         }
@@ -336,14 +337,14 @@ Int32 WordIdConfigMgr::Load()
 
         if(!config->Parse(lineData))
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("parse WordIdConfig fail data path:%s line:%d, lineData:%s"), wholePath.c_str(), line, lineData.c_str());
+            CLOG_WARN("parse WordIdConfig fail data path:%s line:%d, lineData:%s", wholePath.c_str(), line, lineData.c_str());
             return Status::Failed;
         }
 
         // check unique
         if(unique_ids.find(config->_id) != unique_ids.end())
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("duplicate Id:%s data path:%s line:%d, lineData:%s"), (KERNEL_NS::LibString() << config->_id).c_str(), wholePath.c_str(), line, lineData.c_str());
+            CLOG_WARN("duplicate Id:%s data path:%s line:%d, lineData:%s", (KERNEL_NS::LibString() << config->_id).c_str(), wholePath.c_str(), line, lineData.c_str());
             return Status::Failed;
         }
 
@@ -355,7 +356,7 @@ Int32 WordIdConfigMgr::Load()
     KERNEL_NS::LibString dataMd5;
     if(!KERNEL_NS::LibDigest::MakeMd5Final(&ctx, dataMd5))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("MakeMd5Final fail wholePath:%s"), wholePath.c_str());
+        CLOG_ERROR("MakeMd5Final fail wholePath:%s", wholePath.c_str());
         KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);
         return Status::Failed;
     }
@@ -428,8 +429,8 @@ Int64 WordIdConfigMgr::_ReadConfigData(FILE &fp, KERNEL_NS::LibString &configDat
             const auto &headerParts = headerCache.Split('_');
             if(headerParts.size() < 3)
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("column field header format error"));
-                g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString("headerCache:"), headerCache, KERNEL_NS::LibString(", content:"), content);
+                CLOG_WARN(LOGFMT_OBJ_TAG("column field header format error"));
+                CLOG_WARN_ARGS(KERNEL_NS::LibString("headerCache:"), headerCache, KERNEL_NS::LibString(", content:"), content);
                 return -1;
             }
 
@@ -439,8 +440,8 @@ Int64 WordIdConfigMgr::_ReadConfigData(FILE &fp, KERNEL_NS::LibString &configDat
             bytesOnce = static_cast<Int64>(KERNEL_NS::FileUtil::ReadFile(fp, content, fieldDataLen));
             if(bytesOnce != fieldDataLen)
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("column data error:"));
-                g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString("headerCache:"), headerCache, KERNEL_NS::LibString(", content:"), content, KERNEL_NS::LibString(", fieldDataLen:"), fieldDataLen, KERNEL_NS::LibString(", real len:"), bytesOnce, KERNEL_NS::LibString(", not enough."));
+                CLOG_WARN("column data error:");
+                CLOG_WARN_ARGS(KERNEL_NS::LibString("headerCache:"), headerCache, KERNEL_NS::LibString(", content:"), content, KERNEL_NS::LibString(", fieldDataLen:"), fieldDataLen, KERNEL_NS::LibString(", real len:"), bytesOnce, KERNEL_NS::LibString(", not enough."));
                 return -1;
             }
 
@@ -453,8 +454,8 @@ Int64 WordIdConfigMgr::_ReadConfigData(FILE &fp, KERNEL_NS::LibString &configDat
             if(((count != fieldNum) && needFieldIds.empty()) ||
                 ((count == fieldNum) && !needFieldIds.empty()))
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("column data error: field maybe changed count:%d, need fieldNum:%d column fieldIds not empty left:%d"), count, fieldNum, static_cast<Int32>(needFieldIds.size()));
-                g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString("configData:"), configData);
+                CLOG_WARN("column data error: field maybe changed count:%d, need fieldNum:%d column fieldIds not empty left:%d", count, fieldNum, static_cast<Int32>(needFieldIds.size()));
+                CLOG_WARN_ARGS(KERNEL_NS::LibString("configData:"), configData);
                 return -1;
             }
 
@@ -473,8 +474,8 @@ Int64 WordIdConfigMgr::_ReadConfigData(FILE &fp, KERNEL_NS::LibString &configDat
             }
         }
     }
-    g_Log->Warn(LOGFMT_OBJ_TAG("column data error: field maybe changed count:%d, need fieldNum:%d column fieldIds not empty left:%d"), count, fieldNum, static_cast<Int32>(needFieldIds.size()));
-    g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString("configData:"), configData);
+    CLOG_WARN("column data error: field maybe changed count:%d, need fieldNum:%d column fieldIds not empty left:%d", count, fieldNum, static_cast<Int32>(needFieldIds.size()));
+    CLOG_WARN_ARGS(KERNEL_NS::LibString("configData:"), configData);
 
     return -1;
 }
