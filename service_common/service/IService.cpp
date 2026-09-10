@@ -27,16 +27,21 @@
 */
 
 #include <pch.h>
-#include <kernel/kernel.h>
 #include <service_common/service/IService.h>
 #include <service_common/service_proxy/ServiceProxyCompType.h>
 #include <service_common/service_proxy/ServiceProxy.h>
 #include <service_common/application/Application.h>
 #include <service_common/service/ServiceStatisticsInfo.h>
 
-SERVICE_COMMON_BEGIN
+#include "kernel/comp/NetEngine/Poller/Defs/PollerEventType.h"
+#include "kernel/comp/NetEngine/Poller/impl/IpRule/IpRuleMgrFactory.h"
+#include "kernel/comp/NetEngine/Poller/interface/IPollerMgr.h"
+#include "kernel/comp/Poller/Poller.h"
+#include "kernel/comp/Timer/TimerMgr.h"
+#include <kernel/comp/NetEngine/Poller/impl/Tcp/TcpPollerMgr.h>
 
-IService::IService(UInt64 objTypeId)
+SERVICE_COMMON_BEGIN
+    IService::IService(UInt64 objTypeId)
 :KERNEL_NS::CompHostObject(objTypeId)
 ,_serviceId(0)
 ,_poller(NULL)

@@ -27,7 +27,19 @@
 */
 
 #include <pch.h>
-#include <kernel/kernel.h>
+#include <kernel/comp/GlobalLifeCtrl.h>
+
+#include "kernel/comp/TlsMemoryCleanerComp.h"
+#include "kernel/comp/memory/CenterMemoryCollector.h"
+#include "kernel/comp/memory/GarbageThread.h"
+#include "kernel/comp/NetEngine/Poller/Defs/PollerEvent.h"
+#include "kernel/comp/NetEngine/Poller/Defs/PollerEventType.h"
+#include "kernel/comp/NetEngine/Poller/interface/IPollerMgr.h"
+#include "kernel/comp/Poller/Poller.h"
+#include "kernel/comp/Timer/TimerMgr.h"
+#include "kernel/comp/Tls/TlsCompsOwner.h"
+#include "kernel/comp/Utils/SignalHandleUtil.h"
+#include "kernel/comp/Utils/StringUtil.h"
 
 namespace
 {
@@ -41,8 +53,9 @@ namespace
 
 
 KERNEL_BEGIN
+    class TlsMemoryCleanerComp;
 
-ALWAYS_HIDDEN UInt64 GetCrystalModuleId()
+    ALWAYS_HIDDEN UInt64 GetCrystalModuleId()
 {
     static const UInt64 id = GetGlobalIdSrc().fetch_add(1, std::memory_order_release) + 1;
 

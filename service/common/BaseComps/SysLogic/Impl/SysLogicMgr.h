@@ -29,7 +29,6 @@
 #pragma once
 
 #include <service/common/BaseComps/SysLogic/Interface/ISysLogicMgr.h>
-#include <kernel/kernel.h>
 #include <service_common/ServiceCommon.h>
 #include <service/common/ServiceConfig.h>
 #include <service/common/Configs/SysLogicOptions.h>

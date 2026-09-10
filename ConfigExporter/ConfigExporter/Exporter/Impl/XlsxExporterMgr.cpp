@@ -1868,7 +1868,12 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
 
     fileContent.AppendFormat("\n");
     fileContent.AppendFormat("#include <pch.h>\n");
-    fileContent.AppendFormat("#include <kernel/kernel.h>\n");
+    fileContent.AppendFormat("#include <kernel/comp/Log/log.h>\n");
+    fileContent.AppendFormat("#include <kernel/comp/Utils/StringUtil.h>\n");
+    fileContent.AppendFormat("#include <kernel/comp/Utils/ContainerUtil.h>\n");
+    fileContent.AppendFormat("#include <kernel/comp/Utils/FileUtil.h>\n");
+    fileContent.AppendFormat("#include <kernel/comp/Encrypt/LibDigest.h>\n");
+    fileContent.AppendFormat("#include <kernel/comp/Coder/base64.h>\n");
     fileContent.AppendFormat("#include <service_common/config/DataTypeHelper.h>\n");
     fileContent.AppendFormat("#include <service_common/config/IConfigLoader.h>\n");
     fileContent.AppendFormat("#include <openssl/md5.h>\n");

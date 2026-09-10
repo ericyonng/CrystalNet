@@ -33,7 +33,9 @@
 #include <kernel/comp/Delegate/LibDelegate.h>
 #include <kernel/common/statics.h>
 
+#include "service/common/Configs/SysLogicOptions.h"
 #include "service_common/protocol/CrystalProtocol/CrystalProtocolStackType.h"
+#include <kernel/comp/NetEngine/Defs/AddrIpConfig.h>
 
 KERNEL_BEGIN
     class Variant;

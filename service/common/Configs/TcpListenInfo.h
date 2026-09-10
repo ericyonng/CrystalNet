@@ -29,9 +29,10 @@
 #include <service/common/macro.h>
 #include <kernel/comp/NetEngine/Defs/AddrIpConfig.h>
 
-SERVICE_BEGIN
+#include "service_common/protocol/CrystalProtocol/CrystalProtocolStackType.h"
 
-// 监听信息
+SERVICE_BEGIN
+    // 监听信息
 struct TcpListenInfo
 {
     KERNEL_NS::AddrIpConfig ToAddrIp() const

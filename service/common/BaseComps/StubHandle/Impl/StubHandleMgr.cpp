@@ -27,7 +27,6 @@
 */
 
 #include <pch.h>
-#include <kernel/kernel.h>
 #include <service/common/common.h>
 
 #include <service/common/BaseComps/StubHandle/Impl/StubHandleMgr.h>

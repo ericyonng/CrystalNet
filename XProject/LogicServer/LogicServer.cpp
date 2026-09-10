@@ -71,4 +71,6 @@ int LogicServer::Start(int argc, char const *argv[])
     CLOG_INFO("kernel will destroy...");
     KERNEL_NS::SystemUtil::ThreadSleep(5000);
     SERVICE_COMMON_NS::KernelForService::Destroy();
+
+    return 0;
 }

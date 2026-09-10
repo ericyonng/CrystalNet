@@ -27,7 +27,6 @@
 */
 
 #include <pch.h>
-#include <kernel/kernel.h>
 #include <service/common/BaseComps/SessionMgrComp/Defs/ServiceSession/ServiceSession.h>
 #include <service/common/BaseComps/SessionMgrComp/Impl/SessionMgr.h>
 #include <service/common/BaseComps/Event/Event.h>
@@ -35,11 +34,11 @@
 
 #include <service/common/BaseComps/SessionMgrComp/Impl/SessionMgrFactory.h>
 
+#include "kernel/comp/Event/EventManager.h"
+#include "kernel/comp/Event/LibEvent.h"
+
 SERVICE_BEGIN
-
-
-
-SessionMgr::SessionMgr()
+    SessionMgr::SessionMgr()
 :ISessionMgr(KERNEL_NS::RttiUtil::GetTypeId<SessionMgr>())
 ,_sessionAmount{0}
 ,_sessionWillCreatedStub(0)

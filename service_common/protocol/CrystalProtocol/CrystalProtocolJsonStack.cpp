@@ -27,8 +27,13 @@
 */
 
 #include <pch.h>
-#include <kernel/kernel.h>
 #include <service_common/protocol/CrystalProtocol/CrystalProtocolJsonStack.h>
+
+#include "kernel/comp/Coder/base64.h"
+#include "kernel/comp/Encrypt/XorEncrypt.h"
+#include "kernel/comp/NetEngine/LibPacket.h"
+#include "kernel/comp/NetEngine/LibSocket.h"
+#include "kernel/comp/NetEngine/Poller/impl/Session/LibSession.h"
 #include "service_common/protocol/CrystalProtocol/CrystalMsgHeader.h"
 #ifndef DISABLE_OPCODES
  #include <protocols/protocols.h>

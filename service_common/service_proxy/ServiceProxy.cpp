@@ -27,16 +27,23 @@
 */
 
 #include <pch.h>
-#include <kernel/kernel.h>
 #include <service_common/service_proxy/ServiceProxy.h>
 #include <service_common/service/service.h>
 #include <service_common/application/Application.h>
 #include <service_common/service_proxy/ServiceProxyFactory.h>
 #include <service_common/service_proxy/ServiceProxyStatisticsInfo.h>
+#include <kernel/comp/Log/log.h>
+
+#include "kernel/comp/KernelFinally/KernelFinally.h"
+#include "kernel/comp/NetEngine/Poller/Defs/PollerEvent.h"
+#include "kernel/comp/NetEngine/Poller/impl/Session/LibSession.h"
+#include "kernel/comp/NetEngine/Poller/interface/IPollerMgr.h"
+#include "kernel/comp/thread/LibThread.h"
+#include "kernel/comp/Utils/ContainerUtil.h"
+#include <kernel/comp/LibStringYaml.h>
 
 SERVICE_COMMON_BEGIN
-
-ServiceProxy::ServiceProxy()
+    ServiceProxy::ServiceProxy()
 :IServiceProxy(KERNEL_NS::RttiUtil::GetTypeId<ServiceProxy>())
 ,_maxServiceId{0}
 ,_closeServiceNum{0}
@@ -60,8 +67,7 @@ void ServiceProxy::PostMsg(UInt64 serviceId, KERNEL_NS::PollerEvent *msg, Int64 
     auto iter = _serviceIdRefRejectServiceStatus.find(serviceId);
     if(UNLIKELY(iter->second))
     {
-        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
-            g_Log->Debug(LOGFMT_OBJ_TAG("reject post msg serviceId:%llu, msg:%s"), serviceId, msg->ToString().c_str());
+        CLOG_DEBUG("reject post msg serviceId:%llu, msg:%s", serviceId, msg->ToString().c_str());
         msg->Release();
         return;
     }
@@ -70,7 +76,7 @@ void ServiceProxy::PostMsg(UInt64 serviceId, KERNEL_NS::PollerEvent *msg, Int64 
     auto service = _GetService(serviceId);
     if(UNLIKELY(!service))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("post msg fail service not exists serviceId:%llu, msg:%s"), serviceId, msg->ToString().c_str());
+        CLOG_ERROR("post msg fail service not exists serviceId:%llu, msg:%s", serviceId, msg->ToString().c_str());
         msg->Release();
         return;
     }
@@ -140,7 +146,7 @@ KERNEL_NS::IProtocolStack *ServiceProxy::GetProtocolStack(KERNEL_NS::LibSession 
     auto service = _GetService(serviceId);
     if(UNLIKELY(!service))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("get protocol stack fail service not exists serviceId:%llu, sessionId:%llu"), serviceId, session->GetId());
+        CLOG_ERROR("get protocol stack fail service not exists serviceId:%llu, sessionId:%llu", serviceId, session->GetId());
         return NULL;
     }
 
@@ -179,8 +185,7 @@ void ServiceProxy::Clear()
 {
     _Clear();
 
-    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
-        g_Log->Info(LOGFMT_OBJ_TAG("service proxy clear"));
+    CLOG_INFO("service proxy clear");
 }
 
 Int32 ServiceProxy::_OnInit() 

@@ -27,20 +27,20 @@
 */
 
 #include <pch.h>
-#include <kernel/kernel.h>
 #include <service_common/application/ApplicationHelper.h>
 #include <service_common/application/Application.h>
 #include <service_common/service_proxy/ServiceProxy.h>
 #include <service_common/service/service.h>
+#include <kernel/comp/Log/log.h>
+
+#include "kernel/comp/Utils/KernelUtil.h"
 
 SERVICE_COMMON_BEGIN
-
-Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactory, int argc, char const *argv[], const KERNEL_NS::LibString &configPath, const KERNEL_NS::LibString &memoryIniConfig, KERNEL_NS::IDelegate<void> *signalInvoke)
+    Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactory, int argc, char const *argv[], const KERNEL_NS::LibString &configPath, const KERNEL_NS::LibString &memoryIniConfig, KERNEL_NS::IDelegate<void> *signalInvoke)
 {
     CLOG_INFO_GLOBAL(ApplicationHelper, "application will start.");
 
 //    #if CRYSTAL_STORAGE_ENABLE
-//     g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application will init mysql..."));
 //     mysql_library_init(0, 0, 0);
 //    #endif
 
@@ -71,7 +71,7 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
     const auto currentTid = KERNEL_NS::SystemUtil::GetCurrentThreadId();
     auto signalCloseLambda = [&app, currentTid]()->void{
         auto threadId = KERNEL_NS::SystemUtil::GetCurrentThreadId();
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "signal catched, application will close threadId:%llu, application thread id:%llu..."), threadId, currentTid);
+        CLOG_INFO_GLOBAL(ApplicationHelper, "signal catched, application will close threadId:%llu, application thread id:%llu...", threadId, currentTid);
         
         // 需要先停掉收集器, 不然其他线程会阻塞在那里等待收集器结束
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
@@ -85,11 +85,11 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
             app->WillClose();
             app->Close();
 
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application closed and will check if not ready..."));
+            CLOG_INFO_GLOBAL(ApplicationHelper, "application closed and will check if not ready...");
             while (app->IsReady())
                 KERNEL_NS::SystemUtil::ThreadSleep(0);
 
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application is final close all."));
+            CLOG_INFO_GLOBAL(ApplicationHelper, "application is final close all.");
 
             if(signalInvoke)
                 signalInvoke->Invoke();
@@ -125,7 +125,6 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
         // #if CRYSTAL_STORAGE_ENABLE
         //     mysql_library_end();
         // #endif
-        // g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application close finished."));
 
         // printf("\napplication quit finish.\n");
         // while(true)
@@ -141,12 +140,12 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
     auto closeDelg = KERNEL_CREATE_CLOSURE_DELEGATE(signalCloseLambda, void);
     KERNEL_NS::KernelUtil::InstallSignalCloseHandler(closeDelg);
 
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "init application..."));
+    CLOG_INFO_GLOBAL(ApplicationHelper, "init application...");
 
     Int32 errCode = app->Init();
     if(errCode != Status::Success)
     {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application init fail %s, errCode:%d"), app->IntroduceStr().c_str(), errCode);
+        CLOG_ERROR_GLOBAL(ApplicationHelper, "application init fail %s, errCode:%d", app->IntroduceStr().c_str(), errCode);
         serviceFactory->Release();
         return errCode;
     }
@@ -156,29 +155,29 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
     serviceProxy->SetServiceFactory(serviceFactory);
 
     // 启动app
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "start application..."));
+    CLOG_INFO_GLOBAL(ApplicationHelper, "start application...");
     errCode = app->Start();
     if(errCode != Status::Success)
     {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application start fail %s, errCode:%d"), app->IntroduceStr().c_str(), errCode);
+        CLOG_ERROR_GLOBAL(ApplicationHelper, "application start fail %s, errCode:%d", app->IntroduceStr().c_str(), errCode);
         return errCode;
     }
 
     // app等待结束 TODO:此时执行MemoryMonitor与系统性能指标逻辑
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application wait finish(client can send a message to close application.)..."));
+    CLOG_INFO_GLOBAL(ApplicationHelper, "application wait finish(client can send a message to close application.)...");
     Int32 err = Status::Success;
     app->WaitFinish(err);
 
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application wake up and will close err:%d..."), err);
+    CLOG_INFO_GLOBAL(ApplicationHelper, "application wake up and will close err:%d...", err);
     app->WillClose();
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application close..."));
+    CLOG_INFO_GLOBAL(ApplicationHelper, "application close...");
     app->Close();
 
 //    #if CRYSTAL_STORAGE_ENABLE
 //     mysql_library_end();
 //    #endif
 
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application close finish..."));
+    CLOG_INFO_GLOBAL(ApplicationHelper, "application close finish...");
 
     return err;
 }

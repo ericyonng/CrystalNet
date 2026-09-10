@@ -157,6 +157,10 @@ project "protogentool"
     
     -- files
     files {
+        "../../service_common/common/**.h",
+		"../../service_common/common/**.cpp",
+		"../../service_common/params/**.h",
+		"../../service_common/params/**.cpp",
         "../../ProtoGen/**.h",
         "../../ProtoGen/**.cpp",
 		"../../OptionComponent/OptionComp/CodeAnalyze/**.h",

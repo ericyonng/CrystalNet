@@ -553,7 +553,9 @@ bool ExporterMgr::_ModifyCppPbHeader(const KERNEL_NS::LibString &pbHeaderName, s
         {
             "",
             "// KERNEL_INCLUDED",
-            "#include <kernel/kernel.h>", 
+            "#include <kernel/comp/NetEngine/Protocol/ICoder.h>",
+            "#include <kernel/comp/LibStream.h>",
+            "#include <kernel/comp/Log/log.h>",
             "#include <google/protobuf/util/json_util.h>",
             "#include <google/protobuf/text_format.h>",
             "",
@@ -890,7 +892,7 @@ void ExporterMgr::_CollectCppClassAdds(const KERNEL_NS::LibString &className, st
         addLines.push_back("    if (UNLIKELY(!IsInitialized()))");
         addLines.push_back("    {");
         addLines.push_back(KERNEL_NS::LibString().AppendFormat
-        ("      g_Log->Error(LOGFMT_OBJ_TAG(\"Encode message %s failed, error: %%s\"), InitializationErrorString().c_str());",
+        ("      CLOG_ERROR(\"Encode message %s failed, error: %%s\", InitializationErrorString().c_str());",
          className.c_str()));
         addLines.push_back(KERNEL_NS::LibString().AppendFormat
         ("      return false;"
@@ -928,7 +930,7 @@ void ExporterMgr::_CollectCppClassAdds(const KERNEL_NS::LibString &className, st
         ));
         addLines.push_back("        {");
         addLines.push_back(KERNEL_NS::LibString().AppendFormat
-        ("            g_Log->Error(LOGFMT_OBJ_TAG(\"stream append capacity fail IsAttach:%%d\"), stream.IsAttach());"
+        ("            CLOG_ERROR(\"stream append capacity fail IsAttach:%%d\", stream.IsAttach());"
         ));
         addLines.push_back(KERNEL_NS::LibString().AppendFormat
         ("            return false;"
@@ -941,7 +943,7 @@ void ExporterMgr::_CollectCppClassAdds(const KERNEL_NS::LibString &className, st
         ));
         addLines.push_back("    {");
         addLines.push_back(KERNEL_NS::LibString().AppendFormat
-        ("        g_Log->Error(LOGFMT_OBJ_TAG(\"Encode message %s failed, error: %%s\"), InitializationErrorString().c_str());"
+        ("        CLOG_ERROR(\"Encode message %s failed, error: %%s\", InitializationErrorString().c_str());"
         , className.c_str()));
         addLines.push_back("        return false;");
         addLines.push_back("    }");
@@ -957,7 +959,7 @@ void ExporterMgr::_CollectCppClassAdds(const KERNEL_NS::LibString &className, st
         addLines.push_back("    if (UNLIKELY(!IsInitialized()))");
         addLines.push_back("    {");
         addLines.push_back(KERNEL_NS::LibString().AppendFormat
-        ("      g_Log->Error(LOGFMT_OBJ_TAG(\"Encode message %s failed, error: %%s\"), InitializationErrorString().c_str());",
+        ("      CLOG_ERROR(\"Encode message %s failed, error: %%s\", InitializationErrorString().c_str());",
          className.c_str()));
         addLines.push_back(KERNEL_NS::LibString().AppendFormat
         ("      return false;"
@@ -995,7 +997,7 @@ void ExporterMgr::_CollectCppClassAdds(const KERNEL_NS::LibString &className, st
         ));
         addLines.push_back("        {");
         addLines.push_back(KERNEL_NS::LibString().AppendFormat
-        ("            g_Log->Error(LOGFMT_OBJ_TAG(\"stream append capacity fail IsAttach:%%d\"), stream.IsAttach());"
+        ("            CLOG_ERROR(\"stream append capacity fail IsAttach:%%d\", stream.IsAttach());"
         ));
         addLines.push_back(KERNEL_NS::LibString().AppendFormat
         ("            return false;"
@@ -1008,7 +1010,7 @@ void ExporterMgr::_CollectCppClassAdds(const KERNEL_NS::LibString &className, st
         ));
         addLines.push_back("    {");
         addLines.push_back(KERNEL_NS::LibString().AppendFormat
-        ("        g_Log->Error(LOGFMT_OBJ_TAG(\"Encode message %s failed, error: %%s\"), InitializationErrorString().c_str());"
+        ("        CLOG_ERROR(\"Encode message %s failed, error: %%s\", InitializationErrorString().c_str());"
         , className.c_str()));
         addLines.push_back("        return false;");
         addLines.push_back("    }");
@@ -1030,7 +1032,7 @@ void ExporterMgr::_CollectCppClassAdds(const KERNEL_NS::LibString &className, st
         addLines.push_back("    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))");
         addLines.push_back("    {");
         addLines.push_back(KERNEL_NS::LibString().AppendFormat
-        ("        g_Log->Error(LOGFMT_OBJ_TAG(\"Decode message %s failed, error: %%s\"), InitializationErrorString().c_str());"
+        ("        CLOG_ERROR(\"Decode message %s failed, error: %%s\", InitializationErrorString().c_str());"
         , className.c_str()));
         addLines.push_back("        return false;");
         addLines.push_back("    }");
@@ -1052,7 +1054,7 @@ void ExporterMgr::_CollectCppClassAdds(const KERNEL_NS::LibString &className, st
         addLines.push_back("    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))");
         addLines.push_back("    {");
         addLines.push_back(KERNEL_NS::LibString().AppendFormat
-        ("        g_Log->Error(LOGFMT_OBJ_TAG(\"Decode message %s failed, error: %%s\"), InitializationErrorString().c_str());"
+        ("        CLOG_ERROR(\"Decode message %s failed, error: %%s\", InitializationErrorString().c_str());"
         , className.c_str()));
         addLines.push_back("        return false;");
         addLines.push_back("    }");
@@ -1090,7 +1092,7 @@ void ExporterMgr::_CollectCppClassAdds(const KERNEL_NS::LibString &className, st
         addLines.push_back("    KERNEL_NS::LibString data;");
         addLines.push_back("    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())");
         addLines.push_back("    {");
-        addLines.push_back("        g_Log->Warn(LOGFMT_OBJ_TAG(\"Turn JsonString fail:%s\"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());");
+        addLines.push_back("        CLOG_WARN(\"Turn JsonString fail:%s\", KERNEL_NS::RttiUtil::GetByObj(this).c_str());");
         addLines.push_back("        return \"\";");
         addLines.push_back("    }");
         addLines.push_back("");
@@ -1103,7 +1105,7 @@ void ExporterMgr::_CollectCppClassAdds(const KERNEL_NS::LibString &className, st
         addLines.push_back("virtual bool ToJsonString(std::string *data) const override {");
         addLines.push_back("    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())");
         addLines.push_back("    {");
-        addLines.push_back("        g_Log->Warn(LOGFMT_OBJ_TAG(\"Turn JsonString fail:%s\"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());");
+        addLines.push_back("        CLOG_WARN(\"Turn JsonString fail:%s\", KERNEL_NS::RttiUtil::GetByObj(this).c_str());");
         addLines.push_back("        return false;");
         addLines.push_back("    }");
         addLines.push_back("");
@@ -1117,7 +1119,7 @@ void ExporterMgr::_CollectCppClassAdds(const KERNEL_NS::LibString &className, st
         addLines.push_back("    auto &&jsonString = ::google::protobuf::StringPiece(data, len);");
         addLines.push_back("    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())");
         addLines.push_back("    {");
-        addLines.push_back("        g_Log->Warn(LOGFMT_OBJ_TAG(\"SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s\"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());");
+        addLines.push_back("        CLOG_WARN(\"SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s\", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());");
         addLines.push_back("        return false;");
         addLines.push_back("    }");
         addLines.push_back("");
@@ -3023,7 +3025,6 @@ bool ExporterMgr::_GenOrmHeader(const KERNEL_NS::LibString &ormRootPath, const K
     headerPreLines.push_back(KERNEL_NS::LibString());
     headerPreLines.push_back(KERNEL_NS::LibString().AppendFormat("#pragma once"));
 
-    headerPreLines.push_back(KERNEL_NS::LibString().AppendFormat("#include <kernel/kernel.h>"));
     headerPreLines.push_back(KERNEL_NS::LibString().AppendFormat("#include <service_common/protocol/ORM/IOrmData.h>"));
 
     protobufPreDeclare.push_back(KERNEL_NS::LibString().AppendFormat("class %s;", codeUnit->_unitName.c_str()));

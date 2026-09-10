@@ -34,10 +34,15 @@
 #include <service/common/BaseComps/SysLogic/Impl/SysLogicMgr.h>
 #include <service/common/BaseComps/SysLogic/Impl/SysLogicMgrFactory.h>
 
+#include "kernel/comp/Event/EventManager.h"
+#include "kernel/comp/Event/LibEvent.h"
+#include "kernel/comp/NetEngine/Defs/LibConnectInfo.h"
+#include "kernel/comp/NetEngine/Defs/LibListenInfo.h"
+#include "kernel/comp/NetEngine/Defs/ProtocolType.h"
+#include "kernel/comp/NetEngine/Poller/impl/Tcp/TcpPollerMgr.h"
+
 SERVICE_BEGIN
-
-
-SysLogicMgr::SysLogicMgr()
+    SysLogicMgr::SysLogicMgr()
 :ISysLogicMgr(KERNEL_NS::RttiUtil::GetTypeId<SysLogicMgr>())
 ,_detectLink(NULL)
 ,_closeServiceStub(INVALID_LISTENER_STUB)

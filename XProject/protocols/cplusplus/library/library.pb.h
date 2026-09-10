@@ -5,7 +5,9 @@
 #define GOOGLE_PROTOBUF_INCLUDED_library_2eproto
 
 // KERNEL_INCLUDED
-#include <kernel/kernel.h>
+#include <kernel/comp/NetEngine/Protocol/ICoder.h>
+#include <kernel/comp/LibStream.h>
+#include <kernel/comp/Log/log.h>
 #include <google/protobuf/util/json_util.h>
 #include <google/protobuf/text_format.h>
 
@@ -268,7 +270,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryInfoReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetLibraryInfoReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -284,14 +286,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetLibraryInfoReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -302,7 +304,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryInfoReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetLibraryInfoReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -318,14 +320,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetLibraryInfoReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -342,7 +344,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetLibraryInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetLibraryInfoReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -359,7 +361,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetLibraryInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetLibraryInfoReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -387,7 +389,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -397,7 +399,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -408,7 +410,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -543,7 +545,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message LibraryInfoNty failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message LibraryInfoNty failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -559,14 +561,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message LibraryInfoNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message LibraryInfoNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -577,7 +579,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message LibraryInfoNty failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message LibraryInfoNty failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -593,14 +595,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message LibraryInfoNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message LibraryInfoNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -617,7 +619,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message LibraryInfoNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message LibraryInfoNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -634,7 +636,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message LibraryInfoNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message LibraryInfoNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -662,7 +664,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -672,7 +674,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -683,7 +685,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -857,7 +859,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryInfoRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetLibraryInfoRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -873,14 +875,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetLibraryInfoRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -891,7 +893,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryInfoRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetLibraryInfoRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -907,14 +909,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetLibraryInfoRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -931,7 +933,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetLibraryInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetLibraryInfoRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -948,7 +950,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetLibraryInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetLibraryInfoRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -976,7 +978,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -986,7 +988,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -997,7 +999,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -1162,7 +1164,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message CreateLibraryReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message CreateLibraryReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -1178,14 +1180,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message CreateLibraryReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message CreateLibraryReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -1196,7 +1198,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message CreateLibraryReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message CreateLibraryReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -1212,14 +1214,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message CreateLibraryReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message CreateLibraryReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -1236,7 +1238,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message CreateLibraryReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message CreateLibraryReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -1253,7 +1255,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message CreateLibraryReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message CreateLibraryReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -1281,7 +1283,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -1291,7 +1293,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -1302,7 +1304,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -1547,7 +1549,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message CreateLibraryRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message CreateLibraryRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -1563,14 +1565,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message CreateLibraryRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message CreateLibraryRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -1581,7 +1583,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message CreateLibraryRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message CreateLibraryRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -1597,14 +1599,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message CreateLibraryRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message CreateLibraryRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -1621,7 +1623,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message CreateLibraryRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message CreateLibraryRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -1638,7 +1640,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message CreateLibraryRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message CreateLibraryRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -1666,7 +1668,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -1676,7 +1678,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -1687,7 +1689,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -1852,7 +1854,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message JoinLibraryReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message JoinLibraryReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -1868,14 +1870,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message JoinLibraryReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message JoinLibraryReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -1886,7 +1888,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message JoinLibraryReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message JoinLibraryReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -1902,14 +1904,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message JoinLibraryReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message JoinLibraryReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -1926,7 +1928,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message JoinLibraryReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message JoinLibraryReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -1943,7 +1945,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message JoinLibraryReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message JoinLibraryReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -1971,7 +1973,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -1981,7 +1983,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -1992,7 +1994,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -2157,7 +2159,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message JoinLibraryRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message JoinLibraryRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -2173,14 +2175,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message JoinLibraryRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message JoinLibraryRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -2191,7 +2193,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message JoinLibraryRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message JoinLibraryRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -2207,14 +2209,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message JoinLibraryRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message JoinLibraryRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -2231,7 +2233,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message JoinLibraryRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message JoinLibraryRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -2248,7 +2250,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message JoinLibraryRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message JoinLibraryRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -2276,7 +2278,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -2286,7 +2288,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -2297,7 +2299,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -2462,7 +2464,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message QuitLibraryReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message QuitLibraryReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -2478,14 +2480,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message QuitLibraryReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message QuitLibraryReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -2496,7 +2498,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message QuitLibraryReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message QuitLibraryReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -2512,14 +2514,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message QuitLibraryReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message QuitLibraryReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -2536,7 +2538,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message QuitLibraryReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message QuitLibraryReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -2553,7 +2555,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message QuitLibraryReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message QuitLibraryReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -2581,7 +2583,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -2591,7 +2593,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -2602,7 +2604,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -2737,7 +2739,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message QuitLibraryRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message QuitLibraryRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -2753,14 +2755,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message QuitLibraryRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message QuitLibraryRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -2771,7 +2773,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message QuitLibraryRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message QuitLibraryRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -2787,14 +2789,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message QuitLibraryRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message QuitLibraryRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -2811,7 +2813,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message QuitLibraryRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message QuitLibraryRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -2828,7 +2830,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message QuitLibraryRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message QuitLibraryRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -2856,7 +2858,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -2866,7 +2868,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -2877,7 +2879,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -3042,7 +3044,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryListReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetLibraryListReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -3058,14 +3060,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryListReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetLibraryListReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -3076,7 +3078,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryListReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetLibraryListReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -3092,14 +3094,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryListReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetLibraryListReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -3116,7 +3118,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetLibraryListReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetLibraryListReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -3133,7 +3135,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetLibraryListReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetLibraryListReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -3161,7 +3163,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -3171,7 +3173,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -3182,7 +3184,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -3317,7 +3319,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryListRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetLibraryListRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -3333,14 +3335,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryListRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetLibraryListRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -3351,7 +3353,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryListRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetLibraryListRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -3367,14 +3369,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryListRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetLibraryListRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -3391,7 +3393,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetLibraryListRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetLibraryListRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -3408,7 +3410,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetLibraryListRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetLibraryListRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -3436,7 +3438,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -3446,7 +3448,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -3457,7 +3459,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -3631,7 +3633,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message TransferLibraianReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message TransferLibraianReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -3647,14 +3649,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message TransferLibraianReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message TransferLibraianReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -3665,7 +3667,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message TransferLibraianReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message TransferLibraianReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -3681,14 +3683,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message TransferLibraianReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message TransferLibraianReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -3705,7 +3707,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message TransferLibraianReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message TransferLibraianReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -3722,7 +3724,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message TransferLibraianReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message TransferLibraianReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -3750,7 +3752,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -3760,7 +3762,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -3771,7 +3773,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -3936,7 +3938,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message TransferLibraianRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message TransferLibraianRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -3952,14 +3954,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message TransferLibraianRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message TransferLibraianRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -3970,7 +3972,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message TransferLibraianRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message TransferLibraianRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -3986,14 +3988,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message TransferLibraianRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message TransferLibraianRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -4010,7 +4012,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message TransferLibraianRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message TransferLibraianRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -4027,7 +4029,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message TransferLibraianRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message TransferLibraianRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -4055,7 +4057,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -4065,7 +4067,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -4076,7 +4078,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -4241,7 +4243,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ModifyMemberInfoReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message ModifyMemberInfoReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -4257,14 +4259,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ModifyMemberInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message ModifyMemberInfoReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -4275,7 +4277,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ModifyMemberInfoReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message ModifyMemberInfoReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -4291,14 +4293,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ModifyMemberInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message ModifyMemberInfoReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -4315,7 +4317,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ModifyMemberInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message ModifyMemberInfoReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -4332,7 +4334,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ModifyMemberInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message ModifyMemberInfoReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -4360,7 +4362,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -4370,7 +4372,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -4381,7 +4383,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -4608,7 +4610,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ModifyMemberInfoRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message ModifyMemberInfoRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -4624,14 +4626,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ModifyMemberInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message ModifyMemberInfoRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -4642,7 +4644,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ModifyMemberInfoRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message ModifyMemberInfoRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -4658,14 +4660,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ModifyMemberInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message ModifyMemberInfoRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -4682,7 +4684,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ModifyMemberInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message ModifyMemberInfoRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -4699,7 +4701,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ModifyMemberInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message ModifyMemberInfoRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -4727,7 +4729,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -4737,7 +4739,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -4748,7 +4750,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -4913,7 +4915,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserLibraryInfoNty failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message UserLibraryInfoNty failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -4929,14 +4931,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserLibraryInfoNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message UserLibraryInfoNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -4947,7 +4949,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserLibraryInfoNty failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message UserLibraryInfoNty failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -4963,14 +4965,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserLibraryInfoNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message UserLibraryInfoNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -4987,7 +4989,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message UserLibraryInfoNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message UserLibraryInfoNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -5004,7 +5006,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message UserLibraryInfoNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message UserLibraryInfoNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -5032,7 +5034,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -5042,7 +5044,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -5053,7 +5055,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -5227,7 +5229,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryMemberSimpleInfoReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetLibraryMemberSimpleInfoReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -5243,14 +5245,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryMemberSimpleInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetLibraryMemberSimpleInfoReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -5261,7 +5263,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryMemberSimpleInfoReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetLibraryMemberSimpleInfoReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -5277,14 +5279,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryMemberSimpleInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetLibraryMemberSimpleInfoReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -5301,7 +5303,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetLibraryMemberSimpleInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetLibraryMemberSimpleInfoReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -5318,7 +5320,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetLibraryMemberSimpleInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetLibraryMemberSimpleInfoReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -5346,7 +5348,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -5356,7 +5358,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -5367,7 +5369,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -5502,7 +5504,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryMemberSimpleInfoRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetLibraryMemberSimpleInfoRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -5518,14 +5520,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryMemberSimpleInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetLibraryMemberSimpleInfoRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -5536,7 +5538,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryMemberSimpleInfoRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetLibraryMemberSimpleInfoRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -5552,14 +5554,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryMemberSimpleInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetLibraryMemberSimpleInfoRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -5576,7 +5578,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetLibraryMemberSimpleInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetLibraryMemberSimpleInfoRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -5593,7 +5595,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetLibraryMemberSimpleInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetLibraryMemberSimpleInfoRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -5621,7 +5623,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -5631,7 +5633,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -5642,7 +5644,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -5827,7 +5829,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message AddLibraryBookReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -5843,14 +5845,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message AddLibraryBookReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -5861,7 +5863,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message AddLibraryBookReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -5877,14 +5879,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message AddLibraryBookReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -5901,7 +5903,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message AddLibraryBookReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message AddLibraryBookReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -5918,7 +5920,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message AddLibraryBookReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message AddLibraryBookReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -5946,7 +5948,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -5956,7 +5958,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -5967,7 +5969,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -6317,7 +6319,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message AddLibraryBookRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -6333,14 +6335,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message AddLibraryBookRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -6351,7 +6353,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message AddLibraryBookRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -6367,14 +6369,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message AddLibraryBookRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -6391,7 +6393,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message AddLibraryBookRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message AddLibraryBookRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -6408,7 +6410,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message AddLibraryBookRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message AddLibraryBookRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -6436,7 +6438,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -6446,7 +6448,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -6457,7 +6459,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -6622,7 +6624,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookCountReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message AddLibraryBookCountReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -6638,14 +6640,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookCountReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message AddLibraryBookCountReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -6656,7 +6658,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookCountReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message AddLibraryBookCountReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -6672,14 +6674,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookCountReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message AddLibraryBookCountReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -6696,7 +6698,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message AddLibraryBookCountReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message AddLibraryBookCountReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -6713,7 +6715,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message AddLibraryBookCountReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message AddLibraryBookCountReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -6741,7 +6743,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -6751,7 +6753,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -6762,7 +6764,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -6938,7 +6940,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookCountRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message AddLibraryBookCountRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -6954,14 +6956,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookCountRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message AddLibraryBookCountRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -6972,7 +6974,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookCountRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message AddLibraryBookCountRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -6988,14 +6990,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookCountRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message AddLibraryBookCountRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -7012,7 +7014,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message AddLibraryBookCountRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message AddLibraryBookCountRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -7029,7 +7031,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message AddLibraryBookCountRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message AddLibraryBookCountRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -7057,7 +7059,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -7067,7 +7069,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -7078,7 +7080,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -7243,7 +7245,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookListReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetBookListReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -7259,14 +7261,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookListReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetBookListReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -7277,7 +7279,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookListReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetBookListReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -7293,14 +7295,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookListReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetBookListReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -7317,7 +7319,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookListReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetBookListReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -7334,7 +7336,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookListReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetBookListReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -7362,7 +7364,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -7372,7 +7374,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -7383,7 +7385,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -7518,7 +7520,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BookListNty failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message BookListNty failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -7534,14 +7536,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BookListNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message BookListNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -7552,7 +7554,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BookListNty failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message BookListNty failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -7568,14 +7570,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BookListNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message BookListNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -7592,7 +7594,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BookListNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message BookListNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -7609,7 +7611,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BookListNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message BookListNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -7637,7 +7639,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -7647,7 +7649,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -7658,7 +7660,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -7832,7 +7834,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BooksChangeNty failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message BooksChangeNty failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -7848,14 +7850,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BooksChangeNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message BooksChangeNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -7866,7 +7868,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BooksChangeNty failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message BooksChangeNty failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -7882,14 +7884,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BooksChangeNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message BooksChangeNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -7906,7 +7908,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BooksChangeNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message BooksChangeNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -7923,7 +7925,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BooksChangeNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message BooksChangeNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -7951,7 +7953,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -7961,7 +7963,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -7972,7 +7974,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -8146,7 +8148,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BookVariantInfoItemsNty failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message BookVariantInfoItemsNty failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -8162,14 +8164,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BookVariantInfoItemsNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message BookVariantInfoItemsNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -8180,7 +8182,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BookVariantInfoItemsNty failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message BookVariantInfoItemsNty failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -8196,14 +8198,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BookVariantInfoItemsNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message BookVariantInfoItemsNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -8220,7 +8222,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BookVariantInfoItemsNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message BookVariantInfoItemsNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -8237,7 +8239,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BookVariantInfoItemsNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message BookVariantInfoItemsNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -8265,7 +8267,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -8275,7 +8277,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -8286,7 +8288,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -8460,7 +8462,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookListRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetBookListRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -8476,14 +8478,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookListRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetBookListRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -8494,7 +8496,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookListRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetBookListRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -8510,14 +8512,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookListRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetBookListRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -8534,7 +8536,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookListRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetBookListRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -8551,7 +8553,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookListRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetBookListRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -8579,7 +8581,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -8589,7 +8591,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -8600,7 +8602,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -8765,7 +8767,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetBookInfoReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -8781,14 +8783,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetBookInfoReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -8799,7 +8801,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetBookInfoReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -8815,14 +8817,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetBookInfoReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -8839,7 +8841,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetBookInfoReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -8856,7 +8858,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetBookInfoReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -8884,7 +8886,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -8894,7 +8896,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -8905,7 +8907,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -9075,7 +9077,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetBookInfoRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -9091,14 +9093,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetBookInfoRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -9109,7 +9111,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetBookInfoRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -9125,14 +9127,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetBookInfoRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -9149,7 +9151,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetBookInfoRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -9166,7 +9168,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetBookInfoRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -9194,7 +9196,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -9204,7 +9206,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -9215,7 +9217,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -9400,7 +9402,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookByBookNameReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetBookByBookNameReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -9416,14 +9418,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookByBookNameReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetBookByBookNameReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -9434,7 +9436,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookByBookNameReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetBookByBookNameReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -9450,14 +9452,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookByBookNameReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetBookByBookNameReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -9474,7 +9476,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookByBookNameReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetBookByBookNameReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -9491,7 +9493,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookByBookNameReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetBookByBookNameReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -9519,7 +9521,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -9529,7 +9531,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -9540,7 +9542,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -9710,7 +9712,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookByBookNameRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetBookByBookNameRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -9726,14 +9728,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookByBookNameRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetBookByBookNameRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -9744,7 +9746,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookByBookNameRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetBookByBookNameRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -9760,14 +9762,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookByBookNameRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetBookByBookNameRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -9784,7 +9786,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookByBookNameRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetBookByBookNameRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -9801,7 +9803,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookByBookNameRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetBookByBookNameRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -9829,7 +9831,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -9839,7 +9841,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -9850,7 +9852,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -10024,7 +10026,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoListReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetBookInfoListReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -10040,14 +10042,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoListReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetBookInfoListReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -10058,7 +10060,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoListReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetBookInfoListReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -10074,14 +10076,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoListReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetBookInfoListReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -10098,7 +10100,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookInfoListReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetBookInfoListReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -10115,7 +10117,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookInfoListReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetBookInfoListReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -10143,7 +10145,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -10153,7 +10155,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -10164,7 +10166,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -10340,7 +10342,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoListRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetBookInfoListRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -10356,14 +10358,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoListRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetBookInfoListRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -10374,7 +10376,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoListRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetBookInfoListRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -10390,14 +10392,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoListRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetBookInfoListRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -10414,7 +10416,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookInfoListRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetBookInfoListRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -10431,7 +10433,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookInfoListRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetBookInfoListRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -10459,7 +10461,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -10469,7 +10471,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -10480,7 +10482,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -10654,7 +10656,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetBookOrderDetailInfoReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -10670,14 +10672,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetBookOrderDetailInfoReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -10688,7 +10690,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetBookOrderDetailInfoReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -10704,14 +10706,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetBookOrderDetailInfoReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -10728,7 +10730,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookOrderDetailInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetBookOrderDetailInfoReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -10745,7 +10747,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookOrderDetailInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetBookOrderDetailInfoReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -10773,7 +10775,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -10783,7 +10785,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -10794,7 +10796,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -10929,7 +10931,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoNty failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetBookOrderDetailInfoNty failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -10945,14 +10947,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetBookOrderDetailInfoNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -10963,7 +10965,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoNty failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetBookOrderDetailInfoNty failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -10979,14 +10981,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetBookOrderDetailInfoNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -11003,7 +11005,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookOrderDetailInfoNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetBookOrderDetailInfoNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -11020,7 +11022,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookOrderDetailInfoNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetBookOrderDetailInfoNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -11048,7 +11050,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -11058,7 +11060,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -11069,7 +11071,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -11243,7 +11245,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetBookOrderDetailInfoRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -11259,14 +11261,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetBookOrderDetailInfoRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -11277,7 +11279,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message GetBookOrderDetailInfoRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -11293,14 +11295,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message GetBookOrderDetailInfoRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -11317,7 +11319,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookOrderDetailInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetBookOrderDetailInfoRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -11334,7 +11336,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookOrderDetailInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message GetBookOrderDetailInfoRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -11362,7 +11364,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -11372,7 +11374,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -11383,7 +11385,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -11548,7 +11550,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message OutStoreOrderReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message OutStoreOrderReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -11564,14 +11566,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message OutStoreOrderReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message OutStoreOrderReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -11582,7 +11584,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message OutStoreOrderReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message OutStoreOrderReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -11598,14 +11600,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message OutStoreOrderReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message OutStoreOrderReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -11622,7 +11624,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message OutStoreOrderReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message OutStoreOrderReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -11639,7 +11641,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message OutStoreOrderReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message OutStoreOrderReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -11667,7 +11669,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -11677,7 +11679,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -11688,7 +11690,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -11873,7 +11875,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message OutStoreOrderRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message OutStoreOrderRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -11889,14 +11891,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message OutStoreOrderRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message OutStoreOrderRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -11907,7 +11909,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message OutStoreOrderRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message OutStoreOrderRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -11923,14 +11925,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message OutStoreOrderRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message OutStoreOrderRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -11947,7 +11949,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message OutStoreOrderRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message OutStoreOrderRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -11964,7 +11966,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message OutStoreOrderRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message OutStoreOrderRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -11992,7 +11994,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -12002,7 +12004,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -12013,7 +12015,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -12178,7 +12180,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ManagerScanOrderForUserGettingBooksReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message ManagerScanOrderForUserGettingBooksReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -12194,14 +12196,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ManagerScanOrderForUserGettingBooksReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message ManagerScanOrderForUserGettingBooksReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -12212,7 +12214,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ManagerScanOrderForUserGettingBooksReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message ManagerScanOrderForUserGettingBooksReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -12228,14 +12230,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ManagerScanOrderForUserGettingBooksReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message ManagerScanOrderForUserGettingBooksReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -12252,7 +12254,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ManagerScanOrderForUserGettingBooksReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message ManagerScanOrderForUserGettingBooksReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -12269,7 +12271,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ManagerScanOrderForUserGettingBooksReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message ManagerScanOrderForUserGettingBooksReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -12297,7 +12299,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -12307,7 +12309,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -12318,7 +12320,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -12483,7 +12485,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmNty failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message UserGetBooksOrderConfirmNty failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -12499,14 +12501,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message UserGetBooksOrderConfirmNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -12517,7 +12519,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmNty failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message UserGetBooksOrderConfirmNty failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -12533,14 +12535,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message UserGetBooksOrderConfirmNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -12557,7 +12559,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message UserGetBooksOrderConfirmNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message UserGetBooksOrderConfirmNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -12574,7 +12576,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message UserGetBooksOrderConfirmNty failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message UserGetBooksOrderConfirmNty failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -12602,7 +12604,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -12612,7 +12614,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -12623,7 +12625,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -12799,7 +12801,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ManagerScanOrderForUserGettingBooksRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message ManagerScanOrderForUserGettingBooksRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -12815,14 +12817,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ManagerScanOrderForUserGettingBooksRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message ManagerScanOrderForUserGettingBooksRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -12833,7 +12835,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ManagerScanOrderForUserGettingBooksRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message ManagerScanOrderForUserGettingBooksRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -12849,14 +12851,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ManagerScanOrderForUserGettingBooksRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message ManagerScanOrderForUserGettingBooksRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -12873,7 +12875,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ManagerScanOrderForUserGettingBooksRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message ManagerScanOrderForUserGettingBooksRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -12890,7 +12892,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ManagerScanOrderForUserGettingBooksRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message ManagerScanOrderForUserGettingBooksRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -12918,7 +12920,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -12928,7 +12930,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -12939,7 +12941,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -13104,7 +13106,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message UserGetBooksOrderConfirmReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -13120,14 +13122,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message UserGetBooksOrderConfirmReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -13138,7 +13140,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message UserGetBooksOrderConfirmReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -13154,14 +13156,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message UserGetBooksOrderConfirmReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -13178,7 +13180,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message UserGetBooksOrderConfirmReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message UserGetBooksOrderConfirmReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -13195,7 +13197,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message UserGetBooksOrderConfirmReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message UserGetBooksOrderConfirmReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -13223,7 +13225,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -13233,7 +13235,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -13244,7 +13246,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -13420,7 +13422,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message UserGetBooksOrderConfirmRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -13436,14 +13438,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message UserGetBooksOrderConfirmRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -13454,7 +13456,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message UserGetBooksOrderConfirmRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -13470,14 +13472,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message UserGetBooksOrderConfirmRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -13494,7 +13496,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message UserGetBooksOrderConfirmRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message UserGetBooksOrderConfirmRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -13511,7 +13513,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message UserGetBooksOrderConfirmRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message UserGetBooksOrderConfirmRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -13539,7 +13541,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -13549,7 +13551,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -13560,7 +13562,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -13725,7 +13727,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message CancelOrderReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -13741,14 +13743,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message CancelOrderReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -13759,7 +13761,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message CancelOrderReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -13775,14 +13777,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message CancelOrderReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -13799,7 +13801,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message CancelOrderReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message CancelOrderReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -13816,7 +13818,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message CancelOrderReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message CancelOrderReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -13844,7 +13846,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -13854,7 +13856,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -13865,7 +13867,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -14046,7 +14048,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message CancelOrderRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -14062,14 +14064,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message CancelOrderRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -14080,7 +14082,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message CancelOrderRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -14096,14 +14098,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message CancelOrderRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -14120,7 +14122,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message CancelOrderRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message CancelOrderRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -14137,7 +14139,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message CancelOrderRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message CancelOrderRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -14165,7 +14167,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -14175,7 +14177,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -14186,7 +14188,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -14351,7 +14353,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ReturnBackReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message ReturnBackReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -14367,14 +14369,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ReturnBackReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message ReturnBackReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -14385,7 +14387,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ReturnBackReq failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message ReturnBackReq failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -14401,14 +14403,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ReturnBackReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message ReturnBackReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -14425,7 +14427,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ReturnBackReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message ReturnBackReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -14442,7 +14444,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ReturnBackReq failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message ReturnBackReq failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -14470,7 +14472,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -14480,7 +14482,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -14491,7 +14493,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -14681,7 +14683,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ReturnBackRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message ReturnBackRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -14697,14 +14699,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ReturnBackRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message ReturnBackRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -14715,7 +14717,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const o
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ReturnBackRes failed, error: %s"), InitializationErrorString().c_str());
+      CLOG_ERROR("Encode message ReturnBackRes failed, error: %s", InitializationErrorString().c_str());
       return false;
     }
 
@@ -14731,14 +14733,14 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     {
         if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            CLOG_ERROR("stream append capacity fail IsAttach:%d", stream.IsAttach());
             return false;
         }
     }
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ReturnBackRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Encode message ReturnBackRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -14755,7 +14757,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ReturnBackRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message ReturnBackRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -14772,7 +14774,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ReturnBackRes failed, error: %s"), InitializationErrorString().c_str());
+        CLOG_ERROR("Decode message ReturnBackRes failed, error: %s", InitializationErrorString().c_str());
         return false;
     }
 
@@ -14800,7 +14802,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -14810,7 +14812,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("Turn JsonString fail:%s", KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -14821,7 +14823,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
+        CLOG_WARN("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s", jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 

@@ -27,16 +27,16 @@
 */
 
 #include <pch.h>
-#include <kernel/kernel.h>
 #include <service_common/common/common.h>
 #include <Comps/config/impl/ConfigLoaderFactory.h>
 #include <Comps/config/impl/ConfigLoader.h>
 
-SERVICE_BEGIN
+#include "kernel/comp/memory/ObjPoolWrap.h"
 
-KERNEL_NS::CompFactory *ConfigLoaderFactory::FactoryCreate()
+SERVICE_BEGIN
+    KERNEL_NS::CompFactory *ConfigLoaderFactory::FactoryCreate()
 {
-    return KERNEL_NS::ObjPoolWrap<ConfigLoaderFactory>::NewByAdapter(_buildType.V);
+    return kernel::ObjPoolWrap<ConfigLoaderFactory>::NewByAdapter(_buildType.V);
 }
 
 void ConfigLoaderFactory::Release()

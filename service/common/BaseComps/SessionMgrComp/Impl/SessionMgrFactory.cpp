@@ -27,20 +27,20 @@
 */
 
 #include <pch.h>
-#include <kernel/kernel.h>
 #include <service/common/BaseComps/SessionMgrComp/Impl/SessionMgr.h>
 #include <service/common/BaseComps/SessionMgrComp/Impl/SessionMgrFactory.h>
 
-SERVICE_BEGIN
+#include "kernel/comp/memory/ObjPoolWrap.h"
 
-KERNEL_NS::CompFactory *SessionMgrFactory::FactoryCreate()
+SERVICE_BEGIN
+    KERNEL_NS::CompFactory *SessionMgrFactory::FactoryCreate()
 {
     return KERNEL_NS::ObjPoolWrap<SessionMgrFactory>::NewByAdapter(_buildType.V);
 }
 
 void SessionMgrFactory::Release()
 {
-    KERNEL_NS::ObjPoolWrap<SessionMgrFactory>::DeleteByAdapter(_buildType.V, this);
+    kernel::ObjPoolWrap<SessionMgrFactory>::DeleteByAdapter(_buildType.V, this);
 }
 
 KERNEL_NS::CompObject *SessionMgrFactory::Create() const

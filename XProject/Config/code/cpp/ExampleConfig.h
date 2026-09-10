@@ -1,7 +1,7 @@
 // Generate by ConfigExporter, Dont modify it!!!
-// file path:C:\workplace\mine\CrystalNet\CrystalNet\CrystalNet\XProject\scripts\../Config/xlsx/example.xlsx
-// file path:C:\workplace\mine\CrystalNet\CrystalNet\CrystalNet\XProject\scripts\../Config/xlsx/example.xlsx
-// sheet name:示例part1|Example;示例part2|Example
+// file path:D:\workplace\Development\CrystalNet\CrystalNet\XProject\scripts\../Config/xlsx/example.xlsx
+// file path:D:\workplace\Development\CrystalNet\CrystalNet\XProject\scripts\../Config/xlsx/example.xlsx
+// sheet name:示例part2|Example;示例part1|Example
 
 #ifndef __CONFIG_EXAMPLE_CONFIG_H__
 #define __CONFIG_EXAMPLE_CONFIG_H__

@@ -45,6 +45,14 @@
 
 #include "OptionComp/storage/MongoDB/Impl/MongodbProxyFactory.h"
 #include "OptionComp/storage/MongoDB/Interface/IMongodbProxy.h"
+#include <kernel/comp/NetEngine/Poller/impl/Session/LibSession.h>
+#include <kernel/comp/Event/event_inc.h>
+
+#include "kernel/comp/NetEngine/Poller/Defs/PollerEvent.h"
+#include <kernel/comp/Coroutines/Runner.h>
+#include <kernel/comp/Coroutines/CoDelay.h>
+#include <kernel/comp/Coder/base64.h>
+#include <kernel/comp/NetEngine/Poller/impl/IpRule/IpRuleMgr.h>
 
 SERVICE_BEGIN
     // 配置项

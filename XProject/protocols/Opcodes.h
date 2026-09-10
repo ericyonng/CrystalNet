@@ -32,7 +32,12 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <unordered_map>
+
+#include "kernel/comp/Log/log.h"
+#include "kernel/comp/NetEngine/Protocol/ICoder.h"
+#include "kernel/comp/Utils/ContainerUtil.h"
 
 struct OpcodeInfo
 {
@@ -223,7 +228,7 @@ ALWAYS_INLINE void Opcodes::RegisterCoderFactory(Int32 opcode, KERNEL_NS::ICoder
     auto iter = _opcodeRefCoderFactory.find(opcode);
     if(iter != _opcodeRefCoderFactory.end())
     {
-        g_Log->Warn(LOGFMT_NON_OBJ_TAG(Opcodes, "replace old coder factory with new one opcode info:%s."), GetOpcodeInfo(opcode)->ToString().c_str());
+        CLOG_WARN_GLOBAL(Opcodes, "replace old coder factory with new one opcode info:%s.", GetOpcodeInfo(opcode)->ToString().c_str());
         iter->second->Release();
         iter->second = coderFactory;
         return;

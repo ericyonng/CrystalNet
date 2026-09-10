@@ -1,3 +1,11 @@
+/*
+ * @Author: ericyonng 120453674@qq.com
+ * @Date: 2026-09-10 00:37:54
+ * @LastEditors: ericyonng 120453674@qq.com
+ * @LastEditTime: 2026-09-11 01:10:41
+ * @FilePath: \XProject\service\LogicService\Comps\PassTime\impl\PassTimeGlobalFactory.cpp
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 /*!
  *  MIT License
  *  
@@ -27,15 +35,15 @@
 */
 
 #include <pch.h>
-#include <kernel/kernel.h>
 #include <Comps/PassTime/impl/PassTimeGlobalFactory.h>
 #include <Comps/PassTime/impl/PassTimeGlobal.h>
 
-SERVICE_BEGIN
+#include "kernel/comp/memory/ObjPoolWrap.h"
 
-KERNEL_NS::CompFactory *PassTimeGlobalFactory::FactoryCreate()
+SERVICE_BEGIN
+    KERNEL_NS::CompFactory *PassTimeGlobalFactory::FactoryCreate()
 {
-    return KERNEL_NS::ObjPoolWrap<PassTimeGlobalFactory>::NewByAdapter(_buildType.V);
+    return kernel::ObjPoolWrap<PassTimeGlobalFactory>::NewByAdapter(_buildType.V);
 }
 
 void PassTimeGlobalFactory::Release()

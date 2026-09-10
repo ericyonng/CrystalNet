@@ -1,3 +1,11 @@
+/*
+ * @Author: ericyonng 120453674@qq.com
+ * @Date: 2026-09-10 00:37:54
+ * @LastEditors: ericyonng 120453674@qq.com
+ * @LastEditTime: 2026-09-11 01:08:24
+ * @FilePath: \XProject\service\LogicService\Comps\config\impl\ConfigLoader.cpp
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 /*!
  *  MIT License
  *  
@@ -27,10 +35,10 @@
 */
 
 #include <pch.h>
-#include <kernel/kernel.h>
 #include <Comps/config/impl/ConfigLoader.h>
 #include <Comps/config/impl/ConfigLoaderFactory.h>
 #include <cpp/AllConfigs.h>
+#include <kernel/comp/Log/log.h>
 
 SERVICE_BEGIN
 
@@ -62,7 +70,7 @@ Int32 ConfigLoader::_OnHostInit()
     if(UNLIKELY(basePath.empty()))
     {
         auto owner = GetOwner();
-        g_Log->Error(LOGFMT_OBJ_TAG("ConfigDataPath is empty please check owner:%s"), owner ? owner->GetObjName().c_str():"");
+        CLOG_ERROR("ConfigDataPath is empty please check owner:%s",  owner ? owner->GetObjName().c_str():"");
         return Status::ConfigError;
     }
 

@@ -27,15 +27,15 @@
 */
 
 #include <pch.h>
-#include <kernel/kernel.h>
 #include <service/common/BaseComps/StubHandle/Impl/StubHandleMgr.h>
 #include <service/common/BaseComps/StubHandle/Impl/StubHandleMgrFactory.h>
 
-SERVICE_BEGIN
+#include "kernel/comp/memory/ObjPoolWrap.h"
 
-KERNEL_NS::CompFactory *StubHandleMgrFactory::FactoryCreate()
+SERVICE_BEGIN
+    KERNEL_NS::CompFactory *StubHandleMgrFactory::FactoryCreate()
 {
-    return KERNEL_NS::ObjPoolWrap<StubHandleMgrFactory>::NewByAdapter(_buildType.V);
+    return kernel::ObjPoolWrap<StubHandleMgrFactory>::NewByAdapter(_buildType.V);
 }
 
 void StubHandleMgrFactory::Release()

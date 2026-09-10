@@ -1,3 +1,11 @@
+/*
+ * @Author: ericyonng 120453674@qq.com
+ * @Date: 2026-09-07 23:53:10
+ * @LastEditors: ericyonng 120453674@qq.com
+ * @LastEditTime: 2026-09-11 01:06:58
+ * @FilePath: \XProject\protocols\OrmMgr.cpp
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 /*!
  *  MIT License
  *  
@@ -29,13 +37,14 @@
 #include <pch.h>
 #include <protocols/OrmMgr.h>
 #include <protocols/OrmMgrFactory.h>
-#include <kernel/kernel.h>
 #include <service_common/protocol/ORM/IOrmData.h>
 #include <protocols/orm_out/AllOrmDatas.h>
+#include <kernel/comp/Log/log.h>
+
+#include "kernel/comp/Utils/ContainerUtil.h"
 
 SERVICE_COMMON_BEGIN
-
-OrmMgr::OrmMgr()
+    OrmMgr::OrmMgr()
 :IOrmMgr(KERNEL_NS::RttiUtil::GetTypeId<OrmMgr>())
 {
 
@@ -71,7 +80,7 @@ void OrmMgr::AddOrmFactory(IOrmDataFactory *factory)
     auto iter = _ormIdRefOrmFactory.find(ormId);
     if(UNLIKELY(iter != _ormIdRefOrmFactory.end()))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("exists orm id:%lld, factory"), ormId);
+        CLOG_WARN("exists orm id:%lld, factory", ormId);
         iter->second->Release();
         _ormIdRefOrmFactory.erase(iter);
     }

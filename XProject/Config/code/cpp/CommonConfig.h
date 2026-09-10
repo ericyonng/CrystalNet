@@ -1,5 +1,5 @@
 // Generate by ConfigExporter, Dont modify it!!!
-// file path:C:\workplace\mine\CrystalNet\CrystalNet\CrystalNet\XProject\scripts\../Config/xlsx/公共参数.xlsx
+// file path:D:\workplace\Development\CrystalNet\CrystalNet\XProject\scripts\../Config/xlsx/公共参数.xlsx
 // sheet name:公共参数|Common
 
 #ifndef __CONFIG_COMMON_CONFIG_H__

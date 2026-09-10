@@ -1,5 +1,5 @@
 // Generate by ConfigExporter, Dont modify it!!!
-// file path:C:\workplace\mine\CrystalNet\CrystalNet\CrystalNet\XProject\scripts\../Config/xlsx/权限表.xlsx
+// file path:D:\workplace\Development\CrystalNet\CrystalNet\XProject\scripts\../Config/xlsx/权限表.xlsx
 // sheet name:权限表|RoleAuth
 
 #ifndef __CONFIG_ROLEAUTH_CONFIG_H__

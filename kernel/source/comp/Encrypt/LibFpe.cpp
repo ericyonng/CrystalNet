@@ -81,7 +81,7 @@ void num2str(const BIGNUM *X, unsigned int *Y, unsigned int radix, int len, BN_C
         // XX / r = dv ... rem
         BN_div(dv, rem, XX, r, ctx);
         // Y[i] = XX % r
-        Y[i] = BN_get_word(rem);
+        Y[i] = (unsigned int)BN_get_word(rem);
         // XX = XX / r
         BN_copy(XX, dv);
     }
@@ -106,8 +106,8 @@ void FF1_encrypt(const unsigned int *in, unsigned int *out, AES_KEY *aes_enc_ctx
     } is_endian = { 1 };
 
     memcpy(out, in, inlen << 2);
-    int u = floor2(inlen, 1);
-    int v = inlen - u;
+    const int u = static_cast<int>(floor2(inlen, 1));
+    const int v = static_cast<int>(inlen) - u;
     unsigned int *A = out, *B = out + u;
     pow_uv(qpow_u, qpow_v, radix, u, v, ctx);
 
@@ -115,8 +115,8 @@ void FF1_encrypt(const unsigned int *in, unsigned int *out, AES_KEY *aes_enc_ctx
     const int b = ceil2(temp, 3);
     const int d = 4 * ceil2(b, 2) + 4;
 
-    int pad = ( (-tweaklen - b - 1) % 16 + 16 ) % 16;
-    int Qlen = tweaklen + pad + 1 + b;
+    const int pad = static_cast<int>((16 - (tweaklen + b + 1) % 16) % 16);
+    const int Qlen = static_cast<int>(tweaklen) + pad + 1 + b;
     unsigned char P[16];
     unsigned char *Q = (unsigned char *)OPENSSL_malloc(Qlen), *Bytes = (unsigned char *)OPENSSL_malloc(b);
 
@@ -141,8 +141,8 @@ void FF1_encrypt(const unsigned int *in, unsigned int *out, AES_KEY *aes_enc_ctx
         P[15] = tweaklen & 0xff;
     } else {
         *( (unsigned int *)(P + 3) ) = (radix << 8) | 10;
-        *( (unsigned int *)(P + 8) ) = inlen;
-        *( (unsigned int *)(P + 12) ) = tweaklen;
+        *( (unsigned int *)(P + 8) ) = (unsigned int)inlen;
+        *( (unsigned int *)(P + 12) ) = (unsigned int)tweaklen;
     }
 
     // initialize Q
@@ -160,7 +160,7 @@ void FF1_encrypt(const unsigned int *in, unsigned int *out, AES_KEY *aes_enc_ctx
 
         // i
         Q[tweaklen + pad] = i & 0xff;
-        str2num(bnum, B, radix, inlen - m, ctx);
+        str2num(bnum, B, radix, (unsigned int)(inlen - m), ctx);
         int BytesLen = BN_bn2bin(bnum, Bytes);
         memset(Q + Qlen - b, 0x00, b);
 
@@ -250,8 +250,8 @@ void FF1_decrypt(const unsigned int *in, unsigned int *out, AES_KEY *aes_enc_ctx
     } is_endian = { 1 };
 
     memcpy(out, in, inlen << 2);
-    int u = floor2(inlen, 1);
-    int v = inlen - u;
+    const int u = static_cast<int>(floor2(inlen, 1));
+    const int v = static_cast<int>(inlen) - u;
     unsigned int *A = out, *B = out + u;
     pow_uv(qpow_u, qpow_v, radix, u, v, ctx);
 
@@ -259,8 +259,8 @@ void FF1_decrypt(const unsigned int *in, unsigned int *out, AES_KEY *aes_enc_ctx
     const int b = ceil2(temp, 3);
     const int d = 4 * ceil2(b, 2) + 4;
 
-    int pad = ( (-tweaklen - b - 1) % 16 + 16 ) % 16;
-    int Qlen = tweaklen + pad + 1 + b;
+    const int pad = static_cast<int>((16 - (tweaklen + b + 1) % 16) % 16);
+    const int Qlen = static_cast<int>(tweaklen) + pad + 1 + b;
     unsigned char P[16];
     unsigned char *Q = (unsigned char *)OPENSSL_malloc(Qlen), *Bytes = (unsigned char *)OPENSSL_malloc(b);
     // initialize P
@@ -284,8 +284,8 @@ void FF1_decrypt(const unsigned int *in, unsigned int *out, AES_KEY *aes_enc_ctx
         P[15] = tweaklen & 0xff;
     } else {
         *( (unsigned int *)(P + 3) ) = (radix << 8) | 10;
-        *( (unsigned int *)(P + 8) ) = inlen;
-        *( (unsigned int *)(P + 12) ) = tweaklen;
+        *( (unsigned int *)(P + 8) ) = (unsigned int)inlen;
+        *( (unsigned int *)(P + 12) ) = (unsigned int)tweaklen;
     }
 
     // initialize Q
@@ -303,7 +303,7 @@ void FF1_decrypt(const unsigned int *in, unsigned int *out, AES_KEY *aes_enc_ctx
 
         // i
         Q[tweaklen + pad] = i & 0xff;
-        str2num(anum, A, radix, inlen - m, ctx);
+        str2num(anum, A, radix, (unsigned int)(inlen - m), ctx);
         memset(Q + Qlen - b, 0x00, b);
         int BytesLen = BN_bn2bin(anum, Bytes);
         int qtmp = Qlen - BytesLen;

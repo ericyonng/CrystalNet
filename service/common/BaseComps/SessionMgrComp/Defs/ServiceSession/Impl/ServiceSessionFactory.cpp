@@ -27,7 +27,6 @@
 */
 
 #include <pch.h>
-#include <kernel/kernel.h>
 #include <service/common/BaseComps/SessionMgrComp/Defs/ServiceSession/Impl/ServiceSession.h>
 #include <service/common/BaseComps/SessionMgrComp/Defs/ServiceSession/Impl/ServiceSessionFactory.h>
 

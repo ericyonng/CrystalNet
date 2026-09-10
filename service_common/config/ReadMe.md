@@ -33,7 +33,6 @@
     
     #pragma once
     
-    #include <kernel/kernel.h>
     #include <service_common/config/config.h>
     
     SERVICE_BEGIN

@@ -1,9 +1,14 @@
 // Generate by ConfigExporter, Dont modify it!!!
-// file path:C:\workplace\mine\CrystalNet\CrystalNet\CrystalNet\XProject\scripts\../Config/xlsx/权限表.xlsx
+// file path:D:\workplace\Development\CrystalNet\CrystalNet\XProject\scripts\../Config/xlsx/权限表.xlsx
 // sheet name:权限表|RoleAuth
 
 #include <pch.h>
-#include <kernel/kernel.h>
+#include <kernel/comp/Log/log.h>
+#include <kernel/comp/Utils/StringUtil.h>
+#include <kernel/comp/Utils/ContainerUtil.h>
+#include <kernel/comp/Utils/FileUtil.h>
+#include <kernel/comp/Encrypt/LibDigest.h>
+#include <kernel/comp/Coder/base64.h>
 #include <service_common/config/DataTypeHelper.h>
 #include <service_common/config/IConfigLoader.h>
 #include <openssl/md5.h>

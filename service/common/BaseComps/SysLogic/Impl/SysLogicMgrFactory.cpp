@@ -27,15 +27,15 @@
 */
 
 #include <pch.h>
-#include <kernel/kernel.h>
 #include <service/common/BaseComps/SysLogic/Impl/SysLogicMgr.h>
 #include <service/common/BaseComps/SysLogic/Impl/SysLogicMgrFactory.h>
 
-SERVICE_BEGIN
+#include "kernel/comp/memory/ObjPoolWrap.h"
 
-KERNEL_NS::CompFactory *SysLogicMgrFactory::FactoryCreate()
+SERVICE_BEGIN
+    KERNEL_NS::CompFactory *SysLogicMgrFactory::FactoryCreate()
 {
-    return KERNEL_NS::ObjPoolWrap<SysLogicMgrFactory>::NewByAdapter(_buildType.V);
+    return kernel::ObjPoolWrap<SysLogicMgrFactory>::NewByAdapter(_buildType.V);
 }
 
 void SysLogicMgrFactory::Release()

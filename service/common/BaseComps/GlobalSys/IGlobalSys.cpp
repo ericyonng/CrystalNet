@@ -27,11 +27,16 @@
 */
 
 #include <pch.h>
-#include <kernel/kernel.h>
 #include <service_common/service_proxy/ServiceProxyInc.h>
 #include <service_common/application/Application.h>
 #include <service/common/BaseComps/GlobalSys/IGlobalSys.h>
 #include <service/common/BaseComps/SessionMgrComp/SessionMgr.h>
+
+#include "kernel/comp/Event/EventManager.h"
+#include "kernel/comp/NetEngine/Poller/Defs/PollerEvent.h"
+#include "kernel/comp/NetEngine/Poller/impl/IpRule/IpRuleMgr.h"
+#include "kernel/comp/NetEngine/Poller/impl/Tcp/TcpPollerMgr.h"
+#include "kernel/comp/Utils/SocketUtil.h"
 
 #ifndef DISABLE_OPCODES
     #include <protocols/protocols.h>

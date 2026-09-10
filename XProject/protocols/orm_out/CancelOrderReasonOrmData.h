@@ -30,7 +30,6 @@
 #define __PROTOCOLS_ORM_OUT_CANCELORDERREASONORMDATA_H__
 
 #pragma once
-#include <kernel/kernel.h>
 #include <service_common/protocol/ORM/IOrmData.h>
 
 #include <string>
