@@ -114,10 +114,6 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
         return Status::SystemUtil_NotLittleEndian;
     }
 
-    // 设置最大文件描述符数量
-    Int64 oldSoftLimit = 0;
-    Int64 oldHardLimit = 0;
-
     Int32 err = Status::Success;
 
     // ini 文件路径

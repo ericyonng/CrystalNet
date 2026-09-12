@@ -14,7 +14,10 @@ print('_ARGS:', _ARGS[1], _ARGS[2], _ARGS[3], ', ISUSE_CLANG:', ISUSE_CLANG)
 
 -- root directory
 ROOT_DIR = "../../"
-WIN_ROOT_DIR = ".\\..\\..\\"
+if not IS_WINDOWS then
+    ROOT_DIR = "../../../"
+end
+
 XPROJ_PATH = ROOT_DIR .. "XProject/"
 -- header directory
 KERNEL_HEADER_DIR = ROOT_DIR .. "kernel/kernel_pch/"
