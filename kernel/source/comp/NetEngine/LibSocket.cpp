@@ -39,18 +39,68 @@
 
 #include <kernel/comp/NetEngine/LibSocket.h>
 
-#if CRYSTAL_TARGET_PLATFROM_LINUX
-    #include <sys/time.h>
-    #include <sys/stat.h>
-    #include <fcntl.h>
-    #include <sys/eventfd.h>    // 多线程多进程事件通知机制
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+ #include <linux/version.h>
+ #include <sys/time.h>
+ #include <sys/stat.h>
+ #include <fcntl.h>
+ #include <sys/eventfd.h>    // 多线程多进程事件通知机制
+ #include <netinet/tcp.h>
 #endif
 
-#if CRYSTAL_TARGET_PLATFROM_WINDOWS
-
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+ #include <ws2def.h>
+ #include <WinSock2.h>
 #endif
+
 
 KERNEL_BEGIN
+
+Int32 LibSocketOptionFlag::ToOptionFlag(Int32 level, Int32 optname)
+{
+    switch (level)
+    {
+    case SOL_SOCKET: return _ToSockOptionFlag(optname);
+        break;
+    case IPPROTO_TCP: return _ToProtoTcpOptionFlag(optname);
+    default:
+        break;
+    }
+
+    return LibSocketOptionFlag::Unknown;
+}
+
+Int32 LibSocketOptionFlag::_ToSockOptionFlag(Int32 optname)
+{
+    switch (optname)
+    {
+    case SO_REUSEADDR: return LibSocketOptionFlag::ReuseAddr;
+        break;
+#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+    #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,9,0)
+    case SO_REUSEPORT: return LibSocketOptionFlag::ReusePort;
+        break;
+    #endif
+#endif
+    default:
+        break;
+    }
+
+    return LibSocketOptionFlag::Unknown;
+}
+
+Int32 LibSocketOptionFlag::_ToProtoTcpOptionFlag(Int32 optname)
+{
+    switch (optname)
+    {
+    case TCP_NODELAY: return LibSocketOptionFlag::NoDelay;
+        break;
+    default:
+        break;
+    }
+
+    return LibSocketOptionFlag::Unknown;
+}
 
 LibSocket::LibSocket()
 :_af(0)

@@ -39,15 +39,6 @@
 #include <kernel/comp/NetEngine/LibAddr.h>
 #include <kernel/common/LibSockLen.h>
 
-#if CRYSTAL_TARGET_PLATFORM_LINUX
- #include <linux/version.h>
-#endif
-
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
- #include <ws2def.h>
- #include <WinSock2.h>
-#endif
-
 KERNEL_BEGIN
 
 class LibSession;
@@ -65,52 +56,11 @@ public:
         CloseOnExec = 5,        // SOCK_CLOEXEC是当服务器宕掉后还可以仍然使用端口避免设备掉线
     };
 
-    static Int32 ToOptionFlag(Int32 level, Int32 optname)
-    {
-        switch (level)
-        {
-        case SOL_SOCKET: return _ToSockOptionFlag(optname);
-            break;
-        case IPPROTO_TCP: return _ToProtoTcpOptionFlag(optname);
-        default:
-            break;
-        }
-
-        return LibSocketOptionFlag::Unknown;
-    }
-
+    static Int32 ToOptionFlag(Int32 level, Int32 optname);
 private:
-    static Int32 _ToSockOptionFlag(Int32 optname)
-    {
-        switch (optname)
-        {
-        case SO_REUSEADDR: return LibSocketOptionFlag::ReuseAddr;
-            break;
-    #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-     #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,9,0)
-        case SO_REUSEPORT: return LibSocketOptionFlag::ReusePort;
-            break;
-     #endif
-    #endif
-        default:
-            break;
-        }
+    static Int32 _ToSockOptionFlag(Int32 optname);
 
-        return LibSocketOptionFlag::Unknown;
-    }
-
-    static Int32 _ToProtoTcpOptionFlag(Int32 optname)
-    {
-        switch (optname)
-        {
-        case TCP_NODELAY: return LibSocketOptionFlag::NoDelay;
-            break;
-        default:
-            break;
-        }
-
-        return LibSocketOptionFlag::Unknown;
-    }
+    static Int32 _ToProtoTcpOptionFlag(Int32 optname);
 };
 
 class KERNEL_EXPORT LibSocketOptionPresetParam
