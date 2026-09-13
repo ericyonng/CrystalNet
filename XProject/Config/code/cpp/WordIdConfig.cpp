@@ -434,7 +434,7 @@ Int64 WordIdConfigMgr::_ReadConfigData(FILE &fp, KERNEL_NS::LibString &configDat
             const auto &headerParts = headerCache.Split('_');
             if(headerParts.size() < 3)
             {
-                CLOG_WARN(LOGFMT_OBJ_TAG("column field header format error"));
+                CLOG_WARN("column field header format error");
                 CLOG_WARN_ARGS(KERNEL_NS::LibString("headerCache:"), headerCache, KERNEL_NS::LibString(", content:"), content);
                 return -1;
             }

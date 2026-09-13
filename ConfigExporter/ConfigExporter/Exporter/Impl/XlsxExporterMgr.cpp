@@ -2509,7 +2509,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
         fileContent.AppendFormat("            const auto &headerParts = headerCache.Split(\'_\');\n");
         fileContent.AppendFormat("            if(headerParts.size() < 3)\n");
         fileContent.AppendFormat("            {\n");
-        fileContent.AppendFormat("                CLOG_WARN(LOGFMT_OBJ_TAG(\"column field header format error\"));\n");
+        fileContent.AppendFormat("                CLOG_WARN(\"column field header format error\");\n");
         fileContent.AppendFormat("                CLOG_WARN_ARGS(KERNEL_NS::LibString(\"headerCache:\"), headerCache, KERNEL_NS::LibString(\", content:\"), content);\n");
         fileContent.AppendFormat("                return -1;\n");
         fileContent.AppendFormat("            }\n");
