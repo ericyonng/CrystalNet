@@ -9,9 +9,9 @@ DEBUG_LIBS=$("libCrystalKernel_debug.so")
 RELEASE_LIBS=$("libCrystalKernel.so")
 OPEN_COREDUMP="opencoredump"
 COREDUMPFLAG="$2"
-ROOT_PATH=${SCRIPT_PATH}/../..
+ROOT_PATH=${SCRIPT_PATH}/../../
 XPROJ_PATH=${ROOT_PATH}/XProject
-OUTPUT_DIR=${XPROJ_PATH}/output/gmake/build_x/
+OUTPUT_DIR=${ROOT_PATH}/output/gmake/build_x/
 
 # 连接配置与ini
 sudo rm -rf ${OUTPUT_DIR}/Cfgs

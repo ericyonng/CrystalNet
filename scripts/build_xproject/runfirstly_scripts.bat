@@ -16,20 +16,20 @@ call %CUR_PATH%runcopyplugindll.bat %VER% %SUFFIX%
 
 :: -------------------------------------- 链接配置 -------------------------------------------
 if not exist %CUR_PATH%\..\..\output\%VER%\build_x\Cfgs (
-    mklink /d %CUR_PATH%\..\..\output\%VER%\build_x\Cfgs %CUR_PATH%\..\..\Config\data\cpp\
+    mklink /d %CUR_PATH%\..\..\output\%VER%\build_x\Cfgs %CUR_PATH%\..\..\XProject\Config\data\cpp\
 	
 )
 if not exist %CUR_PATH%\..\..\output\%VER%\build_x\Yaml (
-    mklink /d %CUR_PATH%\..\..\output\%VER%\build_x\Yaml %CUR_PATH%\..\..\Yaml
+    mklink /d %CUR_PATH%\..\..\output\%VER%\build_x\Yaml %CUR_PATH%\..\..\XProject\Yaml
 	
 )
 
 :: ssl拷贝
 del /q %CUR_PATH%\..\..\output\%VER%\build_x\libssl-1_1-x64.dll
-xcopy /s /y %CUR_PATH%\..\..\..\3rd\openssl\staticlib\dlls\libssl-1_1-x64.dll %CUR_PATH%\..\..\output\%VER%\build_x\
+xcopy /s /y %CUR_PATH%\..\..\3rd\openssl\staticlib\dlls\libssl-1_1-x64.dll %CUR_PATH%\..\..\output\%VER%\build_x\
 
 del /q %CUR_PATH%\..\..\output\%VER%\build\libcrypto-1_1-x64.dll
-xcopy /s /y %CUR_PATH%\..\..\..\3rd\openssl\staticlib\dlls\libcrypto-1_1-x64.dll %CUR_PATH%\..\..\output\%VER%\build_x\
+xcopy /s /y %CUR_PATH%\..\..\3rd\openssl\staticlib\dlls\libcrypto-1_1-x64.dll %CUR_PATH%\..\..\output\%VER%\build_x\
 
 :: ------------------------------------ 结束杂项链接 -----------------------------------------
 echo Done!

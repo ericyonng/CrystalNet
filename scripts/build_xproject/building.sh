@@ -9,14 +9,13 @@ SCRIPT_PATH="$(cd $(dirname $0); pwd)"
 # RELEASE_LIBS=("libKernel.so" )
 # OPEN_COREDUMP="opencoredump"
 # COREDUMPFLAG="$2"
-XPROJ_PATH=${SCRIPT_PATH}/../..
-ROOT_PATH=${XPROJ_PATH}/..
+ROOT_PATH=${SCRIPT_PATH}/../../
 
 OUTPUT_NAME="$2"
 
 # 配置环境变量
 # sudo export PATH=$PATH:${SCRIPT_PATH}/output/gmake/
-OUTPUT_DIR=${XPROJ_PATH}/output/gmake/${OUTPUT_NAME}/
+OUTPUT_DIR=${ROOT_PATH}/output/gmake/${OUTPUT_NAME}/
 # sudo ln -sv $SCRIPT_PATH/Service/Cfgs ${OUTPUT_DIR}/Cfgs
 
 if [ -n "$1" ]

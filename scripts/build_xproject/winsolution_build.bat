@@ -3,8 +3,7 @@
 Rem Generate visual studio project files
 
 SET CUR_PATH=%~dp0
-SET ROOT_PATH=%CUR_PATH%..\..\..\
-SET XPROJ_PATH=%CUR_PATH%..\..\
+SET ROOT_PATH=%CUR_PATH%..\..\
 
 echo ROOT PATH:%ROOT_PATH%
 echo XPROJ_PATH:%XPROJ_PATH%
@@ -16,8 +15,8 @@ echo    vs2019
 echo    vs2022
 set /p choose=Please input:
 
-cd %ROOT_PATH%tools\premake && win_premake5.exe --file=%XPROJ_PATH%tools\premake5.lua %choose% '' use_kernel_so use_storage
-Rem cd %ROOT_PATH%tools\premake && win_premake5.exe --file=%XPROJ_PATH%tools\premake5.lua %choose%
+cd %ROOT_PATH%tools\premake && win_premake5.exe --file=%ROOT_PATH%tools\\premake\\premake5_xproject.lua %choose% '' use_kernel_so use_storage
+Rem cd %ROOT_PATH%tools\premake && win_premake5.exe --file=%ROOT_PATH%tools\premake5_xproject.lua %choose%
 
 if errorlevel 1 (
     echo Failed to generate Visual Studio solution and project files, error: %errorlevel%
@@ -27,10 +26,10 @@ if errorlevel 1 (
     echo Succcess to generate Visual Studio solution and project files
     echo Solution file path: build_x/%choose%/CrystalNet_%choose%.sln
    if "%1"=="" (
-        explorer %XPROJ_PATH%build_x\%choose%
+        explorer %ROOT_PATH%build_x\%choose%
     )
     if "%1"=="1" (
-        explorer %XPROJ_PATH%build_x\%choose%
+        explorer %ROOT_PATH%build_x\%choose%
     )
 )
 

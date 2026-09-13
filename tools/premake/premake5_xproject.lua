@@ -14,9 +14,6 @@ print('_ARGS:', _ARGS[1], _ARGS[2], _ARGS[3], ', ISUSE_CLANG:', ISUSE_CLANG)
 
 -- root directory
 ROOT_DIR = "../../"
-if not IS_WINDOWS then
-    ROOT_DIR = "../../../"
-end
 
 XPROJ_PATH = ROOT_DIR .. "XProject/"
 -- header directory
@@ -24,14 +21,16 @@ KERNEL_HEADER_DIR = ROOT_DIR .. "kernel/kernel_pch/"
 
 OUTPUT_NAME = "build_x"
 -- All libraries output directory
-OUTPUT_DIR = XPROJ_PATH .. "output/" .. _ACTION .. "/" .. OUTPUT_NAME .. "/"
+OUTPUT_PART = "output/" .. _ACTION .. "/" .. OUTPUT_NAME .. "/"
+OUTPUT_DIR = ROOT_DIR .. OUTPUT_PART
 
 -- build directory
-BUILD_DIR = XPROJ_PATH .. OUTPUT_NAME .. "/"
--- 脚本路径
-SCRIPT_PATH = ROOT_DIR .. "XProject/scripts/builds/"
+BUILD_DIR = ROOT_DIR .. OUTPUT_NAME .. "/" .. _ACTION
+
+-- script path
+SCRIPT_PATH = ROOT_DIR .. "scripts/build_xproject/"
 if IS_WINDOWS then
-    SCRIPT_PATH = ".\\\\..\\\\..\\\\" .. "scripts\\\\builds\\\\"
+    SCRIPT_PATH = ".\\\\..\\\\..\\\\" .. "scripts\\build_xproject\\"
 end
 
 -- debug dir
@@ -59,7 +58,7 @@ dofile(ROOT_DIR .. "/tools/premake/common.lua")
 
 workspace ("CrystalNet_" .. _ACTION)
     -- location define
-    location (BUILD_DIR .. _ACTION)
+    location (BUILD_DIR)
     -- target directory define
     targetdir (OUTPUT_DIR)
 
@@ -256,12 +255,12 @@ project "LogicPlugin"
     	-- post build(linux)
 	filter { "configurations:debug*", "system:not windows"}
 	    postbuildmessage "Generation hotfix so with timestamp ..."
-	    postbuildcommands(string.format("sh %splugin_building.sh %s %s .so",  SCRIPT_PATH, OUTPUT_DIR, "libLogicPlugin_debug"))
+	    postbuildcommands(string.format("sh %splugin_building.sh %s %s .so",  "../../scripts/build_xproject/", "../../" .. OUTPUT_PART, "libLogicPlugin_debug"))
 	filter {}
 
     filter { "configurations:release*", "system:not windows"}
         postbuildmessage "Generation hotfix so with timestamp ..."
-        postbuildcommands(string.format("sh %splugin_building.sh %s %s .so",  SCRIPT_PATH, OUTPUT_DIR, "libLogicPlugin"))
+        postbuildcommands(string.format("sh %splugin_building.sh %s %s .so", "../../scripts/build_xproject/", "../../" .. OUTPUT_PART, "libLogicPlugin"))
     filter {}
 
 -- ****************************************************************************
@@ -390,9 +389,14 @@ project "LogicServer"
     --     build_cpp_modules2("../../testsuit", "module_interface", include_paths, false)
     -- end
 
+    local suffix = ""
+    filter { "configurations:debug*" }
+        suffix = "_debug"
+    filter {}
+
 	-- set post build commands.
     filter { "system:windows" }
-        postbuildcommands(string.format("start %srunfirstly_scripts.bat %s", SCRIPT_PATH, _ACTION))
+        postbuildcommands(string.format("start %srunfirstly_scripts.bat %s %s", SCRIPT_PATH, _ACTION, suffix))
     filter {}
 	
 -- ****************************************************************************
