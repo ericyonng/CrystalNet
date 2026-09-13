@@ -29,7 +29,6 @@
 #pragma once
 
 #include <Comps/PassTime/interface/IPassTimeGlobal.h>
-#include <protocols/protocols.h>
 #include <kernel/comp/LibStream.h>
 #include <kernel/comp/LibTime.h>
 #include <kernel/comp/Timer/Timer.h>

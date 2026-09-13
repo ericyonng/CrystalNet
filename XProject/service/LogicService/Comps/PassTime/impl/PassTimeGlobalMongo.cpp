@@ -29,7 +29,6 @@
 #include <Comps/PassTime/impl/PassTimeGlobalMongoFactory.h>
 #include <kernel/comp/Utils/RttiUtil.h>
 #include <OptionComp/storage/MongoDB/Impl/MongoSerializeInfoType.h>
-#include <protocols/cplusplus/com_passtime.pb.h>
 #include <kernel/common/status.h>
 #include <Comps/PassTime/impl/PassTimeGlobal.h>
 

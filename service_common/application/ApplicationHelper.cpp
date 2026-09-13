@@ -69,7 +69,7 @@ SERVICE_COMMON_BEGIN
 
     // 异常关闭app
     const auto currentTid = KERNEL_NS::SystemUtil::GetCurrentThreadId();
-    auto signalCloseLambda = [&app, currentTid]()->void{
+    auto signalCloseLambda = [&app, currentTid, signalInvoke]()->void{
         auto threadId = KERNEL_NS::SystemUtil::GetCurrentThreadId();
         CLOG_INFO_GLOBAL(ApplicationHelper, "signal catched, application will close threadId:%llu, application thread id:%llu...", threadId, currentTid);
         

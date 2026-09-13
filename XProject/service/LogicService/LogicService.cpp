@@ -36,7 +36,6 @@
 #include <service/LogicService/Comps/Comps.h>
 #include <service/common/BaseComps/BaseComps.h>
 
-#include <protocols/protocols.h>
 #include <service/LogicService/LogicServiceFactory.h>
 #include <kernel/comp/LibStringYaml.h>
 #include <kernel/comp/SmartPtr.h>
@@ -53,6 +52,8 @@
 #include <kernel/comp/Coroutines/CoDelay.h>
 #include <kernel/comp/Coder/base64.h>
 #include <kernel/comp/NetEngine/Poller/impl/IpRule/IpRuleMgr.h>
+
+#include "protocols/Opcodes.h"
 
 SERVICE_BEGIN
     // 配置项

@@ -39,14 +39,11 @@
 #include "kernel/comp/Utils/SocketUtil.h"
 
 #ifndef DISABLE_OPCODES
-    #include <protocols/protocols.h>
+ #include "protocols/Opcodes.h"
 #endif
 
-
 SERVICE_BEGIN
-
-
-const KERNEL_NS::LibString IGlobalSys::OpcodeToString(Int32 opcode)
+    const KERNEL_NS::LibString IGlobalSys::OpcodeToString(Int32 opcode)
 {
 #if DISABLE_OPCODES
     return "DISABLE OPCODES";

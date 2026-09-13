@@ -40,6 +40,12 @@
 #include "kernel/comp/Tls/TlsCompsOwner.h"
 #include "kernel/comp/Utils/SignalHandleUtil.h"
 #include "kernel/comp/Utils/StringUtil.h"
+#include "protocols/Opcodes.h"
+#include <service_common/application/ResponseInfo.h>
+#include <service_common/service_proxy/ServiceProxyInc.h>
+
+#include <service_common/KillMonitor/KillMonitor.h>
+#include <service_common/application/Application.h>
 
 namespace
 {
@@ -84,15 +90,6 @@ ALWAYS_HIDDEN void EnableGlobalLife(bool enable)
 
 KERNEL_END
 
-#include <service_common/application/ResponseInfo.h>
-#include <service_common/service_proxy/ServiceProxyInc.h>
-
-#include <service_common/KillMonitor/KillMonitor.h>
-#include <service_common/application/Application.h>
-
-#ifndef DISABLE_OPCODES
- #include <protocols/protocols.h>
-#endif
 
 SERVICE_COMMON_BEGIN
 
@@ -607,7 +604,5 @@ void Application::_OnMonitorTimeOut(KERNEL_NS::LibTimer *timer)
 
     timer->Cancel();
 }
-
-
 
 SERVICE_COMMON_END

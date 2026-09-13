@@ -36,8 +36,11 @@
 #include "kernel/comp/NetEngine/Poller/impl/Session/LibSession.h"
 #include "service_common/protocol/CrystalProtocol/CrystalMsgHeader.h"
 
+
+
+
 #ifndef DISABLE_OPCODES
- #include <protocols/protocols.h>
+ #include "protocols/Opcodes.h"
 #endif
 
 SERVICE_COMMON_BEGIN

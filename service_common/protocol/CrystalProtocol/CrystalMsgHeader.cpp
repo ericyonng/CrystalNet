@@ -31,12 +31,11 @@
 #include "service_common/protocol/CrystalProtocol/CrystalMsgHeader.h"
 
 #ifndef DISABLE_OPCODES
- #include <protocols/protocols.h>
+ #include "protocols/Opcodes.h"
 #endif
 
 SERVICE_COMMON_BEGIN
-
-static ALWAYS_INLINE KERNEL_NS::LibString StackOpcodeToString(Int32 opcode)
+    static ALWAYS_INLINE KERNEL_NS::LibString StackOpcodeToString(Int32 opcode)
 {
     KERNEL_NS::LibString opcodeName;
 
