@@ -37,8 +37,9 @@
 #include "kernel/comp/Event/EventManager.h"
 #include "kernel/comp/Event/LibEvent.h"
 #include "kernel/comp/NetEngine/Poller/impl/IpRule/IpRuleMgr.h"
-#include "OptionComp/storage/MongoDB/Impl/MongodbProxyFactory.h"
-#include "OptionComp/storage/MongoDB/Interface/IMongodbProxy.h"
+#include "OptionComp/storage/MongoDB/MongoDBComp.h"
+#include "OptionComp/WinToast/Impl/WinToastMgrFactory.h"
+#include "OptionComp/WinToast/Interface/IWinToastMgr.h"
 #include "service/common/BaseComps/SessionMgrComp/Impl/SessionMgrFactory.h"
 #include "service/common/BaseComps/StubHandle/Impl/StubHandleMgrFactory.h"
 #include "service/common/BaseComps/SysLogic/Impl/SysLogicMgrFactory.h"
@@ -121,6 +122,8 @@ void LogicService::_OnServiceRegisterComps()
 
     // 插件集
     // RegisterComp<PluginMgrFactory>();
+    
+    RegisterComp<KERNEL_NS::WinToastMgrFactory>();
 }
 
 Int32 LogicService::_OnUnifiedServiceInit()
@@ -203,6 +206,9 @@ void LogicService::_OnEventLoopStart()
 
           ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_STARTUP);
           GetEventMgr()->FireEvent(ev);
+          
+          GetComp<KERNEL_NS::IWinToastMgr>()->Notify(KERNEL_NS::LibString().AppendFormat("%s started.", GetServiceName().c_str()));
+          
           break;
       }
       while (true);

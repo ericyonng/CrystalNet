@@ -33,9 +33,10 @@
 #include "OptionComp/Command/Interface/ICommandMgr.h"
 #include <kernel/comp/thread/thread.h>
 
-SERVICE_BEGIN
+#include "kernel/common/statics.h"
 
-ConfigLoaderProxy::ConfigLoaderProxy()
+SERVICE_BEGIN
+    ConfigLoaderProxy::ConfigLoaderProxy()
 :KERNEL_NS::CompHostObject(KERNEL_NS::RttiUtil::GetTypeId<ConfigLoaderProxy>())
 {
     _configLoader = ConfigLoaderFactory().Create()->CastTo<ConfigLoader>();

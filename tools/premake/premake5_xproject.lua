@@ -343,6 +343,8 @@ project "LogicServer"
         ROOT_DIR .. "OptionComponent/OptionComp/GlobalId/**.cpp",
         ROOT_DIR .. "OptionComponent/OptionComp/GlobalParam/**.h",
         ROOT_DIR .. "OptionComponent/OptionComp/GlobalParam/**.cpp",
+        ROOT_DIR .. "OptionComponent/OptionComp/WinToast/**.h",
+        ROOT_DIR .. "OptionComponent/OptionComp/WinToast/**.cpp",
         ROOT_DIR .. "OptionComponent/OptionComp/storage/MongoDB/**.h",
         ROOT_DIR .. "OptionComponent/OptionComp/storage/MongoDB/**.cpp",
         XPROJ_PATH .. "Yaml/**.yaml",
@@ -359,6 +361,7 @@ project "LogicServer"
             "ws2_32",
             "Mswsock",
             "DbgHelp",
+            "windowsapp",
         }
     filter{}
 

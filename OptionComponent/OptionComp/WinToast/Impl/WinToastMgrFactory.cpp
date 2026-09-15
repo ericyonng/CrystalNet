@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,26 +21,33 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2026-09-09 11:57:25
+ * Date: 2026-09-15 10:00:00
  * Author: Eric Yonng
- * Description: 
+ * Description: windows toast通知组件工厂类实现
 */
 
 #include <pch.h>
-#include <LogicServer/ServiceFactory.h>
-#include <kernel/comp/Log/log.h>
-#include <service/LogicService/LogicServiceFactory.h>
+#include <OptionComp/WinToast/Impl/WinToastMgrFactory.h>
+#include <OptionComp/WinToast/Impl/WinToastMgr.h>
 
-SERVICE_COMMON_NS::IService *ServiceFactory::Create(const KERNEL_NS::LibString &serviceName)
+#include "kernel/comp/memory/ObjPoolWrap.h"
+
+KERNEL_BEGIN
+
+KERNEL_NS::CompFactory *WinToastMgrFactory::FactoryCreate()
 {
-    if(serviceName == "LogicService")
-        return SERVICE_NS::LogicServiceFactory::Create();
-    
-    CLOG_ERROR("unknown service name:%s", serviceName.c_str());
-    return NULL;
+    return ObjPoolWrap<WinToastMgrFactory>::NewByAdapter(_buildType.V);
 }
 
-void ServiceFactory::Release()
+void WinToastMgrFactory::Release()
 {
-    ServiceFactory::Delete_ServiceFactory(this);
+    KERNEL_NS::ObjPoolWrap<WinToastMgrFactory>::DeleteByAdapter(_buildType.V, this);
 }
+
+KERNEL_NS::CompObject *WinToastMgrFactory::Create() const
+{
+    CREATE_CRYSTAL_COMP(var, WinToastMgr);
+    return var;
+}
+
+KERNEL_END

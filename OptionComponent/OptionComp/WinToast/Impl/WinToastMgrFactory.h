@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,26 +21,34 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2026-09-09 11:57:25
+ * Date: 2026-09-15 10:00:00
  * Author: Eric Yonng
- * Description: 
+ * Description: windows toast通知组件工厂类
 */
 
-#include <pch.h>
-#include <LogicServer/ServiceFactory.h>
-#include <kernel/comp/Log/log.h>
-#include <service/LogicService/LogicServiceFactory.h>
+#ifndef __CRYSTAL_NET_OPTION_COMPONENT_OPTIONCOMP_WIN_TOAST_IMPL_WIN_TOAST_MGR_FACTORY_H__
+#define __CRYSTAL_NET_OPTION_COMPONENT_OPTIONCOMP_WIN_TOAST_IMPL_WIN_TOAST_MGR_FACTORY_H__
 
-SERVICE_COMMON_NS::IService *ServiceFactory::Create(const KERNEL_NS::LibString &serviceName)
-{
-    if(serviceName == "LogicService")
-        return SERVICE_NS::LogicServiceFactory::Create();
-    
-    CLOG_ERROR("unknown service name:%s", serviceName.c_str());
-    return NULL;
-}
+#pragma once
 
-void ServiceFactory::Release()
+#include <kernel/comp/CompObject/CompFactory.h>
+#include <service/common/macro.h>
+
+KERNEL_BEGIN
+
+class WinToastMgrFactory : public KERNEL_NS::CompFactory
 {
-    ServiceFactory::Delete_ServiceFactory(this);
-}
+public:
+    static constexpr KERNEL_NS::_Build::TL _buildType{};
+
+    static KERNEL_NS::CompFactory *FactoryCreate();
+
+    virtual void Release() override;
+
+public:
+    virtual KERNEL_NS::CompObject *Create() const override;
+};
+
+KERNEL_END
+
+#endif

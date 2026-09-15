@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,26 +21,18 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2026-09-09 11:57:25
+ * Date: 2026-09-15 10:00:00
  * Author: Eric Yonng
- * Description: 
+ * Description: windows toast通知组件对外公开头文件
 */
 
-#include <pch.h>
-#include <LogicServer/ServiceFactory.h>
-#include <kernel/comp/Log/log.h>
-#include <service/LogicService/LogicServiceFactory.h>
+#ifndef __CRYSTAL_NET_OPTION_COMPONENT_OPTIONCOMP_WIN_TOAST_WIN_TOAST_H__
+#define __CRYSTAL_NET_OPTION_COMPONENT_OPTIONCOMP_WIN_TOAST_WIN_TOAST_H__
 
-SERVICE_COMMON_NS::IService *ServiceFactory::Create(const KERNEL_NS::LibString &serviceName)
-{
-    if(serviceName == "LogicService")
-        return SERVICE_NS::LogicServiceFactory::Create();
-    
-    CLOG_ERROR("unknown service name:%s", serviceName.c_str());
-    return NULL;
-}
+#pragma once
 
-void ServiceFactory::Release()
-{
-    ServiceFactory::Delete_ServiceFactory(this);
-}
+#include <OptionComp/WinToast/Interface/IWinToastMgr.h>
+#include <OptionComp/WinToast/Impl/WinToastMgrFactory.h>
+
+
+#endif

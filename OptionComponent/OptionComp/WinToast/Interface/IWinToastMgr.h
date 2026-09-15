@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,26 +21,39 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2026-09-09 11:57:25
+ * Date: 2026-09-15 10:00:00
  * Author: Eric Yonng
- * Description: 
+ * Description: windows toast通知组件接口
 */
 
-#include <pch.h>
-#include <LogicServer/ServiceFactory.h>
-#include <kernel/comp/Log/log.h>
-#include <service/LogicService/LogicServiceFactory.h>
+#ifndef __CRYSTAL_NET_OPTION_COMPONENT_OPTIONCOMP_WIN_TOAST_INTERFACE_IWIN_TOAST_MGR_H__
+#define __CRYSTAL_NET_OPTION_COMPONENT_OPTIONCOMP_WIN_TOAST_INTERFACE_IWIN_TOAST_MGR_H__
 
-SERVICE_COMMON_NS::IService *ServiceFactory::Create(const KERNEL_NS::LibString &serviceName)
-{
-    if(serviceName == "LogicService")
-        return SERVICE_NS::LogicServiceFactory::Create();
-    
-    CLOG_ERROR("unknown service name:%s", serviceName.c_str());
-    return NULL;
-}
+#pragma once
 
-void ServiceFactory::Release()
+#include <kernel/comp/CompObject/CompObject.h>
+
+KERNEL_BEGIN
+
+class IWinToastMgr : public CompObject
 {
-    ServiceFactory::Delete_ServiceFactory(this);
-}
+    POOL_CREATE_OBJ_DEFAULT_P1(CompObject, IWinToastMgr);
+
+public:
+    IWinToastMgr(UInt64 objTypeId) : CompObject(objTypeId) {}
+    virtual ~IWinToastMgr() override {}
+
+    // 设置AppUserModelId(windows toast通知要求), 需在组件Init之前调用, 默认:CrystalNet.WinToast
+    virtual void SetAppUserModelId(const KERNEL_NS::LibString &aumid) = 0;
+
+    // 弹右下角通知(异步非阻塞, 调用即返回), 标题使用默认值
+    virtual void Notify(const KERNEL_NS::LibString &content) const = 0;
+
+    // 弹右下角通知(异步非阻塞, 调用即返回), 自定义标题
+    virtual void Notify(const KERNEL_NS::LibString &content, const KERNEL_NS::LibString &title) const = 0;
+};
+
+KERNEL_END
+
+
+#endif

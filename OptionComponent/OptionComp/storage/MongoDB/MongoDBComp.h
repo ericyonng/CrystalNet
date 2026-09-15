@@ -39,5 +39,6 @@
 #include <OptionComp/storage/MongoDB/Impl/IMongodbStorageInfo.h>
 #include <OptionComp/storage/MongoDB/Impl/MongoStorageFlags.h>
 #include <OptionComp/storage/MongoDB/Interface/IMongodbProxy.h>
+#include <OptionComp/storage/MongoDB/Impl/MongodbProxyFactory.h>
 
 #endif
