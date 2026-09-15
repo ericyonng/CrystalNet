@@ -123,7 +123,7 @@ void LogicService::_OnServiceRegisterComps()
     // 插件集
     // RegisterComp<PluginMgrFactory>();
     
-    RegisterComp<KERNEL_NS::WinToastMgrFactory>();
+    // RegisterComp<KERNEL_NS::WinToastMgrFactory>();
 }
 
 Int32 LogicService::_OnUnifiedServiceInit()
@@ -207,7 +207,7 @@ void LogicService::_OnEventLoopStart()
           ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_STARTUP);
           GetEventMgr()->FireEvent(ev);
           
-          GetComp<KERNEL_NS::IWinToastMgr>()->Notify(KERNEL_NS::LibString().AppendFormat("%s started.", GetServiceName().c_str()));
+          GetApp()->GetComp<KERNEL_NS::IWinToastMgr>()->Notify(KERNEL_NS::LibString().AppendFormat("%s started.", GetServiceName().c_str()));
           
           break;
       }

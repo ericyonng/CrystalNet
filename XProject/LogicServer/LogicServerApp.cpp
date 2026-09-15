@@ -37,6 +37,7 @@
 #include "OptionComp/storage/MongoDB/Impl/MongoDbMgrFactory.h"
 #include "OptionComp/storage/MongoDB/Impl/MongodbProxyFactory.h"
 #include "OptionComp/storage/MongoDB/Interface/IMongoDbMgr.h"
+#include "OptionComp/WinToast/Impl/WinToastMgrFactory.h"
 
 void LogicServerApp::Release()
 {
@@ -56,6 +57,9 @@ void LogicServerApp::OnRegisterComps()
 
     // 注册命令行工具
     RegisterComp<KERNEL_NS::CommandMgrFactory>();
+
+    // 弹窗通知
+    RegisterComp<KERNEL_NS::WinToastMgrFactory>();
 }
 
 Int32 LogicServerApp::_OnCompsCreated()
