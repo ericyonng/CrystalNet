@@ -43,7 +43,8 @@ public:
     IWinToastMgr(UInt64 objTypeId) : CompObject(objTypeId) {}
     virtual ~IWinToastMgr() override {}
 
-    // 设置AppUserModelId(windows toast通知要求), 需在组件Init之前调用, 默认:CrystalNet.WinToast
+    // 设置AppUserModelId(windows toast通知要求), 需在组件Init之前调用, 默认借用powershell已注册id(发送者显示Windows PowerShell)
+    // 注意: 自定义aumid需先在开始菜单注册带该aumid的快捷方式, 否则windows会节流/静默通知
     virtual void SetAppUserModelId(const KERNEL_NS::LibString &aumid) = 0;
 
     // 弹右下角通知(异步非阻塞, 调用即返回), 标题使用默认值

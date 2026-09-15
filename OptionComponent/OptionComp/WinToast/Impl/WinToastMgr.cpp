@@ -25,7 +25,8 @@
  * Author: Eric Yonng
  * Description: windows toast通知组件实现(仅windows平台生效)
  *              1.Notify为异步非阻塞接口: 调用线程只做任务投递(g_EventLoopHeavyTaskThreadPool->Send), toast在线程池中弹出
- *              2.任务可能落在线程池的不同线程: 每个任务内RoInitialize/RoUninitialize成对调用, com对象不跨任务缓存
+ *              2.弹窗方式: 线程池任务中拼装powershell脚本(-EncodedCommand Base64传参), 启动隐藏powershell.exe进程弹toast
+ *                powershell是系统已注册应用, 以其身份弹toast不受windows对未注册aumid的节流/静默
  *              3.toast上下文与任务共享所有权(shared_ptr), 组件销毁后线程池中残留任务安全降级
 */
 
@@ -36,14 +37,11 @@
 #include <kernel/comp/Log/log.h>
 #include <kernel/common/statics.h>
 #include <kernel/comp/thread/LibEventLoopThreadPool.h>
+#include <kernel/comp/Coder/base64.h>
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
 #include <memory>
-#include <wrl.h>
-#include <wrl/wrappers/corewrappers.h>
-#include <windows.ui.notifications.h>
-#include <windows.data.xml.dom.h>
-#include <shlobj.h>
+#include <vector>
 #endif
 
 KERNEL_BEGIN
@@ -56,29 +54,6 @@ namespace
     {
         std::wstring aumid;
         std::atomic_bool ready{false};
-    };
-
-    // com初始化guard(成对RoInitialize/RoUninitialize, 任意线程安全)
-    struct ComInitGuard
-    {
-        ComInitGuard()
-            :_hr(::RoInitialize(RO_INIT_MULTITHREADED))
-        {
-        }
-
-        ~ComInitGuard()
-        {
-            if (SUCCEEDED(_hr))
-                ::RoUninitialize();
-        }
-
-        bool IsOk() const
-        {
-            // S_FALSE: 当前线程已初始化过com, 同样视为成功
-            return SUCCEEDED(_hr);
-        }
-
-        HRESULT _hr;
     };
 
     // utf8 => wide
@@ -97,63 +72,47 @@ namespace
         return wide;
     }
 
-    // xml转义
-    std::wstring XmlEscape(const std::wstring &raw)
+    // powershell单引号字面量转义(' => '')
+    std::wstring PsEscape(const std::wstring &raw)
     {
         std::wstring escaped;
         escaped.reserve(raw.size());
         for (auto ch : raw)
         {
-            switch (ch)
-            {
-            case L'&': escaped.append(L"&amp;"); break;
-            case L'<': escaped.append(L"&lt;"); break;
-            case L'>': escaped.append(L"&gt;"); break;
-            case L'\"': escaped.append(L"&quot;"); break;
-            case L'\'': escaped.append(L"&apos;"); break;
-            default: escaped.push_back(ch); break;
-            }
+            if (ch == L'\'')
+                escaped.append(L"''");
+            else
+                escaped.push_back(ch);
         }
 
         return escaped;
     }
 
-    // 初始化任务: 设置aumid并验证notifier可用(aumid不被系统接受时提前暴露)
+    // 系统自带powershell路径(windows powershell 5.1)
+    std::wstring GetPowerShellPath()
+    {
+        wchar_t sysDir[MAX_PATH] = {0};
+        const UINT len = ::GetSystemDirectoryW(sysDir, MAX_PATH);
+
+        std::wstring path(sysDir, len);
+        path += L"\\WindowsPowerShell\\v1.0\\powershell.exe";
+        return path;
+    }
+
+    // 初始化任务: 检查powershell.exe是否存在
     void InitToastTask(std::shared_ptr<WinToastCtx> ctx)
     {
-        ComInitGuard guard;
-        if (UNLIKELY(!guard.IsOk()))
+        const auto psPath = GetPowerShellPath();
+        if (UNLIKELY(::GetFileAttributesW(psPath.c_str()) == INVALID_FILE_ATTRIBUTES))
         {
-            CLOG_ERROR_GLOBAL(WinToastMgr, "WinToast RoInitialize fail, hr:0x%08x", static_cast<UInt32>(guard._hr));
-            return;
-        }
-
-        // aumid需在使用通知api前设置(未打包程序弹toast的前提)
-        ::SetCurrentProcessExplicitAppUserModelID(ctx->aumid.c_str());
-
-        Microsoft::WRL::ComPtr<ABI::Windows::UI::Notifications::IToastNotificationManagerStatics> toastStatics;
-        HRESULT hr = ::RoGetActivationFactory(
-            Microsoft::WRL::Wrappers::HStringReference(RuntimeClass_Windows_UI_Notifications_ToastNotificationManager).Get(),
-            IID_PPV_ARGS(&toastStatics));
-        if (UNLIKELY(FAILED(hr)))
-        {
-            CLOG_ERROR_GLOBAL(WinToastMgr, "WinToast get ToastNotificationManager statics fail, hr:0x%08x", static_cast<UInt32>(hr));
-            return;
-        }
-
-        Microsoft::WRL::ComPtr<ABI::Windows::UI::Notifications::IToastNotifier> notifier;
-        hr = toastStatics->CreateToastNotifierWithId(
-            Microsoft::WRL::Wrappers::HStringReference(ctx->aumid.c_str()).Get(), &notifier);
-        if (UNLIKELY(FAILED(hr)))
-        {
-            CLOG_ERROR_GLOBAL(WinToastMgr, "WinToast create toast notifier fail, hr:0x%08x", static_cast<UInt32>(hr));
+            CLOG_ERROR_GLOBAL(WinToastMgr, "WinToast cannot find powershell.exe");
             return;
         }
 
         ctx->ready.store(true, std::memory_order_release);
     }
 
-    // 弹通知任务: com对象均在本任务内创建与释放, 不跨任务缓存
+    // 弹通知任务: 拼装powershell脚本, Base64编码后启动隐藏powershell.exe进程弹toast
     void NotifyTask(std::shared_ptr<WinToastCtx> ctx, const KERNEL_NS::LibString &content, const KERNEL_NS::LibString &title)
     {
         if (UNLIKELY(!ctx->ready.load(std::memory_order_acquire)))
@@ -162,91 +121,57 @@ namespace
             return;
         }
 
-        ComInitGuard guard;
-        if (UNLIKELY(!guard.IsOk()))
+        // 截断保护命令行长度(命令行上限32767, base64与utf16有膨胀)
+        const auto titleWide = PsEscape(Utf8ToWide(title).substr(0, 64));
+        const auto contentWide = PsEscape(Utf8ToWide(content).substr(0, 256));
+
+        // toast脚本: ToastText02模板(标题+正文), CreateTextNode天然处理xml转义
+        std::wstring script =
+            L"[Windows.UI.Notifications.ToastNotificationManager,Windows.UI.Notifications,ContentType=WindowsRuntime]|Out-Null;"
+            L"$t=[Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText02);"
+            L"$n=$t.GetElementsByTagName('text');"
+            L"$n.Item(0).AppendChild($t.CreateTextNode('";
+        script += titleWide;
+        script += L"'))|Out-Null;$n.Item(1).AppendChild($t.CreateTextNode('";
+        script += contentWide;
+        script += L"'))|Out-Null;"
+            L"[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('";
+        script += ctx->aumid;
+        script += L"').Show([Windows.UI.Notifications.ToastNotification]::new($t))";
+
+        // -EncodedCommand要求utf16le字节的base64
+        const auto encoded = KERNEL_NS::LibBase64::Encode(
+            reinterpret_cast<const Byte8 *>(script.c_str()), script.size() * sizeof(wchar_t));
+
+        // 命令行
+        std::wstring cmdLine = L"\"";
+        cmdLine += GetPowerShellPath();
+        cmdLine += L"\" -NoProfile -NonInteractive -WindowStyle Hidden -EncodedCommand ";
+        cmdLine += std::wstring(encoded.begin(), encoded.end());
+
+        // CreateProcessW要求可写缓冲区
+        std::vector<wchar_t> cmdBuf(cmdLine.begin(), cmdLine.end());
+        cmdBuf.push_back(L'\0');
+
+        STARTUPINFOW startInfo;
+        ::memset(&startInfo, 0, sizeof(startInfo));
+        startInfo.cb = sizeof(startInfo);
+        startInfo.dwFlags = STARTF_USESHOWWINDOW;
+        startInfo.wShowWindow = SW_HIDE;
+
+        PROCESS_INFORMATION procInfo;
+        ::memset(&procInfo, 0, sizeof(procInfo));
+
+        const auto ok = ::CreateProcessW(NULL, cmdBuf.data(), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &startInfo, &procInfo);
+        if (UNLIKELY(!ok))
         {
-            CLOG_ERROR_GLOBAL(WinToastMgr, "WinToast RoInitialize fail, hr:0x%08x", static_cast<UInt32>(guard._hr));
+            CLOG_ERROR_GLOBAL(WinToastMgr, "WinToast create powershell process fail, err:%u", static_cast<UInt32>(::GetLastError()));
             return;
         }
 
-        // 组装toast xml(标题 + 正文), 内容需要转义
-        std::wstring xml = L"<toast><visual><binding template=\"ToastText02\"><text id=\"1\">";
-        xml += XmlEscape(Utf8ToWide(title));
-        xml += L"</text><text id=\"2\">";
-        xml += XmlEscape(Utf8ToWide(content));
-        xml += L"</text></binding></visual></toast>";
-
-        Microsoft::WRL::Wrappers::HString xmlHString;
-        HRESULT hr = xmlHString.Set(xml.c_str(), static_cast<UINT32>(xml.size()));
-        if (UNLIKELY(FAILED(hr)))
-        {
-            CLOG_ERROR_GLOBAL(WinToastMgr, "WinToast create toast xml hstring fail, hr:0x%08x", static_cast<UInt32>(hr));
-            return;
-        }
-
-        Microsoft::WRL::ComPtr<ABI::Windows::UI::Notifications::IToastNotificationManagerStatics> toastStatics;
-        hr = ::RoGetActivationFactory(
-            Microsoft::WRL::Wrappers::HStringReference(RuntimeClass_Windows_UI_Notifications_ToastNotificationManager).Get(),
-            IID_PPV_ARGS(&toastStatics));
-        if (UNLIKELY(FAILED(hr)))
-        {
-            CLOG_ERROR_GLOBAL(WinToastMgr, "WinToast get ToastNotificationManager statics fail, hr:0x%08x", static_cast<UInt32>(hr));
-            return;
-        }
-
-        Microsoft::WRL::ComPtr<ABI::Windows::Data::Xml::Dom::IXmlDocument> xmlDoc;
-        hr = toastStatics->GetTemplateContent(ABI::Windows::UI::Notifications::ToastTemplateType_ToastText02, &xmlDoc);
-        if (UNLIKELY(FAILED(hr)))
-        {
-            CLOG_ERROR_GLOBAL(WinToastMgr, "WinToast get template content fail, hr:0x%08x", static_cast<UInt32>(hr));
-            return;
-        }
-
-        Microsoft::WRL::ComPtr<ABI::Windows::Data::Xml::Dom::IXmlDocumentIO> xmlDocIo;
-        hr = xmlDoc.As(&xmlDocIo);
-        if (UNLIKELY(FAILED(hr)))
-        {
-            CLOG_ERROR_GLOBAL(WinToastMgr, "WinToast query IXmlDocumentIO fail, hr:0x%08x", static_cast<UInt32>(hr));
-            return;
-        }
-
-        hr = xmlDocIo->LoadXml(xmlHString.Get());
-        if (UNLIKELY(FAILED(hr)))
-        {
-            CLOG_ERROR_GLOBAL(WinToastMgr, "WinToast load toast xml fail, hr:0x%08x", static_cast<UInt32>(hr));
-            return;
-        }
-
-        Microsoft::WRL::ComPtr<ABI::Windows::UI::Notifications::IToastNotificationFactory> toastFactory;
-        hr = ::RoGetActivationFactory(
-            Microsoft::WRL::Wrappers::HStringReference(RuntimeClass_Windows_UI_Notifications_ToastNotification).Get(),
-            IID_PPV_ARGS(&toastFactory));
-        if (UNLIKELY(FAILED(hr)))
-        {
-            CLOG_ERROR_GLOBAL(WinToastMgr, "WinToast get ToastNotification factory fail, hr:0x%08x", static_cast<UInt32>(hr));
-            return;
-        }
-
-        Microsoft::WRL::ComPtr<ABI::Windows::UI::Notifications::IToastNotification> toast;
-        hr = toastFactory->CreateToastNotification(xmlDoc.Get(), &toast);
-        if (UNLIKELY(FAILED(hr)))
-        {
-            CLOG_ERROR_GLOBAL(WinToastMgr, "WinToast create toast notification fail, hr:0x%08x", static_cast<UInt32>(hr));
-            return;
-        }
-
-        Microsoft::WRL::ComPtr<ABI::Windows::UI::Notifications::IToastNotifier> notifier;
-        hr = toastStatics->CreateToastNotifierWithId(
-            Microsoft::WRL::Wrappers::HStringReference(ctx->aumid.c_str()).Get(), &notifier);
-        if (UNLIKELY(FAILED(hr)))
-        {
-            CLOG_ERROR_GLOBAL(WinToastMgr, "WinToast create toast notifier fail, hr:0x%08x", static_cast<UInt32>(hr));
-            return;
-        }
-
-        hr = notifier->Show(toast.Get());
-        if (UNLIKELY(FAILED(hr)))
-            CLOG_ERROR_GLOBAL(WinToastMgr, "WinToast show toast fail, hr:0x%08x", static_cast<UInt32>(hr));
+        // 不等待powershell退出, 句柄直接关闭, toast由powershell进程独立弹出
+        ::CloseHandle(procInfo.hProcess);
+        ::CloseHandle(procInfo.hThread);
     }
 }
 #endif
@@ -254,7 +179,8 @@ namespace
 WinToastMgr::WinToastMgr()
     :IWinToastMgr(RttiUtil::GetTypeId<WinToastMgr>())
     , _defaultTitle("CrystalNet")
-    , _aumid("CrystalNet.WinToast")
+    // 默认借用powershell已注册的aumid(发送者显示为Windows PowerShell)
+    , _aumid("{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\\WindowsPowerShell\\v1.0\\powershell.exe")
     , _closed{false}
     , _toastCtx(NULL)
 {
@@ -331,7 +257,7 @@ Int32 WinToastMgr::_OnStart()
         return Status::Success;
     }
 
-    // 初始化任务投递到线程池(设置aumid并验证notifier可用)
+    // 初始化任务投递到线程池(检查powershell.exe是否存在)
     auto ctx = *static_cast<std::shared_ptr<WinToastCtx> *>(_toastCtx);
     g_EventLoopHeavyTaskThreadPool->Send([ctx]()
     {
@@ -348,7 +274,7 @@ void WinToastMgr::_OnWillClose()
     // 先置关闭标志, Notify直接丢弃
     _closed.store(true, std::memory_order_release);
 
-    // ready置否, 线程池中未执行的notify任务快速丢弃(com对象不跨任务缓存, 无需等待残留任务)
+    // ready置否, 线程池中未执行的notify任务快速丢弃
     if (_toastCtx)
         (*static_cast<std::shared_ptr<WinToastCtx> *>(_toastCtx))->ready.store(false, std::memory_order_release);
 #endif

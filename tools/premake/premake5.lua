@@ -460,7 +460,6 @@ project "testsuit"
             "ws2_32",
             "Mswsock",
             "DbgHelp",
-            "windowsapp",
         }
     filter{}
 

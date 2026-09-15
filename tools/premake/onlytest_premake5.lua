@@ -540,7 +540,6 @@ project "testsuit_onlytest"
             "ws2_32",
             "Mswsock",
             "DbgHelp",
-            "windowsapp",
         }
     filter{}
 
