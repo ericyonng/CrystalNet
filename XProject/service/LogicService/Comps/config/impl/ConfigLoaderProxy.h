@@ -29,10 +29,9 @@
 #include <service/common/macro.h>
 #include <kernel/comp/CompObject/CompHostObject.h>
 #include <kernel/comp/SmartPtr.h>
+#include <Comps/config/impl/ConfigLoader.h>
 
 SERVICE_BEGIN
-
-class ConfigLoader;
 
 class ConfigLoaderProxy : public KERNEL_NS::CompHostObject
 {

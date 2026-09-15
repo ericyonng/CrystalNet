@@ -29,181 +29,37 @@
 
 #pragma once
 
-#include <service/common/common.h>
-#include <service_common/service/service.h>
-#include <kernel/comp/memory/ObjPoolMacro.h>
-#include <kernel/comp/Delegate/LibDelegate.h>
-#include <kernel/comp/LibString.h>
-#include <kernel/comp/Event/Defs.h>
-
-#include <unordered_map>
-
+#include <service/common/UnifiedService.h>
 #include <kernel/comp/FileMonitor/FileMonitor.h>
 #include <kernel/comp/FileMonitor/YamlDeserializer.h>
-#include <kernel/comp/Coroutines/CoTask.h>
-
-KERNEL_BEGIN
-
-class LibSession;
-class IProtocolStack;
-class TimerMgr;
-class LibPacket;
-class EventManager;
-struct PollerEvent;
-class Poller;
-class LibEvent;
-class LibTimer;
-struct PollerConfig;
-
-KERNEL_END
+#include <service/common/Configs/StorageOptions.h>
 
 SERVICE_BEGIN
 
-struct ServiceConfig;
-struct StorageOptions;
-
-class LogicService : public SERVICE_COMMON_NS::IService
+class LogicService : public UnifiedService
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(IService, LogicService);
+    POOL_CREATE_OBJ_DEFAULT_P1(UnifiedService, LogicService);
 
 public:
     LogicService();
-    ~LogicService();
+    ~LogicService() override;
     void Release() override;
-
-    // 协议栈
-    virtual KERNEL_NS::IProtocolStack *GetProtocolStack(KERNEL_NS::LibSession *session) final;
-    virtual const KERNEL_NS::IProtocolStack *GetProtocolStack(KERNEL_NS::LibSession *session) const final;
-    virtual KERNEL_NS::IProtocolStack *GetProtocolStack(Int32 prototalStackType) final;
-    virtual const KERNEL_NS::IProtocolStack *GetProtocolStack(Int32 prototalStackType) const final;
-
-    // 获取定时器
-    KERNEL_NS::TimerMgr *GetTimerMgr() override;
-    const KERNEL_NS::TimerMgr *GetTimerMgr() const override;
-
-    // 协议订阅 已经存在的订阅会被新的覆盖并报warn
-    virtual void Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *deleg) override;
-    virtual void SubscribeCo(Int32 opcodeId, KERNEL_NS::IDelegate<KERNEL_NS::CoTask<>, KERNEL_NS::LibPacket *&> *deleg) override;
-
-    KERNEL_NS::EventManager *GetEventMgr() override;
-    const KERNEL_NS::EventManager *GetEventMgr() const override;
-
-    // 获取会话类型
-    Int32 GetSessionTypeByPort(UInt16 port) const;
-
-    // 获取配置
-    KERNEL_NS::SmartPtr<ServiceConfig, KERNEL_NS::AutoDelMethods::Release> GetServiceConfig() const;
-
+    
     KERNEL_NS::SmartPtr<StorageOptions, KERNEL_NS::AutoDelMethods::Release> GetStorageOption() const;
 
-    UInt64 GetSessionAmount() const override;
-
-    // 派生接口
 protected:
-    // 清理数据
-    virtual void _OnServiceClear() final;
+    virtual void _OnUnifiedServiceClear() final;
+    
     // 注册组件
     virtual void _OnServiceRegisterComps() final;
-    // 服务初始化 配置
-    virtual Int32 _OnServiceInit() final;
-    // 优先级组件完成
-    virtual Int32 _OnServicePriorityLevelCompsCreated() override;
-    // 服务组件创建完成
-    virtual Int32 _OnServiceCompsCreated() final;
-    // 服务完全启动
-    virtual Int32 _OnServiceStartup() final;
-    // 服务即将关闭
-    virtual void _OnServiceWillClose() final;
-    // 服务完成关闭
-    virtual void _OnServiceClosed() final;
-
-    // 会话创建
-    virtual void _OnSessionCreated(KERNEL_NS::PollerEvent *msg) override;
-    // 会话销毁
-    virtual void _OnSessionDestroy(KERNEL_NS::PollerEvent *msg) override;
-    // 连接回调
-    virtual void _OnAsynConnectRes(KERNEL_NS::PollerEvent *msg) override;
-    // 监听回调
-    virtual void _OnAddListenRes(KERNEL_NS::PollerEvent *msg) override;
-    // 收到网络消息回调
-    virtual void _OnRecvMsg(KERNEL_NS::PollerEvent *msg) override;
-    // 退出服务
-    void _OnQuitingService(KERNEL_NS::PollerEvent *msg) override;
-
-
-    // 初始化相关
-    virtual bool _OnPollerPrepare(KERNEL_NS::Poller *poller) final;
-    // 销毁相关
-    virtual void _OnPollerWillDestroy(KERNEL_NS::Poller *poller) final;
-
-    void _CheckStartup();
-
-    // 获取消息处理器
-    KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *_GetMsgHandler(Int32 opcode);
-    const KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *_GetMsgHandler(Int32 opcode) const;
-
-private:
-    void _Clear();
-    void _OnFrameTimer(KERNEL_NS::LibTimer *timer);
     
-    Int32 _InitProtocolStack();
-
-    bool _CheckOpcode(Int32 opcode, KERNEL_NS::LibString &errInfo);
-    void _GetOpcodeInfo(Int32 opcode, KERNEL_NS::LibString &opcodeInfo);
-    bool _CheckOpcodeEnable(Int32 opcode);
-
-    void _OnFrameTick();
-
+    virtual Int32 _OnUnifiedServiceInit() final;
+    
+    virtual Int32 _OnUnifiedServiceCompsCreated() final;
+    
+    virtual void _OnEventLoopStart() final;
 private:
-    KERNEL_NS::TimerMgr *_timerMgr;
-    KERNEL_NS::LibTimer *_updateTimer;
-    Int64 _frameUpdateTimeMs;                       // 帧更新间隔ms
-    KERNEL_NS::EventManager *_eventMgr;      // 事件管理器
-
-    // 配置
-    KERNEL_NS::FileMonitor<ServiceConfig, KERNEL_NS::YamlDeserializer> *_serviceConfig;
     KERNEL_NS::FileMonitor<StorageOptions, KERNEL_NS::YamlDeserializer> *_storageOptions;
-
-    std::unordered_map<Int32, KERNEL_NS::IProtocolStack *> _stackTypeRefProtocolStack;
-    KERNEL_NS::IProtocolStack *_defaultStack;
-
-    // 协议消息处理器
-    std::unordered_map<Int32, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *> _opcodeRefHandler;
-
-    KERNEL_NS::LibString _rsaPubKey;
-    KERNEL_NS::LibString _rsaPrivKey;
 };
-
-ALWAYS_INLINE KERNEL_NS::TimerMgr *LogicService::GetTimerMgr()
-{
-    return _timerMgr;
-}
-
-ALWAYS_INLINE const KERNEL_NS::TimerMgr *LogicService::GetTimerMgr() const
-{
-    return _timerMgr;
-}
-
-ALWAYS_INLINE KERNEL_NS::EventManager *LogicService::GetEventMgr()
-{
-    return _eventMgr;
-}
-
-ALWAYS_INLINE const KERNEL_NS::EventManager *LogicService::GetEventMgr() const
-{
-    return _eventMgr;
-}
-
-ALWAYS_INLINE KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *LogicService::_GetMsgHandler(Int32 opcode)
-{
-    auto iter = _opcodeRefHandler.find(opcode);
-    return iter == _opcodeRefHandler.end() ? NULL : iter->second;
-}
-
-ALWAYS_INLINE const KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *LogicService::_GetMsgHandler(Int32 opcode) const
-{
-    auto iter = _opcodeRefHandler.find(opcode);
-    return iter == _opcodeRefHandler.end() ? NULL : iter->second;
-}
 
 SERVICE_END

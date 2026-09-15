@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,24 +21,15 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-06-26 19:05:01
+ * Date: 2026-09-14 15:59:00
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
-
-#include <service/common/common.h>
-#include <service_common/service/service.h>
-#include <kernel/comp/memory/ObjPoolMacro.h>
-#include <kernel/comp/Delegate/LibDelegate.h>
-#include <kernel/comp/LibString.h>
-#include <kernel/comp/Event/Defs.h>
-
-#include <unordered_map>
-
-#include <kernel/comp/FileMonitor/FileMonitor.h>
-#include <kernel/comp/FileMonitor/YamlDeserializer.h>
+#include "ServiceConfig.h"
+#include "service_common/common/macro.h"
+#include "service_common/service/IService.h"
 
 KERNEL_BEGIN
 
@@ -58,17 +49,16 @@ KERNEL_END
 SERVICE_BEGIN
 
 struct ServiceConfig;
-struct StorageOptions;
 
-class MyTestService : public SERVICE_COMMON_NS::IService
+// 统一服务
+class UnifiedService : public SERVICE_COMMON_NS::IService
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(IService, MyTestService);
-
+    POOL_CREATE_OBJ_DEFAULT_P1(IService, UnifiedService);
+ 
 public:
-    MyTestService();
-    ~MyTestService();
-    void Release() override;
-
+    UnifiedService(UInt64 rttiTypeId);
+    ~UnifiedService() override;
+    
     // 协议栈
     virtual KERNEL_NS::IProtocolStack *GetProtocolStack(KERNEL_NS::LibSession *session) final;
     virtual const KERNEL_NS::IProtocolStack *GetProtocolStack(KERNEL_NS::LibSession *session) const final;
@@ -87,24 +77,23 @@ public:
     const KERNEL_NS::EventManager *GetEventMgr() const override;
 
     // 获取配置
-    KERNEL_NS::SmartPtr<ServiceConfig, KERNEL_NS::AutoDelMethods::Release> GetServiceConfig() const;
-
-    KERNEL_NS::SmartPtr<StorageOptions, KERNEL_NS::AutoDelMethods::Release> GetStorageOption() const;
-
+    KERNEL_NS::SmartPtr<SERVICE_NS::ServiceConfig, KERNEL_NS::AutoDelMethods::Release> GetServiceConfig() const;
+    
     UInt64 GetSessionAmount() const override;
 
-    // 派生接口
 protected:
     // 清理数据
     virtual void _OnServiceClear() final;
-    // 注册组件
-    virtual void _OnServiceRegisterComps() final;
+    virtual void _OnUnifiedServiceClear();
     // 服务初始化 配置
     virtual Int32 _OnServiceInit() final;
-    // 优先级组件完成
+    virtual Int32 _OnUnifiedServiceInit();
     virtual Int32 _OnServicePriorityLevelCompsCreated() override;
+    
     // 服务组件创建完成
     virtual Int32 _OnServiceCompsCreated() final;
+    virtual Int32 _OnUnifiedServiceCompsCreated();
+    
     // 服务完全启动
     virtual Int32 _OnServiceStartup() final;
     // 服务即将关闭
@@ -131,16 +120,12 @@ protected:
     // 销毁相关
     virtual void _OnPollerWillDestroy(KERNEL_NS::Poller *poller) final;
 
-    // db加载完毕事件
-    void _OnDbLoaded(KERNEL_NS::LibEvent *ev);
-    bool HasDbComps() const;
-    void _CheckStartup();
-
     // 获取消息处理器
     KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *_GetMsgHandler(Int32 opcode);
     const KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *_GetMsgHandler(Int32 opcode) const;
 
-private:
+    // virtual void _OnEventLoopStart() final;
+    
     void _Clear();
     void _OnFrameTimer(KERNEL_NS::LibTimer *timer);
     
@@ -149,62 +134,56 @@ private:
     bool _CheckOpcode(Int32 opcode, KERNEL_NS::LibString &errInfo);
     void _GetOpcodeInfo(Int32 opcode, KERNEL_NS::LibString &opcodeInfo);
     bool _CheckOpcodeEnable(Int32 opcode);
-
-    void _OnFrameTick();
-
-private:
+    
+protected:
     KERNEL_NS::TimerMgr *_timerMgr;
     KERNEL_NS::LibTimer *_updateTimer;
     Int64 _frameUpdateTimeMs;                       // 帧更新间隔ms
     KERNEL_NS::EventManager *_eventMgr;      // 事件管理器
-
+    
     // 配置
     KERNEL_NS::FileMonitor<ServiceConfig, KERNEL_NS::YamlDeserializer> *_serviceConfig;
-    KERNEL_NS::FileMonitor<StorageOptions, KERNEL_NS::YamlDeserializer> *_storageOptions;
 
     std::unordered_map<Int32, KERNEL_NS::IProtocolStack *> _stackTypeRefProtocolStack;
     KERNEL_NS::IProtocolStack *_defaultStack;
-
+    
     // 协议消息处理器
     std::unordered_map<Int32, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *> _opcodeRefHandler;
-
-    KERNEL_NS::ListenerStub _dbLoadedEventStub;
-    bool _dbLoaded;
-
+    
     KERNEL_NS::LibString _rsaPubKey;
     KERNEL_NS::LibString _rsaPrivKey;
 };
 
-ALWAYS_INLINE KERNEL_NS::TimerMgr *MyTestService::GetTimerMgr()
+
+ALWAYS_INLINE KERNEL_NS::TimerMgr *UnifiedService::GetTimerMgr()
 {
     return _timerMgr;
 }
 
-ALWAYS_INLINE const KERNEL_NS::TimerMgr *MyTestService::GetTimerMgr() const
+ALWAYS_INLINE const KERNEL_NS::TimerMgr *UnifiedService::GetTimerMgr() const
 {
     return _timerMgr;
 }
 
-ALWAYS_INLINE KERNEL_NS::EventManager *MyTestService::GetEventMgr()
+ALWAYS_INLINE KERNEL_NS::EventManager *UnifiedService::GetEventMgr()
 {
     return _eventMgr;
 }
 
-ALWAYS_INLINE const KERNEL_NS::EventManager *MyTestService::GetEventMgr() const
+ALWAYS_INLINE const KERNEL_NS::EventManager *UnifiedService::GetEventMgr() const
 {
     return _eventMgr;
 }
 
-ALWAYS_INLINE KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *MyTestService::_GetMsgHandler(Int32 opcode)
+ALWAYS_INLINE KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *UnifiedService::_GetMsgHandler(Int32 opcode)
 {
     auto iter = _opcodeRefHandler.find(opcode);
     return iter == _opcodeRefHandler.end() ? NULL : iter->second;
 }
 
-ALWAYS_INLINE const KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *MyTestService::_GetMsgHandler(Int32 opcode) const
+ALWAYS_INLINE const KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *UnifiedService::_GetMsgHandler(Int32 opcode) const
 {
     auto iter = _opcodeRefHandler.find(opcode);
     return iter == _opcodeRefHandler.end() ? NULL : iter->second;
 }
-
 SERVICE_END

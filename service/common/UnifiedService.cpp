@@ -1,0 +1,723 @@
+/*!
+*  MIT License
+ *  
+ *  Copyright (c) 2020 ericyonng<120453674@qq.com>
+ *  
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *  
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *  
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ * 
+ * Date: 2026-09-14 15:59:00
+ * Author: Eric Yonng
+ * Description: 
+*/
+
+#include <pch.h>
+#include <service/common/UnifiedService.h>
+#include <service/common/Params.h>
+#include <kernel/comp/Utils/RttiUtil.h>
+#include "BaseComps/LogicSys/Impl/ILogicSys.h"
+#include "BaseComps/SessionMgrComp/Interface/ISessionMgr.h"
+#include "kernel/comp/Coder/base64.h"
+#include "kernel/comp/Coroutines/Runner.h"
+#include "kernel/comp/Event/EventManager.h"
+#include "kernel/comp/Event/LibEvent.h"
+#include "kernel/comp/NetEngine/Poller/Defs/PollerEvent.h"
+#include "kernel/comp/NetEngine/Poller/impl/Session/LibSession.h"
+#include "BaseComps/Event/Defs/EventEnums.h"
+#include "BaseComps/SysLogic/Interface/ISysLogicMgr.h"
+#include "kernel/comp/PerformanceRecord.h"
+#include "kernel/comp/Coroutines/CoDelay.h"
+#include "protocols/Opcodes.h"
+
+SERVICE_BEGIN
+
+UnifiedService::UnifiedService(UInt64 rttiTypeId)
+:SERVICE_COMMON_NS::IService(rttiTypeId)
+,_timerMgr(NULL)
+,_updateTimer(NULL)
+,_frameUpdateTimeMs(50)
+,_eventMgr(NULL)
+,_serviceConfig(KERNEL_NS::FileMonitor<ServiceConfig, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
+,_defaultStack(NULL)
+{
+    ILogicSys::GetCurrentService() = this;
+}
+
+UnifiedService::~UnifiedService()
+{
+    _OnServiceClear();
+}
+
+KERNEL_NS::IProtocolStack *UnifiedService::GetProtocolStack(KERNEL_NS::LibSession *session)
+{
+    auto iter = _stackTypeRefProtocolStack.find(session->GetProtocolStackType());
+    return iter == _stackTypeRefProtocolStack.end() ? NULL : iter->second;
+}
+
+const KERNEL_NS::IProtocolStack *UnifiedService::GetProtocolStack(KERNEL_NS::LibSession *session) const
+{
+    auto iter = _stackTypeRefProtocolStack.find(session->GetProtocolStackType());
+    return iter == _stackTypeRefProtocolStack.end() ? NULL : iter->second;
+}
+
+KERNEL_NS::IProtocolStack *UnifiedService::GetProtocolStack(Int32 prototalStackType)
+{
+    auto iter = _stackTypeRefProtocolStack.find(prototalStackType);
+    return iter == _stackTypeRefProtocolStack.end() ? NULL : iter->second;
+}
+
+const KERNEL_NS::IProtocolStack *UnifiedService::GetProtocolStack(Int32 prototalStackType) const
+{
+    auto iter = _stackTypeRefProtocolStack.find(prototalStackType);
+    return iter == _stackTypeRefProtocolStack.end() ? NULL : iter->second;
+}
+
+KERNEL_NS::SmartPtr<ServiceConfig, KERNEL_NS::AutoDelMethods::Release> UnifiedService::GetServiceConfig() const
+{
+    return _serviceConfig->Current();
+}
+
+UInt64 UnifiedService::GetSessionAmount() const
+{
+    auto sessionMgr = GetComp<ISessionMgr>();
+    return sessionMgr->GetSessionAmount();
+}
+
+void UnifiedService::Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *deleg)
+{
+    auto msgHandler = _GetMsgHandler(opcodeId);
+    if(UNLIKELY(msgHandler))
+    {
+        KERNEL_NS::LibString opcodeInfo;
+        _GetOpcodeInfo(opcodeId, opcodeInfo);
+        g_Log->Warn(LOGFMT_OBJ_TAG("repeate msg handler opcodeInfo:%s, old owner:%s, old callback:%s, new owner:%s, new callback:%s")
+                , opcodeInfo.c_str(), msgHandler->GetOwnerRtti().c_str(), msgHandler->GetCallbackRtti().c_str(), deleg->GetOwnerRtti().c_str(), deleg->GetCallbackRtti().c_str());
+        
+        msgHandler->Release();
+        _opcodeRefHandler.erase(opcodeId);
+    }
+
+    if(UNLIKELY(!_CheckOpcodeEnable(opcodeId)))
+    {
+        KERNEL_NS::LibString opcodeInfo;
+        _GetOpcodeInfo(opcodeId, opcodeInfo);
+
+        g_Log->Warn(LOGFMT_OBJ_TAG("subscribe a disable opcode opcode info:%s, new owner:%s, new callback:%s"), opcodeInfo.c_str(), deleg->GetOwnerRtti().c_str(), deleg->GetCallbackRtti().c_str());
+        deleg->Release();
+        return;
+    }
+
+    _opcodeRefHandler.insert(std::make_pair(opcodeId, deleg));
+}
+
+void UnifiedService::SubscribeCo(Int32 opcodeId, KERNEL_NS::IDelegate<KERNEL_NS::CoTask<>, KERNEL_NS::LibPacket *&> *deleg)
+{
+    auto msgHandler = _GetMsgHandler(opcodeId);
+    if(UNLIKELY(msgHandler))
+    {
+        KERNEL_NS::LibString opcodeInfo;
+        _GetOpcodeInfo(opcodeId, opcodeInfo);
+        g_Log->Warn(LOGFMT_OBJ_TAG("repeate msg handler opcodeInfo:%s, old owner:%s, old callback:%s, new owner:%s, new callback:%s")
+                , opcodeInfo.c_str(), msgHandler->GetOwnerRtti().c_str(), msgHandler->GetCallbackRtti().c_str(), deleg->GetOwnerRtti().c_str(), deleg->GetCallbackRtti().c_str());
+        
+        msgHandler->Release();
+        _opcodeRefHandler.erase(opcodeId);
+    }
+
+    if(UNLIKELY(!_CheckOpcodeEnable(opcodeId)))
+    {
+        KERNEL_NS::LibString opcodeInfo;
+        _GetOpcodeInfo(opcodeId, opcodeInfo);
+
+        g_Log->Warn(LOGFMT_OBJ_TAG("subscribe a disable opcode opcode info:%s, new owner:%s, new callback:%s"), opcodeInfo.c_str(), deleg->GetOwnerRtti().c_str(), deleg->GetCallbackRtti().c_str());
+        deleg->Release();
+        return;
+    }
+
+    // TODO:订阅协程消息回调
+    KERNEL_NS::SmartPtr<KERNEL_NS::IDelegate<KERNEL_NS::CoTask<>, KERNEL_NS::LibPacket *&>> ptr = deleg;
+    auto delgWraper = [ptr](KERNEL_NS::LibPacket *&packet)->void
+    {
+        KERNEL_NS::LibPacket *cpy = packet;
+        KERNEL_NS::SmartPtr<KERNEL_NS::LibPacket, KERNEL_NS::AutoDelMethods::Release> packetWraper = cpy;
+        packet = NULL;
+
+        KERNEL_NS::RunRightNow([ptr, packetWraper]() mutable ->KERNEL_NS::CoTask<>
+        {
+            auto packet = packetWraper.AsSelf();
+            co_await ptr->Invoke(packet);
+        });
+    };
+    auto wrapperDelg = KERNEL_CREATE_CLOSURE_DELEGATE(delgWraper, void, KERNEL_NS::LibPacket *&);
+    _opcodeRefHandler.insert(std::make_pair(opcodeId, wrapperDelg));
+}
+
+
+void UnifiedService::_OnServiceClear()
+{
+    g_Log->Info(LOGFMT_OBJ_TAG("service %s service clear "), GetObjName().c_str());
+    
+    _OnUnifiedServiceClear();
+    
+    _Clear();
+}
+
+void UnifiedService::_OnUnifiedServiceClear()
+{
+    
+}
+
+//
+// void UnifiedService::_OnServiceRegisterComps()
+// {
+// #ifdef CRYSTAL_STORAGE_ENABLE
+//     // mongodb
+//     RegisterComp<KERNEL_NS::MongodbProxyFactory>();
+// #endif
+//     
+//     // 事件转发器 从Service 转发到其他事件管理器
+//     RegisterComp<EventRelayGlobalFactory>();
+//     // 配置表
+//     RegisterComp<ConfigLoaderProxyFactory>();
+//     // 会话管理
+//     RegisterComp<SessionMgrFactory>();
+//      // 系统逻辑管理
+//     RegisterComp<SysLogicMgrFactory>();
+//     // 存根系统
+//     RegisterComp<StubHandleMgrFactory>();
+//
+// #ifdef CRYSTAL_STORAGE_ENABLE
+//     // 存储组件
+//     // RegisterComp<MysqlMgrFactory>();
+// #endif
+//
+//     // 全球唯一id组件(需要有存储组件)
+//     // RegisterComp<GlobalUidMgrFactory>();
+//
+//     // 跨时间组件(需要有GlobalUidMgr与存储组件)
+//     RegisterComp<PassTimeGlobalFactory>();
+//
+//     // 测试组件
+//     // RegisterComp<MyServiceCompFactory>();
+//
+//     // 测试
+//     RegisterComp<TestMgrFactory>();
+//
+//     // 用户系统
+//     RegisterComp<UserMgrFactory>();
+//
+//     // 昵称系统
+//     // RegisterComp<NicknameGlobalFactory>();
+//
+//     // 图书馆
+//     // RegisterComp<LibraryGlobalFactory>();
+//
+//     // 邀请码
+//     // RegisterComp<InviteCodeGlobalFactory>();
+//
+//     // 书袋
+//     // RegisterComp<BookBagGlobalFactory>();
+//
+//     // 离线处理模块
+//     // RegisterComp<OfflineGlobalFactory>();
+//
+//     // 通知模块
+//     // RegisterComp<NotifyGlobalFactory>();
+//
+//     // 系统日志模块
+//     // RegisterComp<SystemLogGlobalFactory>();
+//
+//     // 插件集
+//     RegisterComp<PluginMgrFactory>();
+//
+//     // 中转节点功能
+//     // RegisterComp<MiddleNodeMgrFactory>();
+// }
+
+Int32 UnifiedService::_OnServiceInit()
+{
+    // poller event 接口初始化
+    _eventMgr = KERNEL_NS::EventManager::New_EventManager();
+
+    Int32 err = Status::Success;
+    auto &serviceName = GetServiceName();
+    {// 2.读取配置
+        if(!_serviceConfig->Init(GetApp()->GetSourceWrap(), serviceName))
+        {
+            CLOG_ERROR("init service config fail, service name:%s", serviceName.c_str());
+            return Status::ConfigError;
+        }
+
+        // TODO:
+        // if (!_storageOptions->Init(GetApp()->GetSourceWrap(), KERNEL_NS::LibString().AppendFormat("%s.StorageOptions", serviceName.c_str())))
+        // {
+        //     CLOG_ERROR("init storage option fail, service name:%s", serviceName.c_str());
+        //     return Status::ConfigError;
+        // }
+        
+        auto currentConfig = _serviceConfig->Current();
+
+        // poller最大扫描时间间隔
+        _maxSleepMilliseconds = static_cast<UInt64>(currentConfig->PollerMaxSleepMilliseconds);
+
+        _frameUpdateTimeMs = static_cast<Int64>(currentConfig->FrameUpdateTimeMs);
+
+        _rsaPrivKey = currentConfig->RsaPrivateKey;
+        _rsaPubKey = currentConfig->RsaPublicKey;
+        if(_rsaPrivKey.empty() || _rsaPubKey.empty())
+        {
+            CLOG_ERROR("rsaPrivKey is empty service name:%s, path:%s", GetServiceName().c_str(), GetApp()->GetSourceWrap()->Path.c_str());
+            return Status::ConfigError;
+        }
+
+        // base64解码
+        _rsaPubKey.strip();
+        _rsaPubKey = KERNEL_NS::LibBase64::Decode(_rsaPubKey);
+        _rsaPrivKey.strip();
+        _rsaPrivKey = KERNEL_NS::LibBase64::Decode(_rsaPrivKey);
+    }
+
+    // 3.协议栈初始化
+    err = _InitProtocolStack();
+    if(err != Status::Success)
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("init protocol stack fail err:%d"), err);
+        return err;
+    }
+    
+    // 配置
+    err = _OnUnifiedServiceInit();
+    if (err != Status::Success)
+    {
+        CLOG_ERROR("_OnUnifiedServiceInit fail err:%d", err);
+        return err;
+    }
+
+    g_Log->Info(LOGFMT_OBJ_TAG("service %s init suc "), GetObjName().c_str());
+    return Status::Success;
+}
+
+Int32 UnifiedService::_OnUnifiedServiceInit()
+{
+    return Status::Success;
+}
+
+
+Int32 UnifiedService::_OnServicePriorityLevelCompsCreated()
+{
+    return Status::Success;
+}
+
+Int32 UnifiedService::_OnServiceCompsCreated()
+{
+    _timerMgr = _poller->GetTimerMgr();
+    _updateTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    _updateTimer->SetTimeOutHandler(this, &UnifiedService::_OnFrameTimer);
+
+    auto err = _OnUnifiedServiceCompsCreated();
+    if (err != Status::Success)
+    {
+        CLOG_ERROR("_OnUnifiedServiceCompsCreated err:%d", err);
+        return err;
+    }
+    
+    return Status::Success;
+}
+
+Int32 UnifiedService::_OnUnifiedServiceCompsCreated()
+{
+    return Status::Success;
+}
+
+
+Int32 UnifiedService::_OnServiceStartup()
+{
+    CompObject *notReady = NULL;
+    for(;!IsAllCompsReady(notReady);)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("%s not ready please check!"), notReady->ToString().c_str());
+        if(GetErrCode() != Status::Success)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("error happen errCode:%d"), GetErrCode());
+            break;
+        }
+    }
+
+    auto errCode = GetErrCode();
+    if(errCode != Status::Success)
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("start up errCode:%d"), errCode);
+        return errCode;
+    }
+
+    // 启动定时器
+    _updateTimer->Schedule(_frameUpdateTimeMs);
+
+    // 创建监听
+    // 连接center
+    // 连接目标
+
+    g_Log->Info(LOGFMT_OBJ_TAG("service %s startup with  "), GetObjName().c_str());
+    return Status::Success;
+}
+
+void UnifiedService::_OnServiceWillClose() 
+{
+    if(_updateTimer)
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(_updateTimer);
+    _updateTimer = NULL;
+
+    g_Log->Info(LOGFMT_OBJ_TAG("service %s will close "), GetObjName().c_str());
+}
+
+void UnifiedService::_OnServiceClosed()
+{
+    CompObject *notDown = NULL;
+    for(;!IsAllCompsDown(notDown);)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("%s not down please check!"), notDown->ToString().c_str());
+        KERNEL_NS::SystemUtil::ThreadSleep(1000);
+    }
+
+    _OnServiceClear();
+    g_Log->Info(LOGFMT_OBJ_TAG("service %s closed "), GetObjName().c_str());
+}
+
+void UnifiedService::_OnSessionCreated(KERNEL_NS::PollerEvent *msg)
+{
+    auto sessionCreatedEv = msg->CastTo<KERNEL_NS::SessionCreatedEvent>();
+
+    // if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+    //     g_Log->Debug(LOGFMT_OBJ_TAG("sessionCreatedEv :%s"), sessionCreatedEv->ToString().c_str());
+
+    // 预创建
+    {
+        auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SESSION_WILL_CREATED);
+        ev->SetParam(Params::SESSION_ID, sessionCreatedEv->_sessionId);
+        ev->SetParam(Params::LOCAL_ADDR, &sessionCreatedEv->_localAddr);
+        ev->SetParam(Params::REMOTE_ADDR, &sessionCreatedEv->_targetAddr);
+        ev->SetParam(Params::PROTOCOL_TYPE, sessionCreatedEv->_protocolType);
+        ev->SetParam(Params::PROTOCOL_STACK, sessionCreatedEv->_protocolStackType);
+        ev->SetParam(Params::SESSION_POLLER_ID, sessionCreatedEv->_sessionPollerId);
+        ev->SetParam(Params::SERVICE_ID, sessionCreatedEv->_belongServiceId);
+        ev->SetParam(Params::STUB, sessionCreatedEv->_stub);
+        ev->SetParam(Params::IS_FROM_CONNECT, sessionCreatedEv->_isFromConnect);
+        ev->SetParam(Params::IS_LINKER, sessionCreatedEv->_isLinker);
+        ev->SetParam(Params::TARGET_ADDR_IP_CONFIG, &sessionCreatedEv->_targetConfig);
+        ev->SetParam(Params::TARGET_ADDR_FAILURE_IP_SET, &sessionCreatedEv->_failureIps);
+        _eventMgr->FireEvent(ev);
+    }
+
+    // 创建完成
+    auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SESSION_CREATED);
+    ev->SetParam(Params::SESSION_ID, sessionCreatedEv->_sessionId);
+    ev->SetParam(Params::LOCAL_ADDR, &sessionCreatedEv->_localAddr);
+    ev->SetParam(Params::REMOTE_ADDR, &sessionCreatedEv->_targetAddr);
+    ev->SetParam(Params::PROTOCOL_TYPE, sessionCreatedEv->_protocolType);
+    ev->SetParam(Params::SESSION_POLLER_ID, sessionCreatedEv->_sessionPollerId);
+    ev->SetParam(Params::SERVICE_ID, sessionCreatedEv->_belongServiceId);
+    ev->SetParam(Params::STUB, sessionCreatedEv->_stub);
+    ev->SetParam(Params::IS_FROM_CONNECT, sessionCreatedEv->_isFromConnect);
+    ev->SetParam(Params::IS_LINKER, sessionCreatedEv->_isLinker);
+    ev->SetParam(Params::TARGET_ADDR_IP_CONFIG, &sessionCreatedEv->_targetConfig);
+    ev->SetParam(Params::TARGET_ADDR_FAILURE_IP_SET, &sessionCreatedEv->_failureIps);
+    _eventMgr->FireEvent(ev);
+}
+
+void UnifiedService::_OnSessionDestroy(KERNEL_NS::PollerEvent *msg)
+{
+    KERNEL_NS::SessionDestroyEvent *destroyEv = msg->CastTo<KERNEL_NS::SessionDestroyEvent>();
+
+    // 预创建
+    {
+        auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SESSION_WILL_DESTROY);
+        ev->SetParam(Params::SESSION_ID, destroyEv->_sessionId);
+        ev->SetParam(Params::SESSION_CLOSE_REASON, destroyEv->_closeReason);
+        ev->SetParam(Params::SERVICE_ID, destroyEv->_serviceId);
+        ev->SetParam(Params::STUB, destroyEv->_stub);
+
+        _eventMgr->FireEvent(ev);
+    }
+
+    // 销毁完成
+    auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SESSION_DESTROY);
+    ev->SetParam(Params::SESSION_ID, destroyEv->_sessionId);
+    ev->SetParam(Params::SESSION_CLOSE_REASON, destroyEv->_closeReason);
+    ev->SetParam(Params::SERVICE_ID, destroyEv->_serviceId);
+    ev->SetParam(Params::STUB, destroyEv->_stub);
+
+    _eventMgr->FireEvent(ev);
+}
+
+void UnifiedService::_OnAsynConnectRes(KERNEL_NS::PollerEvent *msg)
+{
+    // g_Log->Info(LOGFMT_OBJ_TAG("asyn connect res:%s"), msg->ToString().c_str());
+
+    auto connectRes = msg->CastTo<KERNEL_NS::AsynConnectResEvent>();
+
+    auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::ASYN_CONNECT_RES);
+    ev->SetParam(Params::ERROR_CODE, connectRes->_errCode);
+    ev->SetParam(Params::LOCAL_ADDR, &connectRes->_localAddr);
+    ev->SetParam(Params::REMOTE_ADDR, &connectRes->_targetAddr);
+    ev->SetParam(Params::FAMILY, connectRes->_family);
+    ev->SetParam(Params::PROTOCOL_TYPE, connectRes->_protocolType);
+    ev->SetParam(Params::SESSION_POLLER_ID, connectRes->_sessionPollerId);
+    ev->SetParam(Params::SERVICE_ID, connectRes->_fromServiceId);
+    ev->SetParam(Params::STUB, connectRes->_stub);
+    ev->SetParam(Params::SESSION_ID, connectRes->_sessionId);
+    ev->SetParam(Params::TARGET_ADDR_IP_CONFIG, &connectRes->_targetConfig);
+    ev->SetParam(Params::TARGET_ADDR_FAILURE_IP_SET, &connectRes->_failureIps);
+    ev->SetParam(Params::TARGET_PACKET_OPTIONS, &connectRes->_packetOptions);
+    GetEventMgr()->FireEvent(ev);
+}
+
+void UnifiedService::_OnAddListenRes(KERNEL_NS::PollerEvent *msg)
+{
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("add listen res:%s"), msg->ToString().c_str());
+
+    KERNEL_NS::AddListenResEvent *addListenEv = msg->CastTo<KERNEL_NS::AddListenResEvent>();
+    
+    // 抛事件
+    auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::ADD_LISTEN_RES);
+    ev->SetParam(Params::ERROR_CODE, addListenEv->_errCode);
+    ev->SetParam(Params::LOCAL_ADDR, &addListenEv->_localAddr);
+    ev->SetParam(Params::FAMILY, addListenEv->_family);
+    ev->SetParam(Params::SERVICE_ID, addListenEv->_serviceId);
+    ev->SetParam(Params::STUB, addListenEv->_stub);
+    ev->SetParam(Params::PROTOCOL_TYPE, addListenEv->_protocolType);
+    ev->SetParam(Params::SESSION_ID, addListenEv->_sessionId);
+    _eventMgr->FireEvent(ev);
+}
+
+void UnifiedService::_OnRecvMsg(KERNEL_NS::PollerEvent *msg)
+{
+    auto event = msg->CastTo<KERNEL_NS::RecvMsgEvent>();
+    auto packets = event->_packets;
+    if(UNLIKELY(!packets))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("have no any packets msg:%s"), msg->ToString().c_str());
+        return;
+    }
+
+    // g_Log->Info(LOGFMT_OBJ_TAG("recieve a net message :%s"), event->ToString().c_str());
+
+    for(auto node = packets->Begin(); node;)
+    {
+        auto packet = node->_data;
+        node = packets->Erase(node);
+
+        if(UNLIKELY(!packet))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("packet cant be null session id:%llu, service id:%llu")
+                        , event->_sessionId, event->_serviceId);
+            continue;
+        }
+
+        const auto opcode = packet->GetOpcode();
+        const auto sessionId = packet->GetSessionId();
+
+        // 来消息了
+        auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_MSG_RECV);
+        ev->SetParam(Params::SESSION_ID, sessionId);
+        ev->SetParam(Params::OPCODE, opcode);
+        ev->SetParam(Params::PACKET, packet);
+        _eventMgr->FireEvent(ev);
+
+        auto handler = _GetMsgHandler(opcode);
+        if(UNLIKELY(!handler))
+        {
+            CLOG_WARN("a packet with unknown opcode handler packet:%s", packet->ToString().c_str());
+            packet->ReleaseUsingPool();
+            continue;
+        }
+
+        #ifdef ENABLE_PERFORMANCE_RECORD
+            const auto packetId = packet->GetPacketId();
+            auto &&outputLogFunc = [sessionId, packetId, opcode](UInt64 costMs){
+                const auto opcodeInfo = Opcodes::GetOpcodeInfo(opcode);
+                g_Log->Warn(LOGFMT_NON_OBJ_TAG(UnifiedService, "sessionId:%llu, packetid:%lld, opcode:%d,[%s], costMs:%llu ms. "),  sessionId, packetId, opcode, opcodeInfo ? opcodeInfo->_opcodeName.c_str() : "Unknown Opcode.", costMs);
+            };
+                
+            PERFORMANCE_RECORD_DEF(pr, outputLogFunc, 10);
+        #endif
+
+        handler->Invoke(packet);
+        if(LIKELY(packet))
+            packet->ReleaseUsingPool();
+
+        // 消费消息数量统计
+        AddConsumePackets(1);
+    }
+
+    KERNEL_NS::LibList<KERNEL_NS::LibPacket *>::Delete_LibList(packets);
+    event->_packets = NULL;
+}
+
+void UnifiedService::_OnQuitingService(KERNEL_NS::PollerEvent *msg)
+{
+    // 抛事件
+    auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::QUIT_SERVICE_EVENT);
+    _eventMgr->FireEvent(ev);
+}
+
+bool UnifiedService::_OnPollerPrepare(KERNEL_NS::Poller *poller)
+{
+    g_Log->Info(LOGFMT_OBJ_TAG("service %s poller prepare "), GetObjName().c_str());
+    return true;
+}
+
+void UnifiedService::_OnPollerWillDestroy(KERNEL_NS::Poller *poller) 
+{
+    g_Log->Info(LOGFMT_OBJ_TAG("service %s poller will destroy "), GetObjName().c_str());
+}
+//
+// void UnifiedService::_OnEventLoopStart()
+// {
+//     KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<>
+//     {
+//         do
+//         {
+//             co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
+//             
+//             auto service = reinterpret_cast<IService *>(this);
+//             auto sysLogicMgr = service->GetComp<ISysLogicMgr>();
+//             if(!sysLogicMgr->IsAllTaskFinish())
+//             {
+//                 CLOG_WARN("%s not finish task.", sysLogicMgr->GetObjName().c_str());
+//                 continue;
+//             }
+//
+//             // 先执行跨天
+//             auto passTimeGlobal = service->GetComp<IPassTimeGlobal>();
+//             if(passTimeGlobal)
+//                 co_await passTimeGlobal->CheckPassTime();
+//
+//             auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_WILL_STARTUP);
+//             GetEventMgr()->FireEvent(ev);
+//
+//             ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_STARTUP);
+//             GetEventMgr()->FireEvent(ev);
+//
+//             break;
+//         }
+//         while (true);
+//
+//         CLOG_INFO("service start up, service:%s", ToString().c_str());
+//     });
+// }
+
+
+void UnifiedService::_Clear()
+{
+    KERNEL_NS::ContainerUtil::DelContainer<Int32, KERNEL_NS::IProtocolStack *, KERNEL_NS::AutoDelMethods::Release>(_stackTypeRefProtocolStack);
+    KERNEL_NS::ContainerUtil::DelContainer<Int32, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *, KERNEL_NS::AutoDelMethods::Release>(_opcodeRefHandler);
+    
+    if(LIKELY(_eventMgr))
+    {
+        KERNEL_NS::EventManager::Delete_EventManager(_eventMgr);
+        _eventMgr = NULL;
+    }
+
+    if(LIKELY(_serviceConfig))
+    {
+        KERNEL_NS::FileMonitor<ServiceConfig, KERNEL_NS::YamlDeserializer>::Delete_FileMonitor(_serviceConfig);
+        _serviceConfig = NULL;
+    }
+}
+
+void UnifiedService::_OnFrameTimer(KERNEL_NS::LibTimer *timer)
+{
+    // g_Log->Debug(LOGFMT_OBJ_TAG("my test service frame timer."));
+    OnUpdate();
+}
+
+Int32 UnifiedService::_InitProtocolStack()
+{
+    const auto limit = GetApp()->GetKernelConfig().NetConfig.SessionRecvPacketContentLimit;
+    auto currentServiceConfig = _serviceConfig->Current();
+    for(Int32 idx = SERVICE_COMMON_NS::CrystalProtocolStackType::BEGIN; idx < SERVICE_COMMON_NS::CrystalProtocolStackType::END; ++idx)
+    {
+        auto stack = SERVICE_COMMON_NS::CrystalProtocolStackFactory::Create(idx, limit);
+        if(stack)
+        {
+            stack->SetOpenPorotoLog([this]() ->bool
+            {
+                return _serviceConfig->Current()->ProtoStackOpenLog;
+            });
+            stack->SetKeyExpireTimeIntervalMs(currentServiceConfig->EncryptKeyExpireTime);
+            
+            // opcode解析
+            _stackTypeRefProtocolStack.insert(std::make_pair(idx, stack));
+
+            // 消息到来是要公钥加密私钥解密
+            auto &parsingRsa = stack->GetParsingRsa();
+            parsingRsa.SetMode(KERNEL_NS::LibRsa::PUB_ENCRYPT_PRIV_DECRYPT);
+            if(!parsingRsa.ImportKey(&(this->_rsaPubKey), &(this->_rsaPrivKey), KERNEL_NS::LibRsa::PUB_PKC8_FLAG))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("rsa import fail pubkey:%s, priv key:%s"), this->_rsaPubKey.c_str(), this->_rsaPrivKey.c_str());
+                return Status::Failed;
+            }
+
+            // 消息发出去是私钥加密公钥解密
+            auto &packetToBinRsa = stack->GetPacketToBinRsa();
+            packetToBinRsa.SetMode(KERNEL_NS::LibRsa::PRIV_ENCRYPT_PUB_DECRYPT);
+            if(!packetToBinRsa.ImportKey(&(this->_rsaPubKey), &(this->_rsaPrivKey), KERNEL_NS::LibRsa::PUB_PKC8_FLAG))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("rsa import fail pubkey:%s, priv key:%s"), this->_rsaPubKey.c_str(), this->_rsaPrivKey.c_str());
+                return Status::Failed;
+            }
+
+            // 默认协议栈是CRYSTAL_PROTOCOL, 如果端口没有指定使用的协议栈则默认使用CRYSTAL_PROTOCOL
+            if(idx == SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL)
+                _defaultStack = stack;
+        }
+    }
+
+    return Status::Success;
+}
+
+bool UnifiedService::_CheckOpcode(Int32 opcode, KERNEL_NS::LibString &errInfo)
+{
+    if(UNLIKELY(!Opcodes::CheckOpcode(opcode)))
+    {
+        errInfo.AppendFormat("unknown opcode:%d", opcode);
+        return false;
+    }
+
+    return true;
+}
+
+void UnifiedService::_GetOpcodeInfo(Int32 opcode, KERNEL_NS::LibString &opcodeInfo)
+{
+    auto info = Opcodes::GetOpcodeInfo(opcode);
+    if(UNLIKELY(!info))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("have no opcode info opcode:%d"), opcode);
+        return;
+    }
+
+    opcodeInfo = info->ToString();
+}
+
+bool UnifiedService::_CheckOpcodeEnable(Int32 opcode)
+{
+    return Opcodes::CheckOpcode(opcode);
+}
+
+SERVICE_END
