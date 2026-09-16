@@ -207,8 +207,10 @@ void LogicService::_OnEventLoopStart()
           ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_STARTUP);
           GetEventMgr()->FireEvent(ev);
           
-          GetApp()->GetComp<KERNEL_NS::IWinToastMgr>()->Notify(KERNEL_NS::LibString().AppendFormat("%s started.", GetServiceName().c_str()));
-          
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+          auto span = static_cast<double>((KERNEL_NS::LibTime::Now() - GetApp()->GetAppStartTime()).GetTotalMilliSeconds()) / 1000;
+          GetApp()->GetComp<KERNEL_NS::IWinToastMgr>()->Notify(KERNEL_NS::LibString().AppendFormat("%s started cost time:(%lf)seconds.", GetServiceName().c_str(), span));
+#endif
           break;
       }
       while (true);

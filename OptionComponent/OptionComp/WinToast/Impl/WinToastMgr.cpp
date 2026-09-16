@@ -100,7 +100,7 @@ namespace
     }
 
     // 初始化任务: 检查powershell.exe是否存在
-    void InitToastTask(std::shared_ptr<WinToastCtx> ctx)
+    void InitToastTask(WinToastCtx *ctx)
     {
         const auto psPath = GetPowerShellPath();
         if (UNLIKELY(::GetFileAttributesW(psPath.c_str()) == INVALID_FILE_ATTRIBUTES))
@@ -113,7 +113,7 @@ namespace
     }
 
     // 弹通知任务: 拼装powershell脚本, Base64编码后启动隐藏powershell.exe进程弹toast
-    void NotifyTask(std::shared_ptr<WinToastCtx> ctx, const KERNEL_NS::LibString &content, const KERNEL_NS::LibString &title)
+    void NotifyTask(WinToastCtx *ctx, const KERNEL_NS::LibString &content, const KERNEL_NS::LibString &title)
     {
         if (UNLIKELY(!ctx->ready.load(std::memory_order_acquire)))
         {
@@ -225,7 +225,7 @@ void WinToastMgr::Notify(const KERNEL_NS::LibString &content, const KERNEL_NS::L
     }
 
     // 仅投递任务, 调用线程不阻塞, toast在线程池中弹出(捕获ctx共享所有权副本, 不捕获this)
-    auto ctx = *static_cast<std::shared_ptr<WinToastCtx> *>(_toastCtx);
+    auto ctx = reinterpret_cast<WinToastCtx *>(_toastCtx);
     g_EventLoopHeavyTaskThreadPool->Send([ctx, content, title]()
     {
         NotifyTask(ctx, content, title);
@@ -239,8 +239,8 @@ void WinToastMgr::Notify(const KERNEL_NS::LibString &content, const KERNEL_NS::L
 Int32 WinToastMgr::_OnInit()
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    auto ctxHolder = new std::shared_ptr<WinToastCtx>(std::make_shared<WinToastCtx>());
-    (*ctxHolder)->aumid = Utf8ToWide(_aumid);
+    auto ctxHolder = new WinToastCtx;
+    ctxHolder->aumid = Utf8ToWide(_aumid);
     _toastCtx = ctxHolder;
     _closed.store(false, std::memory_order_release);
 #endif
@@ -258,7 +258,7 @@ Int32 WinToastMgr::_OnStart()
     }
 
     // 初始化任务投递到线程池(检查powershell.exe是否存在)
-    auto ctx = *static_cast<std::shared_ptr<WinToastCtx> *>(_toastCtx);
+    auto ctx = reinterpret_cast<WinToastCtx *>(_toastCtx);
     g_EventLoopHeavyTaskThreadPool->Send([ctx]()
     {
         InitToastTask(ctx);
@@ -276,7 +276,8 @@ void WinToastMgr::_OnWillClose()
 
     // ready置否, 线程池中未执行的notify任务快速丢弃
     if (_toastCtx)
-        (*static_cast<std::shared_ptr<WinToastCtx> *>(_toastCtx))->ready.store(false, std::memory_order_release);
+        (reinterpret_cast<WinToastCtx *>(_toastCtx))->ready.store(false, std::memory_order_release);
+    
 #endif
 }
 
@@ -290,11 +291,8 @@ void WinToastMgr::_Clear()
     _closed.store(true, std::memory_order_release);
 
     // 仅释放本组件持有的ctx引用, 线程池中残留任务持有自己的副本, 执行时ready已为false安全降级
-    if (_toastCtx)
-    {
-        delete static_cast<std::shared_ptr<WinToastCtx> *>(_toastCtx);
-        _toastCtx = NULL;
-    }
+    CRYSTAL_DELETE_SAFE(_toastCtx);
+    
 #endif
 }
 
