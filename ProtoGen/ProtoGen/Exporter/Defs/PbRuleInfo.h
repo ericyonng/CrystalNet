@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,7 +21,7 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-10-19 23:38:55
+ * Date: 2026-09-16 10:50:48
  * Author: Eric Yonng
  * Description: 
 */
@@ -29,22 +29,29 @@
 #pragma once
 
 #include <kernel/comp/LibString.h>
-#include <map>
-#include <ProtoGen/Exporter/Defs/PbCacheInfoFormat.h>
-#include <ProtoGen/Exporter/Defs/PbRuleInfo.h>
 
-struct MessageInfo
+struct PbRuleInfo
 {
-    POOL_CREATE_OBJ_DEFAULT(MessageInfo);
-
-    MessageInfo();
-
-    void Release();
-
-    void FieldsFromAnnotations(Int32 &maxOpcode);
-
-    PbCaheInfo ToPbCache(const KERNEL_NS::LibString &protoName, const KERNEL_NS::LibString &protoPath) const;
-
-    PbRuleInfo _pbRuleInfo;    
-    std::map<KERNEL_NS::LibString, KERNEL_NS::LibString> _annotationParamNameRefValue;  // 注解kv
+    KERNEL_NS::LibString GetAnnotationValue(const KERNEL_NS::LibString &annotationKey) const;
+    // 反序列化 genOpcodeMode:生成opcode模式, false:不通过maxOpcode自动生成
+    void From(const std::pair<KERNEL_NS::LibString, KERNEL_NS::LibString> &kv, bool genOpcodeMode, Int32 &maxOpcode);
+    
+    // 生成pbcache内容
+    KERNEL_NS::LibString ToPbChacheString() const;
+    
+    // 生成类前注解
+    KERNEL_NS::LibString GenAnnotationInfo() const;
+    
+    // 生成初始化OpcodeInfo代码
+    void GenOpCodeInfo(std::vector<KERNEL_NS::LibString> &lines) const;
+    
+    // 生成ts初始化代码
+    void GenTsOpCodeInfo(std::vector<KERNEL_NS::LibString> &lines) const;
+ 
+    KERNEL_NS::LibString _messageName;
+    Int32 _opcode = 0;
+    bool _noLog = false;
+    bool _isXorEncrypt = false;
+    bool _isKeyBase64 = false;
+    bool _enableStorage = false;
 };

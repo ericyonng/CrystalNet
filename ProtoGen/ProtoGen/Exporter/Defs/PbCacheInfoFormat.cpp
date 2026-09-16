@@ -32,12 +32,7 @@
 
 
 PbCaheInfo::PbCaheInfo()
-:_opcode(0)
-,_line(0)
-,_noLog(false)
-,_isXorEncrypt(false)
-,_isKeyBase64(false)
-,_enableStorage(false)
+:_line(0)
 {
 
 }
@@ -50,7 +45,7 @@ bool PbCaheInfo::CheckValid() const
     if(_line <= 0)
         return false;
 
-    if(_messageName.empty())
+    if(_pbRuleInfo._messageName.empty())
         return false;
 
     if(_protoName.empty())
@@ -68,12 +63,7 @@ KERNEL_NS::LibString PbCaheInfo::ToPbChacheString() const
     info.AppendFormat("%s", ProtobufMessageParam::MessageStartFlag.c_str())
         .AppendFormat("%s%s%s%s", ProtobufMessageParam::ProtoName.c_str(), ProtobufMessageParam::CacheKVSepFlag.c_str(), _protoName.c_str(), ProtobufMessageParam::CacheSegSepFlag.c_str())
         .AppendFormat("%s%s%s%s", ProtobufMessageParam::ProtoPath.c_str(), ProtobufMessageParam::CacheKVSepFlag.c_str(), _protoPath.c_str(), ProtobufMessageParam::CacheSegSepFlag.c_str())
-        .AppendFormat("%s%s%s%s", ProtobufMessageParam::MessageName.c_str(), ProtobufMessageParam::CacheKVSepFlag.c_str(), _messageName.c_str(), ProtobufMessageParam::CacheSegSepFlag.c_str())
-        .AppendFormat("%s%s%d%s", ProtobufMessageParam::Opcode.c_str(), ProtobufMessageParam::CacheKVSepFlag.c_str(), _opcode, ProtobufMessageParam::CacheSegSepFlag.c_str())
-        .AppendFormat("%s%s%s%s", ProtobufMessageParam::NoLog.c_str(), ProtobufMessageParam::CacheKVSepFlag.c_str(), _noLog?"true":"false", ProtobufMessageParam::CacheSegSepFlag.c_str())
-        .AppendFormat("%s%s%s%s", ProtobufMessageParam::XorEncrypt.c_str(), ProtobufMessageParam::CacheKVSepFlag.c_str(), _isXorEncrypt?"true":"false", ProtobufMessageParam::CacheSegSepFlag.c_str())
-        .AppendFormat("%s%s%s%s", ProtobufMessageParam::KeyBase64.c_str(), ProtobufMessageParam::CacheKVSepFlag.c_str(), _isKeyBase64?"true":"false", ProtobufMessageParam::CacheSegSepFlag.c_str())
-        .AppendFormat("%s%s%s%s", ProtobufMessageParam::EnableStorage.c_str(), ProtobufMessageParam::CacheKVSepFlag.c_str(), _enableStorage?"true":"false", ProtobufMessageParam::CacheSegSepFlag.c_str())
+        .Append(_pbRuleInfo.ToPbChacheString())
         .AppendFormat("%s", ProtobufMessageParam::MessageEndFlag.c_str())
         ;
 
@@ -82,38 +72,7 @@ KERNEL_NS::LibString PbCaheInfo::ToPbChacheString() const
 
 KERNEL_NS::LibString PbCaheInfo::GetAnnotationValue(const KERNEL_NS::LibString &annotationKey) const
 {
-    KERNEL_NS::LibString value;
-    if(annotationKey == ProtobufMessageParam::Opcode)
-    {
-        value.AppendFormat("%d", _opcode);
-        return value;
-    }
-
-    if(annotationKey == ProtobufMessageParam::NoLog)
-    {
-        value.AppendFormat("%s", _noLog ? "true":"false");
-        return value;
-    }
-
-    if(annotationKey == ProtobufMessageParam::XorEncrypt)
-    {
-        value.AppendFormat("%s", _isXorEncrypt ? "true":"false");
-        return value;
-    }
-
-    if(annotationKey == ProtobufMessageParam::KeyBase64)
-    {
-        value.AppendFormat("%s", _isKeyBase64 ? "true":"false");
-        return value;
-    }
-
-    if(annotationKey == ProtobufMessageParam::EnableStorage)
-    {
-        value.AppendFormat("%s", _enableStorage ? "true":"false");
-        return value;
-    }
-
-    return value;
+    return _pbRuleInfo.GetAnnotationValue(annotationKey);
 }
 
 bool PbCacheInfoCompare::operator()(const PbCaheInfo *l, const PbCaheInfo *r) const
@@ -124,10 +83,10 @@ bool PbCacheInfoCompare::operator()(const PbCaheInfo *l, const PbCaheInfo *r) co
     if(l == r)
         return false;
     
-    if(l->_opcode == r->_opcode)
+    if(l->_pbRuleInfo._opcode == r->_pbRuleInfo._opcode)
         return l < r;
 
-    return l->_opcode < r->_opcode;
+    return l->_pbRuleInfo._opcode < r->_pbRuleInfo._opcode;
 }
 
 PbCacheFileInfo::PbCacheFileInfo()
@@ -308,30 +267,9 @@ bool PbCacheFileContent::_LoadMessageInfo(Int32 currentLine, KERNEL_NS::LibStrin
         {
             pbCache->_protoPath = kv.second;
         }
-        else if(kv.first == ProtobufMessageParam::MessageName)
+        else
         {
-            pbCache->_messageName = kv.second;
-        }
-        else if(kv.first == ProtobufMessageParam::Opcode)
-        {
-            pbCache->_opcode = KERNEL_NS::StringUtil::StringToInt32(kv.second.c_str());
-            maxOpcode = std::max<Int32>(maxOpcode, pbCache->_opcode);
-        }
-        else if(kv.first == ProtobufMessageParam::NoLog)
-        {
-            pbCache->_noLog = (kv.second.strip().tolower()) == "true";
-        }
-        else if(kv.first == ProtobufMessageParam::XorEncrypt)
-        {
-            pbCache->_isXorEncrypt = (kv.second.strip().tolower()) == "true";
-        }
-        else if(kv.first == ProtobufMessageParam::KeyBase64)
-        {
-            pbCache->_isKeyBase64 = (kv.second.strip().tolower()) == "true";
-        }
-        else if(kv.first == ProtobufMessageParam::EnableStorage)
-        {
-            pbCache->_enableStorage = (kv.second.strip().tolower()) == "true";
+            pbCache->_pbRuleInfo.From(kv, false, maxOpcode);
         }
     }
 
@@ -342,16 +280,16 @@ bool PbCacheFileContent::_LoadMessageInfo(Int32 currentLine, KERNEL_NS::LibStrin
         return false;
     }
 
-    if(pbCache->_opcode != 0)
+    if(pbCache->_pbRuleInfo._opcode != 0)
     {
-        if(opcodeFilter.find(pbCache->_opcode) != opcodeFilter.end())
+        if(opcodeFilter.find(pbCache->_pbRuleInfo._opcode) != opcodeFilter.end())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("duplicate opcode:%d in pb cache pb cache line:%d, line data:%s"), pbCache->_opcode, pbCache->_line, lineData.c_str());
+            g_Log->Error(LOGFMT_OBJ_TAG("duplicate opcode:%d in pb cache pb cache line:%d, line data:%s"), pbCache->_pbRuleInfo._opcode, pbCache->_line, lineData.c_str());
             PbCaheInfo::Delete_PbCaheInfo(pbCache);
             return false;
         }   
 
-        opcodeFilter.insert(pbCache->_opcode);
+        opcodeFilter.insert(pbCache->_pbRuleInfo._opcode);
     }
 
     _lineRefMessageInfo.insert(std::make_pair(currentLine, pbCache));
@@ -362,14 +300,14 @@ bool PbCacheFileContent::_LoadMessageInfo(Int32 currentLine, KERNEL_NS::LibStrin
             iterPb = protoPathRefMessageNameCacheInfo.insert(std::make_pair(pbCache->_protoPath, std::map<KERNEL_NS::LibString, PbCaheInfo *>())).first;
 
         auto &messageRefPbCache = iterPb->second;
-        auto iterCache = messageRefPbCache.find(pbCache->_messageName);
+        auto iterCache = messageRefPbCache.find(pbCache->_pbRuleInfo._messageName);
         if(iterCache != messageRefPbCache.end())
         {
             g_Log->Error(LOGFMT_OBJ_TAG("duplicate message lineData:%s"), lineData.c_str());
             return false;
         }
 
-        messageRefPbCache.insert(std::make_pair(pbCache->_messageName, pbCache));
+        messageRefPbCache.insert(std::make_pair(pbCache->_pbRuleInfo._messageName, pbCache));
     }
 
     return true;
@@ -489,7 +427,7 @@ void PbCacheFileContent::UpdateMessageCache(const PbCaheInfo &pbCache)
         return;
     }
 
-    auto iter = iterDict->second.find(pbCache._messageName);
+    auto iter = iterDict->second.find(pbCache._pbRuleInfo._messageName);
     if(iter == iterDict->second.end())
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("bad pb cache not found message name:%s"), pbCache.ToPbChacheString().c_str());
@@ -510,7 +448,7 @@ void PbCacheFileContent::AddMessageCache(const PbCaheInfo &pbCache)
 
     auto &dict = iterDict->second;
 
-    auto iter = dict.find(pbCache._messageName);
+    auto iter = dict.find(pbCache._pbRuleInfo._messageName);
     if(iter != dict.end())
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("bad pb cache message is already existed:%s\n old cache:%s"), pbCache.ToPbChacheString().c_str(), iter->second->ToPbChacheString().c_str());
@@ -522,7 +460,7 @@ void PbCacheFileContent::AddMessageCache(const PbCaheInfo &pbCache)
     ++curMaxLine;
     newCache->_line = curMaxLine;
 
-    dict.insert(std::make_pair(pbCache._messageName, newCache));
+    dict.insert(std::make_pair(pbCache._pbRuleInfo._messageName, newCache));
     _lineRefContent.insert(std::make_pair(curMaxLine, newCache->ToPbChacheString()));
     _lineRefMessageInfo.insert(std::make_pair(curMaxLine, newCache));
 }
@@ -626,7 +564,7 @@ void PbCacheFileContent::RemoveInvalidMessagesBy(const KERNEL_NS::LibString &pro
 
     for(auto messageInfo : messageInfos)
     {
-        dict.erase(messageInfo->_messageName);
+        dict.erase(messageInfo->_pbRuleInfo._messageName);
         _lineRefMessageInfo.erase(messageInfo->_line);
         _lineRefContent.erase(messageInfo->_line);
         PbCaheInfo::Delete_PbCaheInfo(messageInfo);

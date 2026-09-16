@@ -35,6 +35,8 @@
 #include <kernel/comp/Utils/ContainerUtil.h>
 #include <map>
 
+#include "PbRuleInfo.h"
+
 struct PbCaheInfo
 {
     POOL_CREATE_OBJ_DEFAULT(PbCaheInfo);
@@ -48,17 +50,10 @@ struct PbCaheInfo
 
     KERNEL_NS::LibString GetAnnotationValue(const KERNEL_NS::LibString &annotationKey) const;
     
-    KERNEL_NS::LibString _messageName;  // message名
+    PbRuleInfo _pbRuleInfo;
     KERNEL_NS::LibString _protoName;    // 文件名
     KERNEL_NS::LibString _protoPath;    // 文件完整的路径
-    Int32 _opcode;
     Int32 _line;
-    bool _noLog;    // 不打印日志, 和opcode互相配合
-    bool _isXorEncrypt;
-    bool _isKeyBase64;
-
-    // 开启存储
-    bool _enableStorage;
 };
 
 // 排序

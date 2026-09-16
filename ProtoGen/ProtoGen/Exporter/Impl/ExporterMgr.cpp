@@ -599,9 +599,7 @@ bool ExporterMgr::_ModifyCppPbHeader(const KERNEL_NS::LibString &pbHeaderName, s
                 classNames.push_back(className);
 
                 // 2.类前注解
-                const auto annotationInfo = KERNEL_NS::LibString().AppendFormat("// AnnotaionInfo[opcode(%d), nolog(%s), XorEncrypt(%s), KeyBase64(%s), EnableStorage:(%s)]"
-                , messageInfo->_opcode, messageInfo->_noLog ? "true" : "false", messageInfo->_isXorEncrypt ? "true" : "false"
-                , messageInfo->_isKeyBase64 ? "true" : "false", messageInfo->_enableStorage ? "true" : "false");
+                const auto annotationInfo = messageInfo->_pbRuleInfo.GenAnnotationInfo();
                 addLineDatasBefore.push_back(annotationInfo);
 
                 // 3.添加基类
@@ -1426,7 +1424,7 @@ void ExporterMgr::_GenOpcodeEnums()
     for(auto kv : _pbCacheContent->_lineRefMessageInfo)
     {
         auto messageInfo = kv.second;
-        if(messageInfo->_opcode <= 0)
+        if(messageInfo->_pbRuleInfo._opcode <= 0)
             continue;
 
         sortedArray.insert(kv.second);
@@ -1453,14 +1451,14 @@ void ExporterMgr::_GenOpcodeEnums()
             auto messageInfo = sortedArray[idx];
 
             lines.push_back(KERNEL_NS::LibString().AppendFormat("    static constexpr Int32 OPCODE_%s = %d;    // %s"
-                        , messageInfo->_messageName.c_str()
-                        , messageInfo->_opcode
+                        , messageInfo->_pbRuleInfo._messageName.c_str()
+                        , messageInfo->_pbRuleInfo._opcode
                         , messageInfo->_protoName.c_str()));
 
             if(maxOpcode == 0)
-                maxOpcode = messageInfo->_opcode;
-            else if(maxOpcode < messageInfo->_opcode)
-                maxOpcode = messageInfo->_opcode;
+                maxOpcode = messageInfo->_pbRuleInfo._opcode;
+            else if(maxOpcode < messageInfo->_pbRuleInfo._opcode)
+                maxOpcode = messageInfo->_pbRuleInfo._opcode;
         }
 
         lines.push_back(KERNEL_NS::LibString().AppendFormat("    static constexpr Int32 OPCODE_MAX = %d;", maxOpcode));
@@ -1501,14 +1499,14 @@ void ExporterMgr::_GenOpcodeEnums()
             auto messageInfo = sortedArray[idx];
 
             lines.push_back(KERNEL_NS::LibString().AppendFormat("        %s = %d,    // %s"
-                        , messageInfo->_messageName.c_str()
-                        , messageInfo->_opcode
+                        , messageInfo->_pbRuleInfo._messageName.c_str()
+                        , messageInfo->_pbRuleInfo._opcode
                         , messageInfo->_protoName.c_str()));
 
             if(maxOpcode == 0)
-                maxOpcode = messageInfo->_opcode;
-            else if(maxOpcode < messageInfo->_opcode)
-                maxOpcode = messageInfo->_opcode;
+                maxOpcode = messageInfo->_pbRuleInfo._opcode;
+            else if(maxOpcode < messageInfo->_pbRuleInfo._opcode)
+                maxOpcode = messageInfo->_pbRuleInfo._opcode;
         }
 
         lines.push_back(KERNEL_NS::LibString().AppendFormat("        OpcodeMax = %d,", maxOpcode));
@@ -1551,7 +1549,7 @@ void ExporterMgr::_GenOpcodeInfo()
     for(auto kv : _pbCacheContent->_lineRefMessageInfo)
     {
         auto messageInfo = kv.second;
-        if(messageInfo->_opcode <= 0)
+        if(messageInfo->_pbRuleInfo._opcode <= 0)
             continue;
 
         sortedArray.insert(kv.second);
@@ -1561,25 +1559,17 @@ void ExporterMgr::_GenOpcodeInfo()
     for(Int64 idx = 0; idx < arrSize; ++idx)
     {
         auto messageInfo = sortedArray[idx];
-        lines.push_back(KERNEL_NS::LibString().AppendFormat("    {// %s", messageInfo->_messageName.c_str()));
-
+        
+        lines.push_back(KERNEL_NS::LibString().AppendFormat("    {// %s", messageInfo->_pbRuleInfo._messageName.c_str()));
         lines.push_back("        auto info = OpcodeInfo();");
-        lines.push_back(KERNEL_NS::LibString().AppendFormat("        info._opcode = %d;", messageInfo->_opcode));
-        lines.push_back(KERNEL_NS::LibString().AppendFormat("        info._noLog = %s;", messageInfo->_noLog ? "true" : "false"));
-        lines.push_back(KERNEL_NS::LibString().AppendFormat("        info._enableStorage = %s;", messageInfo->_enableStorage ? "true" : "false"));
-
-        // 加密
-        if(messageInfo->_isXorEncrypt)
-            lines.push_back(KERNEL_NS::LibString().AppendFormat("        info._msgFlags |= SERVICE_COMMON_NS::MsgFlagsType::XOR_ENCRYPT_FLAG;"));
-        if(messageInfo->_isKeyBase64)
-            lines.push_back(KERNEL_NS::LibString().AppendFormat("        info._msgFlags |= SERVICE_COMMON_NS::MsgFlagsType::KEY_IN_BASE64_FLAG;"));
-
-        lines.push_back(KERNEL_NS::LibString().AppendFormat("        info._opcodeName = \"%s\";", messageInfo->_messageName.c_str()));
+        
+        messageInfo->_pbRuleInfo.GenOpCodeInfo(lines);
+        
         lines.push_back(KERNEL_NS::LibString().AppendFormat("        info._protoFile = \"%s\";", messageInfo->_protoName.c_str()));
         lines.push_back(KERNEL_NS::LibString().AppendFormat("        _allOpcodeInfo.push_back(info);"));
         
         // _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, TitleInfoResFactory::CreateFactory()));
-        lines.push_back(KERNEL_NS::LibString().AppendFormat("        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, %sFactory::CreateFactory()));", messageInfo->_messageName.c_str()));
+        lines.push_back(KERNEL_NS::LibString().AppendFormat("        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, %sFactory::CreateFactory()));", messageInfo->_pbRuleInfo._messageName.c_str()));
 
         lines.push_back("    }");
         lines.push_back("");
@@ -1916,11 +1906,11 @@ void ExporterMgr::_ProtoMessageAttribute(const ProtoContentInfo *protoFile, std:
             if(!messageInfo)
                 return false;
 
-            if (messageInfo->_opcode == 0)
+            if (messageInfo->_pbRuleInfo._opcode == 0)
                 return false;
 
             // 2.类前添加特性
-            const auto annotationInfo = KERNEL_NS::LibString().AppendFormat("[ProtoMessage(%d)]", messageInfo->_opcode);
+            const auto annotationInfo = KERNEL_NS::LibString().AppendFormat("[ProtoMessage(%d)]", messageInfo->_pbRuleInfo._opcode);
             addLineDatasBefore.push_back(annotationInfo);
         }
 
@@ -1959,7 +1949,7 @@ bool ExporterMgr::_GenTs()
     for(auto kv : _pbCacheContent->_lineRefMessageInfo)
     {
         auto messageInfo = kv.second;
-        if(messageInfo->_opcode <= 0)
+        if(messageInfo->_pbRuleInfo._opcode <= 0)
             continue;
 
         sortedArray.insert(kv.second);
@@ -1974,17 +1964,10 @@ bool ExporterMgr::_GenTs()
     {
         auto messageInfo = sortedArray[idx];
         lines.push_back(KERNEL_NS::LibString().AppendFormat("    // %s ", messageInfo->_protoName.c_str()));
-        lines.push_back(KERNEL_NS::LibString().AppendFormat("    export class %s {", messageInfo->_messageName.c_str()));
-        lines.push_back(KERNEL_NS::LibString().AppendFormat("      getOpcode():number {return %s.OPCODE; }", messageInfo->_messageName.c_str()));
-        lines.push_back(KERNEL_NS::LibString().AppendFormat("      getIsXorEncrypt():boolean {return %s.XorEncrypt; }", messageInfo->_messageName.c_str()));
-        lines.push_back(KERNEL_NS::LibString().AppendFormat("      getIsKeyBase64():boolean {return %s.KeyBase64; }", messageInfo->_messageName.c_str()));
-        lines.push_back(KERNEL_NS::LibString().AppendFormat("      getOpcodeName():string {return %s.OPCODE_NAME; }", messageInfo->_messageName.c_str()));
-
-
-        lines.push_back(KERNEL_NS::LibString().AppendFormat("      static OPCODE:number = %d;", messageInfo->_opcode));
-        lines.push_back(KERNEL_NS::LibString().AppendFormat("      static OPCODE_NAME:string = \"%s\";", messageInfo->_messageName.c_str()));
-        lines.push_back(KERNEL_NS::LibString().AppendFormat("      static XorEncrypt:boolean = %s;", messageInfo->_isXorEncrypt ? "true" : "false"));
-        lines.push_back(KERNEL_NS::LibString().AppendFormat("      static KeyBase64:boolean = %s;", messageInfo->_isKeyBase64 ? "true" : "false"));
+        lines.push_back(KERNEL_NS::LibString().AppendFormat("    export class %s {", messageInfo->_pbRuleInfo._messageName.c_str()));
+       
+        messageInfo->_pbRuleInfo.GenTsOpCodeInfo(lines);
+        
         lines.push_back("    }");
         lines.push_back("");
         lines.push_back("");
@@ -2001,7 +1984,7 @@ bool ExporterMgr::_GenTs()
         if(idx != (arrSize - 1))
             endCh = ",";
 
-        lines.push_back(KERNEL_NS::LibString().AppendFormat("          [%s.OPCODE]: new %s()%s", messageInfo->_messageName.c_str(), messageInfo->_messageName.c_str(), endCh.c_str()));
+        lines.push_back(KERNEL_NS::LibString().AppendFormat("          [%s.OPCODE]: new %s()%s", messageInfo->_pbRuleInfo._messageName.c_str(), messageInfo->_pbRuleInfo._messageName.c_str(), endCh.c_str()));
         lines.push_back("");
     }
 
@@ -2663,15 +2646,15 @@ bool ExporterMgr::_GenORM()
 
             // 获取代码单元
             auto packageName = protoInfo->_packageName;
-            const auto &codeUnitFullName = packageName.findreplace("::", ".") + messageInfo->_messageName;
+            const auto &codeUnitFullName = packageName.findreplace("::", ".") + messageInfo->_pbRuleInfo._messageName;
             auto codeUnit = codeAnalyzeMgr->GetCodeUnit(codeUnitFullName);
             if(!codeUnit)
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("message not in code unit codeUnitFullName:%s, message name:%s"), codeUnitFullName.c_str(), messageInfo->_messageName.c_str());
+                g_Log->Warn(LOGFMT_OBJ_TAG("message not in code unit codeUnitFullName:%s, message name:%s"), codeUnitFullName.c_str(), messageInfo->_pbRuleInfo._messageName.c_str());
                 continue;
             }
 
-            if(messageInfo->_enableStorage)
+            if(messageInfo->_pbRuleInfo._enableStorage)
                 _codeUnits.push_back(codeUnit);
 
             KERNEL_NS::SmartPtr<CodeUnitTopologyTreeNode> newNode(new CodeUnitTopologyTreeNode);
@@ -5709,7 +5692,7 @@ bool ExporterMgr::_ScanAProto(const KERNEL_NS::FindFileInfo &fileInfo, const KER
             }
 
             KERNEL_NS::SmartPtr<MessageInfo, KERNEL_NS::AutoDelMethods::Release> messageInfo = MessageInfo::New_MessageInfo();
-            messageInfo->_messageName = dragMessageName;
+            messageInfo->_pbRuleInfo._messageName = dragMessageName;
             auto &annotationParamNameRefValue = messageInfo->_annotationParamNameRefValue;
 
             Int32 annnotationEnable = 0;
@@ -5772,13 +5755,13 @@ bool ExporterMgr::_ScanAProto(const KERNEL_NS::FindFileInfo &fileInfo, const KER
 
                     // 若注解没有值先从缓存中拿
                     if(iterKey->second.empty())
-                        iterKey->second = _pbCacheContent->GetMessageAnnotationValue(fullFilePath,  messageInfo->_messageName, annotationPairParts[0]);
+                        iterKey->second = _pbCacheContent->GetMessageAnnotationValue(fullFilePath,  messageInfo->_pbRuleInfo._messageName, annotationPairParts[0]);
                 }
             }
 
             // 放入字典
             messageInfo->FieldsFromAnnotations(_maxOpcode);
-            messageInfoDict.insert(std::make_pair(messageInfo->_messageName, messageInfo.AsSelf()));
+            messageInfoDict.insert(std::make_pair(messageInfo->_pbRuleInfo._messageName, messageInfo.AsSelf()));
             messageInfo.pop();
         }
     }
@@ -5832,7 +5815,7 @@ bool ExporterMgr::_UpdateProtoCache()
             // if(updateCacheInfo._opcode <= 0)
             //     continue;
 
-            if(_pbCacheContent->IsMessageCacheExists(updateCacheInfo._protoPath, updateCacheInfo._messageName))
+            if(_pbCacheContent->IsMessageCacheExists(updateCacheInfo._protoPath, updateCacheInfo._pbRuleInfo._messageName))
             {
                 _pbCacheContent->UpdateMessageCache(updateCacheInfo);
             }

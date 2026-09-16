@@ -32,11 +32,6 @@
 
 
 MessageInfo::MessageInfo()
-:_opcode(0)
-,_noLog(false)
-,_isXorEncrypt(false)
-,_isKeyBase64(false)
-,_enableStorage(false)
 {
 
 }
@@ -50,62 +45,17 @@ void MessageInfo::FieldsFromAnnotations(Int32 &maxOpcode)
 {
     for(auto &kv:_annotationParamNameRefValue)
     {
-        if(kv.first == ProtobufMessageParam::Opcode)
-        {
-            if(kv.second.length() != 0)
-            {
-                _opcode = KERNEL_NS::StringUtil::StringToInt32(kv.second.c_str());
-            }
-
-            if(_opcode == 0)
-                _opcode = ++maxOpcode;
-            
-            maxOpcode = std::max<Int32>(_opcode, maxOpcode);
-        }
-
-        if(kv.first == ProtobufMessageParam::NoLog)
-        {
-            if(kv.second.length() != 0)
-            {
-                _noLog = (kv.second.strip().tolower()) == "true";
-            } 
-        }
-
-        if(kv.first == ProtobufMessageParam::XorEncrypt)
-        {
-            if(kv.second.length() != 0)
-            {
-                _isXorEncrypt = (kv.second.strip().tolower()) == "true";
-            } 
-        }
-
-        if(kv.first == ProtobufMessageParam::KeyBase64)
-        {
-            if(kv.second.length() != 0)
-            {
-                _isKeyBase64 = (kv.second.strip().tolower()) == "true";
-            } 
-        }
-
-        if(kv.first == ProtobufMessageParam::EnableStorage)
-        {
-            const auto &v = kv.second.strip().tolower();
-            _enableStorage = ((v.size() == 0) ? true : (v == "true"));
-        }
+        _pbRuleInfo.From(kv, true, maxOpcode);
     }
 }
 
 PbCaheInfo MessageInfo::ToPbCache(const KERNEL_NS::LibString &protoName, const KERNEL_NS::LibString &protoPath) const
 {
     PbCaheInfo info;
-    info._messageName = _messageName;
+    info._pbRuleInfo = _pbRuleInfo;
+    
     info._protoName = protoName;
     info._protoPath = protoPath;
-    info._opcode = _opcode;
-    info._noLog = _noLog;
-    info._isXorEncrypt = _isXorEncrypt;
-    info._isKeyBase64 = _isKeyBase64;
-    info._enableStorage = _enableStorage;
 
     return info;
 }
