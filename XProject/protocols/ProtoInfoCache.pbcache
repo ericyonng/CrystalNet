@@ -46,8 +46,8 @@
 [ProtoName:com_user.proto,ProtoPath:../../XProject/protocols/proto/com_user.proto,MessageName:UserBaseInfo,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:true,]
 /// ProtoName:com_user.proto,ProtoPath:../../XProject/protocols/proto/com_user.proto,Md5:7QsUV0ZGCz//a5bZAtPojg==,ModifyTime:1788839714,
 
-[ProtoName:comp_test.proto,ProtoPath:../../XProject/protocols/proto/comp_test.proto,MessageName:TestMgrData,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
-/// ProtoName:comp_test.proto,ProtoPath:../../XProject/protocols/proto/comp_test.proto,Md5:r96rH7S9dzFcZ57L7dWFPA==,ModifyTime:1788839714,
+[ProtoName:comp_test.proto,ProtoPath:../../XProject/protocols/proto/comp_test.proto,MessageName:TestMgrData,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:true,]
+/// ProtoName:comp_test.proto,ProtoPath:../../XProject/protocols/proto/comp_test.proto,Md5:3SUmGeFmbKKpzbzckXxZPQ==,ModifyTime:1789550252,
 
 [ProtoName:heartbeat.proto,ProtoPath:../../XProject/protocols/proto/heartbeat.proto,MessageName:ClientHeartbeatReq,Opcode:11,NoLog:true,XorEncrypt:true,KeyBase64:true,EnableStorage:false,]
 [ProtoName:heartbeat.proto,ProtoPath:../../XProject/protocols/proto/heartbeat.proto,MessageName:ClientHeartbeatRes,Opcode:12,NoLog:true,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]

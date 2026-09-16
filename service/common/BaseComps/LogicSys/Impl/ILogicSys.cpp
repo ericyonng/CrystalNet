@@ -46,6 +46,7 @@ ILogicSys::ILogicSys(UInt64 objTypeId)
 ,_timerMgr(NULL)
 ,_eventMgr(NULL)
 ,_quitServiceEventDefaltStub(INVALID_LISTENER_STUB)
+,_mongodbProxy(NULL)
 {
     _SetType(ServiceCompType::LOGIC_SYS);
 }
@@ -78,13 +79,13 @@ Int32 ILogicSys::OnLoaded(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db)
     return Status::Failed;
 }
 
-Int32 ILogicSys::OnLoaded(UInt64 key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db)
+Int32 ILogicSys::OnLoaded(Int64 key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db)
 {
     CLOG_WARN("need override OnLoaded interface obj:%s, when loaded storage data", GetObjName().c_str());
     return Status::Failed;
 }
 
-Int32 ILogicSys::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb)
+Int32 ILogicSys::OnLoaded(Int64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb)
 {
     CLOG_WARN("need override OnLoaded interface obj:%s, when loaded storage data", GetObjName().c_str());
     return Status::Failed;
@@ -102,34 +103,22 @@ Int32 ILogicSys::OnLoaded(const KERNEL_NS::LibString &key, const std::map<KERNEL
     return Status::Failed;
 }
 
-Int32 ILogicSys::OnSave(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const
+KERNEL_NS::IMongodbProxy *ILogicSys::GetMongodbProxy()
 {
-    CLOG_WARN("need override OnSave interface obj:%s, when save storage data,", GetObjName().c_str());
-    return Status::Failed;
+    if (LIKELY(_mongodbProxy))
+        return _mongodbProxy;
+    
+    _mongodbProxy = GetOwner()->CastTo<KERNEL_NS::CompHostObject>()->GetComp<KERNEL_NS::IMongodbProxy>();
+    return _mongodbProxy;
 }
 
-Int32 ILogicSys::OnSave(UInt64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const
+const KERNEL_NS::IMongodbProxy *ILogicSys::GetMongodbProxy() const
 {
-    CLOG_WARN("need override OnSave interface obj:%s, when save storage data", GetObjName().c_str());
-    return Status::Failed;
-}
-
-Int32 ILogicSys::OnSave(UInt64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const
-{
-    CLOG_WARN("need override OnSave interface obj:%s, when save storage data", GetObjName().c_str());
-    return Status::Failed;
-}
-
-Int32 ILogicSys::OnSave(const KERNEL_NS::LibString &key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const
-{
-    CLOG_WARN("need override OnSave interface obj:%s, when save storage data, storage info:%s", GetObjName().c_str());
-    return Status::Failed;
-}
-
-Int32 ILogicSys::OnSave(const KERNEL_NS::LibString &key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const
-{
-    CLOG_WARN("need override OnSave interface obj:%s, when save storage data", GetObjName().c_str());
-    return Status::Failed;
+    if (LIKELY(_mongodbProxy))
+        return _mongodbProxy;
+    
+    _mongodbProxy = const_cast<KERNEL_NS::IMongodbProxy *>(GetOwner()->CastTo<KERNEL_NS::CompHostObject>()->GetComp<KERNEL_NS::IMongodbProxy>());
+    return _mongodbProxy;
 }
 
 Int32 ILogicSys::_OnHostCreated()

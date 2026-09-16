@@ -1439,9 +1439,6 @@ void ExporterMgr::_GenOpcodeEnums()
         lines.push_back(fileHeader);
         lines.push_back("");
 
-        lines.push_back("class OpcodeConst");
-        lines.push_back("{");
-        lines.push_back("public:");
         lines.push_back("    static constexpr Int32 OPCODE_BEGIN = 0;");
 
         const Int64 arrSize = static_cast<Int64>(sortedArray.size());
@@ -1450,7 +1447,7 @@ void ExporterMgr::_GenOpcodeEnums()
         {
             auto messageInfo = sortedArray[idx];
 
-            lines.push_back(KERNEL_NS::LibString().AppendFormat("    static constexpr Int32 OPCODE_%s = %d;    // %s"
+            lines.push_back(KERNEL_NS::LibString().AppendFormat("    static constexpr Int32 %s = %d;    // %s"
                         , messageInfo->_pbRuleInfo._messageName.c_str()
                         , messageInfo->_pbRuleInfo._opcode
                         , messageInfo->_protoName.c_str()));
@@ -1462,7 +1459,6 @@ void ExporterMgr::_GenOpcodeEnums()
         }
 
         lines.push_back(KERNEL_NS::LibString().AppendFormat("    static constexpr Int32 OPCODE_MAX = %d;", maxOpcode));
-        lines.push_back("};");
         lines.push_back("");
 
         const auto opcodeEnums = _protocolsPath + "/OpcodeEnums.h";

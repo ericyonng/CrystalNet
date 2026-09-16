@@ -36,6 +36,7 @@
 #include <protocols/orm_out/SimpleInfoOrmData.h>
 #include <protocols/orm_out/TestOrmOrmData.h>
 #include <protocols/orm_out/UserBaseInfoOrmData.h>
+#include <protocols/orm_out/TestMgrDataOrmData.h>
 #include <protocols/orm_out/BookBagInfoOrmData.h>
 #include <protocols/orm_out/LibraryInfoOrmData.h>
 #include <protocols/orm_out/TestCustomDataOrmData.h>

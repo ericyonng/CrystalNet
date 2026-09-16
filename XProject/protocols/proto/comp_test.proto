@@ -1,6 +1,7 @@
 syntax = "proto3";
 package CRYSTAL_NET.service;
 
+/// EnableStorage:true
 message TestMgrData 
 {
     string Account = 1;

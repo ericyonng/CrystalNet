@@ -32,16 +32,16 @@
 #include <kernel/comp/Delegate/LibDelegate.h>
 #include <service/common/status.h>
 #include <kernel/comp/Event/Defs.h>
-#include <service_common/service/service.h>
 #include <kernel/comp/NetEngine/LibPacket.h>
 #include <kernel/comp/Coroutines/CoWaiter.h>
 #include <kernel/comp/Log/log.h>
 
 #include <list>
 
-KERNEL_BEGIN
+#include "service_common/service/IService.h"
 
-struct IpControlInfo;
+KERNEL_BEGIN
+    struct IpControlInfo;
 class LibPacket;
 class ICoder;
 class LibEvent;

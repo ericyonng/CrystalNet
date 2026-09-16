@@ -32,6 +32,7 @@
 #include "LogicServiceFactory.h"
 #include "Comps/config/impl/ConfigLoaderProxy.h"
 #include "Comps/config/impl/ConfigLoaderProxyFactory.h"
+#include "Comps/Test/Impl/TestMgrFactory.h"
 #include "kernel/comp/Coroutines/CoDelay.h"
 #include "kernel/comp/Coroutines/Runner.h"
 #include "kernel/comp/Event/EventManager.h"
@@ -124,6 +125,9 @@ void LogicService::_OnServiceRegisterComps()
     // RegisterComp<PluginMgrFactory>();
     
     // RegisterComp<KERNEL_NS::WinToastMgrFactory>();
+    
+    // 测试
+    RegisterComp<TestMgrFactory>();
 }
 
 Int32 LogicService::_OnUnifiedServiceInit()

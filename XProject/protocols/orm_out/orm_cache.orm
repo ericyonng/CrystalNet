@@ -15,3 +15,4 @@ CRYSTAL_NET.serviceCancelOrderReason|CancelOrderReasonOrmData|14
 CRYSTAL_NET.serviceBookInfo|BookInfoOrmData|15
 CRYSTAL_NET.serviceBookVariantInfo|BookVariantInfoOrmData|16
 CRYSTAL_NET.serviceSnapshotClientInfo|SnapshotClientInfoOrmData|17
+CRYSTAL_NET.serviceTestMgrData|TestMgrDataOrmData|18

@@ -21,50 +21,62 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-09-17 19:55:11
+ * Date: 2022-12-02 22:31:00
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <Comps/PassTime/interface/IPassTimeGlobal.h>
-#include <kernel/comp/LibStream.h>
-#include <kernel/comp/LibTime.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/comp/Cpu/cpu.h>
 #include <kernel/comp/Timer/Timer.h>
+#include <service/common/macro.h>
 
-SERVICE_COMMON_BEGIN
-class PassTimeDataOrmData;
-
-SERVICE_COMMON_END
+#include <map>
 
 SERVICE_BEGIN
 
-class PassTimeGlobal : public IPassTimeGlobal
+struct TestAnalyzeInfo
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(IPassTimeGlobal, PassTimeGlobal);
+    POOL_CREATE_OBJ_DEFAULT(TestAnalyzeInfo);
 
-public:
-    PassTimeGlobal();
-    ~PassTimeGlobal();
-    void Release() override;
-    void OnRegisterComps() override;
+    TestAnalyzeInfo(Int64 packetId)
+        :_packetId(packetId)
+        ,_expireTimer(NULL)
+    {
 
-    Int32 OnLoaded(Int64 key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) override;
-    Int32 OnSave(Int64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const;
-    
-    virtual KERNEL_NS::CoTask<> CheckPassTime() override;
+    }
 
-private:
-    void _OnZeroTimeOut(KERNEL_NS::LibTimer *t);
-    void _DoCheckPassTime(const KERNEL_NS::LibTime &nowTime);
+    ~TestAnalyzeInfo();
+    void Release();
 
-    void _Clear();
+    KERNEL_NS::LibCpuCounter &UpdateCounter()
+    {
+        return _counter.Update();
+    }
 
-private:
-    const Int64 _key;
-    SERVICE_COMMON_NS::PassTimeDataOrmData *_passTimeData;
-    KERNEL_NS::LibTimer *_timer;
+    Int64 _packetId;
+    KERNEL_NS::LibCpuCounter _counter;
+    KERNEL_NS::LibTimer *_expireTimer;
+};
+
+struct SessionAnalyzeInfo
+{
+    POOL_CREATE_OBJ_DEFAULT(SessionAnalyzeInfo);
+
+    SessionAnalyzeInfo(UInt64 sessionId)
+        :_sessionId(sessionId)
+    {
+
+    }
+
+    ~SessionAnalyzeInfo();
+
+    void Release();
+
+    UInt64 _sessionId;
+    std::map<Int64, TestAnalyzeInfo *> _packetIdRefAnalyzeInfo;
 };
 
 SERVICE_END

@@ -67,7 +67,7 @@ void PassTimeGlobal::OnRegisterComps()
     RegisterComp<PassTimeGlobalMongoFactory>();
 }
 
-Int32 PassTimeGlobal::OnLoaded(UInt64 key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db)
+Int32 PassTimeGlobal::OnLoaded(Int64 key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db)
 {
     KERNEL_NS::LibString data;
     const auto len = static_cast<size_t>(db.GetReadableSize());

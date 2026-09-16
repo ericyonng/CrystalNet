@@ -1589,6 +1589,7 @@ export namespace crystal_net_service
 
 
     }
+    /// EnableStorage:true
     // comp_test.proto
     export class TestMgrData {
         Account:string = "";

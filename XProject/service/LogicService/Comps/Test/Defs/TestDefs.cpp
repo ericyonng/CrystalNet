@@ -21,50 +21,33 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-09-17 19:55:11
+ * Date: 2022-12-02 22:31:00
  * Author: Eric Yonng
  * Description: 
 */
+#include <pch.h>
+#include <Comps/Test/Defs/TestDefs.h>
 
-#pragma once
-
-#include <Comps/PassTime/interface/IPassTimeGlobal.h>
-#include <kernel/comp/LibStream.h>
-#include <kernel/comp/LibTime.h>
-#include <kernel/comp/Timer/Timer.h>
-
-SERVICE_COMMON_BEGIN
-class PassTimeDataOrmData;
-
-SERVICE_COMMON_END
+#include "kernel/comp/Utils/ContainerUtil.h"
 
 SERVICE_BEGIN
-
-class PassTimeGlobal : public IPassTimeGlobal
+    TestAnalyzeInfo::~TestAnalyzeInfo()
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(IPassTimeGlobal, PassTimeGlobal);
+}
 
-public:
-    PassTimeGlobal();
-    ~PassTimeGlobal();
-    void Release() override;
-    void OnRegisterComps() override;
+void TestAnalyzeInfo::Release()
+{
+    TestAnalyzeInfo::DeleteThreadLocal_TestAnalyzeInfo(this);
+}
 
-    Int32 OnLoaded(Int64 key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) override;
-    Int32 OnSave(Int64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const;
-    
-    virtual KERNEL_NS::CoTask<> CheckPassTime() override;
+SessionAnalyzeInfo::~SessionAnalyzeInfo()
+{
+    KERNEL_NS::ContainerUtil::DelContainer2(_packetIdRefAnalyzeInfo);
+}
 
-private:
-    void _OnZeroTimeOut(KERNEL_NS::LibTimer *t);
-    void _DoCheckPassTime(const KERNEL_NS::LibTime &nowTime);
-
-    void _Clear();
-
-private:
-    const Int64 _key;
-    SERVICE_COMMON_NS::PassTimeDataOrmData *_passTimeData;
-    KERNEL_NS::LibTimer *_timer;
-};
+void SessionAnalyzeInfo::Release()
+{
+    SessionAnalyzeInfo::DeleteThreadLocal_SessionAnalyzeInfo(this);
+}
 
 SERVICE_END

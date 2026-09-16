@@ -21,50 +21,34 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-09-17 19:55:11
+ * Date: 2023-07-29 19:16:00
  * Author: Eric Yonng
  * Description: 
 */
 
-#pragma once
+#include <pch.h>
+#include <Comps/Test/Impl/TestMgr.h>
+#include <Comps/Test/Impl/TestMgrStorage.h>
+#include <Comps/Test/Impl/TestMgrStorageFactory.h>
 
-#include <Comps/PassTime/interface/IPassTimeGlobal.h>
-#include <kernel/comp/LibStream.h>
-#include <kernel/comp/LibTime.h>
-#include <kernel/comp/Timer/Timer.h>
-
-SERVICE_COMMON_BEGIN
-class PassTimeDataOrmData;
-
-SERVICE_COMMON_END
+#include "kernel/comp/memory/ObjPoolWrap.h"
 
 SERVICE_BEGIN
 
-class PassTimeGlobal : public IPassTimeGlobal
+KERNEL_NS::CompFactory *TestMgrStorageFactory::FactoryCreate()
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(IPassTimeGlobal, PassTimeGlobal);
+    return kernel::ObjPoolWrap<TestMgrStorageFactory>::NewByAdapter(_buildType.V);
+}
 
-public:
-    PassTimeGlobal();
-    ~PassTimeGlobal();
-    void Release() override;
-    void OnRegisterComps() override;
-
-    Int32 OnLoaded(Int64 key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) override;
-    Int32 OnSave(Int64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const;
+void TestMgrStorageFactory::Release()
+{
+    KERNEL_NS::ObjPoolWrap<TestMgrStorageFactory>::DeleteByAdapter(_buildType.V, this);
+}
     
-    virtual KERNEL_NS::CoTask<> CheckPassTime() override;
+KERNEL_NS::CompObject *TestMgrStorageFactory::Create() const
+{
+    return TestMgrStorage::NewByAdapter_TestMgrStorage(_buildType.V);
+}
 
-private:
-    void _OnZeroTimeOut(KERNEL_NS::LibTimer *t);
-    void _DoCheckPassTime(const KERNEL_NS::LibTime &nowTime);
-
-    void _Clear();
-
-private:
-    const Int64 _key;
-    SERVICE_COMMON_NS::PassTimeDataOrmData *_passTimeData;
-    KERNEL_NS::LibTimer *_timer;
-};
 
 SERVICE_END

@@ -29,21 +29,25 @@
 #pragma once
 
 #include <kernel/comp/CompObject/CompHostObject.h>
-#include <service_common/common/common.h>
 #include <kernel/comp/LibStream.h>
 #include <kernel/comp/Event/Defs.h>
 #include <kernel/comp/Utils/BitUtil.h>
 #include <kernel/comp/Timer/Timer.h>
 #include <service/common/macro.h>
+#include <service_common/common/macro.h>
 
 #include <map>
 #include <unordered_map>
 
-KERNEL_BEGIN
+#include "kernel/comp/Coroutines/Runner.h"
+#include "OptionComp/storage/MongoDB/Interface/IMongodbProxy.h"
 
+KERNEL_BEGIN
+    
 class EventManager;
 class LibTime;
 class LibEvent;
+class IMongodbProxy;
 
 KERNEL_END
 
@@ -158,37 +162,26 @@ public:
    * TODO: 需要 FocusMethod ON_STORAGE_SUPPORT 才生效
    */
    virtual Int32 OnLoaded(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db);
-   virtual Int32 OnLoaded(UInt64 key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db);
-   virtual Int32 OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb);
+   virtual Int32 OnLoaded(Int64 key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db);
+   virtual Int32 OnLoaded(Int64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb);
    virtual Int32 OnLoaded(const KERNEL_NS::LibString &key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db);
    virtual Int32 OnLoaded(const KERNEL_NS::LibString &key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb);
-
-   // /*
-   // * 数据持久化
-   // * TODO: 需要FocusMethod ON_STORAGE_SUPPORT 才生效
-   // */
-   virtual Int32 OnSave(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const;
-   virtual Int32 OnSave(UInt64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const;
-   virtual Int32 OnSave(UInt64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const;
-
-   virtual Int32 OnSave(const KERNEL_NS::LibString &key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const;
-   // sysRefdb:key:fieldName, tuple:data type, data
-   virtual Int32 OnSave(const KERNEL_NS::LibString &key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const;
-
-  /*
+  
+    /*
   * 标脏
   */
 #ifdef CRYSTAL_STORAGE_ENABLE
    virtual void MaskDirty();
-   virtual void MaskNumberKeyAddDirty(UInt64 key);
-   virtual void MaskNumberKeyModifyDirty(UInt64 key);
-   virtual void MaskNumberKeyDeleteDirty(UInt64 key);
+   virtual void MaskNumberKeyAddDirty(Int64 key);
+   virtual void MaskNumberKeyModifyDirty(Int64 key);
+   virtual void MaskNumberKeyDeleteDirty(Int64 key);
    virtual void MaskStringKeyAddDirty(const KERNEL_NS::LibString &key);
    virtual void MaskStringKeyModifyDirty(const KERNEL_NS::LibString &key);
    virtual void MaskStringKeyDeleteDirty(const KERNEL_NS::LibString &key);
 #endif
-
     
+    KERNEL_NS::IMongodbProxy *GetMongodbProxy();
+    const KERNEL_NS::IMongodbProxy *GetMongodbProxy() const;
 
    /* TODO:
    * 跨天 默认关注
@@ -224,14 +217,14 @@ public:
    // LogicSysFlagsType
    void AddFlag(UInt64 flag);
    // LogicSysFlagsType
-   bool IsFlagSet(UInt64 flag);
+   bool IsFlagSet(UInt64 flag) const;
    // LogicSysFlagsType
    void ClearFlag(UInt64 flag);
    // LogicSysFlagsType
    void ClearFlags();
 
     template<typename CallbackType>
-    void Post(CallbackType &&cb, Int64 ms = 0);
+    static void Post(CallbackType &&cb, Int64 ms = 0);
  
     // 组件接口资源
 protected:
@@ -334,6 +327,8 @@ protected:
     KERNEL_NS::ListenerStub _quitServiceEventDefaltStub;
 
     std::unordered_map<UInt64, UInt64> _flags;
+    
+    mutable KERNEL_NS::IMongodbProxy *_mongodbProxy;
 };
 
 ALWAYS_INLINE SERVICE_COMMON_NS::IService *ILogicSys::GetService()
@@ -423,7 +418,7 @@ ALWAYS_INLINE void ILogicSys::AddFlag(UInt64 flag)
     KERNEL_NS::SimpleBitmapUtil::Set(_flags, flag);
 }
 
-ALWAYS_INLINE bool ILogicSys::IsFlagSet(UInt64 flag)
+ALWAYS_INLINE bool ILogicSys::IsFlagSet(UInt64 flag) const
 {
     return KERNEL_NS::SimpleBitmapUtil::IsSet(_flags, flag);
 }

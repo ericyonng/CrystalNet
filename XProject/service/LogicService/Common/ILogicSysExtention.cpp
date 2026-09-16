@@ -45,7 +45,7 @@ void ILogicSys::MaskDirty()
 
 }
 
-void ILogicSys::MaskNumberKeyAddDirty(UInt64 key)
+void ILogicSys::MaskNumberKeyAddDirty(Int64 key)
 {
 #ifdef CRYSTAL_STORAGE_ENABLE
     auto mongodbMgr = GetService()->GetComp<KERNEL_NS::IMongodbProxy>();
@@ -54,7 +54,7 @@ void ILogicSys::MaskNumberKeyAddDirty(UInt64 key)
 #endif
 }
 
-void ILogicSys::MaskNumberKeyModifyDirty(UInt64 key)
+void ILogicSys::MaskNumberKeyModifyDirty(Int64 key)
 {
 #ifdef CRYSTAL_STORAGE_ENABLE
     auto mongodbMgr = GetService()->GetComp<KERNEL_NS::IMongodbProxy>();
@@ -63,7 +63,7 @@ void ILogicSys::MaskNumberKeyModifyDirty(UInt64 key)
 #endif
 }
 
-void ILogicSys::MaskNumberKeyDeleteDirty(UInt64 key)
+void ILogicSys::MaskNumberKeyDeleteDirty(Int64 key)
 {
 #ifdef CRYSTAL_STORAGE_ENABLE
     auto mongodbMgr = GetService()->GetComp<KERNEL_NS::IMongodbProxy>();
