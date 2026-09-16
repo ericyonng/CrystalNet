@@ -304,27 +304,43 @@ ALWAYS_INLINE const KERNEL_NS::ShardKeyInfoGroup &IMongodbStorageInfo::GetShardK
 
 ALWAYS_INLINE Int32 IMongodbStorageInfo::OnSave(const KERNEL_NS::CompHostObject *host, Int64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const
 {
+    // 防御: 未设置对应类型的回调时直接报错, 避免空指针崩溃(调用方会记录err日志)
+    if(UNLIKELY(!_numberSaveCb))
+        return Status::Failed;
+
     return _numberSaveCb->Invoke(host, key, fieldRefdb);
 }
 
 ALWAYS_INLINE Int32 IMongodbStorageInfo::OnSave(const KERNEL_NS::CompHostObject *host, Int64 key,  KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &data) const
 {
+    if(UNLIKELY(!_numberSteamSaveCb))
+        return Status::Failed;
+
     return _numberSteamSaveCb->Invoke(host, key, data);
 }
 
 
 ALWAYS_INLINE Int32 IMongodbStorageInfo::OnSave(const KERNEL_NS::CompHostObject *host, const KERNEL_NS::LibString &key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const
 {
+    if(UNLIKELY(!_stringSaveCb))
+        return Status::Failed;
+
     return _stringSaveCb->Invoke(host, key, fieldRefdb);
 }
 
 ALWAYS_INLINE Int32 IMongodbStorageInfo::OnSave(const KERNEL_NS::CompHostObject *host, const KERNEL_NS::LibString &key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &data) const
 {
+    if(UNLIKELY(!_stringSteamSaveCb))
+        return Status::Failed;
+
     return _stringSteamSaveCb->Invoke(host, key, data);
 }
 
 ALWAYS_INLINE Int32 IMongodbStorageInfo::OnSave(const KERNEL_NS::CompHostObject *host, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &data) const
 {
+    if(UNLIKELY(!_asFieldSystemSaveCb))
+        return Status::Failed;
+
     return _asFieldSystemSaveCb->Invoke(host, data);
 }
 

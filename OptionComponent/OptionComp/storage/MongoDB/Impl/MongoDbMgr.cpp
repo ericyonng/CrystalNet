@@ -1214,8 +1214,15 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
                 return res;
             }
 
-            // 转doc
-            if(!_TurnDoc(*keyRefVariant, fullDoc))
+            // 转doc(跳过与唯一键重复的字段, 避免BSON文档出现重复字段(mongodb会丢弃重复字段之后的数据))
+            std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> filteredFields;
+            for(auto &iter : *keyRefVariant)
+            {
+                if(uniqueKv.find(iter.first) != uniqueKv.end())
+                    continue;
+                filteredFields.emplace(iter.first, iter.second);
+            }
+            if(!_TurnDoc(filteredFields, fullDoc))
             {
                 auto &&kvStr = KERNEL_NS::StringUtil::ToString(uniqueKv, ',');
                 CLOG_ERROR("Failed to insert data into collection _TurnDoc fail, dbName:%s, collectionName:%s, kvStr:%s, binary data:%s"
@@ -1750,8 +1757,8 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KER
 
     if (UNLIKELY(!binaryKeyNameRefData))
     {
-        CLOG_ERROR("ReplaceData fail binaryKeyNameRefData is null, db:%s, not focus before will started, collection:%s, kv:%s, binary data:%s", dbName.c_str(), collectionName.c_str()
-            , KERNEL_NS::StringUtil::ToString(uniqueKv, ',').c_str(), DictContainerToString(binaryKeyNameRefData).c_str());
+        CLOG_ERROR("ReplaceData fail binaryKeyNameRefData is null, db:%s, not focus before will started, collection:%s, kv:%s", dbName.c_str(), collectionName.c_str()
+            , KERNEL_NS::StringUtil::ToString(uniqueKv, ',').c_str());
         co_return false;
     }
 
@@ -2257,7 +2264,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
     co_return true;
 }
 
-KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIf(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *updateFields, void *condition, KERNEL_NS::LibString *jsonOriginValueBack)
+KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIf(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *updateFields, void *condition, KERNEL_NS::LibString *jsonOriginValueBack, bool upsert)
 {
     if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
     {
@@ -2282,7 +2289,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIf(KERNEL_NS::LibString dbName, KE
     std::shared_ptr<bsoncxx::builder::basic::document> filterDoc(new bsoncxx::builder::basic::document(std::move(*KERNEL_NS::KernelCastTo<bsoncxx::builder::basic::document>(condition))));
     
     const auto hashValue = CalculateHash(dbName + collectionName);
-    auto isSuc = co_await g_EventLoopEasyTaskThreadPool->SendAsync<MongoAsyncRes>([this, dbName, collectionName, updateFields, filterDoc, kv, jsonOriginValueBack]()->MongoAsyncRes
+    auto isSuc = co_await g_EventLoopEasyTaskThreadPool->SendAsync<MongoAsyncRes>([this, dbName, collectionName, updateFields, filterDoc, kv, jsonOriginValueBack, upsert]()->MongoAsyncRes
     {
         MongoAsyncRes res;
         SmartPtr<std::map<KERNEL_NS::LibString, KERNEL_NS::Variant>> updateFieldsPtr(updateFields);
@@ -2311,7 +2318,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIf(KERNEL_NS::LibString dbName, KE
             mongocxx::options::find_one_and_update options;
             auto &&wc = MongoHelper::MakeMongoMajorityWriteConcern<mongocxx::write_concern>();
             options.write_concern(wc);
-            options.upsert(true);
+            options.upsert(upsert);
             options.return_document(mongocxx::options::return_document::k_after);
                     
             auto result = collection.find_one_and_update(conditionDoc->view(), setDoc.view(), options);
@@ -2319,8 +2326,16 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIf(KERNEL_NS::LibString dbName, KE
             CLOG_DEBUG("UpdateDataIf find_one_and_update success  db:%s, collection:%s conditionDoc:%s, setDoc:%s, result:%s", dbName.c_str(), collectionName.c_str()
                 , bsoncxx::to_json(*conditionDoc).c_str(), bsoncxx::to_json(setDoc).c_str(), result ? bsoncxx::to_json(*result).c_str() : "");
             
-            // 走到这里 find_one_and_update必定执行成功, 其他异常情况(包括网络问题)会走到异常处理
-            res.IsSuccess = true;
+            // 走到这里命令已执行完毕, 其他异常情况(包括网络问题)会走到异常处理
+            // upsert=false 且条件未匹配时 result 为空, 视为失败(不插入新文档)
+            if(LIKELY(result || upsert))
+            {
+                res.IsSuccess = true;
+            }
+            else
+            {
+                CLOG_WARN("UpdateDataIf no matched doc and upsert disabled, db:%s, collection:%s, filterDoc:%s", dbName.c_str(), collectionName.c_str(), bsoncxx::to_json(*conditionDoc).c_str());
+            }
             return res;
         }
         catch (const mongocxx::exception &e)
@@ -2431,7 +2446,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIf(KERNEL_NS::LibString dbName, KE
     co_return true;
 }
 
-KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIfAndBack(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName,std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *updateFields, void *condition, bool isBackOld, KERNEL_NS::LibString *jsonBack)
+KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIfAndBack(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName,std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *updateFields, void *condition, bool isBackOld, KERNEL_NS::LibString *jsonBack, bool upsert)
 {
     if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
     {
@@ -2456,7 +2471,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIfAndBack(KERNEL_NS::LibString dbN
     std::shared_ptr<bsoncxx::builder::basic::document> filterDoc(new bsoncxx::builder::basic::document(std::move(*KERNEL_NS::KernelCastTo<bsoncxx::builder::basic::document>(condition))));
     
     const auto hashValue = CalculateHash(dbName + collectionName);
-    auto isSuc = co_await g_EventLoopEasyTaskThreadPool->SendAsync<MongoAsyncRes>([this, dbName, collectionName, updateFields, filterDoc, kv, isBackOld, jsonBack]()->MongoAsyncRes
+    auto isSuc = co_await g_EventLoopEasyTaskThreadPool->SendAsync<MongoAsyncRes>([this, dbName, collectionName, updateFields, filterDoc, kv, isBackOld, jsonBack, upsert]()->MongoAsyncRes
     {
         MongoAsyncRes res;
         SmartPtr<std::map<KERNEL_NS::LibString, KERNEL_NS::Variant>> updateFieldsPtr(updateFields);
@@ -2485,7 +2500,7 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIfAndBack(KERNEL_NS::LibString dbN
             mongocxx::options::find_one_and_update options;
             auto &&wc = MongoHelper::MakeMongoMajorityWriteConcern<mongocxx::write_concern>();
             options.write_concern(wc);
-            options.upsert(true);
+            options.upsert(upsert);
 
             if(isBackOld)
             {
@@ -2498,8 +2513,16 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateDataIfAndBack(KERNEL_NS::LibString dbN
 
             auto result = collection.find_one_and_update(conditionDoc->view(), setDoc.view(), options);
 
-            // 走到这里 find_one_and_update必定执行成功, 其他异常情况(包括网络问题)会走到异常处理
-            res.IsSuccess = true;
+            // 走到这里命令已执行完毕, 其他异常情况(包括网络问题)会走到异常处理
+            // upsert=false 且条件未匹配时 result 为空, 视为失败(不插入新文档)
+            if(LIKELY(result || upsert))
+            {
+                res.IsSuccess = true;
+            }
+            else
+            {
+                CLOG_WARN("UpdateDataIfAndBack no matched doc and upsert disabled, db:%s, collection:%s, filterDoc:%s", dbName.c_str(), collectionName.c_str(), bsoncxx::to_json(*conditionDoc).c_str());
+            }
 
             CLOG_DEBUG("UpdateDataIf find_one_and_update success  db:%s, collection:%s conditionDoc:%s, setDoc:%s, result:%s", dbName.c_str(), collectionName.c_str()
                 , bsoncxx::to_json(*conditionDoc).c_str(), bsoncxx::to_json(setDoc).c_str(), result ? bsoncxx::to_json(*result).c_str() : "");
@@ -2638,8 +2661,8 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
 
     if (UNLIKELY(!binaryKeyNameRefData))
     {
-        CLOG_ERROR("UpdateData fail binaryKeyNameRefData is null, db:%s, not focus before will started, collection:%s, kv:%s, binary data:%s", dbName.c_str(), collectionName.c_str()
-            , KERNEL_NS::StringUtil::ToString(kv, ',').c_str(), DictContainerToString(binaryKeyNameRefData).c_str());
+        CLOG_ERROR("UpdateData fail binaryKeyNameRefData is null, db:%s, not focus before will started, collection:%s, kv:%s", dbName.c_str(), collectionName.c_str()
+            , KERNEL_NS::StringUtil::ToString(kv, ',').c_str());
         co_return false;
     }
 
@@ -2854,8 +2877,8 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::UpdateData(KERNEL_NS::LibString dbName, KERN
 
     if (UNLIKELY(!keyNameRefData))
     {
-        CLOG_ERROR("UpdateData fail binaryKeyNameRefData is null, db:%s, not focus before will started, collection:%s, kv:%s, binary data:%s", dbName.c_str(), collectionName.c_str()
-            , KERNEL_NS::StringUtil::ToString(kv, ',').c_str(), DictContainerToString(kv).c_str());
+        CLOG_ERROR("UpdateData fail keyNameRefData is null, db:%s, not focus before will started, collection:%s, kv:%s", dbName.c_str(), collectionName.c_str()
+            , KERNEL_NS::StringUtil::ToString(kv, ',').c_str());
         co_return false;
     }
 
@@ -3071,8 +3094,8 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KER
 
     if (UNLIKELY(!keyNameRefData))
     {
-        CLOG_ERROR("ReplaceData fail binaryKeyNameRefData is null, db:%s, not focus before will started, collection:%s, kv:%s, binary data:%s", dbName.c_str(), collectionName.c_str()
-            , KERNEL_NS::StringUtil::ToString(uniqueKv, ',').c_str(), DictContainerToString(keyNameRefData).c_str());
+        CLOG_ERROR("ReplaceData fail keyNameRefData is null, db:%s, not focus before will started, collection:%s, kv:%s", dbName.c_str(), collectionName.c_str()
+            , KERNEL_NS::StringUtil::ToString(uniqueKv, ',').c_str());
         co_return false;
     }
 

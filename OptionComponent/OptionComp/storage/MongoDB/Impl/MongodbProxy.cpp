@@ -802,6 +802,12 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberAddDirtyHandler(KERNEL_NS::LibDirtyHe
     }
 
     auto storageCom = logic->GetComp<IMongodbStorageInfo>();
+    if(UNLIKELY(!storageCom))
+    {
+        CLOG_ERROR("logic have no mongodb storage info comp, logic:%s, key:%lld", logic->GetObjName().c_str(), key);
+        co_return;
+    }
+
     if(UNLIKELY(!storageCom->IsNeedSave()))
     {
         CLOG_DEBUG("logic:%s dont need save data cb key:%lld", logic->GetObjName().c_str(), key);
@@ -926,6 +932,12 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberModifyDirtyHandler(KERNEL_NS::LibDirt
     }
 
     auto storageCom = logic->GetComp<IMongodbStorageInfo>();
+    if(UNLIKELY(!storageCom))
+    {
+        CLOG_ERROR("logic have no mongodb storage info comp, logic:%s, key:%lld", logic->GetObjName().c_str(), key);
+        co_return;
+    }
+
     if(UNLIKELY(!storageCom->IsNeedSave()))
     {
         CLOG_DEBUG("logic:%s dont need save data cb key:%lld", logic->GetObjName().c_str(),key);
@@ -1052,6 +1064,12 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberDeleteDirtyHandler(KERNEL_NS::LibDirt
     }
 
     auto storageCom = logic->GetComp<IMongodbStorageInfo>();
+    if(UNLIKELY(!storageCom))
+    {
+        CLOG_ERROR("logic have no mongodb storage info comp, logic:%s, key:%lld", logic->GetObjName().c_str(), key);
+        co_return;
+    }
+
     if(UNLIKELY(!storageCom->IsNeedSave()))
     {
         CLOG_DEBUG("logic:%s dont need save data cb key:%lld", logic->GetObjName().c_str(), key);
@@ -1093,6 +1111,12 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDir
     }
 
     auto storageCom = logic->GetComp<IMongodbStorageInfo>();
+    if(UNLIKELY(!storageCom))
+    {
+        CLOG_ERROR("logic have no mongodb storage info comp, logic:%s, key:%lld", logic->GetObjName().c_str(), key);
+        co_return;
+    }
+
     if(UNLIKELY(!storageCom->IsNeedSave()))
     {
         CLOG_DEBUG("logic:%s dont need save data cb key:%lld", logic->GetObjName().c_str(), key);
@@ -1218,6 +1242,12 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringAddDirtyHandler(KERNEL_NS::LibDirtyHe
     }
 
     auto storageCom = logic->GetComp<IMongodbStorageInfo>();
+    if(UNLIKELY(!storageCom))
+    {
+        CLOG_ERROR("logic have no mongodb storage info comp, logic:%s, key:%s", logic->GetObjName().c_str(), key.c_str());
+        co_return;
+    }
+
     if(UNLIKELY(!storageCom->IsNeedSave()))
     {
         CLOG_DEBUG("logic:%s dont need save data cb key:%s", logic->GetObjName().c_str(), key.c_str());
@@ -1343,6 +1373,12 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringModifyDirtyHandler(KERNEL_NS::LibDirt
     }
 
     auto storageCom = logic->GetComp<IMongodbStorageInfo>();
+    if(UNLIKELY(!storageCom))
+    {
+        CLOG_ERROR("logic have no mongodb storage info comp, logic:%s, key:%s", logic->GetObjName().c_str(), key.c_str());
+        co_return;
+    }
+
     if(UNLIKELY(!storageCom->IsNeedSave()))
     {
         CLOG_DEBUG("logic:%s dont need save data cb key:%s", logic->GetObjName().c_str(), key.c_str());
@@ -1468,6 +1504,12 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringDeleteDirtyHandler(KERNEL_NS::LibDirt
     }
 
     auto storageCom = logic->GetComp<IMongodbStorageInfo>();
+    if(UNLIKELY(!storageCom))
+    {
+        CLOG_ERROR("logic have no mongodb storage info comp, logic:%s, key:%s", logic->GetObjName().c_str(), key.c_str());
+        co_return;
+    }
+
     if(UNLIKELY(!storageCom->IsNeedSave()))
     {
         CLOG_DEBUG("logic:%s dont need save data cb key:%s", logic->GetObjName().c_str(), key.c_str());
@@ -1508,6 +1550,12 @@ KERNEL_NS::CoTask<> MongodbProxy::_OnStringReplaceDirtyHandler(KERNEL_NS::LibDir
     }
 
     auto storageCom = logic->GetComp<IMongodbStorageInfo>();
+    if(UNLIKELY(!storageCom))
+    {
+        CLOG_ERROR("logic have no mongodb storage info comp, logic:%s, key:%s", logic->GetObjName().c_str(), key.c_str());
+        co_return;
+    }
+
     if(UNLIKELY(!storageCom->IsNeedSave()))
     {
         CLOG_DEBUG("logic:%s dont need save data cb key:%s", logic->GetObjName().c_str(), key.c_str());

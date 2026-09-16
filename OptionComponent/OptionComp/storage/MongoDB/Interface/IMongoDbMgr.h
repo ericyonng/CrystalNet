@@ -141,10 +141,12 @@ public:
     virtual KERNEL_NS::CoTask<bool> UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStreamTL *> *binaryKeyNameRefData, bool createIfNotExists = false) = 0;
     // condition : 传入 bsoncxx::builder::basic::document 条件, UpdateDataIf 用于原子操作,返回结果:jsonResult(json),外部释放, 返回旧的文档 Condition带上唯一id, updateFields就不用带唯一id
     // jsonOriginValueBack:若原子操作失败则返回旧文档, 如果是参数检查失败不会返回, jsonOriginValueBack有值可继续根据情况操作原子操作
-    virtual KERNEL_NS::CoTask<bool> UpdateDataIf(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *updateFields, void *condition, KERNEL_NS::LibString *jsonOriginValueBack) = 0;
+    // upsert:条件未匹配时是否用条件等值字段+$set插入新文档(默认true保持既有行为; 严格CAS场景应传false, 未匹配时不插入且返回失败)
+    virtual KERNEL_NS::CoTask<bool> UpdateDataIf(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *updateFields, void *condition, KERNEL_NS::LibString *jsonOriginValueBack, bool upsert = true) = 0;
 
     // 成功:isBackOld:true:返回旧文档(旧的有可能空的),false:返回更新完后的新文档, 失败:会查询当前mongo中的文档
-    virtual KERNEL_NS::CoTask<bool> UpdateDataIfAndBack(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName,std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *updateFields, void *condition, bool isBackOld, KERNEL_NS::LibString *jsonBack) = 0;
+    // upsert:条件未匹配时是否插入新文档(默认true保持既有行为; 严格CAS场景应传false, 未匹配时不插入且返回失败)
+    virtual KERNEL_NS::CoTask<bool> UpdateDataIfAndBack(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName,std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> *updateFields, void *condition, bool isBackOld, KERNEL_NS::LibString *jsonBack, bool upsert = true) = 0;
 
     // 序列化发序列化:MongoDataSerialize, 序列化反序列化数据定义:MongoSerializeInfo keyNameRefData内部释放
     virtual KERNEL_NS::CoTask<bool> UpdateData(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collectionName, std::map<KERNEL_NS::LibString, KERNEL_NS::Variant> kv, std::map<KERNEL_NS::LibString, MongoSerializeInfo> *keyNameRefData, bool createIfNotExists = false) = 0;

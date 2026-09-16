@@ -32,6 +32,7 @@
 
 #include <kernel/comp/Coder/base64.h>
 #include <string_view>
+#include <cstring>
 
 #include "kernel/comp/Log/log.h"
 
@@ -43,37 +44,86 @@ KERNEL_BEGIN
     {
     case MongoSerializeInfoType::BOOL:
         {
-            bool *value = reinterpret_cast<bool *>(data._stream->GetReadBegin());
-            doc.append(bsoncxx::builder::basic::kvp(keyName.GetRaw(), *value));
+            // 防御: stream为空或可读长度不足时直接报错, 避免空指针解引用与越界读
+            if(UNLIKELY(!data._stream || data._stream->GetReadableSize() < static_cast<Int64>(sizeof(bool))))
+            {
+                CLOG_ERROR_GLOBAL(MongoDataSerialize, "AppendSerialize bool stream invalid key:%s, readable size:%lld"
+                    , keyName.c_str(), data._stream ? data._stream->GetReadableSize() : -1);
+                return false;
+            }
+            // memcpy避免非对齐解引用UB
+            bool value = false;
+            ::memcpy(&value, data._stream->GetReadBegin(), sizeof(value));
+            doc.append(bsoncxx::builder::basic::kvp(keyName.GetRaw(), value));
             break;
         }
     case MongoSerializeInfoType::INT64:
         {
-            Int64 *value = reinterpret_cast<Int64 *>(data._stream->GetReadBegin());
-            doc.append(bsoncxx::builder::basic::kvp(keyName.GetRaw(), static_cast<std::int64_t>(*value)));
+            if(UNLIKELY(!data._stream || data._stream->GetReadableSize() < static_cast<Int64>(sizeof(Int64))))
+            {
+                CLOG_ERROR_GLOBAL(MongoDataSerialize, "AppendSerialize int64 stream invalid key:%s, readable size:%lld"
+                    , keyName.c_str(), data._stream ? data._stream->GetReadableSize() : -1);
+                return false;
+            }
+            Int64 value = 0;
+            ::memcpy(&value, data._stream->GetReadBegin(), sizeof(value));
+            doc.append(bsoncxx::builder::basic::kvp(keyName.GetRaw(), static_cast<std::int64_t>(value)));
             break;
         }
     case MongoSerializeInfoType::DOUBLE:
         {
-            Double *value = reinterpret_cast<Double *>(data._stream->GetReadBegin());
-            doc.append(bsoncxx::builder::basic::kvp(keyName.GetRaw(), *value));
+            if(UNLIKELY(!data._stream || data._stream->GetReadableSize() < static_cast<Int64>(sizeof(Double))))
+            {
+                CLOG_ERROR_GLOBAL(MongoDataSerialize, "AppendSerialize double stream invalid key:%s, readable size:%lld"
+                    , keyName.c_str(), data._stream ? data._stream->GetReadableSize() : -1);
+                return false;
+            }
+            Double value = 0;
+            ::memcpy(&value, data._stream->GetReadBegin(), sizeof(value));
+            doc.append(bsoncxx::builder::basic::kvp(keyName.GetRaw(), value));
             break;
         }
     case MongoSerializeInfoType::STRING:
         {
+            if(UNLIKELY(!data._stream))
+            {
+                CLOG_ERROR_GLOBAL(MongoDataSerialize, "AppendSerialize string stream is null key:%s", keyName.c_str());
+                return false;
+            }
             std::string_view str(data._stream->GetReadBegin(), static_cast<size_t>(data._stream->GetReadableSize()));
             doc.append(bsoncxx::builder::basic::kvp(keyName.GetRaw(), str));
             break;
         }
     case MongoSerializeInfoType::JSON:
         {
-            std::string_view json(data._stream->GetReadBegin(), data._stream->GetReadableSize());
-            auto &&fromJson = bsoncxx::from_json(json);
-            doc.append(bsoncxx::builder::basic::kvp(keyName.GetRaw(), fromJson));
+            if(UNLIKELY(!data._stream || data._stream->GetReadableSize() <= 0))
+            {
+                CLOG_ERROR_GLOBAL(MongoDataSerialize, "AppendSerialize json stream invalid key:%s, readable size:%lld"
+                    , keyName.c_str(), data._stream ? data._stream->GetReadableSize() : -1);
+                return false;
+            }
+            std::string_view json(data._stream->GetReadBegin(), static_cast<size_t>(data._stream->GetReadableSize()));
+            try
+            {
+                auto &&fromJson = bsoncxx::from_json(json);
+                doc.append(bsoncxx::builder::basic::kvp(keyName.GetRaw(), fromJson));
+            }
+            catch (const std::exception &e)
+            {
+                // 非法json不允许异常穿透, 走错误返回
+                CLOG_ERROR_GLOBAL(MongoDataSerialize, "AppendSerialize json parse fail key:%s, err:%s, json size:%llu"
+                    , keyName.c_str(), e.what(), static_cast<UInt64>(json.size()));
+                return false;
+            }
             break;
         }
     case MongoSerializeInfoType::BINARY:
         {
+            if(UNLIKELY(!data._stream))
+            {
+                CLOG_ERROR_GLOBAL(MongoDataSerialize, "AppendSerialize binary stream is null key:%s", keyName.c_str());
+                return false;
+            }
             auto binData = bsoncxx::types::b_binary();
             binData.sub_type = bsoncxx::binary_sub_type::k_binary;
             binData.size = static_cast<uint32_t>(data._stream->GetReadableSize());
@@ -91,7 +141,8 @@ KERNEL_BEGIN
     default:
         {
             CLOG_ERROR_GLOBAL(MongoDataSerialize, "unsurpport MongoSerializeInfoType:%d to update data into collection data:%s"
-                , data.DataType, KERNEL_NS::LibBase64::Encode(data._stream->GetReadBegin(), data._stream->GetReadableSize()).c_str());
+                , data.DataType, KERNEL_NS::LibBase64::Encode(data._stream ? data._stream->GetReadBegin() : nullptr
+                    , data._stream ? data._stream->GetReadableSize() : 0).c_str());
             return false;
         }    
     }
