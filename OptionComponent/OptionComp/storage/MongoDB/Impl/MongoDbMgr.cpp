@@ -1078,6 +1078,9 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
             {
                 auto data = iter.second;
                 auto &keyName = iter.first;
+                // 唯一键已通过uniqueKv append过, 跳过避免BSON文档出现重复字段(mongodb会丢弃重复字段之后的数据)
+                if(uniqueKv.find(keyName) != uniqueKv.end())
+                    continue;
                 auto binData = bsoncxx::types::b_binary();
                 binData.sub_type = bsoncxx::binary_sub_type::k_binary;
                 binData.size = static_cast<uint32_t>(data->GetReadableSize());
@@ -1850,6 +1853,9 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KER
             {
                 auto &keyName = iter.first;
                 auto data = iter.second;
+                // 唯一键已通过uniqueKv append过, 跳过避免BSON文档出现重复字段(mongodb会丢弃重复字段之后的数据)
+                if(uniqueKv.find(keyName) != uniqueKv.end())
+                    continue;
                 auto binData = bsoncxx::types::b_binary();
                 binData.sub_type = bsoncxx::binary_sub_type::k_binary;
                 binData.size = static_cast<uint32_t>(data->GetReadableSize());
@@ -3167,6 +3173,9 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::ReplaceData(KERNEL_NS::LibString dbName, KER
             {
                 auto &keyName = iter.first;
                 auto data = iter.second;
+                // 唯一键已通过uniqueKv append过, 跳过避免BSON文档出现重复字段(mongodb会丢弃重复字段之后的数据)
+                if(uniqueKv.find(keyName) != uniqueKv.end())
+                    continue;
                 if(!MongoDataSerialize::AppendSerialize(fullDoc, keyName, data))
                 {
                     CLOG_ERROR("AppendSerialize fail value type to replace data into collection kv:%s dbName:%s, collectionName:%s, data:%s, keyName:%s"
@@ -3333,6 +3342,9 @@ KERNEL_NS::CoTask<bool> MongoDbMgr::AddData(KERNEL_NS::LibString dbName, KERNEL_
             {
                 auto data = iter.second;
                 auto &keyName = iter.first;
+                // 唯一键已通过uniqueKv append过, 跳过避免BSON文档出现重复字段(mongodb会丢弃重复字段之后的数据)
+                if(uniqueKv.find(keyName) != uniqueKv.end())
+                    continue;
                 if(!MongoDataSerialize::AppendSerialize(fullDoc, keyName, data))
                 {
                     CLOG_ERROR("AppendSerialize Failed to insert data into collection, kv:%s dbName:%s, collectionName:%s, data:%s, keyName:%s"
