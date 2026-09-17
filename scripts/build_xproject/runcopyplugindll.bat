@@ -10,7 +10,7 @@ echo CUR_PATH:%CUR_PATH%
 echo VER:%VER%
 echo SUFFIX:%SUFFIX%
 
-set "SRC_FILE=%CUR_PATH%..\..\output\%VER%\build_x\PluginTmp\libTestServicePlugin%SUFFIX%.dll"
+set "SRC_FILE=%CUR_PATH%..\..\output\%VER%\build_x\PluginTmp\libLogicPlugin%SUFFIX%.dll"
 set "DEST_DIR=%CUR_PATH%..\..\output\%VER%\build_x\"
 
 :: 检查源文件是否存在

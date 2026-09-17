@@ -238,7 +238,6 @@ struct KERNEL_EXPORT HotfixShareLibraryEvent : public PollerEvent
     LibString ToString() const override;
 
     KERNEL_NS::SmartPtr<KERNEL_NS::ShareLibraryLoader, KERNEL_NS::AutoDelMethods::Release> _shareLib;
-    KERNEL_NS::LibString _hotfixKey;
 };
 
 struct  KERNEL_EXPORT HotfixShareLibraryCompleteEvent : public  PollerEvent

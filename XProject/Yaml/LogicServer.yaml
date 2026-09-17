@@ -163,8 +163,8 @@ LogicService:
     
   # 热更集
   PluginOptions:
-    # 热更集 hotfixkey
-    PluginHotfixKey: TestPlugin
+    # 插件集文件名前面部分
+    PluginNamePart: libLogicPlugin
   
   StorageOptions:
     DbName: TestSuit

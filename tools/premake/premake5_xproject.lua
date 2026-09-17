@@ -288,7 +288,7 @@ project "LogicServer"
     end
 
     -- 导入内核接口 宏定义
-	defines {"CRYSTAL_NET_CPP20", "CRYSTAL_NET_IMPORT_KERNEL_LIB"}
+	defines {"CRYSTAL_NET_CPP20", "CRYSTAL_NET_IMPORT_KERNEL_LIB", "LOGIC_PLUGIN_IMPORT_LIB"}
 
 	enable_precompileheader("pch.h", XPROJ_PATH .. "LogicServer/LogicServer_pch/pch.cpp")
 

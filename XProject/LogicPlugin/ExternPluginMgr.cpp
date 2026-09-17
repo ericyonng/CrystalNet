@@ -1,0 +1,73 @@
+// MIT License
+// 
+// Copyright (c) 2020 ericyonng<120453674@qq.com>
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+// 
+// Date: 2025-02-05 16:35:27
+// Author: Eric Yonng
+// Description:
+
+#include "pch.h"
+#include <LogicPlugin/ExternPluginMgr.h>
+#include <kernel/comp/GlobalLifeCtrl.h>
+
+ALWAYS_HIDDEN DEF_THREAD_LOCAL_DECLEAR SERVICE_NS::IPluginMgr *g_PluginMgr = NULL;
+ALWAYS_HIDDEN DEF_THREAD_LOCAL_DECLEAR SERVICE_NS::IPluginGlobal *g_PluginGlobal = NULL;
+
+namespace
+{
+    static ALWAYS_HIDDEN KERNEL_NS::GlobalLifeCtrl &GetGlobalLifeCtrl()
+    {
+        static KERNEL_NS::GlobalLifeCtrl s_lifeCtrl;
+
+        return s_lifeCtrl;
+    }
+}
+
+KERNEL_BEGIN
+
+ALWAYS_HIDDEN UInt64 GetCrystalModuleId()
+{
+    static const UInt64 id = GetGlobalIdSrc().fetch_add(1, std::memory_order_release) + 1;
+
+// #if _DEBUG
+//     if(g_Log)
+//     {
+//         CLOG_DEBUG_GLOBAL(SystemUtil, "TestPlugin - GetCrystalModuleId:%llu", id);
+//     }
+// #endif
+    
+    return id;
+}
+
+ALWAYS_HIDDEN void RegisterGlobalObjLife(void *deleg)
+{
+    auto &lifeCtrl = GetGlobalLifeCtrl();
+    lifeCtrl.Register(reinterpret_cast<IDelegate<void> *>(deleg));
+}
+
+ALWAYS_HIDDEN void EnableGlobalLife(bool enable)
+{
+    auto &lifeCtrl = GetGlobalLifeCtrl();
+
+    lifeCtrl.Enable(enable);
+}
+
+KERNEL_END

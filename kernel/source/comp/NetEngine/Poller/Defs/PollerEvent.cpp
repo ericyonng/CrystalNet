@@ -642,7 +642,7 @@ void HotfixShareLibraryEvent::Release()
 LibString HotfixShareLibraryEvent::ToString() const
 {                               
     LibString info;
-    info.AppendFormat("%s\nshare lib:%s, hotfix key:%s", PollerEvent::ToString().c_str(), _shareLib ? _shareLib->ToString().c_str() : "", _hotfixKey.c_str());
+    info.AppendFormat("%s\nshare lib:%s", PollerEvent::ToString().c_str(), _shareLib ? _shareLib->ToString().c_str() : "");
 
     return info;
 }

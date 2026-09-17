@@ -142,7 +142,7 @@ namespace EventEnums
                                         * @param(PACKET):LibPacket * Ptr
                                         */
         SERVICE_EVENT_END = 200,
-
+        
         EVENT_COMMON_END = 65536,       // 公共事件集结束
     };
 };
