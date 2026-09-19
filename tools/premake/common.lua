@@ -361,7 +361,11 @@ function include_libfs(do_post_build, add_protobuflib)
     filter { "system:windows"}
         links {
             -- "ws2_32",
-            "libcurl"
+            "libcurl",
+            -- libcurl 是 OpenSSL 构建的静态库, Windows 下也需要链接 openssl 与 crypt32
+            "libssl",
+            "libcrypto",
+            "crypt32",
         }
     filter {}
 

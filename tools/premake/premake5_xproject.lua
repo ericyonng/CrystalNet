@@ -453,7 +453,7 @@ project "VirtualClient"
         XPROJ_PATH .. "protocols/OpcodeInfo.h",
         XPROJ_PATH .. "protocols/Opcodes.h",
         XPROJ_PATH .. "protocols/*.cc",
-        XPROJ_PATH .. "protocols/*.cpp",
+        XPROJ_PATH .. "protocols/Opcodes.cpp",
         XPROJ_PATH .. "protocols/cplusplus/**.h",
         XPROJ_PATH .. "protocols/cplusplus/**.cc",
         XPROJ_PATH .. "protocols/cplusplus/**.cpp",
