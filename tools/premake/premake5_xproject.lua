@@ -402,3 +402,133 @@ project "LogicServer"
     filter {}
 	
 -- ****************************************************************************
+
+
+
+-- core library testsuite compile setting
+project "VirtualClient"
+    -- language, kind
+    language "c++"
+    kind "ConsoleApp"
+	
+    -- 支持c++20
+    -- cppdialect "c++20"
+
+    -- symbols
+	debugdir(DEBUG_DIR)
+    symbols "On"
+
+    -- dependents
+    dependson {
+        "CrystalKernel",
+    }
+
+    -- 导入内核接口 宏定义
+	defines {"CRYSTAL_NET_CPP20", "CRYSTAL_NET_IMPORT_KERNEL_LIB"}
+
+	enable_precompileheader("pch.h", XPROJ_PATH .. "VirtualClient/VirtualClient_pch/pch.cpp")
+
+	includedirs {
+	    ROOT_DIR,
+	    XPROJ_PATH,
+		ROOT_DIR .. "kernel/include/",
+		XPROJ_PATH .. "VirtualClient/",
+		XPROJ_PATH .. "VirtualClient/VirtualClient_pch/",
+        XPROJ_PATH .. "Config/code/",
+		ROOT_DIR .. "OptionComponent/",
+		XPROJ_PATH .. "protocols/cplusplus/",
+		XPROJ_PATH .. "service/VirtualClientService/",
+    }
+
+    -- lua
+    include_lua()
+
+	-- 设置通用选项
+    set_common_options(nil, true)
+
+    -- files
+    files {
+        XPROJ_PATH .. "protocols/AllPbs.h",
+        XPROJ_PATH .. "protocols/OpcodeEnums.h",
+        XPROJ_PATH .. "protocols/OpcodeInfo.h",
+        XPROJ_PATH .. "protocols/Opcodes.h",
+        XPROJ_PATH .. "protocols/*.cc",
+        XPROJ_PATH .. "protocols/*.cpp",
+        XPROJ_PATH .. "protocols/cplusplus/**.h",
+        XPROJ_PATH .. "protocols/cplusplus/**.cc",
+        XPROJ_PATH .. "protocols/cplusplus/**.cpp",
+        ROOT_DIR .. "service/common/**.h",
+        ROOT_DIR .. "service/common/**.cpp",
+        XPROJ_PATH .. "service/VirtualClientService/**.h",
+        XPROJ_PATH .. "service/VirtualClientService/**.cpp",
+        XPROJ_PATH .. "service/VirtualClientService/**.lua",
+        XPROJ_PATH .. "service/VirtualClientService/**.cppm",
+        XPROJ_PATH .. "Config/code/**.h",
+        XPROJ_PATH .. "Config/code/**.cpp",
+        ROOT_DIR .. "service_common/**.h",
+        ROOT_DIR .. "service_common/**.cpp",
+        XPROJ_PATH .. "VirtualClient/**.h",
+        XPROJ_PATH .. "VirtualClient/**.cpp",
+        XPROJ_PATH .. "VirtualClient/**.lua",
+        XPROJ_PATH .. "VirtualClient/**.cppm",
+        ROOT_DIR .. "OptionComponent/OptionComp/BehaviorTree/**.h",
+        ROOT_DIR .. "OptionComponent/OptionComp/BehaviorTree/**.cpp",
+        ROOT_DIR .. "OptionComponent/OptionComp/CodeAnalyze/**.h",
+        ROOT_DIR .. "OptionComponent/OptionComp/CodeAnalyze/**.cpp",
+        ROOT_DIR .. "OptionComponent/OptionComp/Command/**.h",
+        ROOT_DIR .. "OptionComponent/OptionComp/Command/**.cpp",
+        ROOT_DIR .. "OptionComponent/OptionComp/WinToast/**.h",
+        ROOT_DIR .. "OptionComponent/OptionComp/WinToast/**.cpp",
+        XPROJ_PATH .. "Yaml/**.yaml",
+    }
+
+    filter{ "system:windows"}		
+        libdirs { 
+            ROOT_DIR .. "3rd/"
+        }
+    filter{}
+
+    filter { "system:windows" }
+        links {
+            "ws2_32",
+            "Mswsock",
+            "DbgHelp",
+        }
+    filter{}
+
+	-- links
+    libdirs { OUTPUT_DIR }	
+	include_libfs(true, true)
+
+    -- debug target suffix define
+    filter { "configurations:debug*" }
+        targetsuffix "_debug"
+    filter {}
+
+    -- enable multithread compile
+    -- enable_multithread_comp("C++14")
+	enable_multithread_comp()
+
+    -- warnings
+    filter { "system:not windows" }
+        disablewarnings {
+            "invalid-source-encoding",
+        }
+    filter {}
+
+    -- optimize
+    set_optimize_opts()
+	
+    -- if not IS_WINDOWS then
+    --     build_cpp_modules2("../../testsuit", "module_interface", include_paths, false)
+    -- end
+
+    local suffix = ""
+    filter { "configurations:debug*" }
+        suffix = "_debug"
+    filter {}
+
+	-- set post build commands.
+    filter { "system:windows" }
+        postbuildcommands(string.format("start %srunfirstly_client_scripts.bat %s %s", SCRIPT_PATH, _ACTION, suffix))
+    filter {}

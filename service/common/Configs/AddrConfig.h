@@ -29,6 +29,8 @@
 #include <service/common/macro.h>
 #include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/Utils/SocketUtil.h>
+#include <kernel/comp/NetEngine/Defs/AddrIpConfig.h>
+#include <service_common/protocol/CrystalProtocol/CrystalProtocolStackType.h>
 
 SERVICE_BEGIN
 

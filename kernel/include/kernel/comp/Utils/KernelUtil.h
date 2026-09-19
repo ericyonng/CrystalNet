@@ -55,6 +55,9 @@ public:
     static void Start();
     static void Destroy();
 
+    // 打印欢迎语
+    static void PrintWelcome(const LibString &content);
+
     static void InstallSignalCloseHandler(IDelegate<void> *task);
 
     static void _OnSinalOccur();

@@ -402,6 +402,14 @@ void KernelUtil::Destroy()
     // CRYSTAL_TRACE("kernel destroy finish.");
 }
 
+void KernelUtil::PrintWelcome(const LibString &content)
+{
+    printf("/****************************************************/!\n");
+    printf("/*           Hello %s, built on the CrystalNet\t    */\n", content.c_str());
+    printf("/****************************************************/!\n\n");
+}
+
+
 void KernelUtil::InstallSignalCloseHandler(IDelegate<void> *task)
 {
     s_signalCloseHandler.push_back(task);

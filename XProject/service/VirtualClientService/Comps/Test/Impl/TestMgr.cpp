@@ -1,0 +1,549 @@
+/*!
+ *  MIT License
+ *  
+ *  Copyright (c) 2020 ericyonng<120453674@qq.com>
+ *  
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *  
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *  
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ * 
+ * Date: 2022-11-23 22:23:06
+ * Author: Eric Yonng
+ * Description: 
+*/
+
+#include <pch.h>
+#include <Comps/Test/Impl/TestMgrFactory.h>
+
+#include <service/VirtualClientService/VirtualClientService.h>
+#include <Comps/Test/Defs/TestDefs.h>
+#include <service/common/BaseComps/SysLogic/SysLogic.h>
+#include <protocols/Opcodes.h>
+
+#include <Comps/Test/Impl/TestMgr.h>
+#include <Common/EventEnums.h>
+#include <Common/Params.h>
+
+#include "kernel/comp/Coroutines/CoDelay.h"
+#include "kernel/comp/Event/EventManager.h"
+#include "kernel/comp/Event/LibEvent.h"
+#include "service/common/BaseComps/SessionMgrComp/Defs/ServiceSession/Impl/ServiceSession.h"
+#include "service/common/BaseComps/SessionMgrComp/Interface/ISessionMgr.h"
+
+SERVICE_BEGIN
+    TestMgr::TestMgr()
+:ITestMgr(KERNEL_NS::RttiUtil::GetTypeId<TestMgr>())
+,_sessionConnected(INVALID_LISTENER_STUB)
+,_sessionWillDestroy(INVALID_LISTENER_STUB)
+,_commonSessionReady(INVALID_LISTENER_STUB)
+,_quiteService(INVALID_LISTENER_STUB)
+,_enableStartLink(false)
+,_isStopTest(false)
+,_testSessionCount(0)
+,_testConnectIntervalMs(10)
+,_testSendMode(0)
+,_testSendIntervalMs(0)
+,_testSendPackCountOnce(0)
+,_testSendPackageBytes(0)
+,_testSendPackTimeoutMilliseconds(0)
+,_testOptions(KERNEL_NS::FileMonitor<TestOptions, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
+{
+
+}
+
+TestMgr::~TestMgr()
+{
+    _Clear();
+}
+
+void TestMgr::Release()
+{
+    TestMgr::DeleteByAdapter_TestMgr(TestMgrFactory::_buildType.V, this);
+}
+
+Int32 TestMgr::_OnGlobalSysInit()
+{
+    // 注册协议
+    GetService()->Subscribe(Opcodes::TestOpcodeReq, this, &TestMgr::_OnTestOpcodeReq);
+    GetService()->Subscribe(Opcodes::TestOpcodeRes, this, &TestMgr::_OnTestOpcodeRes);
+
+    // 注册事件
+    _sessionConnected = GetEventMgr()->AddListener(EventEnums::SESSION_CREATED, this, &TestMgr::_OnSessionCreated);
+    _sessionWillDestroy = GetEventMgr()->AddListener(EventEnums::SESSION_WILL_DESTROY, this, &TestMgr::_OnWillSessionDestroy);
+    _commonSessionReady = GetEventMgr()->AddListener(EventEnums::SERVICE_COMMON_SESSION_READY, this, &TestMgr::_OnCommonSessionReady);
+    _quiteService = GetEventMgr()->AddListener(EventEnums::QUIT_SERVICE_EVENT, this, &TestMgr::_OnQuitService);
+    
+    auto st = _ReadTestConfigs();
+    if(st != Status::Success)
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("read test configs fail."));
+        return st;
+    }
+
+    if(_testSendPackageBytes > 0)
+    {
+        std::string *content = req.mutable_content();
+        content->resize(_testSendPackageBytes);
+        for (Int32 idx = 0; idx < _testSendPackageBytes; ++idx)
+            content->at(idx) = 1;
+    }
+
+    // 测试rpc
+    #ifdef CRYSTAL_NET_CPP20
+    KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<>
+    {
+        g_Log->Info(LOGFMT_OBJ_TAG("test mgr:%s"), ToString().c_str());
+        
+       co_await _TestRpc();
+    });
+    #endif
+    return Status::Success;
+}
+
+Int32 TestMgr::_OnHostStart()
+{
+    return Status::Success;
+}
+
+void TestMgr::_OnGlobalSysClose()
+{
+    _Clear();
+}
+
+void TestMgr::_Clear()
+{
+    KERNEL_NS::ContainerUtil::DelContainer2(_sessionIdRefAnalyzeInfo);
+
+    if(_sessionConnected != INVALID_LISTENER_STUB)
+    {
+        GetEventMgr()->RemoveListenerX(_sessionConnected);
+        GetEventMgr()->RemoveListenerX(_sessionWillDestroy);
+        GetEventMgr()->RemoveListenerX(_commonSessionReady);
+        GetEventMgr()->RemoveListenerX(_quiteService);
+    }
+
+
+    if(_testOptions)
+    {
+        KERNEL_NS::FileMonitor<TestOptions, KERNEL_NS::YamlDeserializer>::Delete_FileMonitor(_testOptions);
+        _testOptions = NULL;
+    }
+}
+
+void TestMgr::_OnTestOpcodeReq(KERNEL_NS::LibPacket *&packet)
+{
+    if(_isStopTest)
+        return;
+
+    auto req = packet->GetCoder<TestOpcodeReq>();
+    // g_Log->Custom("req:%s", req->DebugString().c_str());
+
+    TestOpcodeRes res;
+    res.set_content(req->content());
+    Send(packet->GetSessionId(), Opcodes::TestOpcodeRes, res, packet->GetPacketId());
+}
+
+void TestMgr::_OnTestOpcodeRes(KERNEL_NS::LibPacket *&packet)
+{
+    if(_isStopTest)
+        return;
+
+    const auto sessionId = packet->GetSessionId();
+    auto iter = _sessionIdRefAnalyzeInfo.find(sessionId);
+    if(UNLIKELY(iter == _sessionIdRefAnalyzeInfo.end()))
+    {
+        // g_Log->Warn(LOGFMT_OBJ_TAG("session is not exists sessionId:%llu"), sessionId);
+        return;
+    }
+
+    auto analyzeInfo = iter->second;
+    auto iterPacketAnalyzeInfo = analyzeInfo->_packetIdRefAnalyzeInfo.find(packet->GetPacketId());
+    if(UNLIKELY(iterPacketAnalyzeInfo == analyzeInfo->_packetIdRefAnalyzeInfo.end()))
+    {
+        // g_Log->Warn(LOGFMT_OBJ_TAG("session pacekt analyze info not exists sessionId:%llu, packetId:%lld"), sessionId, packet->GetPacketId());
+        return;
+    }
+
+    auto packetAnalyzeInfo = iterPacketAnalyzeInfo->second;
+
+    // 算时间
+    const auto costNs = KERNEL_NS::LibCpuCounter::Current().ElapseNanoseconds(packetAnalyzeInfo->_counter);
+    GetApp()->PushResponceNs(costNs);
+
+    auto res = packet->GetCoder<TestOpcodeRes>();
+    // if(g_Log->IsEnable(KERNEL_NS::LogLevel::Custom))
+    //     g_Log->Custom("packet id:%lld, TestOpcodeRes res size:%d cost %llu (ns).", packet->GetPacketId(), static_cast<Int32>(res->ByteSizeLong()), costNs);
+
+    // 始终使用同一个packetId
+    if(_testSendMode == 1)
+    {
+        TestOpcodeReq req;
+        *req.mutable_content() = *res->mutable_content();
+
+        packetAnalyzeInfo->_counter.Update();
+        Send(packet->GetSessionId(), Opcodes::TestOpcodeReq, req, packet->GetPacketId());
+
+        packetAnalyzeInfo->_expireTimer->Schedule(_testSendPackTimeoutMilliseconds);
+    }
+    else
+    {// 移除分析数据
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(packetAnalyzeInfo->_expireTimer);
+        packetAnalyzeInfo->_expireTimer = NULL;
+        analyzeInfo->_packetIdRefAnalyzeInfo.erase(packet->GetPacketId());
+        packetAnalyzeInfo->Release();
+    }
+}
+
+void TestMgr::_OnSessionCreated(KERNEL_NS::LibEvent *ev)
+{
+    if(_isStopTest)
+        return;
+
+    if(!_enableStartLink)
+        return;
+
+    auto sessionId = ev->GetParam(Params::SESSION_ID).AsUInt64();
+    _sessionIdRefAnalyzeInfo.insert(std::make_pair(sessionId, SessionAnalyzeInfo::NewThreadLocal_SessionAnalyzeInfo(sessionId)));
+
+    // 会话数量还没达到指定目标会话数量
+    if(static_cast<Int32>(_sessionIdRefAnalyzeInfo.size()) < _testSessionCount)
+        return;
+
+    _enableStartLink = false;
+    g_Log->Info(LOGFMT_OBJ_TAG("session reach enough test session count:%d, limit:%d"), static_cast<Int32>(_sessionIdRefAnalyzeInfo.size()), _testSessionCount);
+
+    // 下一帧开始测试
+    auto nextFrame = [this](KERNEL_NS::LibTimer *t)
+    {
+        if(_isStopTest)
+        {
+            KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+            return;
+        }
+
+        for(auto &iter : _sessionIdRefAnalyzeInfo)
+        {
+            auto sessionId = iter.first;
+            auto analyzeInfo = iter.second;
+            for(Int32 idx = 0; idx < _testSendPackCountOnce; ++idx)
+            {
+                auto packetAnalyzeInfo = TestAnalyzeInfo::NewThreadLocal_TestAnalyzeInfo(0);
+                packetAnalyzeInfo->_counter.Update();
+                auto packetId = NewPacketId(analyzeInfo->_sessionId);
+                Send(analyzeInfo->_sessionId, Opcodes::TestOpcodeReq, req, packetId);
+
+                auto packetExpire = [this, sessionId, packetId](KERNEL_NS::LibTimer *t) mutable
+                {
+                    do
+                    {
+                        auto iter = _sessionIdRefAnalyzeInfo.find(sessionId);
+                        if(iter == _sessionIdRefAnalyzeInfo.end())
+                        {
+                            break;
+                        }
+
+                        auto &packetIdRefInfo = iter->second;
+                        auto iterInfo = packetIdRefInfo->_packetIdRefAnalyzeInfo.find(packetId);
+                        if(iterInfo == packetIdRefInfo->_packetIdRefAnalyzeInfo.end())
+                        {
+                            break;
+                        }
+
+                        if(_testSendMode == 1)
+                        {
+                            auto packetAnalyzeInfo = iterInfo->second;
+                            packetAnalyzeInfo->_counter.Update();
+                            packetId = NewPacketId(sessionId);
+                            Send(sessionId, Opcodes::TestOpcodeReq, req, packetId);
+                        }
+                        else
+                        {
+                            TestAnalyzeInfo::DeleteThreadLocal_TestAnalyzeInfo(iterInfo->second);
+                            packetIdRefInfo->_packetIdRefAnalyzeInfo.erase(iterInfo);
+                        }
+       
+                    }while(false);
+
+                    // if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+                    // {
+                    //     g_Log->Debug(LOGFMT_OBJ_TAG("time out sessionId:%llu, packetId:%lld"), sessionId, packetId);
+                    // }
+                    
+                    if(_testSendMode != 1)
+                        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+                };
+
+                packetAnalyzeInfo->_expireTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+                packetAnalyzeInfo->_expireTimer->SetTimeOutHandler(KERNEL_CREATE_CLOSURE_DELEGATE(packetExpire, void, KERNEL_NS::LibTimer *));
+                packetAnalyzeInfo->_expireTimer->Schedule(_testSendPackTimeoutMilliseconds);
+
+                packetAnalyzeInfo->_packetId = packetId;
+                analyzeInfo->_packetIdRefAnalyzeInfo.insert(std::make_pair(packetId, packetAnalyzeInfo));
+            }
+        }
+
+        if(_testSendMode == 1)
+        {// 等待响应包发送则不需要定时发送
+            KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+        }
+    };
+
+    auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t){
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    });
+
+    timer->SetTimeOutHandler(KERNEL_CREATE_CLOSURE_DELEGATE(nextFrame, void, KERNEL_NS::LibTimer *));
+    
+    if(_testSendMode == 1)
+    {// 1等待响应包发送
+        timer->Schedule(1);
+    }
+    else
+    {// 其他间隔时间发送
+        timer->Schedule(std::max<Int32>(_testSendIntervalMs, 0));
+    }
+}
+
+void TestMgr::_OnWillSessionDestroy(KERNEL_NS::LibEvent *ev)
+{
+    auto sessionId = ev->GetParam(Params::SESSION_ID).AsUInt64();
+    auto iter = _sessionIdRefAnalyzeInfo.find(sessionId);
+    if(iter == _sessionIdRefAnalyzeInfo.end())
+        return;
+
+    iter->second->Release();
+    _sessionIdRefAnalyzeInfo.erase(iter);
+
+    g_Log->Debug(LOGFMT_OBJ_TAG("test - session destroy sessionId:%llu"), sessionId);
+}
+
+void TestMgr::_OnCommonSessionReady(KERNEL_NS::LibEvent *ev)
+{
+    if(GetService()->GetAppAliasName() != "cli")
+        return;
+
+    _enableStartLink = true;
+    g_Log->Info(LOGFMT_OBJ_TAG("common ready start test."));
+
+    UInt64 stub = 0;
+    auto st = this->GetGlobalSys<ISysLogicMgr>()->AsynTcpConnect(_targetAddrConfig._remoteIp
+    , _targetAddrConfig._remotePort
+    , stub
+    , _targetAddrConfig._localIp
+    , _targetAddrConfig._localPort
+    , NULL
+    , 0
+    , 0
+    ,  _targetAddrConfig.ToPacketOptions()
+    , _targetAddrConfig._af
+    , _targetAddrConfig._protocolStackType);
+    if(st != Status::Success)
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, _targetAddrConfig:%s"), st, _targetAddrConfig.ToString().c_str());
+    }
+
+    // 一直连接直到连接数足够
+    auto linkTimerOut = [this](KERNEL_NS::LibTimer *t) mutable -> void 
+    {
+        if(_isStopTest)
+        {
+            KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+            return;
+        }
+
+        if(!_enableStartLink)
+        {
+            KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+            return;
+        }
+
+        UInt64 stub = 0;
+        auto st = this->GetGlobalSys<ISysLogicMgr>()->AsynTcpConnect(_targetAddrConfig._remoteIp
+        , _targetAddrConfig._remotePort
+        , stub
+        , _targetAddrConfig._localIp
+        , _targetAddrConfig._localPort
+        , NULL
+        , 0
+        , 0
+        ,  _targetAddrConfig.ToPacketOptions()
+        , _targetAddrConfig._af
+        , _targetAddrConfig._protocolStackType);
+        if(st != Status::Success)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, _targetAddrConfig:%s"), st, _targetAddrConfig.ToString().c_str());
+        }
+    };
+
+    auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t){
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    });
+    
+    timer->SetTimeOutHandler(KERNEL_CREATE_CLOSURE_DELEGATE(linkTimerOut, void, KERNEL_NS::LibTimer *));
+    timer->Schedule(std::max<Int32>(_testConnectIntervalMs, 0));
+}
+
+void TestMgr::_OnQuitService(KERNEL_NS::LibEvent *ev)
+{
+    _isStopTest = true;
+
+    GetService()->MaskServiceModuleQuitFlag(this);
+    // 等到poller可以退出的时候方可结束
+    // auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    // timer->SetTimeOutHandler([this](KERNEL_NS::LibTimer *t){
+    //     auto service = GetService();
+    //     if(!service->GetPoller()->CanQuit())
+    //         return;
+
+    //     g_Log->Info(LOGFMT_OBJ_TAG("test mgr final end."));
+
+    //     service->MaskServiceModuleQuitFlag(this);
+    //     KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    // });
+
+    // timer->Schedule(1000);
+}
+
+#ifdef CRYSTAL_NET_CPP20
+KERNEL_NS::CoTask<> TestMgr::_TestRpc()
+{
+    g_Log->Info(LOGFMT_OBJ_TAG("_TestRpc :%s"), ToString().c_str());
+    
+    auto sessionMgr = GetService()->GetComp<ISessionMgr>();
+
+    do
+    {
+        // 没有连接连入则等待连入
+        if(sessionMgr->GetSessions().empty())
+        {
+            co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
+            continue;
+        }
+
+        break;
+    }
+    while (true);
+
+    auto &sessions = sessionMgr->GetSessions();
+    auto session = sessions.begin()->second;
+    KERNEL_NS::SmartPtr<SERVICE_NS::TestRpcReq, KERNEL_NS::AutoDelMethods::Release> req = new SERVICE_NS::TestRpcReq();
+    req->set_content("hello rpc");
+
+    // 协程参数
+    KERNEL_NS::SmartPtr<KERNEL_NS::CoTaskParam, KERNEL_NS::AutoDelMethods::Release> param;
+    auto packet = co_await SendCo(session->GetSessionId(), Opcodes::TestRpcReq, 
+    req, -1 * NewPacketId(session->GetSessionId()))
+    .GetParam(param)
+    .SetTimeout(KERNEL_NS::TimeSlice::FromSeconds(10));
+
+    if(param->_errCode == Status::Success)
+    {
+        auto res = packet->GetCoder<TestRpcRes>();
+        g_Log->Info(LOGFMT_OBJ_TAG("test rpc res:%s, co param err:%d")
+                    , res->ToJsonString().c_str(), param->_errCode);
+        co_return;
+    }
+
+    g_Log->Info(LOGFMT_OBJ_TAG(" co param err:%d"), param->_errCode);
+}
+#endif
+
+Int32 TestMgr::_ReadTestConfigs()
+{
+    if(GetService()->GetAppAliasName() != "cli")
+        return Status::Success;
+
+    auto app = GetService()->GetApp();
+    const auto &serviceName = GetService()->GetServiceName();
+
+    if(!_testOptions->Init(GetApp()->GetSourceWrap(), KERNEL_NS::LibString().AppendFormat("%s.TestOptions", GetService()->GetServiceName().c_str())))
+    {
+        CLOG_ERROR("test options init fail service:%s", serviceName.c_str());
+        return Status::ConfigError;
+    }
+
+    auto testOptions = _testOptions->Current();
+
+    // 会话创建总数
+    _testSessionCount = testOptions->TestSessionCount;
+    if(_testSessionCount <= 0)
+    {
+        CLOG_ERROR("check read TestSessionCount config fail service name:%s", serviceName.c_str());
+        return Status::ConfigError;
+    }
+
+
+    {// 连接时间间隔
+        _testConnectIntervalMs = testOptions->TestConnectIntervalMs;
+        if(_testConnectIntervalMs <= 0)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("check read TestConnectIntervalMs config fail service name:%s"), serviceName.c_str());
+            return Status::ConfigError;
+        }
+    }
+
+    {// 目标地址
+        if(!testOptions->HasTargetAddr)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("check read TestTargetAddr config fail service name:%s"), GetService()->GetServiceName().c_str());
+            return Status::ConfigError;
+        }
+
+        _targetAddrConfig = testOptions->TestTargetAddr;
+    }
+
+    {// 测试发送模式
+        _testSendMode = testOptions->TestSendMode;
+    }
+
+    {// 发送时间间隔
+        _testSendIntervalMs = testOptions->TestSendIntervalMs;
+    }
+
+    {// 一次发送多少个包
+        _testSendPackCountOnce = testOptions->TestSendPackCountOnce;
+    }
+
+    {// 一次发送的包内容至少多少个字节
+        _testSendPackageBytes = testOptions->TestSendPackageBytes;
+
+        if(_testSendPackageBytes <= 0)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("check read TestSendPackageBytes config fail service name:%s"), serviceName.c_str());
+            return Status::ConfigError;
+        }
+    }
+
+    {// 发包超时时间
+        _testSendPackTimeoutMilliseconds = testOptions->TestSendPackageTimeoutMilliseconds;
+        if(_testSendPackTimeoutMilliseconds <= 0)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("check read TestSendPackageTimeoutMilliseconds config fail service name:%s"), serviceName.c_str());
+            return Status::ConfigError;
+        }
+    }
+
+    return Status::Success;
+}
+
+
+
+SERVICE_END
+
+
