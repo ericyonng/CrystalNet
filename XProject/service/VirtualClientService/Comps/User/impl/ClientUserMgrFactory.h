@@ -21,14 +21,29 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2026-09-10 00:17:59
+ * Date: 2023-08-12 18:15:38
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <Comps/config/config.h>
-#include <Comps/PassTime/PassTime.h>
-#include <Comps/User/User.h>
-#include <Comps/UserSys/UserSys.h>
+#include <ServiceCompFactoryHeader.h>
+
+#include "kernel/comp/CompObject/CompFactory.h"
+
+SERVICE_BEGIN
+    class ClientUserMgrFactory : public KERNEL_NS::CompFactory
+{
+public:
+    static constexpr KERNEL_NS::_Build::TL _buildType{};
+
+    static KERNEL_NS::CompFactory *FactoryCreate();
+
+    virtual void Release() override;
+    
+public:
+    virtual KERNEL_NS::CompObject *Create() const override;
+};
+
+SERVICE_END

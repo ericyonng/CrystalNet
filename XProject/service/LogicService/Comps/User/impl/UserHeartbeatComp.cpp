@@ -21,14 +21,29 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2026-09-10 00:17:59
+ * Date: 2023-08-09 22:05:00
  * Author: Eric Yonng
  * Description: 
 */
 
-#pragma once
+#include <pch.h>
+#include <Comps/User/impl/UserHeartbeatComp.h>
+#include <Comps/User/interface/IUser.h>
 
-#include <Comps/config/config.h>
-#include <Comps/PassTime/PassTime.h>
-#include <Comps/User/User.h>
-#include <Comps/UserSys/UserSys.h>
+SERVICE_BEGIN
+bool UserHeartbeatComp::operator()(const IUser *l, const IUser *r) const
+{
+    if(!l || !r)
+        return l < r;
+
+    if(l == r)
+        return false;
+
+    if(l->GetHeartbeatExpireTime() == r->GetHeartbeatExpireTime())
+        return l < r;
+
+    return l->GetHeartbeatExpireTime() < r->GetHeartbeatExpireTime();
+}
+
+SERVICE_END
+

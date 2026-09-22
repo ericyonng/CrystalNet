@@ -21,14 +21,30 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2026-09-10 00:17:59
+ * Date: 2023-08-09 00:01:50
  * Author: Eric Yonng
  * Description: 
 */
 
-#pragma once
+#include<pch.h>
+#include <Comps/User/impl/UserLruCompare.h>
+#include <Comps/User/interface/IUser.h>
 
-#include <Comps/config/config.h>
-#include <Comps/PassTime/PassTime.h>
-#include <Comps/User/User.h>
-#include <Comps/UserSys/UserSys.h>
+SERVICE_BEGIN
+
+bool UserLruCompare::operator()(const IUser *l, const IUser *r) const
+{
+    if(!l || !r)
+        return l < r;
+
+    if(l == r)
+        return false;
+
+    if(l->GetLruTime() == r->GetLruTime())
+        return l->GetUserId() < r->GetUserId();
+
+    return l->GetLruTime() > r->GetLruTime();
+}
+
+
+SERVICE_END

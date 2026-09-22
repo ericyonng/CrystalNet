@@ -34,6 +34,7 @@
 #include "Comps/config/impl/ConfigLoaderProxyFactory.h"
 #include "Comps/Plugin/Impl/PluginMgrFactory.h"
 #include "Comps/Test/Impl/TestMgrFactory.h"
+#include "Comps/User/impl/UserMgrFactory.h"
 #include "kernel/comp/Coroutines/CoDelay.h"
 #include "kernel/comp/Coroutines/Runner.h"
 #include "kernel/comp/Event/EventManager.h"
@@ -99,7 +100,7 @@ void LogicService::_OnServiceRegisterComps()
     // RegisterComp<TestMgrFactory>();
 
     // 用户系统
-    // RegisterComp<UserMgrFactory>();
+    RegisterComp<UserMgrFactory>();
 
     // 昵称系统
     // RegisterComp<NicknameGlobalFactory>();
@@ -137,6 +138,13 @@ Int32 LogicService::_OnUnifiedServiceInit()
     if (!_storageOptions->Init(GetApp()->GetSourceWrap(), KERNEL_NS::LibString().AppendFormat("%s.StorageOptions", serviceName.c_str())))
     {
         CLOG_ERROR("init storage option fail, service name:%s", serviceName.c_str());
+        return Status::ConfigError;
+    }
+
+    // 公钥私钥不能为空
+    if(_rsaPrivKey.empty() || _rsaPubKey.empty())
+    {
+        CLOG_ERROR("rsa priv key or rsa pub key is empty service name:%s", serviceName.c_str());
         return Status::ConfigError;
     }
     

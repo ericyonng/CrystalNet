@@ -21,14 +21,23 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2026-09-10 00:17:59
+ * Date: 2023-08-04 23:17:50
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <Comps/config/config.h>
-#include <Comps/PassTime/PassTime.h>
-#include <Comps/User/User.h>
-#include <Comps/UserSys/UserSys.h>
+#include <kernel/comp/LibString.h>
+#include <service/common/macro.h>
+#include <service/common/status.h>
+
+SERVICE_BEGIN
+
+struct BuildUserInfo
+{
+    KERNEL_NS::LibString _accountName;
+    KERNEL_NS::LibString _pwd;
+};
+
+SERVICE_END

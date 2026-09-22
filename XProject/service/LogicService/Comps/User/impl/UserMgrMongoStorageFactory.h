@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,14 +21,28 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2026-09-10 00:17:59
+ * Date: 2026-07-03 11:45:36
  * Author: Eric Yonng
  * Description: 
 */
-
 #pragma once
 
-#include <Comps/config/config.h>
-#include <Comps/PassTime/PassTime.h>
-#include <Comps/User/User.h>
-#include <Comps/UserSys/UserSys.h>
+#include <service/common/macro.h>
+#include <kernel/comp/CompObject/CompFactory.h>
+
+SERVICE_BEGIN
+
+class UserMgrMongoStorageFactory : public KERNEL_NS::CompFactory
+{
+public:
+ static constexpr KERNEL_NS::_Build::TL _buildType{};
+
+ static KERNEL_NS::CompFactory *FactoryCreate();
+
+ virtual void Release() override;
+    
+public:
+ virtual KERNEL_NS::CompObject *Create() const override;
+};
+
+SERVICE_END

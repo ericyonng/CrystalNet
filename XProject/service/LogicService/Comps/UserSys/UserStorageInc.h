@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,14 +21,17 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2026-09-10 00:17:59
+ * Date: 2026-07-03 14:29:00
  * Author: Eric Yonng
- * Description: 
+ * Description:
+ * 所有需要持久化的User子系统的存储组件注册写在这里, 文件会被include 到 UserMgrMongoStorage.cpp的注册组件相关接口
 */
 
-#pragma once
-
-#include <Comps/config/config.h>
-#include <Comps/PassTime/PassTime.h>
-#include <Comps/User/User.h>
-#include <Comps/UserSys/UserSys.h>
+// NotifyMgr存储
+// RegisterComp<NotifyMgrMongoStorageFactory>();
+// 登录
+RegisterComp<LoginMgrMongoStorageFactory>();
+// 图书馆
+// RegisterComp<LibraryMgrMongoStorageFactory>();
+// 书袋
+// RegisterComp<BookBagMgrMongoStorageFactory>();

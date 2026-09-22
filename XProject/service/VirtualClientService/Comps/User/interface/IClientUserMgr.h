@@ -21,14 +21,34 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2026-09-10 00:17:59
+ * Date: 2023-08-12 17:57:38
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <Comps/config/config.h>
-#include <Comps/PassTime/PassTime.h>
-#include <Comps/User/User.h>
-#include <Comps/UserSys/UserSys.h>
+#include <ServiceCompHeader.h>
+
+#include "com_user.pb.h"
+#include "service/common/BaseComps/GlobalSys/IGlobalSys.h"
+#include "service_common/protocol/CrystalProtocol/CrystalProtocolStackType.h"
+
+SERVICE_BEGIN
+    class IClientUser;
+
+class IClientUserMgr : public IGlobalSys
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, IClientUserMgr);
+
+public:
+    IClientUserMgr(UInt64 objTypeId) : IGlobalSys(objTypeId){}
+    virtual Int32 Login(const LoginInfo &loginInfo, Int32 stackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL) = 0;
+
+    virtual void AddUserBySessionId(UInt64 sessionId, IClientUser *user) = 0;
+    virtual void RemoveUserBySessionId(UInt64 sessionId) = 0;
+
+    virtual std::map<KERNEL_NS::LibString, IClientUser *> &GetAllUsers() = 0;
+};
+
+SERVICE_END

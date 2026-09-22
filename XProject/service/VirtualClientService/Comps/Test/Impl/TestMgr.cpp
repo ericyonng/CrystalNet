@@ -136,7 +136,6 @@ void TestMgr::_Clear()
         GetEventMgr()->RemoveListenerX(_quiteService);
     }
 
-
     if(_testOptions)
     {
         KERNEL_NS::FileMonitor<TestOptions, KERNEL_NS::YamlDeserializer>::Delete_FileMonitor(_testOptions);

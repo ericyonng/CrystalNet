@@ -21,14 +21,30 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2026-09-10 00:17:59
+ * Date: 2023-08-06 14:26:00
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <Comps/config/config.h>
-#include <Comps/PassTime/PassTime.h>
-#include <Comps/User/User.h>
-#include <Comps/UserSys/UserSys.h>
+#include <ServiceCompHeader.h>
+#include <Comps/User/interface/IUserSys.h>
+
+SERVICE_BEGIN
+
+class PendingUser;
+class UserLoginInfo;
+ 
+class ILoginMgr : public IUserSys
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(IUserSys, ILoginMgr);
+
+public:
+    ILoginMgr(UInt64 objTypeId) : IUserSys(objTypeId) {}
+    
+    virtual Int32 CheckLogin(const PendingUser *pendingUser) const = 0;
+    virtual const UserLoginInfo *GetLoginInfo() const = 0;
+};
+
+SERVICE_END

@@ -21,14 +21,14 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2026-09-10 00:17:59
+ * Date: 2023-08-08 13:38:36
  * Author: Eric Yonng
  * Description: 
 */
+#include <pch.h>
+#include <Comps/User/impl/UserSessionDefs.h>
 
-#pragma once
+SERVICE_BEGIN
 
-#include <Comps/config/config.h>
-#include <Comps/PassTime/PassTime.h>
-#include <Comps/User/User.h>
-#include <Comps/UserSys/UserSys.h>
+
+SERVICE_END

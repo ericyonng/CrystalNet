@@ -279,17 +279,24 @@ Int32 UnifiedService::_OnServiceInit()
 
         _rsaPrivKey = currentConfig->RsaPrivateKey;
         _rsaPubKey = currentConfig->RsaPublicKey;
-        if(_rsaPrivKey.empty() || _rsaPubKey.empty())
-        {
-            CLOG_ERROR("rsaPrivKey is empty service name:%s, path:%s", GetServiceName().c_str(), GetApp()->GetSourceWrap()->Path.c_str());
-            return Status::ConfigError;
-        }
+        // if(_rsaPrivKey.empty() || _rsaPubKey.empty())
+        // {
+        //     CLOG_ERROR("rsaPrivKey is empty service name:%s, path:%s", GetServiceName().c_str(), GetApp()->GetSourceWrap()->Path.c_str());
+        //     return Status::ConfigError;
+        // }
 
         // base64解码
-        _rsaPubKey.strip();
-        _rsaPubKey = KERNEL_NS::LibBase64::Decode(_rsaPubKey);
-        _rsaPrivKey.strip();
-        _rsaPrivKey = KERNEL_NS::LibBase64::Decode(_rsaPrivKey);
+        if(!_rsaPubKey.empty())
+        {
+            _rsaPubKey.strip();
+            _rsaPubKey = KERNEL_NS::LibBase64::Decode(_rsaPubKey);
+        }
+
+        if(!_rsaPrivKey.empty())
+        {
+            _rsaPrivKey.strip();
+            _rsaPrivKey = KERNEL_NS::LibBase64::Decode(_rsaPrivKey); 
+        }
     }
 
     // 3.协议栈初始化

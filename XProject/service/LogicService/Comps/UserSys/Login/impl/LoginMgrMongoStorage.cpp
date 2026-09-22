@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -20,15 +20,43 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
- * 
- * Date: 2026-09-10 00:17:59
+ *
+ * Date: 2026-07-03 14:42:36
  * Author: Eric Yonng
  * Description: 
 */
 
-#pragma once
 
-#include <Comps/config/config.h>
-#include <Comps/PassTime/PassTime.h>
-#include <Comps/User/User.h>
-#include <Comps/UserSys/UserSys.h>
+#include <pch.h>
+#include <Comps/UserSys/Login//impl/LoginMgrMongoStorage.h>
+#include <Comps/UserSys/Login//impl/LoginMgrMongoStorageFactory.h>
+#include <Comps/UserSys/Login/impl/LoginMgr.h>
+#include <OptionComp/storage/MongoDB/MongoDBComp.h>
+
+SERVICE_BEGIN
+
+LoginMgrMongoStorage::LoginMgrMongoStorage()
+ :IMongodbStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<LoginMgrMongoStorage>()
+     , KERNEL_NS::RttiUtil::GetByType<LoginMgr>(), KERNEL_NS::RttiUtil::GetTypeId<LoginMgr>())
+{
+ AsFieldSystem(KERNEL_NS::MongoSerializeInfoType::JSON);
+}
+
+LoginMgrMongoStorage::~LoginMgrMongoStorage()
+{
+ 
+}
+
+void LoginMgrMongoStorage::Release()
+{
+ LoginMgrMongoStorage::DeleteByAdapter_LoginMgrMongoStorage(LoginMgrMongoStorageFactory::_buildType.V, this);
+}
+
+Int32 LoginMgrMongoStorage::_OnHostInit()
+{
+    // 设置持久化回调
+    SetOnSaveCb<LoginMgr>(&LoginMgr::OnSave);
+    return Status::Success;
+}
+
+SERVICE_END

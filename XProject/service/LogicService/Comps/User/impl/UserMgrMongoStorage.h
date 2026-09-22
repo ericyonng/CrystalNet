@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,14 +21,48 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2026-09-10 00:17:59
+ * Date: 2026-07-03 11:45:36
  * Author: Eric Yonng
  * Description: 
 */
-
 #pragma once
 
-#include <Comps/config/config.h>
-#include <Comps/PassTime/PassTime.h>
-#include <Comps/User/User.h>
-#include <Comps/UserSys/UserSys.h>
+#include <OptionComp/storage/MongoDB/Impl/IMongodbStorageInfo.h>
+#include <service/common/macro.h>
+#include <kernel/comp/LibString.h>
+
+SERVICE_BEGIN
+
+class UserMgrMongoStorage : public KERNEL_NS::IMongodbStorageInfo
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(IMongodbStorageInfo, UserMgrMongoStorage);
+    
+public:
+      UserMgrMongoStorage();
+      ~UserMgrMongoStorage() override;
+
+    virtual void Release() override;
+    virtual Int32 _OnHostInit() override;
+    virtual void OnRegisterComps() override;  
+
+    /** 字段名 **/
+    // 存储时唯一索引名(user_id)
+    static KERNEL_NS::LibString GetKeyName();
+    // 账号名(唯一索引)
+    static KERNEL_NS::LibString GetAccountName();
+    // 昵称名
+    static KERNEL_NS::LibString GetNickNameName();
+    // 最后登录时间
+    static KERNEL_NS::LibString GetLastLoginTimeName();
+    // 最后登录ip
+    static KERNEL_NS::LibString GetLastLoginIpName();
+    // 建号ip
+    static KERNEL_NS::LibString GetCreateIpName();
+    // 建号时间
+    static KERNEL_NS::LibString GetCreateTimeName();
+    // 最后跨天时间
+    static KERNEL_NS::LibString GetLastPassDayTimeName();
+};
+
+
+SERVICE_END

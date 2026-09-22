@@ -21,14 +21,14 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2026-09-10 00:17:59
+ * Date: 2023-08-12 17:42:38
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <Comps/config/config.h>
-#include <Comps/PassTime/PassTime.h>
-#include <Comps/User/User.h>
-#include <Comps/UserSys/UserSys.h>
+#include <Comps/User/interface/IClientSys.h>
+#include <Comps/User/interface/IClientUser.h>
+#include <Comps/User/interface/IClientUserMgr.h>
+#include <Comps/User/impl/ClientUserMgrFactory.h>

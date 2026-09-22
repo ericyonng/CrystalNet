@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,14 +21,32 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2026-09-10 00:17:59
+ * Date: 2026-07-03 14:42:36
  * Author: Eric Yonng
  * Description: 
 */
 
-#pragma once
+#include <pch.h>
+#include <Comps/UserSys/Login/impl/LoginMgrMongoStorage.h>
+#include <Comps/UserSys/Login/impl/LoginMgrMongoStorageFactory.h>
 
-#include <Comps/config/config.h>
-#include <Comps/PassTime/PassTime.h>
-#include <Comps/User/User.h>
-#include <Comps/UserSys/UserSys.h>
+#include "kernel/comp/memory/ObjPoolWrap.h"
+
+
+SERVICE_BEGIN
+    KERNEL_NS::CompFactory *LoginMgrMongoStorageFactory::FactoryCreate()
+{
+ return kernel::ObjPoolWrap<LoginMgrMongoStorageFactory>::NewByAdapter(_buildType.V);
+}
+
+void LoginMgrMongoStorageFactory::Release()
+{
+ KERNEL_NS::ObjPoolWrap<LoginMgrMongoStorageFactory>::DeleteByAdapter(_buildType.V, this);
+}
+    
+KERNEL_NS::CompObject *LoginMgrMongoStorageFactory::Create() const
+{
+ return LoginMgrMongoStorage::NewByAdapter_LoginMgrMongoStorage(_buildType.V);
+}
+
+SERVICE_END

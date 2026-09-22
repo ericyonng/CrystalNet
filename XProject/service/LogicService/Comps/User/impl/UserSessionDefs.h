@@ -21,14 +21,57 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2026-09-10 00:17:59
+ * Date: 2023-08-08 13:37:36
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <Comps/config/config.h>
-#include <Comps/PassTime/PassTime.h>
-#include <Comps/User/User.h>
-#include <Comps/UserSys/UserSys.h>
+#include <ServiceCompHeader.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/comp/Timer/LibTimer.h>
+
+SERVICE_BEGIN
+
+class LoginPendingStatus
+{
+public:
+    enum ENUMS
+    {
+        UN_LOGIN = 0,       // 未登录
+        LOGINED,            // 已登录
+    };
+};
+
+struct LoginPendingInfo
+{
+    POOL_CREATE_OBJ_DEFAULT(LoginPendingInfo);
+
+    LoginPendingInfo(UInt64 sessionId);
+    ~LoginPendingInfo();
+
+    UInt64 _sessionId;
+    Int32 _status;
+    Int64 _expiredTime;
+    KERNEL_NS::LibTimer *_timer;
+};
+
+ALWAYS_INLINE LoginPendingInfo::LoginPendingInfo(UInt64 sessionId)
+:_sessionId(sessionId)
+,_status(LoginPendingStatus::UN_LOGIN)
+,_expiredTime(0)
+,_timer(KERNEL_NS::LibTimer::NewThreadLocal_LibTimer())
+{
+
+}
+
+ALWAYS_INLINE LoginPendingInfo::~LoginPendingInfo()
+{
+    if(LIKELY(_timer))
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(_timer);
+
+    _timer = NULL;
+}
+
+SERVICE_END

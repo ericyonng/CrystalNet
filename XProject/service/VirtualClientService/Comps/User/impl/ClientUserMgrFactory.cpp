@@ -21,14 +21,33 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2026-09-10 00:17:59
+ * Date: 2023-08-12 18:16:38
  * Author: Eric Yonng
  * Description: 
 */
 
-#pragma once
+#include <pch.h>
+#include <Comps/User/impl/ClientUserMgrFactory.h>
+#include <Comps/User/impl/ClientUserMgr.h>
 
-#include <Comps/config/config.h>
-#include <Comps/PassTime/PassTime.h>
-#include <Comps/User/User.h>
-#include <Comps/UserSys/UserSys.h>
+#include "kernel/comp/memory/ObjPoolWrap.h"
+
+SERVICE_BEGIN
+    KERNEL_NS::CompFactory *ClientUserMgrFactory::FactoryCreate()
+{
+    return kernel::ObjPoolWrap<ClientUserMgrFactory>::NewByAdapter(_buildType.V);
+}
+
+void ClientUserMgrFactory::Release()
+{
+    KERNEL_NS::ObjPoolWrap<ClientUserMgrFactory>::DeleteByAdapter(_buildType.V, this);
+}
+
+KERNEL_NS::CompObject *ClientUserMgrFactory::Create() const
+{
+    CREATE_CRYSTAL_COMP(comp, ClientUserMgr);
+    return comp;
+}
+
+
+SERVICE_END

@@ -21,14 +21,23 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2026-09-10 00:17:59
+ * Date: 2023-08-09 22:04:00
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <Comps/config/config.h>
-#include <Comps/PassTime/PassTime.h>
-#include <Comps/User/User.h>
-#include <Comps/UserSys/UserSys.h>
+#include <ServiceCompHeader.h>
+
+SERVICE_BEGIN
+
+class IUser;
+
+class UserHeartbeatComp
+{
+public:
+    bool operator()(const IUser *l, const IUser *r) const;
+};
+
+SERVICE_END
