@@ -103,5 +103,6 @@
 #include <kernel/comp/Lua/Lua.h>
 #include <kernel/comp/IdGenerator/IdGenerator.h>
 #include <kernel/comp/FileMonitor/FileMonitorInc.h>
+#include <kernel/comp/Http/Http.h>
 
 #endif

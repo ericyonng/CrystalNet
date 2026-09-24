@@ -116,6 +116,7 @@
 #include <testsuit/testinst/TestHash.h>
 #include <testsuit/testinst/TestGlobalOptionComps.h>
 #include <testsuit/testinst/TestShortId.h>
+#include <testsuit/testinst/TestHttp.h>
 
 // void *operator new(size_t bytes)
 // {
@@ -277,6 +278,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestDelegate::Run();
     // TestPoller::Run();
     // TestMemoryAssist::Run();
+    TestHttp::Run();
     TestService::Run(argc, argv);
     // TestInlineStatic::Run();
     // TestList::Run();

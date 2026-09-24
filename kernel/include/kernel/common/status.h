@@ -292,6 +292,16 @@ namespace Status
         ShortId_InvalidChar = 6204,                            // 短ID包含非法字符(非Base62)
         ShortId_DecodedIdOverflow = 6205,                      // 解密后的ID超出Int64范围
 
+        // Http[6300, 6399]
+        Http_HeaderTooLarge = 6300,                             // http头部过大
+        Http_BodyTooLarge = 6301,                               // http body过大
+        Http_BadMessage = 6302,                                 // http报文格式错误
+        Http_UnsupportedBody = 6303,                            // 不支持的body传输方式(响应必须携带Content-Length或chunked)
+        Http_TlsFail = 6304,                                    // tls握手/加解密失败
+        Http_BadUrl = 6305,                                     // url格式错误
+        Http_ConnectFail = 6306,                                // 连接失败
+        Http_SessionClosed = 6307,                              // 会话已关闭(请求未完成)
+
         FrameStatusEnd = 65535,                                 // 框架层状态码截至
     };
 };
