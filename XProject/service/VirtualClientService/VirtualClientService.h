@@ -40,7 +40,7 @@ class VirtualClientService : public UnifiedService
     POOL_CREATE_OBJ_DEFAULT_P1(UnifiedService, VirtualClientService);
 
 public:
-    VirtualClientService();
+    VirtualClientService(KERNEL_NS::IServiceProxy *proxy);
     ~VirtualClientService() override;
     void Release() override;
     

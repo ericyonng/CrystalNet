@@ -61,6 +61,9 @@ public:
         // 批量事件
         BatchPollerEventType = 6,
 
+        // session 桥事件
+        SessionBridgeEvent = 7,
+
         MAX_INTERNAL_TYPE,
     };
 };

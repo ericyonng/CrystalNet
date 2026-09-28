@@ -45,9 +45,12 @@
 #include <unordered_map>
 #include <atomic>
 
-KERNEL_BEGIN
+#include "kernel/comp/Coroutines/CoTask.h"
 
-struct PollerEvent;
+KERNEL_BEGIN
+    class LibEventLoopThread;
+
+    struct PollerEvent;
 class LibSession;
 class IProtocolStack;
 class LibPacket;
@@ -109,7 +112,9 @@ public:
 
     // 监控信息
     void OnMonitor(ServiceProxyStatisticsInfo &info);
-    
+
+    void AddActiveServiceNum();
+    void AddCloseServiceNum();
 
 private:
     virtual Int32 _OnInit() final;
@@ -130,19 +135,30 @@ private:
     const IService *_GetService(UInt64 serviceId) const;
 
     // params携带本线程归哪个服务独占
-    void _OnServiceThread(KERNEL_NS::LibThread *t, KERNEL_NS::Variant *params);
+    KERNEL_NS::CoTask<> _OnServiceThread(const KERNEL_NS::LibString &serviceName, UInt64 serviceId);
 
 private:
     mutable KERNEL_NS::SpinLock _guard;                                     // 服务资源锁
     std::unordered_map<UInt64, IService *> _idRefService;                     // 服务
-    std::vector<KERNEL_NS::LibThread *> _serviceThreads;            // 每个服务独立一个线程
+    std::vector<KERNEL_NS::LibEventLoopThread *> _serviceThreads;            // 每个服务独立一个线程
     std::vector<KERNEL_NS::LibString> _activeServices;              // 激活的服务
     std::atomic<UInt64> _maxServiceId;                              // 分配serviceId
-    std::atomic<UInt64> _closeServiceNum;                           // 服务关闭个数
+    std::atomic<Int32> _closeServiceNum;                           // 服务关闭个数
+    std::atomic<Int32> _activeServiceNum;                          // 服务激活数量
     std::unordered_map<UInt64, std::atomic_bool> _serviceIdRefRejectServiceStatus;  // 拒绝服务标志
 
     IServiceFactory *_serviceFactory;
 };
+
+ALWAYS_INLINE void ServiceProxy::AddActiveServiceNum()
+{
+    _activeServiceNum.fetch_add(1, std::memory_order_release);
+}
+
+ALWAYS_INLINE void ServiceProxy::AddCloseServiceNum()
+{
+    _closeServiceNum.fetch_add(1, std::memory_order_release);
+}
 
 ALWAYS_INLINE void ServiceProxy::SetServiceFactory(IServiceFactory *serviceFactory)
 {

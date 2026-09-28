@@ -43,8 +43,13 @@
 #include <kernel/comp/Poller/PollerCompStatistics.h>
 #include <kernel/comp/Coroutines/AsyncTask.h>
 
+#include "kernel/comp/Event/EventManager.h"
 #include "kernel/comp/Poller/Channel.h"
 #include "kernel/comp/Utils/StringUtil.h"
+#include <kernel/comp/Event/event_inc.h>
+
+#include "kernel/comp/Event/LibEvent.h"
+#include "kernel/comp/NetEngine/Poller/impl/Session/ISessionBridge.h"
 
 // static ALWAYS_INLINE bool IsPriorityEvenetsQueueEmpty(const std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> &queue)
 // {
@@ -118,6 +123,7 @@ Poller::Poller()
 ,_commonEvents(MPMCQueue<PollerEvent *, 16*16*2*1024>::NewThreadLocal_MPMCQueue())
 ,_localEvents(LibList<PollerEvent *, KERNEL_NS::_Build::TL>::NewThreadLocal_LibList())
 ,_eventLoopMode(0)
+,_eventManager(KERNEL_NS::EventManager::NewThreadLocal_EventManager())
 {
     // auto defObj = TlsUtil::GetDefTls();
     // if(UNLIKELY(defObj->_poller))
@@ -224,6 +230,9 @@ Int32 Poller::_OnInit()
     Subscribe(PollerEventInternalType::BatchPollerEventType, this, &Poller::_OnBatchPollerEvent);
     // action
     Subscribe(PollerEventInternalType::ActionPollerEventType, this, &Poller::_OnActionPollerEvent);
+    // 会话桥事件
+    Subscribe(PollerEventInternalType::SessionBridgeEvent, this, &Poller::_OnSessionBridgeEvent);
+
     // 订阅创建Channel消息
     SubscribeObjectEvent<ApplyChannelEvent>(this, &Poller::_OnApplyChannelEvent);
     // 订阅销毁Channel消息（废弃）
@@ -341,6 +350,15 @@ void Poller::_OnActionPollerEvent(PollerEvent *ev)
         actionEv->_action->Invoke();
 }
 
+void Poller::_OnSessionBridgeEvent(PollerEvent *ev)
+{
+    auto sessionBridgeEv = ev->CastTo<SessionBridgeEvent>();
+    if(LIKELY(sessionBridgeEv->_sessionBridge))
+    {
+        sessionBridgeEv->_sessionBridge->DoEvents(sessionBridgeEv->_events);
+    }
+}
+
 void Poller::_OnApplyChannelEvent(StubPollerEvent *ev)
 {
     auto applyEv = ev->CastTo<ObjectPollerEvent<ApplyChannelEvent>>();
@@ -449,6 +467,59 @@ bool Poller::PrepareLoop()
 
     return true;
 }
+
+
+#ifdef _DEBUG
+
+// Debug情况下不使用try{}catch(){}让问题充分暴露
+void Poller::EventLoop()
+{
+    KERNEL_NS::SmartPtr<KERNEL_NS::LibEvent, KERNEL_NS::AutoDelMethods::CustomDelete> ev = LibEvent::NewThreadLocal_LibEvent(InnerEventType::PollerEventLoopStart);
+    ev.SetClosureDelegate([](void* arg)
+    {
+        KERNEL_NS::LibEvent::DeleteThreadLocal_LibEvent(KERNEL_NS::KernelCastTo<LibEvent>(arg));
+    });
+    _eventManager->FireEvent(ev.AsSelf());
+    switch (_eventLoopMode)
+    {
+    case 1:
+        {
+            QuicklyLoop();
+        }break;
+    case 2:
+        {
+            SafeEventLoop();
+        }break;
+    default:
+        {
+            QuicklyLoop();
+        }break;
+    }
+}
+
+#else
+
+void Poller::EventLoop()
+{
+    switch (_eventLoopMode)
+    {
+    case 1:
+        {
+            QuicklyLoop();
+        }break;
+    case 2:
+        {
+            SafeEventLoop();
+        }break;
+    default:
+        {
+            SafeEventLoop();
+        }break;
+    }
+}
+
+#endif
+
 
 void Poller::QuicklyLoop()
 {
@@ -819,6 +890,12 @@ void Poller::SafeEventLoop()
 
 void Poller::OnLoopEnd()
 {
+    KERNEL_NS::SmartPtr<KERNEL_NS::LibEvent, KERNEL_NS::AutoDelMethods::CustomDelete> ev = LibEvent::NewThreadLocal_LibEvent(InnerEventType::PollerEventLoopEnd);
+    ev.SetClosureDelegate([](void* arg)
+    {
+        KERNEL_NS::LibEvent::DeleteThreadLocal_LibEvent(KERNEL_NS::KernelCastTo<LibEvent>(arg));
+    });
+    _eventManager->FireEvent(ev.AsSelf());
     // worker 线程关闭
     for(auto delg : _onEventWorkerCloseHandler)
         delg->Invoke(this);
@@ -991,6 +1068,12 @@ void Poller::_Clear()
         LibList<PollerEvent *, KERNEL_NS::_Build::TL>::DeleteThreadLocal_LibList(_localEvents);
     }
     _localEvents = NULL;
+
+    if(_eventManager)
+    {
+        EventManager::DeleteThreadLocal_EventManager(_eventManager);
+        _eventManager = NULL;
+    }
 
     if (g_Log && g_Log->IsEnable(LogLevel::Info))
         g_Log->Info(LOGFMT_OBJ_TAG("destroyed poller events list %s"), ToString().c_str());

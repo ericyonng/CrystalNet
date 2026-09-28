@@ -46,6 +46,7 @@ struct AsyncTask;
 
 class Poller;
 class Channel;
+class ISessionBridge;
 
 struct KERNEL_EXPORT PollerEvent
 {
@@ -69,6 +70,7 @@ struct KERNEL_EXPORT PollerEvent
     virtual LibString ToString() const;
 
     Int32 _type;
+    bool _dontRelease;
 };
 
 // TODO:添加poller闭包的支持，可以使得外部在poller所在线程执行一些事情而不必另外添加事件支持
@@ -253,6 +255,20 @@ struct KERNEL_EXPORT DestroyChannelEvent
     }
 
     UInt64 _channelId;
+};
+
+struct KERNEL_EXPORT SessionBridgeEvent : public PollerEvent
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, SessionBridgeEvent);
+
+    SessionBridgeEvent();
+    ~SessionBridgeEvent() override;
+
+    virtual void Release() override;
+    virtual LibString ToString() const override;
+
+    ISessionBridge *_sessionBridge;
+    LibList<PollerEvent *> *_events;
 };
 
 

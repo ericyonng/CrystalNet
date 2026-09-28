@@ -56,7 +56,7 @@ class UnifiedService : public SERVICE_COMMON_NS::IService
     POOL_CREATE_OBJ_DEFAULT_P1(IService, UnifiedService);
  
 public:
-    UnifiedService(UInt64 rttiTypeId);
+    UnifiedService(KERNEL_NS::IServiceProxy *proxy, UInt64 rttiTypeId);
     ~UnifiedService() override;
     
     // 协议栈

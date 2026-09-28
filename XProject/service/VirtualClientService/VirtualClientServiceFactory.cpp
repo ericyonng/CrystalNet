@@ -32,9 +32,9 @@
 
 SERVICE_BEGIN
 
-SERVICE_COMMON_NS::IService *VirtualClientServiceFactory::Create()
+SERVICE_COMMON_NS::IService *VirtualClientServiceFactory::Create(KERNEL_NS::IServiceProxy *proxy)
 {
-    return VirtualClientService::NewByAdapter_VirtualClientService(_buildType.V);
+    return VirtualClientService::NewByAdapter_VirtualClientService(_buildType.V, proxy);
 }
 
 SERVICE_END

@@ -49,8 +49,8 @@
 
 SERVICE_BEGIN
 
-LogicService::LogicService()
-:UnifiedService(KERNEL_NS::RttiUtil::GetTypeId<LogicService>())
+LogicService::LogicService(KERNEL_NS::IServiceProxy *proxy)
+:UnifiedService(proxy, KERNEL_NS::RttiUtil::GetTypeId<LogicService>())
 ,_storageOptions(KERNEL_NS::FileMonitor<StorageOptions, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
 {
 }

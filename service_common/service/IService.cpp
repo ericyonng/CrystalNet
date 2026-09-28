@@ -40,12 +40,15 @@
 #include "kernel/comp/Timer/TimerMgr.h"
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/TcpPollerMgr.h>
 
+#include "kernel/comp/Event/EventManager.h"
+
 SERVICE_COMMON_BEGIN
-    IService::IService(UInt64 objTypeId)
+
+IService::IService(KERNEL_NS::IServiceProxy *proxy, UInt64 objTypeId)
 :KERNEL_NS::CompHostObject(objTypeId)
 ,_serviceId(0)
 ,_poller(NULL)
-,_serviceProxy(NULL)
+,_serviceProxy(KERNEL_NS::KernelCastTo<ServiceProxy>(proxy))
 ,_maxSleepMilliseconds(20)
 ,_recvPackets{0}
 ,_consumePackets{0}
@@ -55,11 +58,15 @@ SERVICE_COMMON_BEGIN
 ,_tcpPollerMgr(NULL)
 {
     _SetType(ServiceProxyCompType::COMP_SERVICE);
+
+    _serviceProxy->AddActiveServiceNum();
 }
 
 IService::~IService()
 {
     _Clear();
+
+    _serviceProxy->AddCloseServiceNum();
 }
 
 void IService::Clear()
@@ -94,12 +101,13 @@ KERNEL_NS::LibString IService::IntroduceInfo() const
 
 void IService::InitPollerEventHandler()
 {
-    _poller->Subscribe(KERNEL_NS::PollerEventType::SessionCreated, this, &IService::_OnSessionCreated);
-    _poller->Subscribe(KERNEL_NS::PollerEventType::AsynConnectRes, this, &IService::_OnAsynConnectRes);
-    _poller->Subscribe(KERNEL_NS::PollerEventType::AddListenRes, this, &IService::_OnAddListenRes);
-    _poller->Subscribe(KERNEL_NS::PollerEventType::SessionDestroy, this, &IService::_OnSessionDestroy);
-    _poller->Subscribe(KERNEL_NS::PollerEventType::RecvMsg, this, &IService::_OnRecvMsg);
-    _poller->Subscribe(KERNEL_NS::PollerEventType::QuitServiceEvent, this, &IService::_OnQuitServiceEvent);
+    auto poller = KERNEL_NS::TlsUtil::GetPoller();
+    poller->Subscribe(KERNEL_NS::PollerEventType::SessionCreated, &IService::_OnSessionCreated);
+    poller->Subscribe(KERNEL_NS::PollerEventType::AsynConnectRes, this, &IService::_OnAsynConnectRes);
+    poller->Subscribe(KERNEL_NS::PollerEventType::AddListenRes, this, &IService::_OnAddListenRes);
+    poller->Subscribe(KERNEL_NS::PollerEventType::SessionDestroy, this, &IService::_OnSessionDestroy);
+    poller->Subscribe(KERNEL_NS::PollerEventType::RecvMsg, this, &IService::_OnRecvMsg);
+    poller->Subscribe(KERNEL_NS::PollerEventType::QuitServiceEvent, this, &IService::_OnQuitServiceEvent);
 }
 
 void IService::OnMonitor(ServiceStatisticsInfo &info)
@@ -210,30 +218,14 @@ void IService::SetServiceStatus(Int32 serviceStatus)
                 , oldServiceStatus, ServiceStatusToString(oldServiceStatus).c_str(), _serviceStatus, ServiceStatusToString(_serviceStatus).c_str());
 }
 
-void IService::EventLoop()
+KERNEL_NS::CoTask<> IService::EventLoop()
 {
-    _OnEventLoopStart();
-    _poller->EventLoop();
-}
+    CLOG_INFO("service:%s:%llu enter event loop", GetServiceName().ToString().c_str(), GetServiceId());
+    
+    co_await _coLocker.Wait();
 
-void IService::OnLoopEnd()
-{
-    _poller->OnLoopEnd();
-
+    CLOG_INFO("service:%s:%llu exit event loop", GetServiceName().ToString().c_str(), GetServiceId());
     MaskReady(false);
-}
-
-bool IService::PrepareLoop()
-{
-    if(!_poller->PrepareLoop())
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("poller prepare loop fail please check."));
-        return false;
-    }
-
-    MaskReady(true);
-
-    return true;
 }
 
 void IService::Push(KERNEL_NS::PollerEvent *ev)
@@ -251,16 +243,15 @@ Int32 IService::_OnHostInit()
     SetServiceStatus(ServiceStatus::SERVICE_INITING);
 
     _poller = KERNEL_NS::TlsUtil::GetPoller();
+
+    _poller->GetEventManager()->AddListener(KERNEL_NS::InnerEventType::PollerEventLoopStart, this, &IService::_OnEventLoopStartEv);
+    
     _pollerMgr = GetApp()->GetComp<KERNEL_NS::IPollerMgr>();
     _tcpPollerMgr = _pollerMgr->GetComp<KERNEL_NS::TcpPollerMgr>();
 
     // todo:
     InitPollerEventHandler();
 
-    // poller 设置
-    _poller->AddPepareEventWorkerHandler(this, &IService::_OnPollerPrepare);
-    _poller->AddEventWorkerCloseHandler(this, &IService::_OnPollerWillDestroy);
-    
     auto errCode = _OnServiceInit();
     if(errCode != Status::Success)
     {
@@ -409,11 +400,7 @@ void IService::_OnQuitServiceEvent(KERNEL_NS::PollerEvent *msg)
     auto timerMgr = GetTimerMgr();
     if(UNLIKELY(!timerMgr))
     {
-        if(LIKELY(_poller))
-        {
-            _poller->Disable();
-            _poller->QuitLoop();
-        }
+        _coLocker.Broadcast();
 
         g_Log->Warn(LOGFMT_OBJ_TAG("have no timer mgr when quit service service info:%s."), ToString().c_str());
         return;
@@ -433,22 +420,16 @@ void IService::_OnQuitServiceEvent(KERNEL_NS::PollerEvent *msg)
             return;
         }
 
-        _poller->Disable();
-        _poller->QuitLoop();
+        _coLocker.Broadcast();
         KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
     });
     timer->Schedule(1000);
 }
 
-bool IService::_OnPollerPrepare(KERNEL_NS::Poller *poller)
+void IService::_OnEventLoopStartEv(KERNEL_NS::LibEvent *ev)
 {
-    g_Log->Info(LOGFMT_OBJ_TAG("service poller prepare"));
-    return true;
-}
-
-void IService::_OnPollerWillDestroy(KERNEL_NS::Poller *poller)
-{
-    g_Log->Info(LOGFMT_OBJ_TAG("service will destroy."));
+    MaskReady(true);
+    _OnEventLoopStart();
 }
 
 void IService::RegisterPacketMsg(UInt64 sessionId, Int64 packetId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *delg)

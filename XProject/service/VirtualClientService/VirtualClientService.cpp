@@ -45,8 +45,8 @@
 
 SERVICE_BEGIN
 
-VirtualClientService::VirtualClientService()
-:UnifiedService(KERNEL_NS::RttiUtil::GetTypeId<VirtualClientService>())
+VirtualClientService::VirtualClientService(KERNEL_NS::IServiceProxy *proxy)
+:UnifiedService(proxy, KERNEL_NS::RttiUtil::GetTypeId<VirtualClientService>())
 {
 }
 

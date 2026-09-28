@@ -31,6 +31,7 @@
 
 #pragma once
 
+#include <kernel/comp/NetEngine/Poller/impl/Session/ISessionBridge.h>
 #include <kernel/comp/NetEngine/Poller/Defs/CloseSessionInfo.h>
 #include <kernel/comp/NetEngine/Poller/Defs/PollerConfig.h>
 #include <kernel/comp/NetEngine/Poller/Defs/PollerDirty.h>

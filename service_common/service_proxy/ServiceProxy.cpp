@@ -42,11 +42,15 @@
 #include "kernel/comp/Utils/ContainerUtil.h"
 #include <kernel/comp/LibStringYaml.h>
 
+#include "kernel/comp/Coroutines/Runner.h"
+#include "kernel/comp/thread/LibEventLoopThread.h"
+
 SERVICE_COMMON_BEGIN
     ServiceProxy::ServiceProxy()
 :IServiceProxy(KERNEL_NS::RttiUtil::GetTypeId<ServiceProxy>())
 ,_maxServiceId{0}
 ,_closeServiceNum{0}
+,_activeServiceNum{0}
 ,_serviceFactory(NULL)
 {
 
@@ -193,6 +197,7 @@ Int32 ServiceProxy::_OnInit()
     // 读取服务相关配置创建服务的线程
     auto application = GetOwner()->CastTo<Application>();
     _closeServiceNum = 0;
+    _activeServiceNum = 0;
 
     {
         auto &yamlNode = application->GetYamlConfig();
@@ -226,20 +231,19 @@ Int32 ServiceProxy::_OnInit()
     _serviceThreads.resize(serviceCount);
     for(Int32 idx = 0; idx < serviceCount; ++idx)
     {
-        auto &serviceName = _activeServices[idx];
-        auto newThread = CRYSTAL_NEW(KERNEL_NS::LibThread);
-        _serviceThreads[idx] = newThread;
-        auto newVar = KERNEL_NS::Variant::New_Variant();
         const UInt64 serviceId = ++_maxServiceId;
-        (*newVar)["ServiceName"] = serviceName;
-        (*newVar)["ServiceId"] = serviceId;
-
-        newThread->SetThreadName(KERNEL_NS::LibString().AppendFormat("service-%llu-%s", serviceId, serviceName.c_str()));
+        auto &serviceName = _activeServices[idx];
+        auto newThread = new KERNEL_NS::LibEventLoopThread([serviceName, serviceId, this]()
+        {
+            KERNEL_NS::RunRightNow([serviceName, serviceId, this]()->KERNEL_NS::CoTask<>
+            {
+                _OnServiceThread(serviceName, serviceId);
+            });
+        }, KERNEL_NS::LibString().AppendFormat("service-%llu-%s", serviceId, serviceName.c_str()));
+        _serviceThreads[idx] = newThread;
 
         // 初始化服务的设施
         _OnPrepareServiceThread(serviceId, serviceName);
-
-        newThread->AddTask2(this, &ServiceProxy::_OnServiceThread, newVar);
     }
 
     CLOG_INFO("init service proxy suc");
@@ -261,19 +265,28 @@ void ServiceProxy::_OnWillClose()
 {
     PostQuitService();
 
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("service proxy quit service loop..."));
+    CLOG_INFO("service proxy quit service loop...");
 
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("service proxy half close service thread..."));
+    // 等待所有service完成
+    while (_closeServiceNum.load(std::memory_order_acquire) < _activeServiceNum.load(std::memory_order_acquire))
+    {
+        KERNEL_NS::SystemUtil::ThreadSleep(1000);
+        CLOG_INFO("waiting for all service quit, close service num:%d, activeNum:%d"
+            , _closeServiceNum.load(std::memory_order_acquire), _activeServiceNum.load(std::memory_order_release));
+    }
+
+    CLOG_INFO("service proxy half close service thread...");
     for(auto thread:_serviceThreads)
         thread->HalfClose();
 
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("service proxy finish close service thread..."));
+    CLOG_INFO("service proxy finish close service thread...");
+
     for(auto thread:_serviceThreads)
         thread->FinishClose();
 
     MaskReady(false);
 
-    g_Log->Info(LOGFMT_OBJ_TAG("service proxy will close."));
+    CLOG_INFO("service proxy will close.");
 }
 
 void ServiceProxy::_OnClose()
@@ -306,14 +319,11 @@ void ServiceProxy::_OnPrepareServiceThread(UInt64 serviceId, const KERNEL_NS::Li
     _guard.Unlock();
 }
 
- void ServiceProxy::_OnServiceThread(KERNEL_NS::LibThread *t, KERNEL_NS::Variant *params)
+ KERNEL_NS::CoTask<> ServiceProxy::_OnServiceThread(const KERNEL_NS::LibString &serviceName, UInt64 serviceId)
  {
-    const auto &serviceName = (*params)["ServiceName"].AsStr();
-    const auto serviceId = (*params)["ServiceId"].AsUInt64();
-
     g_Log->Info(LOGFMT_OBJ_TAG("service %s serviceId:%llu thread will start thread id:%llu.")
-                    , serviceName.c_str(), serviceId, t->GetTheadId());
-    KERNEL_NS::SmartPtr<IService, KERNEL_NS::AutoDelMethods::ReleaseSafe> service = _serviceFactory->Create(serviceName);
+                    , serviceName.c_str(), serviceId, KERNEL_NS::SystemUtil::GetCurrentThreadId());
+    KERNEL_NS::SmartPtr<IService, KERNEL_NS::AutoDelMethods::ReleaseSafe> service = _serviceFactory->Create(serviceName, this);
 
     bool cleanWithClose = false;
     Int32 errCode = Status::Success;
@@ -333,7 +343,6 @@ void ServiceProxy::_OnPrepareServiceThread(UInt64 serviceId, const KERNEL_NS::Li
             _guard.Lock();
             _idRefService.erase(serviceId);
             _guard.Unlock();
-            ++_closeServiceNum;
 
             if(cleanWithClose)
                 service->Close();
@@ -368,7 +377,7 @@ void ServiceProxy::_OnPrepareServiceThread(UInt64 serviceId, const KERNEL_NS::Li
         {
             g_Log->Error(LOGFMT_OBJ_TAG("service %s init fail errCode:%d "), service->IntroduceInfo().c_str(), errCode);
             SetErrCode(NULL, errCode);
-            return;
+            co_return;
         }
 
         // 2.启动服务
@@ -378,18 +387,11 @@ void ServiceProxy::_OnPrepareServiceThread(UInt64 serviceId, const KERNEL_NS::Li
         {
             g_Log->Error(LOGFMT_OBJ_TAG("service %s start fail errCode:%d"), service->IntroduceInfo().c_str(), errCode);
             SetErrCode(NULL, errCode);
-
-            return;
+            co_return;
         }
 
         cleanWithClose = true;
         g_Log->Info(LOGFMT_OBJ_TAG("service %s prepare loop..."), service->IntroduceInfo().c_str());
-        if(!service->PrepareLoop())
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("service %s prepare loop fail"), service->IntroduceInfo().c_str());
-            SetErrCode(NULL, Status::Failed);
-            return;
-        }
     }
     catch (std::exception &e)
     {
@@ -416,14 +418,13 @@ void ServiceProxy::_OnPrepareServiceThread(UInt64 serviceId, const KERNEL_NS::Li
 
     // 3.服务的事件循环
     g_Log->Info(LOGFMT_OBJ_TAG("service %s safty event loop begin."), service->IntroduceInfo().c_str());
-    service->EventLoop();
+    co_await service->EventLoop();
 
     // 停止服务
     g_Log->Info(LOGFMT_OBJ_TAG("service %s reject service."), service->IntroduceInfo().c_str());
     _RejectService(serviceId);
 
     // 4.事件循环结束,销毁
-    service->OnLoopEnd();
     g_Log->Info(LOGFMT_OBJ_TAG("service %s on event loop end..."), service->IntroduceInfo().c_str());
 
     // 剔除所有service的会话
@@ -457,8 +458,6 @@ void ServiceProxy::_OnPrepareServiceThread(UInt64 serviceId, const KERNEL_NS::Li
     {
         g_Log->Error(LOGFMT_OBJ_TAG("unknown abnormal when close service: %s"), service->IntroduceInfo().c_str());
     }
-
-    ++_closeServiceNum;
 
     g_Log->Info(LOGFMT_OBJ_TAG("service %s close finish"), service->IntroduceInfo().c_str());
 

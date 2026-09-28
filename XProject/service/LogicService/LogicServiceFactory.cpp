@@ -32,9 +32,9 @@
 
 SERVICE_BEGIN
 
-SERVICE_COMMON_NS::IService *LogicServiceFactory::Create()
+SERVICE_COMMON_NS::IService *LogicServiceFactory::Create(KERNEL_NS::IServiceProxy *proxy)
 {
-    return LogicService::NewByAdapter_LogicService(_buildType.V);
+    return LogicService::NewByAdapter_LogicService(_buildType.V, proxy);
 }
 
 SERVICE_END

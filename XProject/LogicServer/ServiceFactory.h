@@ -35,7 +35,7 @@ class ServiceFactory :public SERVICE_COMMON_NS::IServiceFactory
     POOL_CREATE_OBJ_DEFAULT_P1(IServiceFactory, ServiceFactory);
 
 public:
-    virtual SERVICE_COMMON_NS::IService *Create(const KERNEL_NS::LibString &serviceName) override;
+    virtual SERVICE_COMMON_NS::IService *Create(const KERNEL_NS::LibString &serviceName, KERNEL_NS::IServiceProxy *proxy) override;
     virtual void Release() override;
 
     static constexpr KERNEL_NS::_Build::TL _buildType{};

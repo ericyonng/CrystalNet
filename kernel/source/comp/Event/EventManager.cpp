@@ -69,7 +69,7 @@ EventManager::~EventManager()
 
 ListenerStub EventManager::AddListener(int id, IDelegate<void, LibEvent *> *listener, const ListenerStub &bindedStub /*= INVALID_LISTENER_STUB*/)
 {
-    if(id < 0 || listener == NULL)
+    if(listener == NULL)
     {
         CRYSTAL_RELEASE_SAFE(listener);
         return INVALID_LISTENER_STUB;
@@ -125,9 +125,6 @@ ListenerStub EventManager::AddListener(int id, IDelegate<void, LibEvent *> *list
 
 int EventManager::RemoveListener(int id)
 {
-    if(id <= 0)
-        return Status::Error;
-
     _Op op;
     op._op = EventManager::REMOVE;
     op._listener._evId = id;
@@ -289,7 +286,7 @@ int EventManager::ProcessEventOperation(EventManager::_Op &op)
     }
     else if(op._op == EventManager::REMOVE)
     {// 移除事件
-        if(listener._evId >= 0)
+        if(listener._stub <= 0)
         {
             _delayAddOpRefCount.erase(listener._evId);
             _ListenersMap::iterator mIt = _listeners.find(listener._evId);

@@ -36,6 +36,7 @@ KERNEL_BEGIN
 
 PollerEvent::PollerEvent(Int32 type)
     :_type(type)
+    ,_dontRelease(false)
 {
 
 }
@@ -171,6 +172,42 @@ LibString BatchPollerEvent::ToString() const
 
     return info;
 }
+
+SessionBridgeEvent::SessionBridgeEvent()
+: PollerEvent(PollerEventInternalType::SessionBridgeEvent)
+,_events(NULL)
+{
+    
+}
+
+SessionBridgeEvent::~SessionBridgeEvent()
+{
+    if(_events)
+    {
+        ContainerUtil::DelContainer(*_events, [](PollerEvent *ev)
+        {
+           ev->Release(); 
+        });
+
+        LibList<PollerEvent *>::Delete_LibList(_events);
+    }
+
+    _events = NULL;
+}
+
+void SessionBridgeEvent::Release()
+{
+    SessionBridgeEvent::Delete_SessionBridgeEvent(this);
+}
+
+LibString SessionBridgeEvent::ToString() const
+{
+    LibString info;
+    info.AppendFormat("%s\n", PollerEvent::ToString().c_str());
+
+    return info;
+}
+
 
 
 KERNEL_END

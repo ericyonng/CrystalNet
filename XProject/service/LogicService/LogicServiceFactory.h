@@ -36,7 +36,7 @@ SERVICE_BEGIN
 class LogicServiceFactory
 {
 public:
-    static SERVICE_COMMON_NS::IService *Create();
+    static SERVICE_COMMON_NS::IService *Create(KERNEL_NS::IServiceProxy *proxy);
 
     static constexpr KERNEL_NS::_Build::TL _buildType{};
 };

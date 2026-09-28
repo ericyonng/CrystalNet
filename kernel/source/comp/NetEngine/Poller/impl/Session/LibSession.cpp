@@ -63,6 +63,7 @@ LibSession::LibSession(UInt64 sessionId, bool isLinker, bool isConnectToRemote)
 ,_recvBuffers(NULL)
 ,_streamCtrlMask(0)
 ,_currentTokenNumber(0)
+,_bridge(NULL)
 {
 
 }

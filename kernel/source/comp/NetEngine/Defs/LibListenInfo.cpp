@@ -39,6 +39,7 @@ LibListenInfo::LibListenInfo()
 ,_stub(0)
 ,_protocolType(0)
 ,_sessionCount(0)
+,_bridge(NULL)
 {
 
 }
@@ -54,6 +55,7 @@ LibString LibListenInfo::ToString() const
     .AppendFormat("_protocolType:%u, ",  _protocolType)
     .AppendFormat("_sessionCount:%u, ",  _sessionCount)
     .AppendFormat("_sessionOption:%s, ",  _sessionOption.ToString().c_str())
+    .AppendFormat("_bridge:%p, ",  _bridge)
     ;
 
     return info;

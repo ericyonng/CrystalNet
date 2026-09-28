@@ -50,6 +50,8 @@ class LibPacket;
 template<typename BuildType>
 class LibStream;
 
+class ISessionBridge;
+
 class SessionStreamCtrl
 {
 public:
@@ -95,6 +97,9 @@ public:
     const LibSocket *GetSock() const;
 
     // 设置配置
+    void SetBridge(ISessionBridge *bridge);
+    const ISessionBridge *GetBridge() const;
+    ISessionBridge *GetBridge();
     void SetOption(const SessionOption &option);
     void SetSocket(LibSocket *sock);
     void SetServiceId(UInt64 serviceId);
@@ -191,6 +196,7 @@ protected:
     // 限速处理
     LibCpuCounter _recvLastCpuTime;
     Int64 _currentTokenNumber;
+    ISessionBridge *_bridge;
 };
 
 ALWAYS_INLINE LibSocket *LibSession::GetSock()
@@ -202,6 +208,22 @@ ALWAYS_INLINE const LibSocket *LibSession::GetSock() const
 {
     return _sock;
 }
+
+ALWAYS_INLINE void LibSession::SetBridge(ISessionBridge *bridge)
+{
+    _bridge = bridge;
+}
+
+ALWAYS_INLINE const ISessionBridge *LibSession::GetBridge() const
+{
+    return _bridge;
+}
+
+ALWAYS_INLINE ISessionBridge *LibSession::GetBridge()
+{
+    return _bridge;
+}
+
 
 ALWAYS_INLINE void LibSession::SetOption(const SessionOption &option)
 {

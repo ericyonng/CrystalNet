@@ -46,8 +46,8 @@
 
 SERVICE_BEGIN
 
-UnifiedService::UnifiedService(UInt64 rttiTypeId)
-:SERVICE_COMMON_NS::IService(rttiTypeId)
+UnifiedService::UnifiedService(KERNEL_NS::IServiceProxy *proxy, UInt64 rttiTypeId)
+:SERVICE_COMMON_NS::IService(proxy, rttiTypeId)
 ,_timerMgr(NULL)
 ,_updateTimer(NULL)
 ,_frameUpdateTimeMs(50)
@@ -252,7 +252,7 @@ void UnifiedService::_OnUnifiedServiceClear()
 Int32 UnifiedService::_OnServiceInit()
 {
     // poller event 接口初始化
-    _eventMgr = KERNEL_NS::EventManager::New_EventManager();
+    _eventMgr = KERNEL_NS::TlsUtil::GetPoller()->GetEventManager();
 
     Int32 err = Status::Success;
     auto &serviceName = GetServiceName();
@@ -635,12 +635,6 @@ void UnifiedService::_Clear()
     KERNEL_NS::ContainerUtil::DelContainer<Int32, KERNEL_NS::IProtocolStack *, KERNEL_NS::AutoDelMethods::Release>(_stackTypeRefProtocolStack);
     KERNEL_NS::ContainerUtil::DelContainer<Int32, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *, KERNEL_NS::AutoDelMethods::Release>(_opcodeRefHandler);
     
-    if(LIKELY(_eventMgr))
-    {
-        KERNEL_NS::EventManager::Delete_EventManager(_eventMgr);
-        _eventMgr = NULL;
-    }
-
     if(LIKELY(_serviceConfig))
     {
         KERNEL_NS::FileMonitor<ServiceConfig, KERNEL_NS::YamlDeserializer>::Delete_FileMonitor(_serviceConfig);

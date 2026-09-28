@@ -31,10 +31,10 @@
 #include <kernel/comp/Log/log.h>
 #include <service/VirtualClientService/VirtualClientServiceFactory.h>
 
-SERVICE_COMMON_NS::IService *ServiceFactory::Create(const KERNEL_NS::LibString &serviceName)
+SERVICE_COMMON_NS::IService *ServiceFactory::Create(const KERNEL_NS::LibString &serviceName, KERNEL_NS::IServiceProxy *proxy)
 {
     if(serviceName == "VirtualClientService")
-        return SERVICE_NS::VirtualClientServiceFactory::Create();
+        return SERVICE_NS::VirtualClientServiceFactory::Create(proxy);
     
     CLOG_ERROR("unknown service name:%s", serviceName.c_str());
     return NULL;

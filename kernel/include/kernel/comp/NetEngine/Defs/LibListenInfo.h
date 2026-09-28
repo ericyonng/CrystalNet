@@ -35,7 +35,10 @@
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/NetEngine/Poller/impl/Session/SessionOption.h>
 
+
 KERNEL_BEGIN
+
+class ISessionBridge;
 
 struct KERNEL_EXPORT LibListenInfo
 {
@@ -54,6 +57,8 @@ struct KERNEL_EXPORT LibListenInfo
     Int32 _sessionCount;    // 监听同一个端口创建多少个会话
 
     SessionOption _sessionOption;   // 会话选项
+
+    ISessionBridge *_bridge;
 };
 
 KERNEL_END

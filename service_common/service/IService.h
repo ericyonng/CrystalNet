@@ -43,9 +43,16 @@
 #include <atomic>
 #include <set>
 
-KERNEL_BEGIN
+#include "kernel/comp/Lock/Impl/CoLocker.h"
 
-class Poller;
+
+namespace CRYSTAL_NET::kernel
+{
+    class IServiceProxy;
+}
+
+KERNEL_BEGIN
+    class Poller;
 struct PollerEvent;
 class LibSession;
 class IProtocolStack;
@@ -54,6 +61,7 @@ class LibPacket;
 class EventManager;
 class IPollerMgr;
 class TcpPollerMgr;
+class LibEvent;
 
 KERNEL_END
 
@@ -109,7 +117,7 @@ class IService : public KERNEL_NS::CompHostObject
     POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, IService);
 
 public:
-    IService(UInt64 objTypeId);
+    IService(KERNEL_NS::IServiceProxy *proxy, UInt64 objTypeId);
     virtual ~IService();
     // 有多线程所以这个时候不能直接ready
     void DefaultMaskReady(bool isReady) override {}
@@ -141,9 +149,7 @@ public:
     virtual UInt64 GetSessionAmount() const;
 
     // 事件循环
-    bool PrepareLoop();
-    void EventLoop();
-    void OnLoopEnd();
+    KERNEL_NS::CoTask<> EventLoop();
     void Push(KERNEL_NS::PollerEvent *ev);
     void Push(KERNEL_NS::LibList<KERNEL_NS::PollerEvent *> *evList);
     void AddRecvPackets(Int64 recvPackets);
@@ -178,7 +184,7 @@ public:
     virtual const KERNEL_NS::EventManager *GetEventMgr() const = 0;
 
     // 初始化从poller传来的消息处理接口
-    void InitPollerEventHandler();
+    static void InitPollerEventHandler();
 
     // 监控信息
     virtual void OnMonitor(ServiceStatisticsInfo &info);
@@ -269,11 +275,7 @@ protected:
     virtual void _OnQuitServiceEvent(KERNEL_NS::PollerEvent *msg) final;
     virtual void _OnQuitingService(KERNEL_NS::PollerEvent *msg){}
 
-    // 初始化相关
-    virtual bool _OnPollerPrepare(KERNEL_NS::Poller *poller);
-    // 销毁相关
-    virtual void _OnPollerWillDestroy(KERNEL_NS::Poller *poller);
-
+    virtual void _OnEventLoopStartEv(KERNEL_NS::LibEvent *ev);
 
 private:
     void _Clear();
@@ -298,6 +300,7 @@ protected:
     KERNEL_NS::TcpPollerMgr *_tcpPollerMgr;
 
     std::map<UInt64, std::map<Int64, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *>> _sessionIdRefPacketIdRefHandler;
+    KERNEL_NS::CoLocker _coLocker;
 };
 
 ALWAYS_INLINE void IService::SetServiceId(UInt64 serviceId)

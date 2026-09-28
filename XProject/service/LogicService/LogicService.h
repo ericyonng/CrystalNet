@@ -41,7 +41,7 @@ class LogicService : public UnifiedService
     POOL_CREATE_OBJ_DEFAULT_P1(UnifiedService, LogicService);
 
 public:
-    LogicService();
+    LogicService(KERNEL_NS::IServiceProxy *proxy);
     ~LogicService() override;
     void Release() override;
     

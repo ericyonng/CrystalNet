@@ -54,6 +54,17 @@ public:
     };
 };
 
+// 内部事件使用负数
+class KERNEL_EXPORT InnerEventType
+{
+public:
+    enum ENUMS
+    {
+        PollerEventLoopStart = -1,
+        PollerEventLoopEnd = -2,
+    };
+};
+
 KERNEL_END
 
 #endif

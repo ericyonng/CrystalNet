@@ -64,6 +64,8 @@ KERNEL_BEGIN
 
 class Channel;
 
+class EventManager;
+
 struct PollerEvent;
 
 class TimerMgr;
@@ -217,6 +219,10 @@ public:
     // 获取定时器
     TimerMgr *GetTimerMgr();
     const TimerMgr *GetTimerMgr() const;
+
+    // 获取事件管理器
+    EventManager *GetEventManager();
+    const EventManager *GetEventManager() const;
 
     // 投递事件
     void Push(PollerEvent *ev);
@@ -569,6 +575,7 @@ protected:
     void _OnBatchPollerEvent(PollerEvent *ev);
     void _OnApplyChannelEvent(StubPollerEvent *ev);
     void _OnActionPollerEvent(PollerEvent *ev);
+    void _OnSessionBridgeEvent(PollerEvent *ev);
 
     // void _OnDestroyChannelEvent(StubPollerEvent *ev);
 
@@ -638,6 +645,8 @@ private:
 
     // 0:默认, 1:快速模式, 2:安全模式
     Int32 _eventLoopMode;
+
+    EventManager *_eventManager;
 };
 
 ALWAYS_INLINE bool Poller::IsEnable() const
@@ -781,50 +790,15 @@ ALWAYS_INLINE const TimerMgr *Poller::GetTimerMgr() const
     return _timerMgr;
 }
 
-#ifdef _DEBUG
-
-// Debug情况下不使用try{}catch(){}让问题充分暴露
-ALWAYS_INLINE void Poller::EventLoop()
+ALWAYS_INLINE EventManager *Poller::GetEventManager()
 {
-    switch (_eventLoopMode)
-    {
-        case 1:
-        {
-            QuicklyLoop();
-        }break;
-        case 2:
-        {
-            SafeEventLoop();
-        }break;
-        default:
-        {
-            QuicklyLoop();
-        }break;
-    }
+    return _eventManager;
 }
 
-#else
-
-ALWAYS_INLINE void Poller::EventLoop()
+const EventManager *Poller::GetEventManager() const
 {
-    switch (_eventLoopMode)
-    {
-    case 1:
-        {
-            QuicklyLoop();
-        }break;
-    case 2:
-        {
-            SafeEventLoop();
-        }break;
-    default:
-        {
-            SafeEventLoop();
-        }break;
-    }
+    return _eventManager;
 }
-
-#endif
 
 // template<typename LamvadaType>
 // ALWAYS_INLINE void Poller::Push(Int32 level, LamvadaType &&lambdaType)

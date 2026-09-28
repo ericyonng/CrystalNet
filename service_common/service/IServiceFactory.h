@@ -35,7 +35,7 @@
 #include <service_common/common/common.h>
 
 KERNEL_BEGIN
-
+class IServiceProxy;
 KERNEL_END
 
 SERVICE_COMMON_BEGIN
@@ -49,7 +49,7 @@ public:
     IServiceFactory(){}
     virtual ~IServiceFactory(){}
 
-    virtual IService *Create(const KERNEL_NS::LibString &serviceName) = 0;
+    virtual IService *Create(const KERNEL_NS::LibString &serviceName, KERNEL_NS::IServiceProxy *proxy) = 0;
     virtual void Release() = 0;
 };
 
