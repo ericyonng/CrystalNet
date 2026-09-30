@@ -43,6 +43,7 @@
 #include "kernel/comp/PerformanceRecord.h"
 #include "kernel/comp/Coroutines/CoDelay.h"
 #include "protocols/Opcodes.h"
+#include <service/common/UnifiedSessionBridge.h>
 
 SERVICE_BEGIN
 
@@ -51,7 +52,7 @@ UnifiedService::UnifiedService(KERNEL_NS::IServiceProxy *proxy, UInt64 rttiTypeI
 ,_timerMgr(NULL)
 ,_updateTimer(NULL)
 ,_frameUpdateTimeMs(50)
-,_eventMgr(NULL)
+,_eventMgr(KERNEL_NS::EventManager::New_EventManager())
 ,_serviceConfig(KERNEL_NS::FileMonitor<ServiceConfig, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
 ,_defaultStack(NULL)
 {
@@ -61,6 +62,12 @@ UnifiedService::UnifiedService(KERNEL_NS::IServiceProxy *proxy, UInt64 rttiTypeI
 UnifiedService::~UnifiedService()
 {
     _OnServiceClear();
+}
+
+void UnifiedService::_OnServiceRegisterComps()
+{
+    // 会话桥接
+    RegisterComp<UnifiedSessionBridgeFactory>();
 }
 
 KERNEL_NS::IProtocolStack *UnifiedService::GetProtocolStack(KERNEL_NS::LibSession *session)
@@ -252,8 +259,6 @@ void UnifiedService::_OnUnifiedServiceClear()
 Int32 UnifiedService::_OnServiceInit()
 {
     // poller event 接口初始化
-    _eventMgr = KERNEL_NS::TlsUtil::GetPoller()->GetEventManager();
-
     Int32 err = Status::Success;
     auto &serviceName = GetServiceName();
     {// 2.读取配置
@@ -350,7 +355,6 @@ Int32 UnifiedService::_OnUnifiedServiceCompsCreated()
 {
     return Status::Success;
 }
-
 
 Int32 UnifiedService::_OnServiceStartup()
 {
@@ -639,6 +643,12 @@ void UnifiedService::_Clear()
     {
         KERNEL_NS::FileMonitor<ServiceConfig, KERNEL_NS::YamlDeserializer>::Delete_FileMonitor(_serviceConfig);
         _serviceConfig = NULL;
+    }
+    
+    if (LIKELY(_eventMgr))
+    {
+        KERNEL_NS::EventManager::Delete_EventManager(_eventMgr);
+        _eventMgr = NULL;
     }
 }
 

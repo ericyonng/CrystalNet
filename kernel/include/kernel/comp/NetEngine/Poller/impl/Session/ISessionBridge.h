@@ -55,7 +55,7 @@ public:
         
     }
     
-    ~ISessionBridge() {}
+    ~ISessionBridge() override;
 
     // 发消息
     virtual void PostMsg(PollerEvent *msg, Int64 packetsCount = 0);
@@ -78,12 +78,12 @@ protected:
     Int32 _OnInit() override;
     Int32 _OnStart() override;
 
-    // 派生类重写接口来定制PollerEvent回调
-    virtual void _OnSessionCreated(PollerEvent *&ev);
-    virtual void _OnAsynConnectRes(PollerEvent *&ev);
-    virtual void _OnAddListenRes(PollerEvent *&ev);
-    virtual void _OnSessionDestroy(PollerEvent *&ev);
-    virtual void _OnRecvMsg(PollerEvent *&ev);
+    // 派生类重写接口来定制PollerEvent回调, 纯虚函数以便提醒使用者实现该接口
+    virtual void _OnSessionCreated(PollerEvent *&ev) = 0;
+    virtual void _OnAsynConnectRes(PollerEvent *&ev) = 0;
+    virtual void _OnAddListenRes(PollerEvent *&ev) = 0;
+    virtual void _OnSessionDestroy(PollerEvent *&ev) = 0;
+    virtual void _OnRecvMsg(PollerEvent *&ev) = 0;
 
 private:
     Poller *_bridgePoller;

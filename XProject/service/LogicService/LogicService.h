@@ -41,7 +41,7 @@ class LogicService : public UnifiedService
     POOL_CREATE_OBJ_DEFAULT_P1(UnifiedService, LogicService);
 
 public:
-    LogicService(KERNEL_NS::IServiceProxy *proxy);
+    LogicService();
     ~LogicService() override;
     void Release() override;
     
@@ -51,7 +51,7 @@ protected:
     virtual void _OnUnifiedServiceClear() final;
     
     // 注册组件
-    virtual void _OnServiceRegisterComps() final;
+    virtual void _OnUnifiedServiceRegisterComps() final;
     
     virtual Int32 _OnUnifiedServiceInit() final;
     

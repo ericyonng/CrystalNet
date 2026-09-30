@@ -69,7 +69,7 @@ void LogicService::_OnUnifiedServiceClear()
     }
 }
 
-void LogicService::_OnServiceRegisterComps()
+void LogicService::_OnUnifiedServiceRegisterComps()
 {
 #ifdef CRYSTAL_STORAGE_ENABLE
     // mongodb

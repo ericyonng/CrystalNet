@@ -33,7 +33,8 @@
 
 
 KERNEL_BEGIN
-    KERNEL_NS::CompFactory *MongodbProxyFactory::FactoryCreate()
+    
+KERNEL_NS::CompFactory *MongodbProxyFactory::FactoryCreate()
 {
     return KERNEL_NS::ObjPoolWrap<MongodbProxyFactory>::NewByAdapter(_buildType.V);
 }

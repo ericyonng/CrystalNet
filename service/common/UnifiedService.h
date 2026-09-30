@@ -59,6 +59,7 @@ public:
     UnifiedService(KERNEL_NS::IServiceProxy *proxy, UInt64 rttiTypeId);
     ~UnifiedService() override;
     
+    
     // 协议栈
     virtual KERNEL_NS::IProtocolStack *GetProtocolStack(KERNEL_NS::LibSession *session) final;
     virtual const KERNEL_NS::IProtocolStack *GetProtocolStack(KERNEL_NS::LibSession *session) const final;
@@ -69,6 +70,9 @@ public:
     KERNEL_NS::TimerMgr *GetTimerMgr() override;
     const KERNEL_NS::TimerMgr *GetTimerMgr() const override;
 
+    KERNEL_NS::EventManager *GetEventManager();
+    const KERNEL_NS::EventManager *GetEventManager() const;
+    
     // 协议订阅 已经存在的订阅会被新的覆盖并报warn
     virtual void Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *deleg) override;
     virtual void SubscribeCo(Int32 opcodeId, KERNEL_NS::IDelegate<KERNEL_NS::CoTask<>, KERNEL_NS::LibPacket *&> *deleg) override;
@@ -82,6 +86,9 @@ public:
     UInt64 GetSessionAmount() const override;
 
 protected:
+    void _OnServiceRegisterComps() final;
+    virtual void _OnUnifiedServiceRegisterComps() = 0;
+    
     // 清理数据
     virtual void _OnServiceClear() final;
     virtual void _OnUnifiedServiceClear();
@@ -163,6 +170,16 @@ ALWAYS_INLINE KERNEL_NS::TimerMgr *UnifiedService::GetTimerMgr()
 ALWAYS_INLINE const KERNEL_NS::TimerMgr *UnifiedService::GetTimerMgr() const
 {
     return _timerMgr;
+}
+
+ALWAYS_INLINE KERNEL_NS::EventManager *UnifiedService::GetEventManager()
+{
+    return _eventMgr;    
+}
+
+ALWAYS_INLINE const KERNEL_NS::EventManager *UnifiedService::GetEventManager() const
+{
+    return _eventMgr;
 }
 
 ALWAYS_INLINE KERNEL_NS::EventManager *UnifiedService::GetEventMgr()

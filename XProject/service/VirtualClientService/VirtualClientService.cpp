@@ -59,7 +59,7 @@ void VirtualClientService::_OnUnifiedServiceClear()
 {
 }
 
-void VirtualClientService::_OnServiceRegisterComps()
+void VirtualClientService::_OnUnifiedServiceRegisterComps()
 {
     // 配置表
     RegisterComp<ConfigLoaderProxyFactory>();

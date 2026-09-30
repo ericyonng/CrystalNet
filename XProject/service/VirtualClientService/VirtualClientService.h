@@ -48,7 +48,7 @@ protected:
     virtual void _OnUnifiedServiceClear() final;
     
     // 注册组件
-    virtual void _OnServiceRegisterComps() final;
+    virtual void _OnUnifiedServiceRegisterComps() final;
     
     virtual Int32 _OnUnifiedServiceInit() final;
     
