@@ -29,16 +29,8 @@
 #include <kernel/comp/Poller/Poller.h>
 
 #include "kernel/comp/NetEngine/Poller/Defs/PollerEvent.h"
-#include <kernel/comp/Log/Log.h>
-
-#include "kernel/comp/Utils/ContainerUtil.h"
 
 KERNEL_BEGIN
-    
-ISessionBridge::~ISessionBridge()
-{
-    KERNEL_NS::ContainerUtil::DelContainer2(_pollerEventHandler);
-}
 
 void ISessionBridge::PostMsg(PollerEvent *msg, Int64 packetsCount)
 {
@@ -89,41 +81,40 @@ Int32 ISessionBridge::_OnInit()
 
     return Status::Success;
 }
-//
-// void ISessionBridge::_OnSessionCreated(PollerEvent *&ev)
-// {
-//     auto *created = static_cast<SessionCreatedEvent *>(ev);
-//     if (created->_isLinker || created->_isFromConnect)
-//         return;
-//
-//     CLOG_DEBUG("session created ev:%s", created->ToString().c_str());
-//     
-//     _sessionIdRefPollerId[created->_sessionId] = created->_sessionPollerId;
-// }
-//
-// void ISessionBridge::_OnAsynConnectRes(PollerEvent *&ev)
-// {
-//     
-// }
-//
-// void ISessionBridge::_OnAddListenRes(PollerEvent *&ev)
-// {
-//     
-// }
-//
-// void ISessionBridge::_OnSessionDestroy(PollerEvent *&ev)
-// {
-//     
-// }
-//
-// void ISessionBridge::_OnRecvMsg(PollerEvent *&ev);
-// {
-//     
-// }
+
+void ISessionBridge::_OnSessionCreated(PollerEvent *&ev)
+{
+    auto *created = static_cast<SessionCreatedEvent *>(ev);
+    if (created->_isLinker || created->_isFromConnect)
+        return;
+
+    CLOG_DEBUG("session created ev:%s", created->ToString().c_str());
+    
+    _sessionIdRefPollerId[created->_sessionId] = created->_sessionPollerId;
+}
+
+void ISessionBridge::_OnAsynConnectRes(PollerEvent *&ev)
+{
+    CLOG_DEBUG("session connected ev:%s", ev->ToString().c_str());
+}
+
+void ISessionBridge::_OnAddListenRes(PollerEvent *&ev)
+{
+    CLOG_DEBUG("session add listen res ev:%s", ev->ToString().c_str());
+}
+
+void ISessionBridge::_OnSessionDestroy(PollerEvent *&ev)
+{
+    CLOG_DEBUG("session destroy ev:%s", ev->ToString().c_str());
+}
+
+void ISessionBridge::_OnRecvMsg(PollerEvent *&ev)
+{
+    CLOG_DEBUG("session recv msg:%s", ev->ToString().c_str());
+}
 
 Int32 ISessionBridge::_OnStart()
 {
-    CLOG_INFO("session bridge start");
     return Status::Success;
 }
 

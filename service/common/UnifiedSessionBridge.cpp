@@ -41,7 +41,8 @@
 #include "kernel/comp/NetEngine/LibPacket.h"
 
 SERVICE_BEGIN
-    UnifiedSessionBridge::UnifiedSessionBridge()
+
+UnifiedSessionBridge::UnifiedSessionBridge()
  :ISessionBridge( KERNEL_NS::RttiUtil::GetTypeId<UnifiedSessionBridge>())
 {
  
@@ -195,7 +196,7 @@ void UnifiedSessionBridge::_OnRecvMsg(KERNEL_NS::PollerEvent*& msg)
         ev->SetParam(Params::PACKET, packet);
         _eventMgr->FireEvent(ev);
 
-        auto handler = _GetMsgHandler(opcode);
+        auto handler = _service->GetMsgHandler(opcode);
         if(UNLIKELY(!handler))
         {
             CLOG_WARN("a packet with unknown opcode handler packet:%s", packet->ToString().c_str());
@@ -218,18 +219,16 @@ void UnifiedSessionBridge::_OnRecvMsg(KERNEL_NS::PollerEvent*& msg)
             packet->ReleaseUsingPool();
 
         // 消费消息数量统计
-        AddConsumePackets(1);
+        _service->AddConsumePackets(1);
     }
 
     KERNEL_NS::LibList<KERNEL_NS::LibPacket *>::Delete_LibList(packets);
     event->_packets = NULL;
 }
 
-void UnifiedSessionBridge::_OnQuitingService(KERNEL_NS::PollerEvent*& msg)
+void UnifiedSessionBridge::_OnQuitingServiceEv(KERNEL_NS::PollerEvent*& msg)
 {
-    // 抛事件
-    auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::QUIT_SERVICE_EVENT);
-    _eventMgr->FireEvent(ev);
+    _service->OnQuitingServiceEv(msg);
 }
 
 Int32 UnifiedSessionBridge::_OnInit()
@@ -246,10 +245,11 @@ Int32 UnifiedSessionBridge::_OnInit()
     }
     
     // 订阅退出服务事件
-    Subscribe(KERNEL_NS::PollerEventType::QuitServiceEvent, this, &UnifiedSessionBridge::_OnQuitingService);
+    Subscribe(KERNEL_NS::PollerEventType::QuitServiceEvent, this, &UnifiedSessionBridge::_OnQuitingServiceEv);
     
     return Status::Success;
 }
+    
 
 KERNEL_NS::CompFactory *UnifiedSessionBridgeFactory::FactoryCreate()
 {

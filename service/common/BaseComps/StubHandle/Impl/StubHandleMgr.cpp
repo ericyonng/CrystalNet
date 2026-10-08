@@ -176,6 +176,7 @@ void StubHandleMgr::_OnAddListenResEvent(KERNEL_NS::LibEvent *ev)
 
     auto var = KERNEL_NS::Variant::NewThreadLocal_Variant();
     var->BecomeDict();
+    
     (*var)[Params::ERROR_CODE] = errCode;
     (*var)[Params::LOCAL_ADDR] = localAddr;
     (*var)[Params::FAMILY] = family;

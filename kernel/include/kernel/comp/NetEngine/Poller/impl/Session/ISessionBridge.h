@@ -85,7 +85,7 @@ protected:
     virtual void _OnSessionDestroy(PollerEvent *&ev) = 0;
     virtual void _OnRecvMsg(PollerEvent *&ev) = 0;
 
-private:
+protected:
     Poller *_bridgePoller;
     std::unordered_map<Int32, KERNEL_NS::IDelegate<void, KERNEL_NS::PollerEvent *&> *> _pollerEventHandler;
 };

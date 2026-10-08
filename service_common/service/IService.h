@@ -220,6 +220,8 @@ public:
     // 获取tcppollermgr
     KERNEL_NS::TcpPollerMgr *GetTcpPollerMgr();
     const KERNEL_NS::TcpPollerMgr *GetTcpPollerMgr() const;
+    
+    virtual void OnQuitingServiceEv(KERNEL_NS::PollerEvent *msg) final;
 
 protected:
     // 在组件初始化前
@@ -272,8 +274,7 @@ protected:
     // 收到网络消息回调
     virtual void _OnRecvMsg(KERNEL_NS::PollerEvent *msg);
     // 退出服务消息回调
-    virtual void _OnQuitServiceEvent(KERNEL_NS::PollerEvent *msg) final;
-    virtual void _OnQuitingService(KERNEL_NS::PollerEvent *msg){}
+    virtual void _OnQuitService(KERNEL_NS::PollerEvent *msg){}
 
     virtual void _OnEventLoopStartEv(KERNEL_NS::LibEvent *ev);
 

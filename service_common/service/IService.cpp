@@ -99,17 +99,6 @@ KERNEL_NS::LibString IService::IntroduceInfo() const
                 , _serviceId, _serviceName.c_str(), _serviceStatus, ServiceStatusToString(_serviceStatus).c_str());
 }
 
-void IService::InitPollerEventHandler()
-{
-    auto poller = KERNEL_NS::TlsUtil::GetPoller();
-    poller->Subscribe(KERNEL_NS::PollerEventType::SessionCreated, &IService::_OnSessionCreated);
-    poller->Subscribe(KERNEL_NS::PollerEventType::AsynConnectRes, this, &IService::_OnAsynConnectRes);
-    poller->Subscribe(KERNEL_NS::PollerEventType::AddListenRes, this, &IService::_OnAddListenRes);
-    poller->Subscribe(KERNEL_NS::PollerEventType::SessionDestroy, this, &IService::_OnSessionDestroy);
-    poller->Subscribe(KERNEL_NS::PollerEventType::RecvMsg, this, &IService::_OnRecvMsg);
-    poller->Subscribe(KERNEL_NS::PollerEventType::QuitServiceEvent, this, &IService::_OnQuitServiceEvent);
-}
-
 void IService::OnMonitor(ServiceStatisticsInfo &info)
 {
     info._serviceId = _serviceId;
@@ -237,6 +226,45 @@ void IService::Push(KERNEL_NS::LibList<KERNEL_NS::PollerEvent *> *evList)
 {
     _poller->Push(evList);
 }
+
+void IService::OnQuitingServiceEv(KERNEL_NS::PollerEvent *msg)
+{
+    SetServiceStatus(ServiceStatus::SERVICE_WILL_QUIT);
+
+    CLOG_INFO("will quit service [%s] msg:%s", IntroduceInfo().c_str(),  msg->ToString().c_str());
+
+    _OnQuitService(msg);
+
+    // 启动定时器检测service的所有模块是否已经完全退出
+    auto timerMgr = GetTimerMgr();
+    if(UNLIKELY(!timerMgr))
+    {
+        _coLocker.Broadcast();
+
+        CLOG_WARN("have no timer mgr when quit service service info:%s.",  ToString().c_str());
+        return;
+    }
+
+    // 每秒检测一次模块是否退出
+    auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t){
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    });
+    timer->SetTimeOutHandler([this](KERNEL_NS::LibTimer *t){
+        
+        KERNEL_NS::LibString notEndInfo;
+        if(!CheckServiceModuleQuitEnd(notEndInfo))
+        {
+            CLOG_WARN("service module not end info:\n%s", notEndInfo.c_str());
+            return;
+        }
+
+        _coLocker.Broadcast();
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    });
+    timer->Schedule(1000);
+}
+
 
 Int32 IService::_OnHostInit()
 {
@@ -386,44 +414,6 @@ void IService::_OnRecvMsg(KERNEL_NS::PollerEvent *msg)
 {
     if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
         g_Log->Info(LOGFMT_OBJ_TAG("recieve message from net:%s"), msg->ToString().c_str());
-}
-
-void IService::_OnQuitServiceEvent(KERNEL_NS::PollerEvent *msg)
-{
-    SetServiceStatus(ServiceStatus::SERVICE_WILL_QUIT);
-
-    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
-        g_Log->Info(LOGFMT_OBJ_TAG("will quit service [%s] msg:%s"), IntroduceInfo().c_str(),  msg->ToString().c_str());
-    _OnQuitingService(msg);
-
-    // 启动定时器检测service的所有模块是否已经完全退出
-    auto timerMgr = GetTimerMgr();
-    if(UNLIKELY(!timerMgr))
-    {
-        _coLocker.Broadcast();
-
-        g_Log->Warn(LOGFMT_OBJ_TAG("have no timer mgr when quit service service info:%s."), ToString().c_str());
-        return;
-    }
-
-    // 每秒检测一次模块是否退出
-    auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
-    timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t){
-        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
-    });
-    timer->SetTimeOutHandler([this](KERNEL_NS::LibTimer *t){
-        
-        KERNEL_NS::LibString notEndInfo;
-        if(!CheckServiceModuleQuitEnd(notEndInfo))
-        {
-            g_Log->Warn(LOGFMT_OBJ_TAG("service module not end info:\n%s"), notEndInfo.c_str());
-            return;
-        }
-
-        _coLocker.Broadcast();
-        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
-    });
-    timer->Schedule(1000);
 }
 
 void IService::_OnEventLoopStartEv(KERNEL_NS::LibEvent *ev)

@@ -68,6 +68,8 @@ void UnifiedService::_OnServiceRegisterComps()
 {
     // 会话桥接
     RegisterComp<UnifiedSessionBridgeFactory>();
+
+    _OnUnifiedServiceRegisterComps();
 }
 
 KERNEL_NS::IProtocolStack *UnifiedService::GetProtocolStack(KERNEL_NS::LibSession *session)
@@ -107,7 +109,7 @@ UInt64 UnifiedService::GetSessionAmount() const
 
 void UnifiedService::Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *deleg)
 {
-    auto msgHandler = _GetMsgHandler(opcodeId);
+    auto msgHandler = GetMsgHandler(opcodeId);
     if(UNLIKELY(msgHandler))
     {
         KERNEL_NS::LibString opcodeInfo;
@@ -134,7 +136,7 @@ void UnifiedService::Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL
 
 void UnifiedService::SubscribeCo(Int32 opcodeId, KERNEL_NS::IDelegate<KERNEL_NS::CoTask<>, KERNEL_NS::LibPacket *&> *deleg)
 {
-    auto msgHandler = _GetMsgHandler(opcodeId);
+    auto msgHandler = GetMsgHandler(opcodeId);
     if(UNLIKELY(msgHandler))
     {
         KERNEL_NS::LibString opcodeInfo;
@@ -340,6 +342,9 @@ Int32 UnifiedService::_OnServiceCompsCreated()
     _timerMgr = _poller->GetTimerMgr();
     _updateTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
     _updateTimer->SetTimeOutHandler(this, &UnifiedService::_OnFrameTimer);
+
+    auto sessionBridge = GetComp<KERNEL_NS::ISessionBridge>();
+    sessionBridge->SetPoller(_poller);
 
     auto err = _OnUnifiedServiceCompsCreated();
     if (err != Status::Success)
@@ -550,7 +555,7 @@ void UnifiedService::_OnRecvMsg(KERNEL_NS::PollerEvent *msg)
         ev->SetParam(Params::PACKET, packet);
         _eventMgr->FireEvent(ev);
 
-        auto handler = _GetMsgHandler(opcode);
+        auto handler = GetMsgHandler(opcode);
         if(UNLIKELY(!handler))
         {
             CLOG_WARN("a packet with unknown opcode handler packet:%s", packet->ToString().c_str());
@@ -580,7 +585,7 @@ void UnifiedService::_OnRecvMsg(KERNEL_NS::PollerEvent *msg)
     event->_packets = NULL;
 }
 
-void UnifiedService::_OnQuitingService(KERNEL_NS::PollerEvent *msg)
+void UnifiedService::_OnQuitService(KERNEL_NS::PollerEvent *msg)
 {
     // 抛事件
     auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::QUIT_SERVICE_EVENT);

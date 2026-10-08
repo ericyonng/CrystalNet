@@ -85,6 +85,10 @@ public:
     
     UInt64 GetSessionAmount() const override;
 
+    // 获取消息处理器
+    KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *GetMsgHandler(Int32 opcode);
+    const KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *GetMsgHandler(Int32 opcode) const;
+
 protected:
     void _OnServiceRegisterComps() final;
     virtual void _OnUnifiedServiceRegisterComps() = 0;
@@ -119,18 +123,14 @@ protected:
     // 收到网络消息回调
     virtual void _OnRecvMsg(KERNEL_NS::PollerEvent *msg) override;
     // 退出服务
-    void _OnQuitingService(KERNEL_NS::PollerEvent *msg) override;
+    void _OnQuitService(KERNEL_NS::PollerEvent *msg) override;
 
 
     // 初始化相关
     virtual bool _OnPollerPrepare(KERNEL_NS::Poller *poller) final;
     // 销毁相关
     virtual void _OnPollerWillDestroy(KERNEL_NS::Poller *poller) final;
-
-    // 获取消息处理器
-    KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *_GetMsgHandler(Int32 opcode);
-    const KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *_GetMsgHandler(Int32 opcode) const;
-
+    
     // virtual void _OnEventLoopStart() final;
     
     void _Clear();
@@ -192,13 +192,13 @@ ALWAYS_INLINE const KERNEL_NS::EventManager *UnifiedService::GetEventMgr() const
     return _eventMgr;
 }
 
-ALWAYS_INLINE KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *UnifiedService::_GetMsgHandler(Int32 opcode)
+ALWAYS_INLINE KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *UnifiedService::GetMsgHandler(Int32 opcode)
 {
     auto iter = _opcodeRefHandler.find(opcode);
     return iter == _opcodeRefHandler.end() ? NULL : iter->second;
 }
 
-ALWAYS_INLINE const KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *UnifiedService::_GetMsgHandler(Int32 opcode) const
+ALWAYS_INLINE const KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *UnifiedService::GetMsgHandler(Int32 opcode) const
 {
     auto iter = _opcodeRefHandler.find(opcode);
     return iter == _opcodeRefHandler.end() ? NULL : iter->second;

@@ -36,6 +36,7 @@
 
 KERNEL_BEGIN
 class EventManager;
+class LibPacket;
 KERNEL_END
 
 SERVICE_BEGIN
@@ -59,14 +60,15 @@ protected:
     void _OnSessionDestroy(KERNEL_NS::PollerEvent*& msg) override;
     void _OnRecvMsg(KERNEL_NS::PollerEvent*& msg) override;
     // 退出服务
-    void _OnQuitingService(KERNEL_NS::PollerEvent*& msg);
+    void _OnQuitingServiceEv(KERNEL_NS::PollerEvent*& msg);
 
     Int32 _OnInit() override;
-    
+
 private:
     UnifiedService *_service;
     KERNEL_NS::EventManager *_eventMgr;
 };
+
 
 class UnifiedSessionBridgeFactory : public KERNEL_NS::CompFactory
 {

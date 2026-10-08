@@ -147,6 +147,7 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
     #endif
     listenInfo->_sessionCount = sessionCount;
     listenInfo->_sessionOption = option;
+    listenInfo->_bridge = const_cast<KERNEL_NS::ISessionBridge *>(GetService()->GetComp<KERNEL_NS::ISessionBridge>());
 
     if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
         g_Log->Info(LOGFMT_OBJ_TAG("add listen info:%s"), listenInfo->ToString().c_str());
