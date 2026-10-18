@@ -40,6 +40,8 @@ LibListenInfo::LibListenInfo()
 ,_protocolType(0)
 ,_sessionCount(0)
 ,_bridge(NULL)
+,_lck(NULL)
+,_asyncResult(NULL)
 {
 
 }

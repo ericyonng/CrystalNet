@@ -60,6 +60,8 @@ struct KERNEL_EXPORT BlackWhiteListMode
 
 struct KERNEL_EXPORT NetConfig
 {
+    POOL_CREATE_OBJ_DEFAULT(NetConfig);
+    
     // 是否启用网络
     bool Enable = true;
 

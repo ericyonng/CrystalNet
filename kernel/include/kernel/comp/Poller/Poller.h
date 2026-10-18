@@ -225,7 +225,7 @@ public:
     const EventManager *GetEventManager() const;
 
     // 投递事件
-    void Push(PollerEvent *ev);
+    bool Push(PollerEvent *ev);
     void Push(LibList<PollerEvent *> *evList);
     void Push(IDelegate<void> *action);
 

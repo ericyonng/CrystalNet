@@ -95,7 +95,7 @@ public:
     void PostSend(UInt64 sessionId, LibPacket *packet);
     void PostSend(UInt64 sessionId, LibList<LibPacket *> *packets);
     void PostNewSession(BuildSessionInfo *buildSessionInfo);
-    void PostAddlisten(LibListenInfo *listenInfo);
+    bool PostAddlisten(LibListenInfo *listenInfo);
     void PostAddlistenList(std::vector<LibListenInfo *> &listenInfoList);
     void PostConnect(LibConnectInfo *connectInfo);
     void PostCloseSession(UInt64 fromServiceId, UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite);

@@ -392,6 +392,8 @@ AddListenResEvent::AddListenResEvent()
 ,_stub(0)
 ,_protocolType(0)
 ,_sessionId(0)
+,_lck(NULL)
+,_asyncResult(NULL)
 {
 
 }

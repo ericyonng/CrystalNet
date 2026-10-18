@@ -56,7 +56,8 @@ public:
 protected:
     void _OnSessionCreated(KERNEL_NS::PollerEvent*& msg) override;
     void _OnAsynConnectRes(KERNEL_NS::PollerEvent*& msg) override;
-    void _OnAddListenRes(KERNEL_NS::PollerEvent*& msg) override;
+    void _OnBeforeAddListen(KERNEL_NS::PollerEvent*& msg) override;
+
     void _OnSessionDestroy(KERNEL_NS::PollerEvent*& msg) override;
     void _OnRecvMsg(KERNEL_NS::PollerEvent*& msg) override;
     // 退出服务

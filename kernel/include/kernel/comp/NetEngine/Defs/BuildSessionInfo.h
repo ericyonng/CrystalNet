@@ -40,9 +40,13 @@
 #include <kernel/comp/NetEngine/Defs/AddrIpConfig.h>
 #include <set>
 
-KERNEL_BEGIN
+namespace CRYSTAL_NET::kernel
+{
+    class ISessionBridge;
+}
 
-class IProtocolStack;
+KERNEL_BEGIN
+    class IProtocolStack;
 
 struct KERNEL_EXPORT BuildSessionInfo
 {
@@ -64,6 +68,7 @@ struct KERNEL_EXPORT BuildSessionInfo
     IProtocolStack *_protocolStack; // 协议栈
     bool _isLinker;                 // 是否监听者
     bool _isWinSockNonBlock;        // windows下指定是否非阻塞
+    ISessionBridge *_bridge;        // bridge
 
     SessionOption _sessionOption;
     AddrIpConfig _remoteOriginIpConfig; // 如果是连接, 则这里表示的是原始的目标ip

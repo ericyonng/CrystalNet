@@ -46,6 +46,8 @@ BuildSessionInfo::BuildSessionInfo(bool isIpv4)
     ,_protocolStack(NULL)
     ,_isLinker(false)
     ,_isWinSockNonBlock(false)
+    ,_bridge(NULL)
+
 {
 
 }

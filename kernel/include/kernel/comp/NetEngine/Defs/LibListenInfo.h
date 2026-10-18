@@ -39,6 +39,8 @@
 KERNEL_BEGIN
 
 class ISessionBridge;
+class CoLocker;
+struct AsyncResult;
 
 struct KERNEL_EXPORT LibListenInfo
 {
@@ -51,6 +53,7 @@ struct KERNEL_EXPORT LibListenInfo
     LibString _ip;          // ip
     UInt16 _port;           // 端口 0表示由系统指定
     Int32 _family;          // ipv6/ipv4
+    // TODO: 移除
     UInt64 _serviceId;      // 主服务id
     UInt64 _stub;           // 业务层生成并会原样返回
     Int32 _protocolType;    // ProtocolType
@@ -59,6 +62,10 @@ struct KERNEL_EXPORT LibListenInfo
     SessionOption _sessionOption;   // 会话选项
 
     ISessionBridge *_bridge;
+    // 唤醒回调
+    CoLocker *_lck;
+
+    KERNEL_NS::AsyncResult *_asyncResult;
 };
 
 KERNEL_END

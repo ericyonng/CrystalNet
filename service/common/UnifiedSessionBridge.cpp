@@ -121,13 +121,13 @@ void UnifiedSessionBridge::_OnAsynConnectRes(KERNEL_NS::PollerEvent*& msg)
     _eventMgr->FireEvent(ev);
 }
 
-void UnifiedSessionBridge::_OnAddListenRes(KERNEL_NS::PollerEvent*& msg)
+void UnifiedSessionBridge::_OnBeforeAddListen(KERNEL_NS::PollerEvent*& msg)
 {
     CLOG_DEBUG("add listen res:%s", msg->ToString().c_str());
 
     KERNEL_NS::AddListenResEvent *addListenEv = msg->CastTo<KERNEL_NS::AddListenResEvent>();
-    
-    // 抛事件
+
+    // 抛事件    
     auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::ADD_LISTEN_RES);
     ev->SetParam(Params::ERROR_CODE, addListenEv->_errCode);
     ev->SetParam(Params::LOCAL_ADDR, &addListenEv->_localAddr);

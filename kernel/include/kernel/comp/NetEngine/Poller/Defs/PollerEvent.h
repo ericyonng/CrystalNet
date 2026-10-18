@@ -62,6 +62,8 @@ struct LibConnectInfo;
 template<typename T>
 class LibStream;
 class LibPacket;
+class CoLocker;
+struct AsyncResult;
 
 // poller网络事件
 // class KERNEL_EXPORT PollerNetEventType
@@ -102,6 +104,8 @@ struct KERNEL_EXPORT SessionCreatedEvent : public PollerEvent
     AddrIpConfig _targetConfig; // 连接远程的ip信息
     std::set<LibString> _failureIps;    // 连接失败的ip集合
 };
+
+
 
 // 连接回包
 struct KERNEL_EXPORT AsynConnectResEvent : public PollerEvent
@@ -145,6 +149,9 @@ struct KERNEL_EXPORT AddListenResEvent : public PollerEvent
     UInt64 _stub;               // 存根透传
     Int32 _protocolType;       // 协议类型流还是报文等
     UInt64 _sessionId;          // 会话id
+    CoLocker *_lck;
+
+    AsyncResult *_asyncResult;  // 返回结果
 };
 
 // 会话销毁

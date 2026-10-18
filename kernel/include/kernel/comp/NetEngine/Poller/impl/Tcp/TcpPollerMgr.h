@@ -96,7 +96,7 @@ public:
 
 public:
     void PostConnect(LibConnectInfo *connectInfo);
-    void PostAddlisten(LibListenInfo *listenInfo);
+    bool PostAddlisten(LibListenInfo *listenInfo);
     void PostAddlistenList(std::vector<LibListenInfo *> &listenInfoList);
     void PostSend(UInt64 pollerId, UInt64 sessionId, LibPacket *packet);
     void PostSend(UInt64 pollerId, UInt64 sessionId, LibList<LibPacket *> *packets);

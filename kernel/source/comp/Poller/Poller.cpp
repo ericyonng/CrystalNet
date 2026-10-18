@@ -966,17 +966,19 @@ void Poller::Push(IDelegate<void> *action)
     _Push(ev);
 }
 
-void Poller::Push(PollerEvent *ev)
+bool Poller::Push(PollerEvent *ev)
 {
     if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
     {
         if (g_Log && g_Log->IsEnable(LogLevel::Warn))
             g_Log->Warn(LOGFMT_OBJ_TAG("poller is destroying obj id:%llu, ev:%s"), GetId(), ev->ToString().c_str());
         ev->Release();
-        return;
+        return false;
     }
 
     _Push(ev);
+
+    return true;
 }
 
 void Poller::_Clear()

@@ -347,7 +347,7 @@ void TcpPollerMgr::PostConnect(LibConnectInfo *connectInfo)
     poller->PostConnect(connectInfo);
 }
 
-void TcpPollerMgr::PostAddlisten(LibListenInfo *listenInfo)
+bool TcpPollerMgr::PostAddlisten(LibListenInfo *listenInfo)
 {
     // windows 下不能绑定同一个端口
     #if CRYSTAL_TARGET_PLATFORM_WINDOWS
@@ -359,6 +359,7 @@ void TcpPollerMgr::PostAddlisten(LibListenInfo *listenInfo)
     #endif
 
     std::set<TcpPollerMgr::TcpPoller *> excludes;
+    bool isSuc = false;
     for(Int32 idx = 0; idx < listenInfo->_sessionCount; ++idx)
     {
         auto poller = _SelectLowerLoaderPoller(&_linker, excludes);
@@ -372,10 +373,13 @@ void TcpPollerMgr::PostAddlisten(LibListenInfo *listenInfo)
         auto newListenInfo = LibListenInfo::New_LibListenInfo();
         *newListenInfo = *listenInfo;
         excludes.insert(poller);
-        poller->PostAddlisten(newListenInfo);
+        if(poller->PostAddlisten(newListenInfo))
+            isSuc = true;
     }
 
     LibListenInfo::Delete_LibListenInfo(listenInfo);
+
+    return isSuc;
 }
 
 void TcpPollerMgr::PostAddlistenList(std::vector<LibListenInfo *> &listenInfoList)

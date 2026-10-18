@@ -29,6 +29,8 @@
 #include <pch.h>
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/IocpTcpPoller.h>
 
+#include "kernel/comp/NetEngine/Poller/impl/Session/ISessionBridge.h"
+
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
 
 #include "kernel/comp/Config/KernelConfig.h"
@@ -294,19 +296,20 @@ void IocpTcpPoller::PostNewSession(BuildSessionInfo *buildSessionInfo)
     _poller.load(std::memory_order_acquire)->Push(newSessionEv);
 }
 
-void IocpTcpPoller::PostAddlisten(LibListenInfo *listenInfo)
+bool IocpTcpPoller::PostAddlisten(LibListenInfo *listenInfo)
 {
     if(UNLIKELY(!_poller.load(std::memory_order_acquire)->IsEnable()))
     {
         if(g_Log->IsEnable(LogLevel::Warn))
             g_Log->Warn(LOGFMT_OBJ_TAG("poller disable listenInfo:%s"),  listenInfo->ToString().c_str());
         LibListenInfo::Delete_LibListenInfo(listenInfo);
-        return;
+        return false;
     }
 
     auto ev = AddListenEvent::New_AddListenEvent();
     ev->_addListenInfoList.push_back(listenInfo);
     _poller.load(std::memory_order_acquire)->Push(ev);
+    return true;
 }
 
 void IocpTcpPoller::PostAddlistenList(std::vector<LibListenInfo *> &listenInfoList)
@@ -395,9 +398,10 @@ IocpTcpSession *IocpTcpPoller::_CreateSession(BuildSessionInfo *sessionInfo)
 {
     if(g_Log->IsEnable(LogLevel::NetInfo))
        g_Log->NetInfo(LOGFMT_OBJ_TAG("will create session by build session info:%s"), sessionInfo->ToString().c_str());
-    if(UNLIKELY(sessionInfo->_serviceId == 0))
+
+    if(UNLIKELY(sessionInfo->_bridge == NULL))
     {
-        g_Log->NetError(LOGFMT_OBJ_TAG("must specify a belong service id: connect remote service id from LibConnectInfo, others from accept session service id sessionInfo:%s"), sessionInfo->ToString().c_str());
+        CLOG_NET_ERROR("have no bridge sessionInfo:%s", sessionInfo->ToString().c_str());
         return NULL;
     }
 
@@ -445,6 +449,8 @@ IocpTcpSession *IocpTcpPoller::_CreateSession(BuildSessionInfo *sessionInfo)
     newSession->SetMaxPacketSize(sessionOption._maxPacketSize);
     newSession->SetOption(sessionOption);
     newSession->SetProtocolType(sessionInfo->_protocolType);
+    newSession->SetBridge(sessionInfo->_bridge);
+    
     if(sessionOption._forbidRecv)
         newSession->ForbidRecv();
 
@@ -520,9 +526,9 @@ IocpTcpSession *IocpTcpPoller::_CreateSession(LibListenInfo *listenInfo)
     if(g_Log->IsEnable(LogLevel::NetInfo))
         g_Log->NetInfo(LOGFMT_OBJ_TAG("will create session by listen info:%s"), listenInfo->ToString().c_str());
 
-   if(UNLIKELY(listenInfo->_serviceId == 0))
+    if(UNLIKELY(listenInfo->_bridge == NULL))
     {
-        g_Log->NetError(LOGFMT_OBJ_TAG("must specify a belong service id： listenInfo:%s"), listenInfo->ToString().c_str());
+        CLOG_NET_ERROR("have no bridge listenInfo:%s", listenInfo->ToString().c_str());
         return NULL;
     }
 
@@ -633,6 +639,8 @@ IocpTcpSession *IocpTcpPoller::_CreateSession(LibListenInfo *listenInfo)
     newSession->SetMaxPacketSize(sessionOption._maxPacketSize);
     newSession->SetOption(sessionOption);
     newSession->SetProtocolType(listenInfo->_protocolType);
+    newSession->SetBridge(listenInfo->_bridge);
+    
     if(sessionOption._forbidRecv)
         newSession->ForbidRecv();
 
@@ -1224,8 +1232,7 @@ void IocpTcpPoller::_OnNewSession(PollerEvent *ev)
     {
         g_Log->NetError(LOGFMT_OBJ_TAG("create session failure by build session info:%s"), buildSessionInfo->ToString().c_str());
 
-        // 有存根才需要回包
-        if(buildSessionInfo->_stub)
+        if(buildSessionInfo->_bridge)
         {
             if(buildSessionInfo->_isFromConnect)
             {// connector必须要connectres
@@ -1244,8 +1251,8 @@ void IocpTcpPoller::_OnNewSession(PollerEvent *ev)
                 connectRes->_packetOptions.PacketSpeedLimitSwitch = (buildSessionInfo->_sessionOption._sessionRecvPacketSpeedLimit != 0) || (buildSessionInfo->_sessionOption._sessionRecvPacketSpeedTimeUnitMs != 0);
                 connectRes->_packetOptions.PacketRecvBytesLimitSwitch = buildSessionInfo->_sessionOption._sessionRecvPacketContentLimit != 0;
                 connectRes->_packetOptions.PacketSendBytesLimitSwitch = buildSessionInfo->_sessionOption._sessionSendPacketContentLimit != 0;
-                
-                _serviceProxy->PostMsg(connectRes->_fromServiceId, connectRes);
+
+                buildSessionInfo->_bridge->PostMsg(connectRes);
             }
             else if(buildSessionInfo->_isLinker)
             {// TODO:
@@ -1257,9 +1264,50 @@ void IocpTcpPoller::_OnNewSession(PollerEvent *ev)
                 listenRes->_stub = buildSessionInfo->_stub;
                 listenRes->_protocolType = buildSessionInfo->_protocolType;
                 listenRes->_sessionId = buildSessionInfo->_sessionId;
-                _serviceProxy->PostMsg(listenRes->_serviceId, listenRes);
+
+                buildSessionInfo->_bridge->PostMsg(listenRes);
             }
         }
+        else
+        {
+            // 有存根才需要回包
+            if(buildSessionInfo->_stub)
+            {
+                if(buildSessionInfo->_isFromConnect)
+                {// connector必须要connectres
+                    auto connectRes = AsynConnectResEvent::New_AsynConnectResEvent();
+                    connectRes->_errCode = Status::SockError_CreateSessionFail;
+                    connectRes->_localAddr = buildSessionInfo->_localAddr;
+                    connectRes->_targetAddr = buildSessionInfo->_remoteAddr;
+                    connectRes->_family = buildSessionInfo->_family;
+                    connectRes->_protocolType = buildSessionInfo->_protocolType;
+                    connectRes->_sessionPollerId = GetPollerId();
+                    connectRes->_fromServiceId = buildSessionInfo->_serviceId;
+                    connectRes->_stub = buildSessionInfo->_stub;
+                    connectRes->_sessionId = buildSessionInfo->_sessionId;
+                    connectRes->_targetConfig = buildSessionInfo->_remoteOriginIpConfig;
+                    connectRes->_failureIps = buildSessionInfo->_failureIps;
+                    connectRes->_packetOptions.PacketSpeedLimitSwitch = (buildSessionInfo->_sessionOption._sessionRecvPacketSpeedLimit != 0) || (buildSessionInfo->_sessionOption._sessionRecvPacketSpeedTimeUnitMs != 0);
+                    connectRes->_packetOptions.PacketRecvBytesLimitSwitch = buildSessionInfo->_sessionOption._sessionRecvPacketContentLimit != 0;
+                    connectRes->_packetOptions.PacketSendBytesLimitSwitch = buildSessionInfo->_sessionOption._sessionSendPacketContentLimit != 0;
+                    
+                    _serviceProxy->PostMsg(connectRes->_fromServiceId, connectRes);
+                }
+                else if(buildSessionInfo->_isLinker)
+                {// TODO:
+                    auto listenRes = AddListenResEvent::New_AddListenResEvent();
+                    listenRes->_errCode = Status::SockError_CreateSessionFail;
+                    listenRes->_localAddr = buildSessionInfo->_localAddr;
+                    listenRes->_family = buildSessionInfo->_family;
+                    listenRes->_serviceId = buildSessionInfo->_serviceId;
+                    listenRes->_stub = buildSessionInfo->_stub;
+                    listenRes->_protocolType = buildSessionInfo->_protocolType;
+                    listenRes->_sessionId = buildSessionInfo->_sessionId;
+                    _serviceProxy->PostMsg(listenRes->_serviceId, listenRes);
+                }
+            }
+        }
+        
         
         SocketUtil::DestroySocket(buildSessionInfo->_sock);
         return;
@@ -1281,11 +1329,10 @@ void IocpTcpPoller::_OnNewSession(PollerEvent *ev)
     sessionCreatedEv->_targetConfig = buildSessionInfo->_remoteOriginIpConfig;
     sessionCreatedEv->_failureIps = buildSessionInfo->_failureIps;
 
-    _serviceProxy->PostMsg(sessionCreatedEv->_belongServiceId, sessionCreatedEv);
-
-    // 有存根才需要回包
-    if(buildSessionInfo->_stub)
+    if(buildSessionInfo->_bridge)
     {
+        buildSessionInfo->_bridge->PostMsg(sessionCreatedEv);
+
         if(buildSessionInfo->_isFromConnect)
         {// connector必须要connectres
             auto connectRes = AsynConnectResEvent::New_AsynConnectResEvent();
@@ -1303,8 +1350,9 @@ void IocpTcpPoller::_OnNewSession(PollerEvent *ev)
             connectRes->_packetOptions.PacketSpeedLimitSwitch = (buildSessionInfo->_sessionOption._sessionRecvPacketSpeedLimit != 0) || (buildSessionInfo->_sessionOption._sessionRecvPacketSpeedTimeUnitMs != 0);
             connectRes->_packetOptions.PacketRecvBytesLimitSwitch = buildSessionInfo->_sessionOption._sessionRecvPacketContentLimit != 0;
             connectRes->_packetOptions.PacketSendBytesLimitSwitch = buildSessionInfo->_sessionOption._sessionSendPacketContentLimit != 0;
-                
-            _serviceProxy->PostMsg(connectRes->_fromServiceId, connectRes);
+
+            buildSessionInfo->_bridge->PostMsg(connectRes);
+
         }
         else if(buildSessionInfo->_isLinker)
         {// TODO:
@@ -1316,7 +1364,49 @@ void IocpTcpPoller::_OnNewSession(PollerEvent *ev)
             listenRes->_serviceId = buildSessionInfo->_serviceId;
             listenRes->_stub = buildSessionInfo->_stub;
             listenRes->_protocolType = buildSessionInfo->_protocolType;
-            _serviceProxy->PostMsg(listenRes->_serviceId, listenRes);
+
+            buildSessionInfo->_bridge->PostMsg(listenRes);
+        }
+    }
+    else
+    {
+        _serviceProxy->PostMsg(sessionCreatedEv->_belongServiceId, sessionCreatedEv);
+            
+        // 有存根才需要回包
+        if(buildSessionInfo->_stub)
+        {
+            if(buildSessionInfo->_isFromConnect)
+            {// connector必须要connectres
+                auto connectRes = AsynConnectResEvent::New_AsynConnectResEvent();
+                connectRes->_errCode = Status::Success;
+                connectRes->_localAddr = buildSessionInfo->_localAddr;
+                connectRes->_targetAddr = buildSessionInfo->_remoteAddr;
+                connectRes->_family = buildSessionInfo->_family;
+                connectRes->_protocolType = buildSessionInfo->_protocolType;
+                connectRes->_sessionPollerId = GetPollerId();
+                connectRes->_fromServiceId = buildSessionInfo->_serviceId;
+                connectRes->_stub = buildSessionInfo->_stub;
+                connectRes->_sessionId = buildSessionInfo->_sessionId;
+                connectRes->_targetConfig = buildSessionInfo->_remoteOriginIpConfig;
+                connectRes->_failureIps = buildSessionInfo->_failureIps;
+                connectRes->_packetOptions.PacketSpeedLimitSwitch = (buildSessionInfo->_sessionOption._sessionRecvPacketSpeedLimit != 0) || (buildSessionInfo->_sessionOption._sessionRecvPacketSpeedTimeUnitMs != 0);
+                connectRes->_packetOptions.PacketRecvBytesLimitSwitch = buildSessionInfo->_sessionOption._sessionRecvPacketContentLimit != 0;
+                connectRes->_packetOptions.PacketSendBytesLimitSwitch = buildSessionInfo->_sessionOption._sessionSendPacketContentLimit != 0;
+                    
+                _serviceProxy->PostMsg(connectRes->_fromServiceId, connectRes);
+            }
+            else if(buildSessionInfo->_isLinker)
+            {// TODO:
+                auto listenRes = AddListenResEvent::New_AddListenResEvent();
+                listenRes->_errCode = Status::Success;
+                listenRes->_sessionId = buildSessionInfo->_sessionId;
+                listenRes->_localAddr = buildSessionInfo->_localAddr;
+                listenRes->_family = buildSessionInfo->_family;
+                listenRes->_serviceId = buildSessionInfo->_serviceId;
+                listenRes->_stub = buildSessionInfo->_stub;
+                listenRes->_protocolType = buildSessionInfo->_protocolType;
+                _serviceProxy->PostMsg(listenRes->_serviceId, listenRes);
+            }
         }
     }
 
@@ -1439,8 +1529,9 @@ void IocpTcpPoller::_OnAddListen(PollerEvent *ev)
         // ip地址
         if(!SocketUtil::IsIp(listenInfo->_ip))
         {
-            g_Log->NetError(LOGFMT_OBJ_TAG("bad ip :%s, listenInfo:%s"), listenInfo->_ip.c_str(), listenInfo->ToString().c_str());
-            if(listenInfo->_stub)
+            CLOG_NET_ERROR("bad ip :%s, listenInfo:%s", listenInfo->_ip.c_str(), listenInfo->ToString().c_str());
+
+            if(listenInfo->_bridge)
             {
                 auto listenRes = AddListenResEvent::New_AddListenResEvent();
                 listenRes->_errCode = Status::SockError_IllegalIp;
@@ -1448,8 +1539,28 @@ void IocpTcpPoller::_OnAddListen(PollerEvent *ev)
                 listenRes->_serviceId = listenInfo->_serviceId;
                 listenRes->_stub = listenInfo->_stub;
                 listenRes->_protocolType = listenInfo->_protocolType;
-                _serviceProxy->PostMsg(listenRes->_serviceId,  listenRes);
+                listenRes->_asyncResult = listenInfo->_asyncResult;
+                listenRes->_lck = listenInfo->_lck;
+
+                listenInfo->_bridge->PostMsg(listenRes);
             }
+            else
+            {
+                if(listenInfo->_stub)
+                {
+                    auto listenRes = AddListenResEvent::New_AddListenResEvent();
+                    listenRes->_errCode = Status::SockError_IllegalIp;
+                    listenRes->_family = listenInfo->_family;
+                    listenRes->_serviceId = listenInfo->_serviceId;
+                    listenRes->_stub = listenInfo->_stub;
+                    listenRes->_protocolType = listenInfo->_protocolType;
+                    listenRes->_asyncResult = listenInfo->_asyncResult;
+                    listenRes->_lck = listenInfo->_lck;
+                    
+                    _serviceProxy->PostMsg(listenRes->_serviceId,  listenRes);
+                }
+            }
+
 
             continue;
         }
@@ -1457,9 +1568,9 @@ void IocpTcpPoller::_OnAddListen(PollerEvent *ev)
         auto newSession = _CreateSession(listenInfo);
         if(!newSession)
         {
-            g_Log->NetError(LOGFMT_OBJ_TAG("create session fail listen info:%s"), listenInfo->ToString().c_str());
-            
-            if(listenInfo->_stub)
+            CLOG_NET_ERROR("create session fail listen info:%s", listenInfo->ToString().c_str());
+
+            if(listenInfo->_bridge)
             {
                 auto listenRes = AddListenResEvent::New_AddListenResEvent();
                 listenRes->_errCode = Status::SockError_CreateSessionFail;
@@ -1467,8 +1578,28 @@ void IocpTcpPoller::_OnAddListen(PollerEvent *ev)
                 listenRes->_serviceId = listenInfo->_serviceId;
                 listenRes->_stub = listenInfo->_stub;
                 listenRes->_protocolType = listenInfo->_protocolType;
-                _serviceProxy->PostMsg(listenRes->_serviceId, listenRes);
+                listenRes->_asyncResult = listenInfo->_asyncResult;
+                listenRes->_lck = listenInfo->_lck;
+                
+                listenInfo->_bridge->PostMsg(listenRes);
             }
+            else
+            {
+                if(listenInfo->_stub)
+                {
+                    auto listenRes = AddListenResEvent::New_AddListenResEvent();
+                    listenRes->_errCode = Status::SockError_CreateSessionFail;
+                    listenRes->_family = listenInfo->_family;
+                    listenRes->_serviceId = listenInfo->_serviceId;
+                    listenRes->_stub = listenInfo->_stub;
+                    listenRes->_protocolType = listenInfo->_protocolType;
+                    listenRes->_asyncResult = listenInfo->_asyncResult;
+                    listenRes->_lck = listenInfo->_lck;
+                    
+                    _serviceProxy->PostMsg(listenRes->_serviceId, listenRes);
+                }
+            }
+
             continue;
         }
         
@@ -1488,11 +1619,10 @@ void IocpTcpPoller::_OnAddListen(PollerEvent *ev)
         sessionCreatedEv->_isLinker = true;
         sessionCreatedEv->_protocolStackType = listenInfo->_sessionOption._protocolStackType;
 
-        _serviceProxy->PostMsg(sessionCreatedEv->_belongServiceId,  sessionCreatedEv);
-
-        // listenres
-        if(listenInfo->_stub)
+        if(listenInfo->_bridge)
         {
+            listenInfo->_bridge->PostMsg(sessionCreatedEv);
+
             auto listenRes = AddListenResEvent::New_AddListenResEvent();
             listenRes->_errCode = Status::Success;
             listenRes->_localAddr = addr->GetLocalBriefAddr();
@@ -1501,12 +1631,34 @@ void IocpTcpPoller::_OnAddListen(PollerEvent *ev)
             listenRes->_stub = listenInfo->_stub;
             listenRes->_protocolType = listenInfo->_protocolType;
             listenRes->_sessionId = newSession->GetId();
-            _serviceProxy->PostMsg(listenRes->_serviceId,  listenRes);
+            listenRes->_asyncResult = listenInfo->_asyncResult;
+            listenRes->_lck = listenInfo->_lck;
+            
+            listenInfo->_bridge->PostMsg(listenRes);
+        }
+        else
+        {
+            _serviceProxy->PostMsg(sessionCreatedEv->_belongServiceId,  sessionCreatedEv);
+
+            // listenres
+            if(listenInfo->_stub)
+            {
+                auto listenRes = AddListenResEvent::New_AddListenResEvent();
+                listenRes->_errCode = Status::Success;
+                listenRes->_localAddr = addr->GetLocalBriefAddr();
+                listenRes->_family = sock->GetFamily();
+                listenRes->_serviceId = listenInfo->_serviceId;
+                listenRes->_stub = listenInfo->_stub;
+                listenRes->_protocolType = listenInfo->_protocolType;
+                listenRes->_sessionId = newSession->GetId();
+                listenRes->_asyncResult = listenInfo->_asyncResult;
+                listenRes->_lck = listenInfo->_lck;
+                
+                _serviceProxy->PostMsg(listenRes->_serviceId,  listenRes);
+            }
         }
 
-        if(g_Log->IsEnable(LogLevel::NetInfo))
-            g_Log->NetInfo(LOGFMT_OBJ_TAG("add listen :%s, session info:%s")
-                    , listenInfo->ToString().c_str(), newSession->ToString().c_str());
+        CLOG_NET_INFO("add listen :%s, session info:%s", listenInfo->ToString().c_str(), newSession->ToString().c_str());
     }
 
     ContainerUtil::DelContainer(linstenInfoList, [](LibListenInfo *&listenInfo){
@@ -1642,6 +1794,9 @@ void IocpTcpPoller::_OnConnectSuc(LibConnectPendingInfo *&connectPendingInfo)
     newBuildSessionInfo->_sessionOption = connectInfo->_sessionOption;
     newBuildSessionInfo->_remoteOriginIpConfig = connectInfo->_targetIp;
     newBuildSessionInfo->_failureIps = connectInfo->_failureIps;
+
+    // TODO:
+    // newBuildSessionInfo->_bridge
 
     _sessionIdRefAsynConnectPendingInfo.erase(connectPendingInfo->_sessionId);
     _sessionPendingCount.fetch_sub(1, std::memory_order_release);
@@ -1823,6 +1978,8 @@ void IocpTcpPoller::_OnAccept(IocpTcpSession *session, IoEvent &io)
     newBuildSessionInfo->_protocolStack = NULL;
     newBuildSessionInfo->_sessionOption = session->GetOption();
     newBuildSessionInfo->_sessionOption._forbidRecv = false;
+    newBuildSessionInfo->_bridge = session->GetBridge();
+    
     _tcpPollerMgr->OnAcceptedSuc(newBuildSessionInfo);
 
     if(g_Log->IsEnable(LogLevel::NetInfo))

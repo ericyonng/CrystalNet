@@ -34,9 +34,10 @@
 #include <kernel/comp/Coroutines/CoTask.h>
 
 #include "kernel/comp/NetEngine/Defs/AddrIpConfig.h"
+#include "kernel/comp/NetEngine/Poller/Defs/AsyncResult.h"
 
 KERNEL_BEGIN
-    
+
 template<typename ObjType, typename BuildType = _Build::MT>
 class LibList;
 
@@ -44,6 +45,8 @@ class LibSession;
 class IProtocolStack;
 class Poller;
 struct PollerEvent;
+struct NetConfig;
+class TcpPollerMgr;
 
 // session 桥接器, 如果是Listener 那么给Accept产生的SessionBridge, 如果是Connect创建的，由发起Connect方提供
 class KERNEL_EXPORT ISessionBridge : public CompObject
@@ -51,12 +54,7 @@ class KERNEL_EXPORT ISessionBridge : public CompObject
     POOL_CREATE_OBJ_DEFAULT_P1(CompObject, ISessionBridge);
 
 public:
-    ISessionBridge(UInt64 objTypeId)
-    :CompObject(objTypeId)
-        ,_bridgePoller(NULL)
-    {
-        
-    }
+    ISessionBridge(UInt64 objTypeId);
     
     ~ISessionBridge() override;
 
@@ -76,6 +74,7 @@ public:
     void UnSubscribe(Int32 eventType);
 
     void SetPoller(Poller *poller);
+    void SetNetConfig(const KERNEL_NS::NetConfig &config);
     
     
     /*
@@ -85,8 +84,9 @@ public:
      * @param(addr): ipv6/ipv4, 不支持域名
      * @param(sessionCount): 创建多少个会话监听该端口, 端口的复用, 控制连入负载均衡
      * @param(packetOptions): 套接字包选项
+     * @return(AsyncResult):监听返回的错误码和sessionId, 成功就通过sessionId去处理会话
      */
-    CoTask<Int32> AddTcpListen(Int32 protocolStackType, UInt16 port, const LibString addr = "0.0.0.0", Int32 sessionCount = 1, const KERNEL_NS::PacketOptions packetOptions = KERNEL_NS::PacketOptions());
+    CoTask<KERNEL_NS::AsyncMultiResult> AddTcpListen(TcpPollerMgr *tcpMgr, Int32 protocolStackType, UInt16 port, const LibString addr = "0.0.0.0", Int32 sessionCount = 1, const KERNEL_NS::PacketOptions packetOptions = KERNEL_NS::PacketOptions());
     
     /*
      * 连接远程
@@ -97,46 +97,6 @@ public:
      */
     CoTask<Int32> AsyncConnect(const KERNEL_NS::AddrIpConfig remoteAddr, UInt16 remotePort, const AddrIpConfig bindLocalAddr = KERNEL_NS::AddrIpConfig(), UInt16 localPort = 0)
     
-  /*
-  * 连接远程 bool:需要删除stub的响应回调么, 默认是要删除
-  */
- template<typename ObjType>
-  Int32 AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt16 remotePort, UInt64 &stub
-  , ObjType *obj, void(ObjType::*handler)(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params, bool &) /* 连接成功回调 */
-  , const KERNEL_NS::AddrIpConfig &localIp = KERNEL_NS::AddrIpConfig()
-  , UInt16 localPort = 0
-  , KERNEL_NS::IProtocolStack *stack = NULL /* 指定协议栈 */
-  , Int32 retryTimes = 0    /* 超时重试次数 */
-  , Int64 periodMs = 0  /* 超时时间 */
-  , const KERNEL_NS::PacketOptions &packetOptions = KERNEL_NS::PacketOptions() /*包配置*/
-  , Int32 family = AF_INET /* AF_INET:ipv4, AF_INET6:ipv6 */
-  , Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL
-  ) const;
-
-  // bool:需要删除stub的响应回调么, 默认是要删除
-  virtual Int32 AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt16 remotePort, UInt64 &stub
-  , KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *callback
-  , const KERNEL_NS::AddrIpConfig &localIp = KERNEL_NS::AddrIpConfig()
-  , UInt16 localPort = 0
-  , KERNEL_NS::IProtocolStack *stack = NULL /* 指定协议栈 */
-  , Int32 retryTimes = 0    /* 超时重试次数 */
-  , Int64 periodMs = 0  /* 超时时间 */
-  , const KERNEL_NS::PacketOptions &packetOptions = KERNEL_NS::PacketOptions() /*包配置*/
-  , Int32 family = AF_INET /* AF_INET:ipv4, AF_INET6:ipv6 */
-  , Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL
-  ) const = 0;
-
-  virtual Int32 AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt16 remotePort, UInt64 &stub
-  , const KERNEL_NS::AddrIpConfig &localIp = KERNEL_NS::AddrIpConfig()
-  , UInt16 localPort = 0
-  , KERNEL_NS::IProtocolStack *stack = NULL /* 指定协议栈 */
-  , Int32 retryTimes = 0    /* 超时重试次数 */
-  , Int64 periodMs = 0  /* 超时时间 */
-  , const KERNEL_NS::PacketOptions &packetOptions = KERNEL_NS::PacketOptions() /*包配置*/
-  , Int32 family = AF_INET /* AF_INET:ipv4, AF_INET6:ipv6 */
-  , Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL
-  ) const;
-    
 protected:
     Int32 _OnInit() override;
     Int32 _OnStart() override;
@@ -144,12 +104,16 @@ protected:
     // 派生类重写接口来定制PollerEvent回调, 纯虚函数以便提醒使用者实现该接口
     virtual void _OnSessionCreated(PollerEvent *&ev) = 0;
     virtual void _OnAsynConnectRes(PollerEvent *&ev) = 0;
-    virtual void _OnAddListenRes(PollerEvent *&ev) = 0;
+    virtual void _OnAddListenRes(PollerEvent *&ev) final;
     virtual void _OnSessionDestroy(PollerEvent *&ev) = 0;
     virtual void _OnRecvMsg(PollerEvent *&ev) = 0;
 
+    // 监听处理
+    virtual void _OnBeforeAddListen(PollerEvent *&ev) = 0;
+
 protected:
     Poller *_bridgePoller;
+    NetConfig *_netConfig;
     std::unordered_map<Int32, KERNEL_NS::IDelegate<void, KERNEL_NS::PollerEvent *&> *> _pollerEventHandler;
 };
 
