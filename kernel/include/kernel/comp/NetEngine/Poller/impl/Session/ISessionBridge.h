@@ -31,9 +31,12 @@
 
 #include <kernel/comp/CompObject/CompObject.h>
 #include <kernel/comp/Delegate/LibDelegate.h>
+#include <kernel/comp/Coroutines/CoTask.h>
+
+#include "kernel/comp/NetEngine/Defs/AddrIpConfig.h"
 
 KERNEL_BEGIN
-
+    
 template<typename ObjType, typename BuildType = _Build::MT>
 class LibList;
 
@@ -73,6 +76,66 @@ public:
     void UnSubscribe(Int32 eventType);
 
     void SetPoller(Poller *poller);
+    
+    
+    /*
+     * 监听
+     * @param(protocolStackType): 协议类型
+     * @param(port): 端口
+     * @param(addr): ipv6/ipv4, 不支持域名
+     * @param(sessionCount): 创建多少个会话监听该端口, 端口的复用, 控制连入负载均衡
+     * @param(packetOptions): 套接字包选项
+     */
+    CoTask<Int32> AddTcpListen(Int32 protocolStackType, UInt16 port, const LibString addr = "0.0.0.0", Int32 sessionCount = 1, const KERNEL_NS::PacketOptions packetOptions = KERNEL_NS::PacketOptions());
+    
+    /*
+     * 连接远程
+     * @param(remoteAddr): 远程地址
+     * @param(remotePort): 远程端口
+     * @param(bindLocalAddr): 绑定本地地址
+     * @param()
+     */
+    CoTask<Int32> AsyncConnect(const KERNEL_NS::AddrIpConfig remoteAddr, UInt16 remotePort, const AddrIpConfig bindLocalAddr = KERNEL_NS::AddrIpConfig(), UInt16 localPort = 0)
+    
+  /*
+  * 连接远程 bool:需要删除stub的响应回调么, 默认是要删除
+  */
+ template<typename ObjType>
+  Int32 AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt16 remotePort, UInt64 &stub
+  , ObjType *obj, void(ObjType::*handler)(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params, bool &) /* 连接成功回调 */
+  , const KERNEL_NS::AddrIpConfig &localIp = KERNEL_NS::AddrIpConfig()
+  , UInt16 localPort = 0
+  , KERNEL_NS::IProtocolStack *stack = NULL /* 指定协议栈 */
+  , Int32 retryTimes = 0    /* 超时重试次数 */
+  , Int64 periodMs = 0  /* 超时时间 */
+  , const KERNEL_NS::PacketOptions &packetOptions = KERNEL_NS::PacketOptions() /*包配置*/
+  , Int32 family = AF_INET /* AF_INET:ipv4, AF_INET6:ipv6 */
+  , Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL
+  ) const;
+
+  // bool:需要删除stub的响应回调么, 默认是要删除
+  virtual Int32 AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt16 remotePort, UInt64 &stub
+  , KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *callback
+  , const KERNEL_NS::AddrIpConfig &localIp = KERNEL_NS::AddrIpConfig()
+  , UInt16 localPort = 0
+  , KERNEL_NS::IProtocolStack *stack = NULL /* 指定协议栈 */
+  , Int32 retryTimes = 0    /* 超时重试次数 */
+  , Int64 periodMs = 0  /* 超时时间 */
+  , const KERNEL_NS::PacketOptions &packetOptions = KERNEL_NS::PacketOptions() /*包配置*/
+  , Int32 family = AF_INET /* AF_INET:ipv4, AF_INET6:ipv6 */
+  , Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL
+  ) const = 0;
+
+  virtual Int32 AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt16 remotePort, UInt64 &stub
+  , const KERNEL_NS::AddrIpConfig &localIp = KERNEL_NS::AddrIpConfig()
+  , UInt16 localPort = 0
+  , KERNEL_NS::IProtocolStack *stack = NULL /* 指定协议栈 */
+  , Int32 retryTimes = 0    /* 超时重试次数 */
+  , Int64 periodMs = 0  /* 超时时间 */
+  , const KERNEL_NS::PacketOptions &packetOptions = KERNEL_NS::PacketOptions() /*包配置*/
+  , Int32 family = AF_INET /* AF_INET:ipv4, AF_INET6:ipv6 */
+  , Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL
+  ) const;
     
 protected:
     Int32 _OnInit() override;
