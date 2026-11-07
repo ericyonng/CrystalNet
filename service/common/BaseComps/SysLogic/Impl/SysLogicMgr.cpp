@@ -40,6 +40,7 @@
 #include "kernel/comp/NetEngine/Defs/LibListenInfo.h"
 #include "kernel/comp/NetEngine/Defs/ProtocolType.h"
 #include "kernel/comp/NetEngine/Poller/impl/Tcp/TcpPollerMgr.h"
+#include <kernel/comp/NetEngine/Poller/impl/Session/ISessionBridge.h>
 
 SERVICE_BEGIN
     SysLogicMgr::SysLogicMgr()
@@ -47,6 +48,8 @@ SERVICE_BEGIN
 ,_detectLink(NULL)
 ,_closeServiceStub(INVALID_LISTENER_STUB)
 ,_options(KERNEL_NS::FileMonitor<SysLogicOptions, KERNEL_NS::YamlDeserializer>::New_FileMonitor())
+,_sessionBridge(NULL)
+,_tcpPollerMgr(NULL)
 {
 
 }
@@ -276,6 +279,17 @@ bool SysLogicMgr::IsAllTaskFinish() const
     return _unhandledListenAddr.empty() && _unhandledContectAddr.empty();
 }
 
+void SysLogicMgr::SetSessionBridge(KERNEL_NS::ISessionBridge *sessionBridge)
+{
+    _sessionBridge = sessionBridge;
+}
+
+void SysLogicMgr::SetTcpPollerMgr(KERNEL_NS::TcpPollerMgr *tcpPollerMgr)
+{
+    _tcpPollerMgr = tcpPollerMgr;
+}
+
+
 Int32 SysLogicMgr::_OnGlobalSysInit()
 {
     _detectLink = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
@@ -289,6 +303,18 @@ Int32 SysLogicMgr::_OnGlobalSysInit()
         CLOG_ERROR("SysLogicOptions init fail service name:%s", GetService()->GetServiceName().c_str());
         return Status::ConfigError;
     }
+    
+    if (!_sessionBridge)
+    {
+        CLOG_ERROR("have no session bridge please check");
+        return Status::ConfigError;
+    }
+    
+    if (!_tcpPollerMgr)
+    {
+        CLOG_ERROR("have no tcp poller mgr please check");
+        return Status::ConfigError;
+    }
 
     return Status::Success;
 }
@@ -300,33 +326,38 @@ Int32 SysLogicMgr::_OnHostStart()
     
     for(auto &addrInfo : listenAddrs)
     {
-        UInt64 stub = 0;
         auto &&addrIp = addrInfo.ToAddrIp();
-        auto st = ISysLogicMgr::AddTcpListen(addrIp
-                                , static_cast<UInt16>(addrInfo.Port)
-                                , stub
-                                , this
-                                , &SysLogicMgr::_OnAddListenRes
-                                , addrInfo.ListenSessionCount
-                                , addrInfo.ToPacketOptions()
-                                , addrIp.GetAf()
-                                ,addrInfo.TurnStackType()
-                                );
-    
-        if(st != Status::Success)
+        
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+        if(addrInfo.Port != 0)
+            _unhandledListenAddr.push_back(std::make_pair(addrIp, 1));
+        else
+            _unhandledListenAddr.push_back(std::make_pair(addrIp, addrInfo.ListenSessionCount));
+#else
+            _unhandledListenAddr.push_back(std::make_pair(addrIp, addrInfo.ListenSessionCount));
+#endif
+        
+        auto index = _unhandledListenAddr.size() - 1;
+        KERNEL_NS::PostCaller([this, addrIp, addrInfo, index]()->KERNEL_NS::CoTask<>
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("add tcp listen fail addrInfo:%s, st:%d"), addrInfo.ToString().c_str(), st);
-            return st;
-        }
-    
-        #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-            if(addrInfo.Port != 0)
-                _unhandledListenAddr.insert(std::make_pair(stub, std::make_pair(addrIp, 1)));
-            else
-                _unhandledListenAddr.insert(std::make_pair(stub, std::make_pair(addrIp, addrInfo.ListenSessionCount)));
-        #else
-            _unhandledListenAddr.insert(std::make_pair(stub, std::make_pair(addrIp, addrInfo.ListenSessionCount)));
-        #endif
+            auto ret = co_await _sessionBridge->AddTcpListen(_tcpPollerMgr, addrInfo.TurnStackType(), static_cast<UInt16>(addrInfo.Port), addrIp._ip
+                , addrInfo.ListenSessionCount, addrInfo.ToPacketOptions());
+            
+            if (ret._errCode != Status::Success)
+            {
+                CLOG_ERROR("AddTcpListen fail errCode:%d, addrInfo:%s", ret._errCode, addrInfo.ToString().c_str());
+                co_return;
+            }
+            
+            CLOG_INFO("Add Listen success addrInfo:%s, real count:%d", addrInfo.ToString().c_str(), static_cast<Int32>(ret._sessionIds.size()));
+            
+            auto &unhandledInfo = _unhandledListenAddr[index];
+            unhandledInfo.second -= static_cast<Int32>(ret._sessionIds.size());
+            if (unhandledInfo.second <= 0)
+            {
+                _unhandledListenAddr.erase(index + _unhandledListenAddr.begin());
+            }
+        });
     }
 
     // 4.启动定时器检测
@@ -363,7 +394,7 @@ void SysLogicMgr::_OnDetectLinkTimer(KERNEL_NS::LibTimer *timer)
 {
     // 1.检测监听是否成功
     for(auto iter : _unhandledListenAddr)
-        g_Log->Warn(LOGFMT_OBJ_TAG("listen addr %s, not success..."), iter.second.first.ToString().c_str());
+        g_Log->Warn(LOGFMT_OBJ_TAG("listen addr %s, not success..."), iter.first.ToString().c_str());
 
     for(auto iter : _unhandledContectAddr)
     {

@@ -38,8 +38,12 @@
 #include <kernel/comp/NetEngine/Defs/AddrIpConfig.h>
 
 KERNEL_BEGIN
-    class Variant;
+    
+class Variant;
 class IProtocolStack;
+class ISessionBridge;
+class TcpPollerMgr;
+
 KERNEL_END
 
 SERVICE_BEGIN
@@ -121,6 +125,9 @@ public:
 
     // 模块准备就绪
   virtual bool IsAllTaskFinish() const = 0;
+  
+    virtual void SetSessionBridge(KERNEL_NS::ISessionBridge *sessionBridge) = 0;
+    virtual void SetTcpPollerMgr(KERNEL_NS::TcpPollerMgr *tcpPollerMgr) = 0;
 };
 
 

@@ -36,6 +36,7 @@
 #include <service/common/Params.h>
 #include <service/common/BaseComps/Event/Event.h>
 
+#include "BaseComps/Event/CommonEventHelper.h"
 #include "kernel/comp/Event/LibEvent.h"
 #include "kernel/comp/Log/log.h"
 #include "kernel/comp/NetEngine/LibPacket.h"
@@ -67,58 +68,14 @@ void UnifiedSessionBridge::_OnSessionCreated(KERNEL_NS::PollerEvent*& msg)
 {
     auto sessionCreatedEv = msg->CastTo<KERNEL_NS::SessionCreatedEvent>();
 
-    // 预创建
-    {
-        auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SESSION_WILL_CREATED);
-        ev->SetParam(Params::SESSION_ID, sessionCreatedEv->_sessionId);
-        ev->SetParam(Params::LOCAL_ADDR, &sessionCreatedEv->_localAddr);
-        ev->SetParam(Params::REMOTE_ADDR, &sessionCreatedEv->_targetAddr);
-        ev->SetParam(Params::PROTOCOL_TYPE, sessionCreatedEv->_protocolType);
-        ev->SetParam(Params::PROTOCOL_STACK, sessionCreatedEv->_protocolStackType);
-        ev->SetParam(Params::SESSION_POLLER_ID, sessionCreatedEv->_sessionPollerId);
-        ev->SetParam(Params::SERVICE_ID, sessionCreatedEv->_belongServiceId);
-        ev->SetParam(Params::STUB, sessionCreatedEv->_stub);
-        ev->SetParam(Params::IS_FROM_CONNECT, sessionCreatedEv->_isFromConnect);
-        ev->SetParam(Params::IS_LINKER, sessionCreatedEv->_isLinker);
-        ev->SetParam(Params::TARGET_ADDR_IP_CONFIG, &sessionCreatedEv->_targetConfig);
-        ev->SetParam(Params::TARGET_ADDR_FAILURE_IP_SET, &sessionCreatedEv->_failureIps);
-        _eventMgr->FireEvent(ev);
-    }
-
-    // 创建完成
-    auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SESSION_CREATED);
-    ev->SetParam(Params::SESSION_ID, sessionCreatedEv->_sessionId);
-    ev->SetParam(Params::LOCAL_ADDR, &sessionCreatedEv->_localAddr);
-    ev->SetParam(Params::REMOTE_ADDR, &sessionCreatedEv->_targetAddr);
-    ev->SetParam(Params::PROTOCOL_TYPE, sessionCreatedEv->_protocolType);
-    ev->SetParam(Params::SESSION_POLLER_ID, sessionCreatedEv->_sessionPollerId);
-    ev->SetParam(Params::SERVICE_ID, sessionCreatedEv->_belongServiceId);
-    ev->SetParam(Params::STUB, sessionCreatedEv->_stub);
-    ev->SetParam(Params::IS_FROM_CONNECT, sessionCreatedEv->_isFromConnect);
-    ev->SetParam(Params::IS_LINKER, sessionCreatedEv->_isLinker);
-    ev->SetParam(Params::TARGET_ADDR_IP_CONFIG, &sessionCreatedEv->_targetConfig);
-    ev->SetParam(Params::TARGET_ADDR_FAILURE_IP_SET, &sessionCreatedEv->_failureIps);
-    _eventMgr->FireEvent(ev);
+    CommonEventHelper::FireCreateSessionEvent(_eventMgr, sessionCreatedEv);
 }
 
 void UnifiedSessionBridge::_OnAsynConnectRes(KERNEL_NS::PollerEvent*& msg)
 {
     auto connectRes = msg->CastTo<KERNEL_NS::AsynConnectResEvent>();
-
-    auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::ASYN_CONNECT_RES);
-    ev->SetParam(Params::ERROR_CODE, connectRes->_errCode);
-    ev->SetParam(Params::LOCAL_ADDR, &connectRes->_localAddr);
-    ev->SetParam(Params::REMOTE_ADDR, &connectRes->_targetAddr);
-    ev->SetParam(Params::FAMILY, connectRes->_family);
-    ev->SetParam(Params::PROTOCOL_TYPE, connectRes->_protocolType);
-    ev->SetParam(Params::SESSION_POLLER_ID, connectRes->_sessionPollerId);
-    ev->SetParam(Params::SERVICE_ID, connectRes->_fromServiceId);
-    ev->SetParam(Params::STUB, connectRes->_stub);
-    ev->SetParam(Params::SESSION_ID, connectRes->_sessionId);
-    ev->SetParam(Params::TARGET_ADDR_IP_CONFIG, &connectRes->_targetConfig);
-    ev->SetParam(Params::TARGET_ADDR_FAILURE_IP_SET, &connectRes->_failureIps);
-    ev->SetParam(Params::TARGET_PACKET_OPTIONS, &connectRes->_packetOptions);
-    _eventMgr->FireEvent(ev);
+    
+    CommonEventHelper::FireAsynConnectRes(_eventMgr, connectRes);
 }
 
 void UnifiedSessionBridge::_OnBeforeAddListen(KERNEL_NS::PollerEvent*& msg)
@@ -127,41 +84,14 @@ void UnifiedSessionBridge::_OnBeforeAddListen(KERNEL_NS::PollerEvent*& msg)
 
     KERNEL_NS::AddListenResEvent *addListenEv = msg->CastTo<KERNEL_NS::AddListenResEvent>();
 
-    // 抛事件    
-    auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::ADD_LISTEN_RES);
-    ev->SetParam(Params::ERROR_CODE, addListenEv->_errCode);
-    ev->SetParam(Params::LOCAL_ADDR, &addListenEv->_localAddr);
-    ev->SetParam(Params::FAMILY, addListenEv->_family);
-    ev->SetParam(Params::SERVICE_ID, addListenEv->_serviceId);
-    ev->SetParam(Params::STUB, addListenEv->_stub);
-    ev->SetParam(Params::PROTOCOL_TYPE, addListenEv->_protocolType);
-    ev->SetParam(Params::SESSION_ID, addListenEv->_sessionId);
-    _eventMgr->FireEvent(ev);
+    CommonEventHelper::FireAddListenRes(_eventMgr, addListenEv);
 }
 
 void UnifiedSessionBridge::_OnSessionDestroy(KERNEL_NS::PollerEvent*& msg)
 {
     KERNEL_NS::SessionDestroyEvent *destroyEv = msg->CastTo<KERNEL_NS::SessionDestroyEvent>();
 
-    // 预创建
-    {
-        auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SESSION_WILL_DESTROY);
-        ev->SetParam(Params::SESSION_ID, destroyEv->_sessionId);
-        ev->SetParam(Params::SESSION_CLOSE_REASON, destroyEv->_closeReason);
-        ev->SetParam(Params::SERVICE_ID, destroyEv->_serviceId);
-        ev->SetParam(Params::STUB, destroyEv->_stub);
-
-        _eventMgr->FireEvent(ev);
-    }
-
-    // 销毁完成
-    auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SESSION_DESTROY);
-    ev->SetParam(Params::SESSION_ID, destroyEv->_sessionId);
-    ev->SetParam(Params::SESSION_CLOSE_REASON, destroyEv->_closeReason);
-    ev->SetParam(Params::SERVICE_ID, destroyEv->_serviceId);
-    ev->SetParam(Params::STUB, destroyEv->_stub);
-
-    _eventMgr->FireEvent(ev);
+    CommonEventHelper::FireSessionDestroy(_eventMgr, destroyEv);
 }
 
 void UnifiedSessionBridge::_OnRecvMsg(KERNEL_NS::PollerEvent*& msg)
@@ -268,6 +198,5 @@ KERNEL_NS::CompObject *UnifiedSessionBridgeFactory::Create() const
     
     return comp;
 }
-
 
 SERVICE_END

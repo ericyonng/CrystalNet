@@ -79,7 +79,7 @@ public:
     
     /*
      * 监听
-     * @param(protocolStackType): 协议类型
+     * @param(protocolStackType): 协议类型 CrystalProtocolStackType
      * @param(port): 端口
      * @param(addr): ipv6/ipv4, 不支持域名
      * @param(sessionCount): 创建多少个会话监听该端口, 端口的复用, 控制连入负载均衡

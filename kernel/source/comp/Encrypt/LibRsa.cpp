@@ -346,7 +346,7 @@ bool LibRsa::ImportKey(const LibString *pubKey, const LibString *privateKey, UIn
 
         if((flags & LibRsa::PUB_PKC1_FLAG) == LibRsa::PUB_PKC1_FLAG)
         {
-            // pkc#1 PEM_read_bio_RSAPublicKey pkc#8 PEM_read_bio_RSA_PUBKEY
+            // pkc#1 PEM_read_bio_RSAPublicKey pkc#1 PEM_read_bio_RSA_PUBKEY
             _pubRsa = PEM_read_bio_RSAPublicKey(bio, (RSA **)(&_pubRsa), NULL, NULL);
             BIO_free(bio);
 

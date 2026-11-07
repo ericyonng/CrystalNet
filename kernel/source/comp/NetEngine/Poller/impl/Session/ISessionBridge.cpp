@@ -224,13 +224,14 @@ CoTask<KERNEL_NS::AsyncMultiResult> ISessionBridge::AddTcpListen(TcpPollerMgr *t
         }
 
         ++(*countRes);
+        
+        CLOG_INFO("add listen count:%d, final count:%d [%s:%hu], err:%d", *countRes, sessionCount, addr.c_str(), port, res->_errCode);
+        
         if(*countRes >= sessionCount)
         {
             CLOG_INFO("add listen all session count [%s:%hu], session count:%d", addr.c_str(), port, sessionCount);
             break;
         }
-
-        CLOG_INFO("add listen count:%d, final count:%d [%s:%hu]", *countRes, sessionCount, addr.c_str(), port);
     }
     while (true);
 

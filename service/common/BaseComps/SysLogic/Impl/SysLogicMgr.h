@@ -73,7 +73,12 @@ public:
   ) const  override;
 
   virtual bool IsAllTaskFinish() const override;
-
+    
+    void SetSessionBridge(KERNEL_NS::ISessionBridge *sessionBridge) override;
+    
+    void SetTcpPollerMgr(KERNEL_NS::TcpPollerMgr *tcpPollerMgr) override;
+    
+    
 protected:
    Int32 _OnGlobalSysInit() override;
    Int32 _OnHostStart() override;
@@ -90,12 +95,15 @@ private:
 
 private:
     // 可能多个session负载均衡
-    std::unordered_map<UInt64, std::pair<KERNEL_NS::AddrIpConfig, Int32>> _unhandledListenAddr;
+    std::vector< std::pair<KERNEL_NS::AddrIpConfig, Int32> > _unhandledListenAddr;
     std::unordered_map<UInt64, AddrConfig *> _unhandledContectAddr;
     KERNEL_NS::LibTimer *_detectLink;
 
     KERNEL_NS::ListenerStub _closeServiceStub;
     KERNEL_NS::FileMonitor<SysLogicOptions, KERNEL_NS::YamlDeserializer> *_options;
+    
+    KERNEL_NS::ISessionBridge *_sessionBridge;
+    KERNEL_NS::TcpPollerMgr *_tcpPollerMgr;
 };
 
 SERVICE_END
