@@ -345,9 +345,9 @@ void EpollTcpPoller::PostAddlistenList(std::vector<LibListenInfo *> &listenInfoL
 void EpollTcpPoller::PostConnect(LibConnectInfo *connectInfo)
 {
     // 必须指定service id
-    if(UNLIKELY(connectInfo->_fromServiceId == 0))
+    if(UNLIKELY((connectInfo->_fromServiceId == 0) && (connectInfo->_bridge == NULL)))
     {
-        g_Log->NetError(LOGFMT_OBJ_TAG("connect info must specify a service id connect info:%s"), connectInfo->ToString().c_str());
+        g_Log->NetError(LOGFMT_OBJ_TAG("connect info must specify a service id or bridge connect info:%s"), connectInfo->ToString().c_str());
         LibConnectInfo::Delete_LibConnectInfo(connectInfo);
         return;
     }
@@ -357,7 +357,7 @@ void EpollTcpPoller::PostConnect(LibConnectInfo *connectInfo)
     _poller.load(std::memory_order_acquire)->Push(ev);
 }
 
-void EpollTcpPoller::PostCloseSession(UInt64 fromServiceId, UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite)
+void EpollTcpPoller::PostCloseSession(UInt64 fromServiceId, KERNEL_NS::ISessionBridge *sessionBridge, UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite)
 {
     auto closeEv = CloseSessionEvent::New_CloseSessionEvent();
     closeEv->_sessionId = sessionId;
@@ -365,6 +365,7 @@ void EpollTcpPoller::PostCloseSession(UInt64 fromServiceId, UInt64 sessionId, In
     closeEv->_forbidRead = forbidRead;
     closeEv->_forbidWrite = forbidWrite;
     closeEv->_fromServiceId = fromServiceId;
+    closeEv->_bridge = sessionBridge;
     _poller.load(std::memory_order_acquire)->Push(closeEv);
 }
 
@@ -827,8 +828,8 @@ void EpollTcpPoller::_OnNewSession(PollerEvent *ev)
                     connectRes->_packetOptions.PacketRecvBytesLimitSwitch = buildSessionInfo->_sessionOption._sessionRecvPacketContentLimit != 0;
                     connectRes->_packetOptions.PacketSendBytesLimitSwitch = buildSessionInfo->_sessionOption._sessionSendPacketContentLimit != 0;
                 
-                    // TODO:设置bridge，asyncRes, 等
-                
+                    connectRes->_lck = buildSessionInfo->_lck;
+                    connectRes->_asyncResult = buildSessionInfo->_asyncResult;
                     buildSessionInfo->_bridge->PostMsg(connectRes);
                 }
                 else if(buildSessionInfo->_isLinker)
@@ -911,11 +912,10 @@ void EpollTcpPoller::_OnNewSession(PollerEvent *ev)
     sessionCreatedEv->_protocolStackType = buildSessionInfo->_sessionOption._protocolStackType;
     sessionCreatedEv->_targetConfig = buildSessionInfo->_remoteOriginIpConfig;
     sessionCreatedEv->_failureIps = buildSessionInfo->_failureIps;
-    _serviceProxy->PostMsg(sessionCreatedEv->_belongServiceId, sessionCreatedEv);
 
-    // 有存根才需要回包
-    if(buildSessionInfo->_stub)
+    if(buildSessionInfo->_bridge)
     {
+        buildSessionInfo->_bridge->PostMsg(sessionCreatedEv);
         if(buildSessionInfo->_isFromConnect)
         {// connector必须要connectres
             auto connectRes = AsynConnectResEvent::New_AsynConnectResEvent();
@@ -933,8 +933,10 @@ void EpollTcpPoller::_OnNewSession(PollerEvent *ev)
             connectRes->_packetOptions.PacketSpeedLimitSwitch = (buildSessionInfo->_sessionOption._sessionRecvPacketSpeedLimit != 0) || (buildSessionInfo->_sessionOption._sessionRecvPacketSpeedTimeUnitMs != 0);
             connectRes->_packetOptions.PacketRecvBytesLimitSwitch = buildSessionInfo->_sessionOption._sessionRecvPacketContentLimit != 0;
             connectRes->_packetOptions.PacketSendBytesLimitSwitch = buildSessionInfo->_sessionOption._sessionSendPacketContentLimit != 0;
-                
-            _serviceProxy->PostMsg(connectRes->_fromServiceId, connectRes);
+            connectRes->_lck = buildSessionInfo->_lck;
+            connectRes->_asyncResult = buildSessionInfo->_asyncResult;
+
+            buildSessionInfo->_bridge->PostMsg(connectRes);
         }
         else if(buildSessionInfo->_isLinker)
         {// TODO:
@@ -946,7 +948,49 @@ void EpollTcpPoller::_OnNewSession(PollerEvent *ev)
             listenRes->_stub = buildSessionInfo->_stub;
             listenRes->_protocolType = buildSessionInfo->_protocolType;
             listenRes->_sessionId = buildSessionInfo->_sessionId;
-            _serviceProxy->PostMsg(listenRes->_serviceId, listenRes);
+
+            buildSessionInfo->_bridge->PostMsg(listenRes);
+        }
+    }
+    else
+    {
+        _serviceProxy->PostMsg(sessionCreatedEv->_belongServiceId, sessionCreatedEv);
+
+        // 有存根才需要回包
+        if(buildSessionInfo->_stub)
+        {
+            if(buildSessionInfo->_isFromConnect)
+            {// connector必须要connectres
+                auto connectRes = AsynConnectResEvent::New_AsynConnectResEvent();
+                connectRes->_errCode = Status::Success;
+                connectRes->_localAddr = buildSessionInfo->_localAddr;
+                connectRes->_targetAddr = buildSessionInfo->_remoteAddr;
+                connectRes->_family = buildSessionInfo->_family;
+                connectRes->_protocolType = buildSessionInfo->_protocolType;
+                connectRes->_sessionPollerId = GetPollerId();
+                connectRes->_fromServiceId = buildSessionInfo->_serviceId;
+                connectRes->_stub = buildSessionInfo->_stub;
+                connectRes->_sessionId = buildSessionInfo->_sessionId;
+                connectRes->_targetConfig = buildSessionInfo->_remoteOriginIpConfig;
+                connectRes->_failureIps = buildSessionInfo->_failureIps;
+                connectRes->_packetOptions.PacketSpeedLimitSwitch = (buildSessionInfo->_sessionOption._sessionRecvPacketSpeedLimit != 0) || (buildSessionInfo->_sessionOption._sessionRecvPacketSpeedTimeUnitMs != 0);
+                connectRes->_packetOptions.PacketRecvBytesLimitSwitch = buildSessionInfo->_sessionOption._sessionRecvPacketContentLimit != 0;
+                connectRes->_packetOptions.PacketSendBytesLimitSwitch = buildSessionInfo->_sessionOption._sessionSendPacketContentLimit != 0;
+                    
+                _serviceProxy->PostMsg(connectRes->_fromServiceId, connectRes);
+            }
+            else if(buildSessionInfo->_isLinker)
+            {// TODO:
+                auto listenRes = AddListenResEvent::New_AddListenResEvent();
+                listenRes->_errCode = Status::Success;
+                listenRes->_localAddr = buildSessionInfo->_localAddr;
+                listenRes->_family = buildSessionInfo->_family;
+                listenRes->_serviceId = buildSessionInfo->_serviceId;
+                listenRes->_stub = buildSessionInfo->_stub;
+                listenRes->_protocolType = buildSessionInfo->_protocolType;
+                listenRes->_sessionId = buildSessionInfo->_sessionId;
+                _serviceProxy->PostMsg(listenRes->_serviceId, listenRes);
+            }
         }
     }
 
@@ -1044,7 +1088,14 @@ void EpollTcpPoller::_OnCloseSession(PollerEvent *ev)
             sessionDestroyEv->_sessionId = closeSessionEv->_sessionId;
             sessionDestroyEv->_serviceId = closeSessionEv->_fromServiceId;
             sessionDestroyEv->_stub = closeSessionEv->_stub;
-            _serviceProxy->PostMsg(closeSessionEv->_fromServiceId, sessionDestroyEv);
+            if(closeSessionEv->_bridge)
+            {
+                closeSessionEv->_bridge->PostMsg(sessionDestroyEv);
+            }
+            else
+            {
+                _serviceProxy->PostMsg(closeSessionEv->_fromServiceId, sessionDestroyEv);
+            }
         }
 
         return;
@@ -1330,7 +1381,10 @@ void EpollTcpPoller::_OnConnectSuc(LibConnectPendingInfo *&connectPendingInfo)
     newBuildSessionInfo->_sessionOption = connectInfo->_sessionOption;
     newBuildSessionInfo->_remoteOriginIpConfig = connectInfo->_targetIp;
     newBuildSessionInfo->_failureIps = connectInfo->_failureIps;
-
+    newBuildSessionInfo->_lck = connectInfo->_lck;
+    newBuildSessionInfo->_bridge = connectInfo->_bridge;
+    newBuildSessionInfo->_asyncResult = connectInfo->_asyncResult;
+    
     // newBuildSessionInfo->_sockRecvBufferBytes = connectInfo->_sockRecvBufferBytes;
     // newBuildSessionInfo->_sockSendBufferBytes = connectInfo->_sockSendBufferBytes;
     _tcpPollerMgr->OnConnectRemoteSuc(newBuildSessionInfo);
@@ -1357,8 +1411,7 @@ void EpollTcpPoller::_OnConnectFailure(LibConnectInfo *connectInfo, LibConnectPe
     g_Log->NetWarn(LOGFMT_OBJ_TAG("connect fail errCode:%d pending info:%s, connectInfo:%s")
                 , errCode, connectPending ? connectPending->ToString().c_str() : "pending info is null" , connectInfo->ToString().c_str());
 
-    // 失败的回执
-    if(connectInfo->_stub)
+    if(connectInfo->_bridge)
     {
         auto res = AsynConnectResEvent::New_AsynConnectResEvent();
         res->_errCode = errCode;
@@ -1382,8 +1435,43 @@ void EpollTcpPoller::_OnConnectFailure(LibConnectInfo *connectInfo, LibConnectPe
         res->_packetOptions.PacketRecvBytesLimitSwitch = sessionOptions._sessionRecvPacketContentLimit != 0;
         res->_packetOptions.PacketSendBytesLimitSwitch = sessionOptions._sessionSendPacketContentLimit != 0;
 
-        _serviceProxy->PostMsg(res->_fromServiceId, res);
+        res->_lck = connectInfo->_lck;
+        res->_asyncResult = connectInfo->_asyncResult;
+
+        connectInfo->_bridge->PostMsg(res);
     }
+    else
+    {
+        
+        // 失败的回执
+        if(connectInfo->_stub)
+        {
+            auto res = AsynConnectResEvent::New_AsynConnectResEvent();
+            res->_errCode = errCode;
+            res->_family = connectInfo->_family;
+            res->_protocolType = connectInfo->_protocolType;
+            res->_fromServiceId = connectInfo->_fromServiceId;
+            res->_stub = connectInfo->_stub;
+
+            auto &localAddr = res->_localAddr;
+            localAddr._ip = connectInfo->_localIp._ip;
+            localAddr._port = connectInfo->_localPort;
+            localAddr._ipAndPort.AppendFormat("%s:%hu", localAddr._ip.c_str(), localAddr._port);
+            auto &targetAddr = res->_targetAddr;
+            targetAddr._ip = connectPending ? connectPending->_currentTargetIp : connectInfo->_targetIp._ip;
+            targetAddr._port = connectInfo->_targetPort;
+            targetAddr._ipAndPort.AppendFormat("%s:%hu", targetAddr._ip.c_str(), targetAddr._port);
+            res->_targetConfig = connectInfo->_targetIp;
+            res->_failureIps = connectInfo->_failureIps;
+            auto &sessionOptions = connectInfo->_sessionOption;
+            res->_packetOptions.PacketSpeedLimitSwitch = (sessionOptions._sessionRecvPacketSpeedLimit != 0)|| (sessionOptions._sessionRecvPacketSpeedTimeUnitMs != 0);
+            res->_packetOptions.PacketRecvBytesLimitSwitch = sessionOptions._sessionRecvPacketContentLimit != 0;
+            res->_packetOptions.PacketSendBytesLimitSwitch = sessionOptions._sessionSendPacketContentLimit != 0;
+
+            _serviceProxy->PostMsg(res->_fromServiceId, res);
+        }
+    }
+
 
     if(LIKELY(connectPending))
         _DestroyConnect(connectPending, true);
@@ -1962,13 +2050,25 @@ EpollTcpSession *EpollTcpPoller::_CreateSession(BuildSessionInfo *sessionInfo)
     if(sessionOption._sockRecvBufferSize)
         newSession->SetBufferCapacity(sessionOption._sockRecvBufferSize);
 
-    // 不是监听者若没有指定协议栈的需要从服务那边取
     if(!newSession->IsLinker() && (newSession->GetProtocolStack() == NULL))
     {
-        auto stackFromService = _serviceProxy->GetProtocolStack(newSession);
-        if(UNLIKELY(!stackFromService))
-            g_Log->NetError(LOGFMT_OBJ_TAG("stack from service zero, session:%s"), newSession->ToString().c_str());
-        newSession->SetProtocolStack(stackFromService);
+        if(sessionInfo->_bridge)
+        {
+            auto stack = sessionInfo->_bridge->GetProtocolStack(newSession);
+            if(UNLIKELY(!stack))
+                g_Log->NetError(LOGFMT_OBJ_TAG("stack from bridge zero, session:%s"), newSession->ToString().c_str());
+        
+            if(stack)
+                newSession->SetProtocolStack(stack);
+        }
+        else
+        {
+            // 不是监听者若没有指定协议栈的需要从服务那边取
+            auto stackFromService = _serviceProxy->GetProtocolStack(newSession);
+            if(UNLIKELY(!stackFromService))
+                g_Log->NetError(LOGFMT_OBJ_TAG("stack from service zero, session:%s"), newSession->ToString().c_str());
+            newSession->SetProtocolStack(stackFromService);
+        }
     }
 
     err = newSession->Init();
@@ -2172,7 +2272,16 @@ void EpollTcpPoller::_CloseSession(EpollTcpSession *session, Int32 closeReasonEn
     sessionDestroyEv->_sessionId = session->GetId();
     sessionDestroyEv->_serviceId = session->GetServiceId();
     sessionDestroyEv->_stub = stub;
-    _serviceProxy->PostMsg(sessionDestroyEv->_serviceId, sessionDestroyEv);
+
+    auto bridge = session->GetBridge();
+    if(bridge)
+    {
+        bridge->PostMsg(sessionDestroyEv);
+    }
+    else
+    {
+        _serviceProxy->PostMsg(sessionDestroyEv->_serviceId, sessionDestroyEv);
+    }
 
     // 从ip字典中移除
     if(LIKELY(!session->IsLinker()))

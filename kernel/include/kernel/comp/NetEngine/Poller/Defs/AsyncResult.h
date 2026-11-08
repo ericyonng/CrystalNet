@@ -58,6 +58,17 @@ struct KERNEL_EXPORT AsyncMultiResult
     std::vector<UInt64> _sessionIds;
 };
 
+struct KERNEL_EXPORT AsyncConnectResult
+{
+    POOL_CREATE_OBJ_DEFAULT(AsyncConnectResult);
+
+    // DeleteThreadLocal_AsyncMultiResult
+    void Release();
+
+    Int32 _errCode = 0;
+    UInt64 _sessionId = 0;
+};
+
 KERNEL_END
 
 

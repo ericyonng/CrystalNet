@@ -345,7 +345,7 @@ void IocpTcpPoller::PostAddlistenList(std::vector<LibListenInfo *> &listenInfoLi
 void IocpTcpPoller::PostConnect(LibConnectInfo *connectInfo)
 {
     // 必须指定service id
-    if(UNLIKELY(connectInfo->_fromServiceId == 0))
+    if(UNLIKELY((connectInfo->_fromServiceId == 0) && (connectInfo->_bridge == NULL)))
     {
         g_Log->NetError(LOGFMT_OBJ_TAG("connect info must specify a service id connect info:%s"), connectInfo->ToString().c_str());
         LibConnectInfo::Delete_LibConnectInfo(connectInfo);
@@ -357,7 +357,7 @@ void IocpTcpPoller::PostConnect(LibConnectInfo *connectInfo)
     _poller.load(std::memory_order_acquire)->Push(ev);
 }
 
-void IocpTcpPoller::PostCloseSession(UInt64 fromServiceId, UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite)
+void IocpTcpPoller::PostCloseSession(UInt64 fromServiceId, KERNEL_NS::ISessionBridge *sessionBridge, UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite)
 {
     auto closeEv = CloseSessionEvent::New_CloseSessionEvent();
     closeEv->_sessionId = sessionId;
@@ -458,15 +458,27 @@ IocpTcpSession *IocpTcpPoller::_CreateSession(BuildSessionInfo *sessionInfo)
     if(sessionOption._sockRecvBufferSize)
         newSession->SetBufferCapacity(sessionOption._sockRecvBufferSize);
 
-    // 不是监听者若没有指定协议栈的需要从服务那边取
     if(!newSession->IsLinker() && (newSession->GetProtocolStack() == NULL))
     {
-        auto stackFromService = _serviceProxy->GetProtocolStack(newSession);
-        if(UNLIKELY(!stackFromService))
-            g_Log->NetError(LOGFMT_OBJ_TAG("stack from service zero, session:%s"), newSession->ToString().c_str());
-        newSession->SetProtocolStack(stackFromService);
+        if(sessionInfo->_bridge)
+        {
+            auto stack = sessionInfo->_bridge->GetProtocolStack(newSession);
+            if(UNLIKELY(!stack))
+                CLOG_NET_ERROR("stack from bridge zero, session:%s", newSession->ToString().c_str());
+        
+            if(stack)
+                newSession->SetProtocolStack(stack);
+        }
+        else
+        {
+            // 不是监听者若没有指定协议栈的需要从服务那边取
+            auto stackFromService = _serviceProxy->GetProtocolStack(newSession);
+            if(UNLIKELY(!stackFromService))
+                g_Log->NetError(LOGFMT_OBJ_TAG("stack from service zero, session:%s"), newSession->ToString().c_str());
+            newSession->SetProtocolStack(stackFromService);
+        }
     }
-
+    
     err = newSession->Init();
     if(err != Status::Success)
     {
@@ -698,7 +710,15 @@ void IocpTcpPoller::_CloseSession(IocpTcpSession *session, Int32 closeReasonEnum
     sessionDestroyEv->_sessionId = session->GetId();
     sessionDestroyEv->_serviceId = session->GetServiceId();
     sessionDestroyEv->_stub = stub;
-    _serviceProxy->PostMsg(sessionDestroyEv->_serviceId, sessionDestroyEv);
+    auto bridge = session->GetBridge();
+    if(bridge)
+    {
+        bridge->PostMsg(sessionDestroyEv);
+    }
+    else
+    {
+        _serviceProxy->PostMsg(sessionDestroyEv->_serviceId, sessionDestroyEv);
+    }
 
     // 从ip字典中移除
     if(LIKELY(!session->IsLinker()))
@@ -1251,6 +1271,8 @@ void IocpTcpPoller::_OnNewSession(PollerEvent *ev)
                 connectRes->_packetOptions.PacketSpeedLimitSwitch = (buildSessionInfo->_sessionOption._sessionRecvPacketSpeedLimit != 0) || (buildSessionInfo->_sessionOption._sessionRecvPacketSpeedTimeUnitMs != 0);
                 connectRes->_packetOptions.PacketRecvBytesLimitSwitch = buildSessionInfo->_sessionOption._sessionRecvPacketContentLimit != 0;
                 connectRes->_packetOptions.PacketSendBytesLimitSwitch = buildSessionInfo->_sessionOption._sessionSendPacketContentLimit != 0;
+                connectRes->_lck = buildSessionInfo->_lck;
+                connectRes->_asyncResult = buildSessionInfo->_asyncResult;
 
                 buildSessionInfo->_bridge->PostMsg(connectRes);
             }
@@ -1350,6 +1372,8 @@ void IocpTcpPoller::_OnNewSession(PollerEvent *ev)
             connectRes->_packetOptions.PacketSpeedLimitSwitch = (buildSessionInfo->_sessionOption._sessionRecvPacketSpeedLimit != 0) || (buildSessionInfo->_sessionOption._sessionRecvPacketSpeedTimeUnitMs != 0);
             connectRes->_packetOptions.PacketRecvBytesLimitSwitch = buildSessionInfo->_sessionOption._sessionRecvPacketContentLimit != 0;
             connectRes->_packetOptions.PacketSendBytesLimitSwitch = buildSessionInfo->_sessionOption._sessionSendPacketContentLimit != 0;
+            connectRes->_lck = buildSessionInfo->_lck;
+            connectRes->_asyncResult = buildSessionInfo->_asyncResult;
 
             buildSessionInfo->_bridge->PostMsg(connectRes);
 
@@ -1511,7 +1535,14 @@ void IocpTcpPoller::_OnCloseSession(PollerEvent *ev)
             sessionDestroyEv->_sessionId = closeSessionEv->_sessionId;
             sessionDestroyEv->_serviceId = closeSessionEv->_fromServiceId;
             sessionDestroyEv->_stub = closeSessionEv->_stub;
-            _serviceProxy->PostMsg(closeSessionEv->_fromServiceId, sessionDestroyEv);
+            if(closeSessionEv->_bridge)
+            {
+                closeSessionEv->_bridge->PostMsg(sessionDestroyEv);
+            }
+            else
+            {
+                _serviceProxy->PostMsg(closeSessionEv->_fromServiceId, sessionDestroyEv);
+            }
         }
 
         return;
@@ -1794,6 +1825,9 @@ void IocpTcpPoller::_OnConnectSuc(LibConnectPendingInfo *&connectPendingInfo)
     newBuildSessionInfo->_sessionOption = connectInfo->_sessionOption;
     newBuildSessionInfo->_remoteOriginIpConfig = connectInfo->_targetIp;
     newBuildSessionInfo->_failureIps = connectInfo->_failureIps;
+    newBuildSessionInfo->_lck = connectInfo->_lck;
+    newBuildSessionInfo->_bridge = connectInfo->_bridge;
+    newBuildSessionInfo->_asyncResult = connectInfo->_asyncResult;
 
     // TODO:
     // newBuildSessionInfo->_bridge
@@ -1811,11 +1845,9 @@ void IocpTcpPoller::_OnConnectSuc(LibConnectPendingInfo *&connectPendingInfo)
 
 void IocpTcpPoller::_OnConnectFailure(LibConnectInfo *connectInfo, LibConnectPendingInfo *connectPending, Int32 errCode)
 {
-    g_Log->NetWarn(LOGFMT_OBJ_TAG("connect fail errCode:%d pending info:%s, connectInfo:%s")
-                , errCode, connectPending ? connectPending->ToString().c_str() : "pending info is null" , connectInfo->ToString().c_str());
+    CLOG_NET_WARN("connect fail errCode:%d pending info:%s, connectInfo:%s", errCode, connectPending ? connectPending->ToString().c_str() : "pending info is null" , connectInfo->ToString().c_str());
 
-    // 失败的回执
-    if(connectInfo->_stub)
+    if(connectInfo->_bridge)
     {
         auto res = AsynConnectResEvent::New_AsynConnectResEvent();
         res->_errCode = errCode;
@@ -1838,9 +1870,42 @@ void IocpTcpPoller::_OnConnectFailure(LibConnectInfo *connectInfo, LibConnectPen
         res->_packetOptions.PacketSpeedLimitSwitch = (sessionOptions._sessionRecvPacketSpeedLimit != 0)|| (sessionOptions._sessionRecvPacketSpeedTimeUnitMs != 0);
         res->_packetOptions.PacketRecvBytesLimitSwitch = sessionOptions._sessionRecvPacketContentLimit != 0;
         res->_packetOptions.PacketSendBytesLimitSwitch = sessionOptions._sessionSendPacketContentLimit != 0;
+        res->_lck = connectInfo->_lck;
+        res->_asyncResult = connectInfo->_asyncResult;
 
-        _serviceProxy->PostMsg(res->_fromServiceId, res);
+        connectInfo->_bridge->PostMsg(res);
     }
+    else
+    {
+        // 失败的回执
+        if(connectInfo->_stub)
+        {
+            auto res = AsynConnectResEvent::New_AsynConnectResEvent();
+            res->_errCode = errCode;
+            res->_family = connectInfo->_family;
+            res->_protocolType = connectInfo->_protocolType;
+            res->_fromServiceId = connectInfo->_fromServiceId;
+            res->_stub = connectInfo->_stub;
+
+            auto &localAddr = res->_localAddr;
+            localAddr._ip = connectInfo->_localIp._ip;
+            localAddr._port = connectInfo->_localPort;
+            localAddr._ipAndPort.AppendFormat("%s:%hu", localAddr._ip.c_str(), localAddr._port);
+            auto &targetAddr = res->_targetAddr;
+            targetAddr._ip = connectPending->_currentTargetIp;
+            targetAddr._port = connectInfo->_targetPort;
+            targetAddr._ipAndPort.AppendFormat("%s:%hu", targetAddr._ip.c_str(), targetAddr._port);
+            res->_targetConfig = connectInfo->_targetIp;
+            res->_failureIps = connectInfo->_failureIps;
+            auto &sessionOptions = connectInfo->_sessionOption;
+            res->_packetOptions.PacketSpeedLimitSwitch = (sessionOptions._sessionRecvPacketSpeedLimit != 0)|| (sessionOptions._sessionRecvPacketSpeedTimeUnitMs != 0);
+            res->_packetOptions.PacketRecvBytesLimitSwitch = sessionOptions._sessionRecvPacketContentLimit != 0;
+            res->_packetOptions.PacketSendBytesLimitSwitch = sessionOptions._sessionSendPacketContentLimit != 0;
+
+            _serviceProxy->PostMsg(res->_fromServiceId, res);
+        }
+    }
+    
 
     if(LIKELY(connectPending))
         _DestroyConnect(connectPending, true);

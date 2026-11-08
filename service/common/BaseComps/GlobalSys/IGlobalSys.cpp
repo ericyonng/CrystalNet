@@ -177,7 +177,8 @@ void IGlobalSys::CloseSession(UInt64 sessionId, Int64 closeMillisecondTimeDelay,
     auto sessionInfo = session->GetSessionInfo();
     auto service = IGlobalSys::GetCurrentService();
     auto tcpPollerMgr = service->GetTcpPollerMgr();
-    tcpPollerMgr->PostCloseSession(sessionInfo->_pollerId, service->GetServiceId(), sessionId, closeMillisecondTimeDelay, forbidRead, forbidWrite);
+    auto bridge = service->GetComp<KERNEL_NS::ISessionBridge>();
+    tcpPollerMgr->PostCloseSession(sessionInfo->_pollerId, service->GetServiceId(), bridge, sessionId, closeMillisecondTimeDelay, forbidRead, forbidWrite);
 }
 
 void IGlobalSys::AddWhite(const KERNEL_NS::LibString &ip)

@@ -45,9 +45,12 @@
 #include <map>
 #include <atomic>
 
+
+
 KERNEL_BEGIN
 
 class Variant;
+class ISessionBridge;
 
 struct PollerEvent;
 
@@ -98,7 +101,7 @@ public:
     bool PostAddlisten(LibListenInfo *listenInfo);
     void PostAddlistenList(std::vector<LibListenInfo *> &listenInfoList);
     void PostConnect(LibConnectInfo *connectInfo);
-    void PostCloseSession(UInt64 fromServiceId, UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite);
+    void PostCloseSession(UInt64 fromServiceId, KERNEL_NS::ISessionBridge *sessionBridge, UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite);
     void PostIpControl(const std::list<IpControlInfo *> &controlList);
     void PostQuitServiceSessionsEvent(UInt64 serviceId);
     const Poller *GetPoller() const;

@@ -34,6 +34,8 @@
 
 #include "login.pb.h"
 #include "kernel/comp/Event/LibEvent.h"
+#include "kernel/comp/NetEngine/Poller/impl/Session/ISessionBridge.h"
+#include "kernel/comp/NetEngine/Poller/interface/IPollerMgr.h"
 #include "kernel/comp/Utils/SocketUtil.h"
 #include "protocols/Opcodes.h"
 #include "service/common/BaseComps/ServiceCompType.h"
@@ -294,18 +296,41 @@ Int32 ClientUser::Login(Int32 stackType)
     packetOptions.PacketSpeedLimitSwitch = false;
     packetOptions.PacketRecvBytesLimitSwitch = false;
     packetOptions.PacketSendBytesLimitSwitch = true;
-    auto err = sysMgr->AsynTcpConnect(remoteIp, _loginInfo.port(), stub, this, &ClientUser::_OnLoginConnectRes, localIp, 0, NULL, 3, 30
-        , packetOptions  
-    , KERNEL_NS::SocketUtil::IsIpv4(_loginInfo.targetip()) ? AF_INET : AF_INET6, stackType);
 
-    if(err != Status::Success)
+    auto sessionBridge = _userMgr->GetGlobalSys<KERNEL_NS::ISessionBridge>();
+    KERNEL_NS::RunRightNow([sessionBridge, &remoteIp, this, stackType, &localIp, &packetOptions]()->KERNEL_NS::CoTask<>
     {
-        _clientInfo->set_clientstatus(ClientUserStatus::UNLOGIN);
-        g_Log->Error(LOGFMT_OBJ_TAG("connect fail err:%d, user:%s"), err, ToString().c_str());
-        return err;
-    }
+        auto ret = co_await sessionBridge->AsyncConnect(remoteIp, _loginInfo.port(), stackType, localIp, 0, packetOptions, 3, 30);
+        if(ret._errCode != Status::Success)
+        {
+            _clientInfo->set_clientstatus(ClientUserStatus::UNLOGIN);
+            CLOG_ERROR("connect server fail errCode:%d, user:%s", ret._errCode, ToString().c_str());
+            co_return;
+        }
 
-    return err;
+        auto sessionMgr = GetService()->GetComp<ISessionMgr>();
+        auto sessionInfo = sessionMgr->GetSession(ret._sessionId);
+
+        _activedSessionId = ret._sessionId;
+
+        CLOG_INFO("connect to server success session id:%llu, remoteAddr:%s, user:%s", _activedSessionId, sessionInfo->GetSessionInfo()->_remoteAddr.ToString().c_str(), ToString().c_str());
+
+        // 发起登录
+        LoginReq req;
+        *req.mutable_loginuserinfo() = _loginInfo;
+        Send(Opcodes::LoginReq, req);
+        // if(newPacektId < 0)
+        // {
+        //     _clientInfo->set_clientstatus(ClientUserStatus::UNLOGIN);
+        //     _activedSessionId = 0;
+        //     g_Log->Warn(LOGFMT_OBJ_TAG("send login req fail"));
+        //     return;
+        // }
+
+        _userMgr->AddUserBySessionId(_activedSessionId, this);
+    });
+
+    return Status::Success;
 }
 
 void ClientUser::SetLoginInfo(const LoginInfo &loginInfo)

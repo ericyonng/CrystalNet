@@ -87,7 +87,6 @@ protected:
 
     void _OnDetectLinkTimer(KERNEL_NS::LibTimer *timer);
 
-    void _OnAddListenRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params, bool &doRemove);
     void _OnConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params, bool &doRemove);
     void _CloseServiceEvent(KERNEL_NS::LibEvent *ev);
 private:

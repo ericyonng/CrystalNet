@@ -41,10 +41,15 @@
 #include <set>
 
 KERNEL_BEGIN
+class ISessionBridge;
+class CoLocker;
+struct AsyncResult;
 
 class IMsgDispatcher;
 class LibTimer;
 class IProtocolStack;
+
+struct AsyncConnectResult;
 
 // TODO:初始化列表未完善
 struct KERNEL_EXPORT LibConnectInfo
@@ -76,6 +81,12 @@ struct KERNEL_EXPORT LibConnectInfo
     std::set<LibString> _failureIps;    // 失败的ip
 
     Int32 _currentSwitchTargetIpLeft;   // target如果是域名，当前剩余可切换ip,次数
+
+    ISessionBridge *_bridge;
+    // 唤醒回调
+    CoLocker *_lck;
+
+    KERNEL_NS::AsyncConnectResult *_asyncResult;
 };
 
 struct KERNEL_EXPORT LibConnectPendingInfo

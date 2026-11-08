@@ -50,6 +50,7 @@ class LibPacket;
 struct LibListenInfo;
 struct IpControlInfo;
 struct NetConfig;
+class ISessionBridge;
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
 class IocpTcpPoller;
@@ -100,7 +101,7 @@ public:
     void PostAddlistenList(std::vector<LibListenInfo *> &listenInfoList);
     void PostSend(UInt64 pollerId, UInt64 sessionId, LibPacket *packet);
     void PostSend(UInt64 pollerId, UInt64 sessionId, LibList<LibPacket *> *packets);
-    void PostCloseSession(UInt64 pollerId, UInt64 fromeService, UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite);
+    void PostCloseSession(UInt64 pollerId, UInt64 fromeService, KERNEL_NS::ISessionBridge *sessionBridge, UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite);
     void PostIpControl(const std::list<IpControlInfo *> &controlList);
 
     #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS

@@ -448,7 +448,7 @@ void TcpPollerMgr::PostSend(UInt64 pollerId, UInt64 sessionId, LibList<LibPacket
     poller->PostSend(sessionId, packets);
 }
 
-void TcpPollerMgr::PostCloseSession(UInt64 pollerId, UInt64 fromeService, UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite)
+void TcpPollerMgr::PostCloseSession(UInt64 pollerId, UInt64 fromeService, KERNEL_NS::ISessionBridge *sessionBridge, UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite)
 {
     auto poller = GetPoller(pollerId);
     if(UNLIKELY(!poller))
@@ -458,7 +458,7 @@ void TcpPollerMgr::PostCloseSession(UInt64 pollerId, UInt64 fromeService, UInt64
         return;
     }
 
-    poller->PostCloseSession(fromeService, sessionId, closeMillisecondTimeDelay, forbidRead, forbidWrite);
+    poller->PostCloseSession(fromeService, sessionBridge, sessionId, closeMillisecondTimeDelay, forbidRead, forbidWrite);
 }
 
 void TcpPollerMgr::PostIpControl(const std::list<IpControlInfo *> &controlList)

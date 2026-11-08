@@ -73,6 +73,11 @@ struct KERNEL_EXPORT BuildSessionInfo
     SessionOption _sessionOption;
     AddrIpConfig _remoteOriginIpConfig; // 如果是连接, 则这里表示的是原始的目标ip
     std::set<LibString> _failureIps;
+
+    // 唤醒回调
+    CoLocker *_lck;
+
+    KERNEL_NS::AsyncConnectResult *_asyncResult;
 };
 
 KERNEL_END

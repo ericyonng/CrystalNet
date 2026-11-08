@@ -48,6 +48,9 @@ LibConnectInfo::LibConnectInfo()
 ,_fromServiceId(0)
 ,_stack(NULL)
 ,_currentSwitchTargetIpLeft(0)
+,_bridge(NULL)
+,_lck(NULL)
+,_asyncResult(NULL)
 {
 
 }

@@ -71,13 +71,6 @@ void UnifiedSessionBridge::_OnSessionCreated(KERNEL_NS::PollerEvent*& msg)
     CommonEventHelper::FireCreateSessionEvent(_eventMgr, sessionCreatedEv);
 }
 
-void UnifiedSessionBridge::_OnAsynConnectRes(KERNEL_NS::PollerEvent*& msg)
-{
-    auto connectRes = msg->CastTo<KERNEL_NS::AsynConnectResEvent>();
-    
-    CommonEventHelper::FireAsynConnectRes(_eventMgr, connectRes);
-}
-
 void UnifiedSessionBridge::_OnBeforeAddListen(KERNEL_NS::PollerEvent*& msg)
 {
     CLOG_DEBUG("add listen res:%s", msg->ToString().c_str());
@@ -85,6 +78,13 @@ void UnifiedSessionBridge::_OnBeforeAddListen(KERNEL_NS::PollerEvent*& msg)
     KERNEL_NS::AddListenResEvent *addListenEv = msg->CastTo<KERNEL_NS::AddListenResEvent>();
 
     CommonEventHelper::FireAddListenRes(_eventMgr, addListenEv);
+}
+
+void UnifiedSessionBridge::_OnBeforeAsynConnectRes(KERNEL_NS::PollerEvent*& msg)
+{
+    auto connectRes = msg->CastTo<KERNEL_NS::AsynConnectResEvent>();
+    
+    CommonEventHelper::FireAsynConnectRes(_eventMgr, connectRes);
 }
 
 void UnifiedSessionBridge::_OnSessionDestroy(KERNEL_NS::PollerEvent*& msg)

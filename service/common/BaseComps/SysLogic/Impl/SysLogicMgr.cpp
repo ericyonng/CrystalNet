@@ -340,7 +340,7 @@ Int32 SysLogicMgr::_OnHostStart()
         auto index = _unhandledListenAddr.size() - 1;
         KERNEL_NS::PostCaller([this, addrIp, addrInfo, index]()->KERNEL_NS::CoTask<>
         {
-            auto ret = co_await _sessionBridge->AddTcpListen(_tcpPollerMgr, addrInfo.TurnStackType(), static_cast<UInt16>(addrInfo.Port), addrIp._ip
+            auto ret = co_await _sessionBridge->AddTcpListen(addrInfo.TurnStackType(), static_cast<UInt16>(addrInfo.Port), addrIp._ip
                 , addrInfo.ListenSessionCount, addrInfo.ToPacketOptions());
             
             if (ret._errCode != Status::Success)
@@ -400,8 +400,7 @@ void SysLogicMgr::_OnDetectLinkTimer(KERNEL_NS::LibTimer *timer)
     {
         auto addrConfig = iter.second;
         auto toIpv4 = addrConfig->_remoteIp._isHostName ? (addrConfig->_remoteIp._toIpv4 ? "to ipv4" : "to ipv6") : "None";
-        g_Log->Warn(LOGFMT_OBJ_TAG("connect [%s:%hu => %s:%hu(%s)]...")
-        , addrConfig->_localIp._ip.c_str(), addrConfig->_localPort
+        CLOG_WARN("connect [%s:%hu => %s:%hu(%s)]...", addrConfig->_localIp._ip.c_str(), addrConfig->_localPort
         , addrConfig->_remoteIp._ip.c_str(), addrConfig->_remotePort, toIpv4);
     }
 
@@ -411,44 +410,6 @@ void SysLogicMgr::_OnDetectLinkTimer(KERNEL_NS::LibTimer *timer)
 
         auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_COMMON_SESSION_READY);
         GetEventMgr()->FireEvent(ev);
-    }
-}
-
-void SysLogicMgr::_OnAddListenRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params, bool &doRemove)
-{
-    if(errCode != Status::Success)
-    {
-        CLOG_WARN("add listen fail stub:%llu, errCode:%d", stub, errCode);
-
-        auto iter = _unhandledListenAddr.find(stub);
-        if(iter == _unhandledListenAddr.end())
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("unhandled listen callback not exists stub:%llu"), stub);
-            return;
-        }
-
-        return;
-    }
-
-    auto iter = _unhandledListenAddr.find(stub);
-    if(iter == _unhandledListenAddr.end())
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("add listen suc but have no callback stub:%llu"), stub);
-        return;
-    }
-
-    auto &addrInfo = iter->second;
-    --addrInfo.second;
-    CLOG_INFO("[ADD LISTEN SUCCESS]:%s, LeftCount:%d", addrInfo.first.ToString().c_str(), addrInfo.second);
-
-    if(addrInfo.second <= 0)
-    {
-        doRemove = true;
-        _unhandledListenAddr.erase(iter);
-    }
-    else
-    {
-        doRemove = false;
     }
 }
 

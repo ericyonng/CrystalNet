@@ -128,6 +128,7 @@ struct CloseSessionEvent : public PollerEvent
     UInt64 _stub;
     bool _forbidRead;
     bool _forbidWrite;
+    KERNEL_NS::ISessionBridge *_bridge;
 };
 
 // 根据serviceId关闭所有session

@@ -41,6 +41,8 @@
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/EpollTcpSession.h>
 #include <kernel/comp/Utils/BackTraceUtil.h>
 
+#include "kernel/comp/NetEngine/Poller/impl/Session/ISessionBridge.h"
+
 #if CRYSTAL_TARGET_PLATFORM_LINUX
 
 KERNEL_BEGIN
@@ -514,7 +516,14 @@ void EpollTcpSession::_OnRecved()
             msg->_sessionId = GetId();
             msg->_serviceId = GetServiceId();
             msg->_packets = node->_data;
-            _serviceProxy->PostMsg(msg->_serviceId, msg, static_cast<Int64>(msg->_packets->GetAmount()));
+            if(_bridge)
+            {
+                _bridge->PostMsg(msg, static_cast<Int64>(msg->_packets->GetAmount()));
+            }
+            else
+            {
+                _serviceProxy->PostMsg(msg->_serviceId, msg, static_cast<Int64>(msg->_packets->GetAmount()));
+            }
 
             node = recvPacketsBatch->Erase(node);
         }

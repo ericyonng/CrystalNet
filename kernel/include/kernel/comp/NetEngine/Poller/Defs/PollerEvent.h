@@ -64,6 +64,7 @@ class LibStream;
 class LibPacket;
 class CoLocker;
 struct AsyncResult;
+struct AsyncConnectResult;
 
 // poller网络事件
 // class KERNEL_EXPORT PollerNetEventType
@@ -130,6 +131,11 @@ struct KERNEL_EXPORT AsynConnectResEvent : public PollerEvent
     AddrIpConfig _targetConfig; // 连接远程的ip信息
     std::set<LibString> _failureIps;    // 连接远程失败的ip合集
     KERNEL_NS::PacketOptions _packetOptions;    // 包配置
+
+    // 唤醒回调
+    CoLocker *_lck;
+
+    KERNEL_NS::AsyncConnectResult *_asyncResult;
 };
 
 // 监听回包

@@ -38,4 +38,9 @@ void AsyncMultiResult::Release()
     AsyncMultiResult::DeleteThreadLocal_AsyncMultiResult(this);
 }
 
+void AsyncConnectResult::Release()
+{
+    AsyncConnectResult::DeleteThreadLocal_AsyncConnectResult(this);
+}
+
 KERNEL_END

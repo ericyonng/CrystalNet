@@ -86,36 +86,58 @@ public:
      * @param(packetOptions): 套接字包选项
      * @return(AsyncResult):监听返回的错误码和sessionId, 成功就通过sessionId去处理会话
      */
-    CoTask<KERNEL_NS::AsyncMultiResult> AddTcpListen(TcpPollerMgr *tcpMgr, Int32 protocolStackType, UInt16 port, const LibString addr = "0.0.0.0", Int32 sessionCount = 1, const KERNEL_NS::PacketOptions packetOptions = KERNEL_NS::PacketOptions());
-    
+    CoTask<KERNEL_NS::AsyncMultiResult> AddTcpListen(Int32 protocolStackType, UInt16 port, const LibString addr = "0.0.0.0", Int32 sessionCount = 1, const KERNEL_NS::PacketOptions packetOptions = KERNEL_NS::PacketOptions());
+
     /*
      * 连接远程
-     * @param(remoteAddr): 远程地址
-     * @param(remotePort): 远程端口
-     * @param(bindLocalAddr): 绑定本地地址
-     * @param()
+     * @param(remoteAddr):远程地址(ipv4, ipv6, 域名)
+     * @param(remotePort):远程端口
+     * @param(protocolStackType): 协议类型 CrystalProtocolStackType
+     * @param(bindLocalAddr): 绑定本地地址(ipv4, ipv6)
+     * @param(localPort): 绑定本地端口号
+     * @param(packetOptions): 包配置
+     * @param(retryTimes): 超时重试次数
+     * @param(periodMs): 超时时间
+     * @param(stack): 指定一个特殊协议栈, 当需要强制指定一个特殊的协议栈时使用
      */
-    CoTask<Int32> AsyncConnect(const KERNEL_NS::AddrIpConfig remoteAddr, UInt16 remotePort, const AddrIpConfig bindLocalAddr = KERNEL_NS::AddrIpConfig(), UInt16 localPort = 0)
+    CoTask<KERNEL_NS::AsyncConnectResult> AsyncConnect(const KERNEL_NS::AddrIpConfig remoteAddr, UInt16 remotePort
+        , Int32 protocolStackType  // 协议栈类型
+        , const AddrIpConfig bindLocalAddr = KERNEL_NS::AddrIpConfig(), UInt16 localPort = 0
+        , const KERNEL_NS::PacketOptions &packetOptions = KERNEL_NS::PacketOptions() /*包配置*/
+        , Int32 retryTimes = 0    /* 超时重试次数 */
+        , Int64 periodMs = 0  /* 超时时间 */
+        , KERNEL_NS::IProtocolStack *stack = NULL /* 指定特殊协议栈 */
+        );
+
+    void SetTcpPollerMgr(TcpPollerMgr *tcpMgr);
     
 protected:
     Int32 _OnInit() override;
     Int32 _OnStart() override;
 
+    virtual void _OnAsynConnectRes(PollerEvent *&ev) final;
+    virtual void _OnAddListenRes(PollerEvent *&ev) final;
+    
     // 派生类重写接口来定制PollerEvent回调, 纯虚函数以便提醒使用者实现该接口
     virtual void _OnSessionCreated(PollerEvent *&ev) = 0;
-    virtual void _OnAsynConnectRes(PollerEvent *&ev) = 0;
-    virtual void _OnAddListenRes(PollerEvent *&ev) final;
     virtual void _OnSessionDestroy(PollerEvent *&ev) = 0;
     virtual void _OnRecvMsg(PollerEvent *&ev) = 0;
 
     // 监听处理
     virtual void _OnBeforeAddListen(PollerEvent *&ev) = 0;
+    virtual void _OnBeforeAsynConnectRes(PollerEvent *&ev) = 0;
 
 protected:
     Poller *_bridgePoller;
     NetConfig *_netConfig;
+    TcpPollerMgr *_tcpPollerMgr;
     std::unordered_map<Int32, KERNEL_NS::IDelegate<void, KERNEL_NS::PollerEvent *&> *> _pollerEventHandler;
 };
+
+ALWAYS_INLINE void ISessionBridge::SetTcpPollerMgr(TcpPollerMgr *tcpMgr)
+{
+    _tcpPollerMgr = tcpMgr;
+}
 
 template<typename ObjType>
 ALWAYS_INLINE void ISessionBridge::Subscribe(Int32 eventType, ObjType *obj, void (ObjType::*handler)(KERNEL_NS::PollerEvent *&))

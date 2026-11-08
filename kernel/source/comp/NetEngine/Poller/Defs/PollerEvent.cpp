@@ -195,6 +195,7 @@ CloseSessionEvent::CloseSessionEvent()
 ,_stub(0)
 ,_forbidRead(false)
 ,_forbidWrite(false)
+,_bridge(NULL)
 {
 
 }
@@ -353,6 +354,8 @@ AsynConnectResEvent::AsynConnectResEvent()
 ,_fromServiceId(0)
 ,_stub(0)
 ,_sessionId(0)
+,_lck(NULL)
+,_asyncResult(NULL)
 {
 
 }

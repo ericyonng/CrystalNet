@@ -34,6 +34,7 @@
 #include "kernel/comp/Utils/SocketUtil.h"
 #include <kernel/comp/Config/Config.h>
 
+#include "kernel/comp/NetEngine/Defs/LibConnectInfo.h"
 #include "kernel/comp/NetEngine/Defs/LibListenInfo.h"
 #include "kernel/comp/NetEngine/Defs/ProtocolType.h"
 #include "kernel/comp/NetEngine/Poller/impl/Tcp/TcpPollerMgr.h"
@@ -41,10 +42,12 @@
 #include "kernel/comp/Utils/StringUtil.h"
 
 KERNEL_BEGIN
-    ISessionBridge::ISessionBridge(UInt64 objTypeId)
+
+ISessionBridge::ISessionBridge(UInt64 objTypeId)
 :CompObject(objTypeId)
     ,_bridgePoller(NULL)
     ,_netConfig(NULL)
+    ,_tcpPollerMgr(NULL)
 {
         
 }
@@ -102,7 +105,7 @@ void ISessionBridge::SetNetConfig(const KERNEL_NS::NetConfig &config)
 }
 
 
-CoTask<KERNEL_NS::AsyncMultiResult> ISessionBridge::AddTcpListen(TcpPollerMgr *tcpMgr, Int32 protocolStackType, UInt16 port, const LibString addr
+CoTask<KERNEL_NS::AsyncMultiResult> ISessionBridge::AddTcpListen(Int32 protocolStackType, UInt16 port, const LibString addr
     , Int32 sessionCount, const KERNEL_NS::PacketOptions packetOptions)
 {
     KERNEL_NS::AsyncMultiResult finalRes;
@@ -116,14 +119,6 @@ CoTask<KERNEL_NS::AsyncMultiResult> ISessionBridge::AddTcpListen(TcpPollerMgr *t
             finalRes._errCode = Status::ParamError;
             co_return finalRes;
         }
-    }
-
-    if(UNLIKELY(!tcpMgr))
-    {
-        CLOG_ERROR("TCP poller mgr null");
-        finalRes._errCode = Status::ParamError;
-
-        co_return finalRes;
     }
     
     KERNEL_NS::SessionOption option;
@@ -194,7 +189,7 @@ CoTask<KERNEL_NS::AsyncMultiResult> ISessionBridge::AddTcpListen(TcpPollerMgr *t
 
     CLOG_INFO("will add listen info:%s", listenInfo->ToString().c_str());
 
-    if(!tcpMgr->PostAddlisten(listenInfo))
+    if(!_tcpPollerMgr->PostAddlisten(listenInfo))
     {
         CLOG_ERROR("tcp mgr post add listen fail, [%s:%hu]", addr.c_str(), port);
         finalRes._errCode = Status::ParamError;
@@ -242,6 +237,113 @@ CoTask<KERNEL_NS::AsyncMultiResult> ISessionBridge::AddTcpListen(TcpPollerMgr *t
     co_return finalRes;
 }
 
+CoTask<KERNEL_NS::AsyncConnectResult> ISessionBridge::AsyncConnect(
+    const KERNEL_NS::AddrIpConfig remoteAddr, UInt16 remotePort
+    , Int32 protocolStackType  // 协议栈类型
+    , const AddrIpConfig bindLocalAddr , UInt16 localPort
+    , const KERNEL_NS::PacketOptions &packetOptions
+    , Int32 retryTimes
+    , Int64 periodMs
+    , KERNEL_NS::IProtocolStack *stack
+    )
+{
+    KERNEL_NS::AsyncConnectResult finalRes;
+
+    // 1.校验参数
+    if(remoteAddr._ip.empty())
+    {
+        CLOG_ERROR("invalid remote ip:%s", remoteAddr.ToString().c_str());
+
+        finalRes._errCode = Status::SockError_IllegalIp;
+        co_return finalRes;
+    }
+
+    if(!bindLocalAddr._ip.empty() && !KERNEL_NS::SocketUtil::IsIp(bindLocalAddr._ip))
+    {
+        CLOG_ERROR("invalid local ip:%s", bindLocalAddr.ToString().c_str());
+        finalRes._errCode = Status::SockError_IllegalIp;
+        co_return finalRes;
+    }
+
+    KERNEL_NS::SessionOption option;
+    option._noDelay = true;
+    option._sockSendBufferSize = 0;
+    option._sockRecvBufferSize = 0;
+    option._sessionBufferCapicity = _netConfig->SessionBufferCapacity;
+
+    {
+        if(packetOptions.PacketSpeedLimitSwitch)
+        {
+            option._sessionRecvPacketSpeedLimit =       _netConfig->SessionRecvPacketSpeedLimit;
+            option._sessionRecvPacketSpeedTimeUnitMs =  _netConfig->SessionRecvPacketSpeedTimeUnitMs;
+        }
+        else
+        {
+            option._sessionRecvPacketSpeedLimit = 0;
+            option._sessionRecvPacketSpeedTimeUnitMs = 0;
+        }
+
+        // 消息接收限制
+        if(packetOptions.PacketRecvBytesLimitSwitch)
+        {
+            option._sessionRecvPacketContentLimit = _netConfig->SessionRecvPacketContentLimit;
+        }
+        else
+        {
+            option._sessionRecvPacketContentLimit = 0;
+        }
+
+        // 消息发送限制
+        if(packetOptions.PacketSendBytesLimitSwitch)
+        {
+            option._sessionSendPacketContentLimit = _netConfig->SessionSendPacketContentLimit;
+        }
+        else
+        {
+            option._sessionSendPacketContentLimit = 0;
+        }
+    }
+    
+    option._sessionRecvPacketStackLimit = _netConfig->SessionRecvPacketStackLimit;
+
+    option._forbidRecv = false;
+    option._protocolStackType = protocolStackType;
+
+    auto connectInfo = KERNEL_NS::LibConnectInfo::New_LibConnectInfo();
+    connectInfo->_localIp = bindLocalAddr;
+    connectInfo->_localPort = localPort;
+    connectInfo->_targetIp = remoteAddr;
+    connectInfo->_targetPort = remotePort;
+    connectInfo->_family = static_cast<UInt16>(remoteAddr.GetAf());
+    connectInfo->_protocolType = KERNEL_NS::ProtocolType::TCP;
+    connectInfo->_pollerId = 0;
+    connectInfo->_retryTimes = retryTimes;
+    connectInfo->_periodMs = periodMs;
+    connectInfo->_bridge = this;
+    KERNEL_NS::SmartPtr<CoLocker, KERNEL_NS::AutoDelMethods::Release> lck = KERNEL_NS::CoLocker::NewThreadLocal_CoLocker();
+    connectInfo->_lck = lck.AsSelf();
+    KERNEL_NS::SmartPtr<KERNEL_NS::AsyncConnectResult, KERNEL_NS::AutoDelMethods::Release> res = KERNEL_NS::AsyncConnectResult::NewThreadLocal_AsyncConnectResult();
+    connectInfo->_asyncResult = res.AsSelf();
+    
+    connectInfo->_stack = stack;
+    connectInfo->_sessionOption = option;
+
+    CLOG_INFO("will async connect:%s", connectInfo->ToString().c_str());
+    _tcpPollerMgr->PostConnect(connectInfo);
+
+    // connectInfo被释放了, 不可用
+    if(res->_errCode != Status::Success)
+    {
+        CLOG_WARN("async connect fail err:%d, %s:hu => %s:%hu, retryTimes:%d, periodMs:%lld, stack:%p, %d"
+            , bindLocalAddr._ip.c_str(), localPort, remoteAddr._ip.c_str(), remotePort, retryTimes, periodMs, stack, protocolStackType);
+    }
+
+    finalRes._errCode = res->_errCode;
+    finalRes._sessionId = res->_sessionId;
+
+    co_return finalRes;
+}
+
 Int32 ISessionBridge::_OnInit()
 {
     if(UNLIKELY(!_bridgePoller))
@@ -253,6 +355,12 @@ Int32 ISessionBridge::_OnInit()
     if(UNLIKELY(!_netConfig))
     {
         CLOG_ERROR("net config not set");
+        return Status::ConfigError;
+    }
+
+    if(UNLIKELY(!_tcpPollerMgr))
+    {
+        CLOG_ERROR("tcp poller mgr not set");
         return Status::ConfigError;
     }
 
@@ -278,7 +386,16 @@ void ISessionBridge::_OnSessionCreated(PollerEvent *&ev)
 
 void ISessionBridge::_OnAsynConnectRes(PollerEvent *&ev)
 {
-    CLOG_DEBUG("session connected ev:%s", ev->ToString().c_str());
+    KERNEL_NS::AsynConnectResEvent *connectRes = ev->CastTo<KERNEL_NS::AsynConnectResEvent>();
+    connectRes->_asyncResult->_errCode = connectRes->_errCode;
+    connectRes->_asyncResult->_sessionId = connectRes->_sessionId;
+    auto lck = connectRes->_lck;
+
+    _OnBeforeAsynConnectRes(ev);
+
+    lck->Broadcast();
+
+    CLOG_DEBUG("session connected ev:%s", connectRes->ToString().c_str());
 }
 
 void ISessionBridge::_OnAddListenRes(PollerEvent *&ev)
