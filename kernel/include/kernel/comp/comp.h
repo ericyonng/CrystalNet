@@ -34,6 +34,7 @@
 
 
 // 基础组件
+#include <kernel/comp/CommonEvent.h>
 #include <kernel/comp/BasicStringHelper.h>
 #include <kernel/comp/LibBasicString.h>
 #include <kernel/comp/LibString.h>

@@ -34,97 +34,15 @@
 
 #pragma once
 
+#include <kernel/comp/CommonEvent.h>
+
 namespace EventEnums
 {
     enum ENUMS
     {
-        UNKNOWN = 0,
+        BEGIN = EventEnums::KERNEL_EVENT_END,
 
-        // 会话事件[1 - 100]
-        SESSION_EVENT_BEGIN = 1,    // 会话事件枚举开始
-        
-        SESSION_WILL_CREATED = SESSION_EVENT_BEGIN,   // 会话创建
-                                                      /* 会话创建
-                                                      * Attention: 用于会话管理创建相关会话信息
-                                                      * @param(SESSION_ID):UInt64 会话id
-                                                      * @param(LOCAL_ADDR):BriefSockAddr Ptr 本地地址
-                                                      * @param(REMOTE_ADDR):BriefSockAddr Ptr 远端地址
-                                                      * @param(PROTOCOL_TYPE):Int32 协议类型（udp/tcp/quic等）ProtocolType
-                                                      * @param(SESSION_TYPE):Int32 会话类型SessionType
-                                                      * @param(PRIORITY_LEVEL):UInt32 优先级等级 用于选择消息队列
-                                                      * @param(SESSION_POLLER_ID):UInt64 pollerId
-                                                      * @param(SERVICE_ID):UInt64 serviceId
-                                                      * @param(STUB):UInt64 stub 存根
-                                                      * @param(IS_FROM_CONNECT):bool 是否来自connect连接
-                                                      * @param(IS_LINKER):bool 是否来自listen连入
-                                                      */
-
-        SESSION_CREATED,        // 会话创建
-                                /* 会话创建
-                                * Attention: 一般的组件监听这个
-                                * @param(SESSION_ID):UInt64 会话id
-                                * @param(LOCAL_ADDR):BriefSockAddr Ptr 本地地址
-                                * @param(REMOTE_ADDR):BriefSockAddr Ptr 远端地址
-                                * @param(PROTOCOL_TYPE):Int32 协议类型（udp/tcp/quic等）ProtocolType
-                                * @param(SESSION_TYPE):Int32 会话类型SessionType
-                                * @param(PRIORITY_LEVEL):UInt32 优先级等级 用于选择消息队列
-                                * @param(SESSION_POLLER_ID):UInt64 pollerId
-                                * @param(SERVICE_ID):UInt64 serviceId
-                                * @param(STUB):UInt64 stub 存根
-                                * @param(IS_FROM_CONNECT):bool 是否来自connect连接
-                                * @param(IS_LINKER):bool 是否来自listen连入
-                                */
-
-        SESSION_WILL_DESTROY,   // 会话销毁
-                                /* 会话销毁
-                                * Attention: 一般的组件监听这个
-                                * @param(SESSION_ID):UInt64 会话id
-                                * @param(SESSION_CLOSE_REASON):Int32 关闭原因
-                                * @param(SERVICE_ID):UInt64 serviceId
-                                * @param(PRIORITY_LEVEL):UInt32 优先级等级 用于选择消息队列
-                                * @param(STUB):UInt64 stub 存根
-                                */
-
-        SESSION_DESTROY,        // 会话销毁 
-                                /* 会话销毁
-                                * Attention: 用于会话管理销毁会话
-                                * @param(SESSION_ID):UInt64 会话id
-                                * @param(SESSION_CLOSE_REASON):Int32 关闭原因
-                                * @param(SERVICE_ID):UInt64 serviceId
-                                * @param(PRIORITY_LEVEL):UInt32 优先级等级 用于选择消息队列
-                                * @param(STUB):UInt64 stub 存根
-                                */
-
-        ADD_LISTEN_RES,         //  添加监听回调事件  晚于 SESSION_CREATED事件
-                                /* 添加监听回调事件
-                                * Attention: 
-                                * @param(ERROR_CODE):Int32 错误码
-                                * @param(LOCAL_ADDR):BriefSockAddr Ptr 本地地址
-                                * @param(FAMILY):UInt16 AF
-                                * @param(SERVICE_ID):UInt64 serviceId
-                                * @param(STUB):UInt64 stub 存根
-                                * @param(PRIORITY_LEVEL):UInt32 优先级等级 用于选择消息队列
-                                * @param(PROTOCOL_TYPE):Int32 协议类型（udp/tcp/quic等）ProtocolType
-                                * @param(SESSION_ID):UInt64 会话id
-                                */
-
-        ASYN_CONNECT_RES,       //  连接回调事件 晚于 SESSION_CREATED事件
-                                /* 连接回调事件
-                                * Attention: 
-                                * @param(ERROR_CODE):Int32 错误码
-                                * @param(LOCAL_ADDR):BriefSockAddr Ptr 本地地址
-                                * @param(REMOTE_ADDR):BriefSockAddr Ptr 远程地址
-                                * @param(FAMILY):UInt16 AF
-                                * @param(PROTOCOL_TYPE):Int32 协议类型（udp/tcp/quic等）ProtocolType
-                                * @param(PRIORITY_LEVEL):UInt32 优先级等级 用于选择消息队列
-                                * @param(SESSION_POLLER_ID):UInt64 pollerId
-                                * @param(SERVICE_ID):UInt64 serviceId
-                                * @param(STUB):UInt64 stub 存根
-                                * @param(SESSION_ID):UInt64 会话id
-                                */
-        SESSION_EVENT_END = 100, // 会话事件枚举结束
-
-        SERVICE_EVENT_BEGIN = 101,
+        SERVICE_EVENT_BEGIN = BEGIN + 1,
         QUIT_SERVICE_EVENT = SERVICE_EVENT_BEGIN,   //  退出服务事件 
                                                     /* 退出服务事件
                                                     * Attention: 
@@ -143,6 +61,6 @@ namespace EventEnums
                                         */
         SERVICE_EVENT_END = 200,
         
-        EVENT_COMMON_END = 65536,       // 公共事件集结束
+        EVENT_COMMON_END = EventEnums::KERNEL_EVENT_END + 65536,       // 公共事件集结束
     };
 };
